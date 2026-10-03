@@ -64,7 +64,7 @@ package.json  package-lock.json  tsconfig.json  biome.json  .gitattributes   엔
 apps/web/                 클라이언트 — 화면(React + Vite), PWA, 온라인 기능  (#17에서 생성)
 infra/                    클라이언트 — 리더보드 백엔드 설정(테이블·보안 규칙·함수)
 packages/schema/          엔진 — 데이터 타입·검증기(Zod)
-  src/                      effects · species · events · load(GameData)
+  src/                      effects · species · events · fact(값 단위 출처) · load(GameData)
   src/cli/validate-data.ts  npm run validate:data
 packages/engine/          엔진 — 게임 규칙(순수·결정론). 의존성은 @wb/schema 하나
   src/api.ts                newRun · getChoices · preview · act · getView · serialize · deserialize

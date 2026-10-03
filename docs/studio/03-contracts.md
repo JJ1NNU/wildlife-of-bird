@@ -157,30 +157,38 @@ runOne(config: RunConfig, data: GameData, bot: Bot, maxSteps: number): RunResult
 
 ### 4.1 종: 생태 사실(content)과 밸런스(design)의 분리
 
-`data/species/parus-minor.ecology.json` — content · 스키마 `SpeciesEcology`
+`data/species/parus-minor.ecology.json` — content · 스키마 `SpeciesEcology` (줄임 — 전체는 실제 파일)
 ```json
 {
   "id": "parus-minor",
   "nameKo": "박새",
   "scientificName": "Parus minor",
-  "residency": "resident",
-  "habitats": ["forest", "woodland-edge"],
+  "residency": { "value": "resident", "sources": ["SRC-004"], "factCheck": "needs-review" },
+  "habitats": { "values": ["forest", "woodland-edge"], "sources": ["SRC-004"], "factCheck": "needs-review" },
   "breeding": {
-    "season": { "fromPeriod": 7, "toPeriod": 14 },
-    "clutchSize": { "min": 4, "max": 13, "typicalMin": 7, "typicalMax": 10 },
-    "broodsPerYearMax": 2,
-    "incubationBy": "female",
-    "nestType": "cavity"
+    "season": { "fromPeriod": 7, "toPeriod": 14, "sources": ["SRC-004"], "factCheck": "needs-review" },
+    "clutchSize": { "typicalMin": 7, "typicalMax": 10, "max": 18, "sources": ["SRC-004"], "factCheck": "needs-review",
+                    "note": "최소값은 출처에 없어 비웠다" },
+    "incubationDays": { "min": 12, "max": 13, "sources": ["SRC-004"], "factCheck": "needs-review" },
+    "incubationBy": { "value": "female", "sources": ["SRC-001"], "factCheck": "verified" },
+    "...": "layStart · layStartDriver · broodsPerYearMax · nestlingDays · nestType"
   },
-  "sources": ["SRC-004"],
-  "factCheck": "verified"
+  "diet": { "primary": { "values": ["insects", "spiders"], "sources": ["SRC-004"], "factCheck": "needs-review" }, "...": "secondary · nestlingFood" },
+  "lifespan": { "sources": [], "factCheck": "needs-review", "note": "출처를 찾지 못해 값을 비웠다. 찾아볼 곳: ..." },
+  "alarmCalls": { "values": [ { "id": "jar", "predatorType": "snake", "...": "...", "sources": ["SRC-001"], "factCheck": "verified" } ] },
+  "sources": ["SRC-001", "SRC-004", "SRC-005"],
+  "factCheck": "needs-review"
 }
 ```
+- **사실마다 출처를 붙인다** (#56 결정 — 한 파일 안에서도 사실마다 출처 등급이 다르다). 사실 하나 = 값 + `sources` · `factCheck`(`verified` | `needs-review`) · `note?`. 값의 모양은 셋 중 하나: 하나의 값 `value` / 목록 `values` / 여러 필드(`min`·`max` 등)를 그대로. 스키마 `fact()`.
+- `verified`인 사실은 출처가 1개 이상 있어야 한다.
+- 값을 아직 못 찾은 사실은 값 없이 `needs-review`와 `note`(찾아볼 곳)만 둔다 — 지금은 `lifespan`. 스키마 `UnresolvedFact`.
+- 맨 위의 `sources`는 파일이 쓰는 출처 전체, `factCheck`는 파일 요약. 출시 판정(QA 체크리스트)은 사실마다 붙은 `factCheck`로 센다.
 - `id`: 학명을 소문자-하이픈으로. 파일 이름과 같게 쓴다.
 - `residency`: `resident` | `summer` | `winter` | `passage` (텃새·여름 철새·겨울 철새·나그네새). 잠정(#46)
-- `breeding.clutchSize`: `min ≤ typicalMin ≤ typicalMax ≤ max`를 검증한다.
+- `breeding.clutchSize`: `min`(선택) `≤ typicalMin ≤ typicalMax ≤ max`, `incubationDays`·`nestlingDays`: `min ≤ max`를 검증한다.
 - `breeding.incubationBy`: `female` | `male` | `both`
-- `sources`: 1개 이상 필수.
+- 필드 이름과 의미는 content가 정한다. 필드를 더하면 8장 절차로 스키마를 같은 PR에서 고친다(`review:engine`).
 
 `data/balance/species/parus-minor.json` — design · 스키마 `SpeciesBalance`
 ```json
