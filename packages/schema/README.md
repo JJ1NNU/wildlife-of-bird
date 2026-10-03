@@ -44,8 +44,9 @@ data/species/parus-minor.ecology.json
 | `data/balance/effects.json` | design | `EffectsTable` |
 | `data/balance/formulas.json` | design | `Formulas` |
 | `data/events/<이름>.json` | content (design 리뷰) | `GameEvent[]` |
+| `data/calendar/<id>.json` | design | `Calendar` |
 
-`data/nodes/` `data/predators/` `data/codex/` `data/calendar/` `data/titles/` `data/text/`는
+`data/nodes/` `data/predators/` `data/codex/` `data/titles/` `data/text/`는
 형식이 아직 예시 수준이다. 소유 부서가 첫 파일을 올릴 때 엔진이 함께 스키마를 추가한다
 (미리 만들지 않는다 — 01-collaboration 15장).
 
