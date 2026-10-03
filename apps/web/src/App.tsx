@@ -5,7 +5,7 @@ import { fileCount, loaded } from './data.ts';
 /**
  * M0 배포 경로 확인용 화면 하나(#17). 실제 게임 화면은 M1(#24)에 만든다.
  * 데이터 묶음이 만들어지면 엔진 newRun → getView 결과를 그린다.
- * 잠정(#17): 효과 등급표(data/balance/effects.json, 디자인 #48)가 main에 오기 전에는 묶음이 없어 안내만 한다.
+ * 효과 등급표·공식 계수(data/balance/effects.json · formulas.json)가 없으면 묶음이 없어 안내만 한다.
  * 개발 확인용 화면이라 문구를 data/text/로 옮기지 않았다 — M1 화면부터 옮긴다.
  */
 export function App() {
@@ -28,7 +28,7 @@ export function App() {
             ? '검증 통과'
             : issues.length > 0
               ? `검증 문제 ${issues.length}건`
-              : '효과 등급표가 아직 없어 게임 데이터를 묶지 못함'}
+              : '효과 등급표·공식 계수가 아직 없어 게임 데이터를 묶지 못함'}
         </p>
         {issues.length > 0 && (
           <ul className="issues">

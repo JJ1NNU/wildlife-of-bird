@@ -10,12 +10,17 @@ function files(modules: Record<string, unknown>): RawFile[] {
     .map(([path, json]) => ({ file: path.replace(/^(\.\.\/)+/, ''), json }));
 }
 
-const effects = files(
-  import.meta.glob('../../../data/balance/*effects.json', { eager: true, import: 'default' }),
-)[0];
+const one = (modules: Record<string, unknown>) => files(modules)[0];
+const effects = one(
+  import.meta.glob('../../../data/balance/effects.json', { eager: true, import: 'default' }),
+);
+const formulas = one(
+  import.meta.glob('../../../data/balance/formulas.json', { eager: true, import: 'default' }),
+);
 
 const raw: RawGameData = {
   ...(effects ? { effects } : {}),
+  ...(formulas ? { formulas } : {}),
   ecology: files(
     import.meta.glob('../../../data/species/*.ecology.json', { eager: true, import: 'default' }),
   ),
