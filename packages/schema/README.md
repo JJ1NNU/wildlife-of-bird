@@ -20,6 +20,21 @@ data/species/parus-minor.ecology.json
   이유: clutchSize.typicalMin은 typicalMax보다 클 수 없다
 ```
 
+## 생태 사실은 값마다 출처를 붙인다 (#56 결정)
+
+한 종 파일 안에서도 사실마다 출처 등급이 다르므로(포란 담당은 확인, 포란 기간은 미확인)
+`sources` · `factCheck` · `note`를 **값 단위**로 붙인다. 값의 모양은 셋 중 하나다.
+
+```json
+"incubationBy":   { "value": "female",            "sources": ["SRC-001"], "factCheck": "verified" },
+"habitats":       { "values": ["forest"],          "sources": ["SRC-004"], "factCheck": "needs-review" },
+"incubationDays": { "min": 12, "max": 13,          "sources": ["SRC-004"], "factCheck": "needs-review", "note": "..." }
+```
+
+- `verified`이면 출처가 1개 이상 필요하다.
+- 값을 아직 못 찾은 사실은 값 없이 `{ "sources": [], "factCheck": "needs-review", "note": "찾아볼 곳" }` (지금은 `lifespan`).
+- 스키마 코드: `src/fact.ts`의 `fact()` · `UnresolvedFact`.
+
 ## 지금 담은 형식 (M0 · v0)
 
 | 파일 | 소유 | 스키마 |
