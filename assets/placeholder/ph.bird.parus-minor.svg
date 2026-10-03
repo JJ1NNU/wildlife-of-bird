@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="박새 자리표시">
+  <!-- 자리표시 실루엣. 옆모습·왼쪽 향함, 몸길이 = 캔버스의 0.35(style-guide 2장), 발끝 = 위에서 92%. 잠정(#11) -->
+  <g fill="#7a8894">
+    <circle cx="79" cy="140" r="10"/>
+    <path d="M64 141 L71 137.5 L71 144 Z"/>
+    <ellipse cx="97" cy="152" rx="20" ry="13.5" transform="rotate(18 97 152)"/>
+    <path d="M110 152 L135 162 L133 166 L108 160 Z"/>
+  </g>
+  <g stroke="#7a8894" stroke-width="2" stroke-linecap="round">
+    <path d="M94 164 L93 184 M101 165 L102 184"/>
+  </g>
+</svg>

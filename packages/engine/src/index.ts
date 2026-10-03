@@ -6,5 +6,6 @@
  */
 export * from './api.ts';
 export * from './calendar.ts';
+export * from './display.ts';
 export * from './rng.ts';
 export * from './types.ts';
