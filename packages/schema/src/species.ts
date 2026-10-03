@@ -58,7 +58,7 @@ export const SpeciesEcology = z
     id: SpeciesId,
     nameKo: z.string().min(1),
     scientificName: z.string().min(1),
-    /** 텃새 · 여름 철새 · 겨울 철새 · 나그네새. 값 목록은 content 확인 대기 — 잠정(#46) */
+    /** 텃새 · 여름 철새 · 겨울 철새 · 나그네새 (content 확인, #46) */
     residency: fact({ value: z.enum(['resident', 'summer', 'winter', 'passage']) }),
     habitats: textList,
     breeding: z

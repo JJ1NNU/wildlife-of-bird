@@ -185,7 +185,7 @@ runOne(config: RunConfig, data: GameData, bot: Bot, maxSteps: number): RunResult
 - 값을 아직 못 찾은 사실은 값 없이 `needs-review`와 `note`(찾아볼 곳)만 둔다 — 지금은 `lifespan`. 스키마 `UnresolvedFact`.
 - 맨 위의 `sources`는 파일이 쓰는 출처 전체, `factCheck`는 파일 요약. 출시 판정(QA 체크리스트)은 사실마다 붙은 `factCheck`로 센다.
 - `id`: 학명을 소문자-하이픈으로. 파일 이름과 같게 쓴다.
-- `residency`: `resident` | `summer` | `winter` | `passage` (텃새·여름 철새·겨울 철새·나그네새). 잠정(#46)
+- `residency`: `resident` | `summer` | `winter` | `passage` (텃새·여름 철새·겨울 철새·나그네새). (content 확인, #46)
 - `breeding.clutchSize`: `min`(선택) `≤ typicalMin ≤ typicalMax ≤ max`, `incubationDays`·`nestlingDays`: `min ≤ max`를 검증한다.
 - `breeding.incubationBy`: `female` | `male` | `both`
 - 필드 이름과 의미는 content가 정한다. 필드를 더하면 8장 절차로 스키마를 같은 PR에서 고친다(`review:engine`).
@@ -258,7 +258,7 @@ runOne(config: RunConfig, data: GameData, bot: Bot, maxSteps: number): RunResult
     { "id": "stay-away", "text": "몸을 낮추고 멀리서 지켜본다", "effects": [{ "type": "broodRisk", "tier": "high" }] }
   ],
   "ecologyBasis": "박새는 뱀에게 다른 포식자와 구별되는 경보음을 내며, 이를 들은 새끼는 둥지 구멍 밖으로 빠져나간다.",
-  "sources": ["SRC-001"],
+  "sources": ["SRC-001", "SRC-023"],
   "factCheck": "verified"
 }
 ```
