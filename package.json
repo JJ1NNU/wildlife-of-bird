@@ -16,6 +16,7 @@
     "format": "biome check --write .",
     "test": "vitest run",
     "validate:data": "node packages/schema/src/cli/validate-data.ts",
+    "sim": "node packages/sim/src/cli/run-sim.ts",
     "check": "npm run typecheck && npm run lint && npm run test && npm run validate:data"
   },
   "devDependencies": {
