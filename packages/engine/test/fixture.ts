@@ -1,4 +1,4 @@
-import type { GameData, SpeciesEcology } from '@wb/schema';
+import type { Formulas, GameData, SpeciesEcology } from '@wb/schema';
 import { EffectsTable, SpeciesEcology as SpeciesEcologySchema } from '@wb/schema';
 
 /**
@@ -51,9 +51,18 @@ export const testData: GameData = {
     feather: { small: 5, medium: 10, large: 20 },
     deathRisk: { low: 0.01, medium: 0.03, high: 0.08 },
     broodRisk: { low: 0.1, medium: 0.3, high: 0.6 },
+    chickLoss: { small: 0.15, medium: 0.3, large: 0.5 },
     statGain: { small: 1, medium: 3, large: 6 },
+    bond: { small: 3, medium: 8, large: 15 },
+    injury: { small: 2, medium: 3, large: 4 },
+    riskMod: { low: 0.2, medium: 0.5, high: 1.0 },
+    foodMod: { small: 0.15, medium: 0.3, large: 0.5 },
     eventWeight: { common: 10, uncommon: 4, rare: 1 },
+    checkDifficulty: { low: 30, medium: 50, high: 70 },
   }),
+  // M0 엔진은 공식 계수를 읽지 않는다. M1(#21)에서 규칙을 구현할 때 이 고정 데이터를
+  // 실제 `data/`(design의 formulas.json)로 바꾼다.
+  formulas: {} as Formulas,
   ecology: new Map([[ecology.id, ecology]]),
   balance: new Map(),
   events: [],

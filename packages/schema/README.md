@@ -35,13 +35,14 @@ data/species/parus-minor.ecology.json
 - 값을 아직 못 찾은 사실은 값 없이 `{ "sources": [], "factCheck": "needs-review", "note": "찾아볼 곳" }` (지금은 `lifespan`).
 - 스키마 코드: `src/fact.ts`의 `fact()` · `UnresolvedFact`.
 
-## 지금 담은 형식 (M0 · v0)
+## 지금 담은 형식 (M0 — #54 개정)
 
 | 파일 | 소유 | 스키마 |
 |---|---|---|
 | `data/species/<id>.ecology.json` | content | `SpeciesEcology` |
 | `data/balance/species/<id>.json` | design | `SpeciesBalance` |
 | `data/balance/effects.json` | design | `EffectsTable` |
+| `data/balance/formulas.json` | design | `Formulas` |
 | `data/events/<이름>.json` | content (design 리뷰) | `GameEvent[]` |
 
 `data/nodes/` `data/predators/` `data/codex/` `data/calendar/` `data/titles/` `data/text/`는
