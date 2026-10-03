@@ -1,6 +1,6 @@
 # 03 · 이벤트 틀
 
-- 버전: v0 (2026-10-03, #7)
+- 버전: v0.1 (2026-10-04, #7 · #73 `phaseLastStep`)
 - 소유: 게임디자인(틀·효과·등급) / 이벤트 글·생태 근거: 생태·콘텐츠 / 해석기: 엔진
 - 기준: 기획서 `gdd.md` 3장 원칙 5, 4.3, 6.2, 7.2 / `03-contracts.md` 4.2·4.3 / 스키마 v0(`packages/schema/src/events.ts`, PR #41)
 - 숫자: `data/balance/effects.json`(효과 등급표), `data/balance/formulas.json`의 `events.*`(추첨·판정 계수) — PR #48
@@ -81,6 +81,7 @@ u < events.envChancePerPeriod 이면, draw가 "periodStart"인 후보 중에서 
 | 필드 | 형식 | 참이 되는 때 | 예 |
 |---|---|---|---|
 | `phaseAny` | 국면 이름 배열 | 지금 국면이 배열에 있다 (`00-core-loop` 2.2) | `["nestling"]` |
+| `phaseLastStep` | 불 | 지금 단계가 그 국면이 이어지는 **마지막 단계**다 / 아니다 (`00-core-loop` 4.7, #73) | 육추 후기: `true` |
 | `habitatAny` | 서식지 태그 배열 | 지금 장소의 서식지 태그 중 하나가 배열에 있다(`data/nodes/`) | `["forest"]` |
 | `periodFrom` `periodTo` | 1~24 | `periodFrom ≤ 지금 시기 ≤ periodTo`. **from > to면 해를 넘긴다** | `23`~`4` = 23·24·1·2·3·4 |
 | `sex` | `"female"` `"male"` | 조작 개체의 성별 | 박새 포란 중 암컷 |
@@ -165,7 +166,7 @@ u < 성공 확률 → onSuccess, 아니면 onFail
 | `chickLoss` | `tier` | small·medium·large | 살아 있는 새끼 수 × 값을 **올림**한 만큼 사망(1마리 이상). 전부 죽으면 전멸 | 새끼 |
 | `riskMod` | `tier` | low·medium·high | **그 시기가 끝날 때까지** 위험에 `× (1 + 값)`. 여러 개면 곱한다 | 조작 개체 |
 | `foodMod` | `tier` `sign` | small·medium·large | **그 시기가 끝날 때까지** 섭취에 `× (1 + 값)`(gain) 또는 `× (1 − 값)`(loss). 여러 개면 곱한다 | 조작 개체의 섭취 |
-| `fledgeEarly` | — | — | `nestling` 국면을 지금 끝내고 다음 단계부터 `postFledge`. 은수저 지수는 지금까지의 평균으로 확정 | 새끼 |
+| `fledgeEarly` | — | — | 새끼가 **지금** 둥지를 떠난다(이소). 은수저 지수는 지금까지(이 단계 포함)의 평균으로 확정하고, 다음 단계부터 `postFledge`. 육추의 마지막 단계에서만 쓸 수 있어(6.2) 국면 길이는 바뀌지 않는다 — 이 효과의 무게는 "둥지 전체를 걸지 않고 새끼 일부만 잃는 탈출"(7.2)에 있다 | 새끼 |
 
 - `sign`이 있는 효과는 **`sign`이 필수**다(#37 결정 A).
 - `deathRisk.cause`는 **필수**이고 `cold` `accident` `disease` `predation` 중 하나다(`00-core-loop` 8장). `predation`이면 `predator`(`data/predators/`의 id)를 적을 수 있고, 로그에는 `predation:<predator>`로 남는다.
@@ -188,7 +189,7 @@ u < 성공 확률 → onSuccess, 아니면 onFail
 |---|---|
 | `bond` | `hasMate: true` |
 | `broodRisk` `chickLoss` | `hasBrood: true` |
-| `fledgeEarly` | `phaseAny`가 `["nestling"]`뿐 |
+| `fledgeEarly` | `phaseAny`가 `["nestling"]`뿐 **그리고** `phaseLastStep: true` (#73) |
 | `statGain`, 선택지 `check.stat` | 이벤트의 모든 `species`에 그 스탯이 있다(종 밸런스 파일의 `aptitude`) |
 | 선택지 수 | `draw: "step"`이면 2~3개, `draw: "periodStart"`면 1~3개 |
 
@@ -216,7 +217,7 @@ u < 성공 확률 → onSuccess, 아니면 onFail
 {
   "id": "ev.parus-minor.snake-at-nest",
   "species": ["parus-minor"],
-  "when": { "phaseAny": ["nestling"], "habitatAny": ["forest"], "hasBrood": true, "hasMate": true },
+  "when": { "phaseAny": ["nestling"], "phaseLastStep": true, "habitatAny": ["forest"], "hasBrood": true, "hasMate": true },
   "weight": "uncommon",
   "title": "둥지 아래의 소리",
   "body": "둥지 구멍 아래 나무껍질을 무언가 천천히 긁으며 올라온다. 짝이 날카로운 경보음을 연달아 낸다.",
@@ -308,6 +309,7 @@ u < 성공 확률 → onSuccess, 아니면 onFail
 | 5 | 효과 성립 조건의 검증 | 6.2 |
 | 6 | 추첨 순서와 난수 소비 순서 고정 | 3장 |
 | 7 | `EffectsTable`에 `chickLoss` `bond` `injury` `riskMod` `foodMod` `checkDifficulty` 추가 | PR #48 |
+| 8 | `when.phaseLastStep` 추가, `fledgeEarly` 성립 조건에 포함 (#73) | 4장 · 6.2 |
 
 ## 10. 남은 것
 
