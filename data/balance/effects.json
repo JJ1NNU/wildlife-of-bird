@@ -1,0 +1,62 @@
+{
+  "energy": {
+    "small": 5,
+    "medium": 12,
+    "large": 25
+  },
+  "feather": {
+    "small": 5,
+    "medium": 10,
+    "large": 20
+  },
+  "deathRisk": {
+    "low": 0.01,
+    "medium": 0.03,
+    "high": 0.08
+  },
+  "broodRisk": {
+    "low": 0.1,
+    "medium": 0.3,
+    "high": 0.6
+  },
+  "chickLoss": {
+    "small": 0.15,
+    "medium": 0.3,
+    "large": 0.5
+  },
+  "statGain": {
+    "small": 1,
+    "medium": 3,
+    "large": 6
+  },
+  "bond": {
+    "small": 3,
+    "medium": 8,
+    "large": 15
+  },
+  "injury": {
+    "small": 2,
+    "medium": 3,
+    "large": 4
+  },
+  "riskMod": {
+    "low": 0.2,
+    "medium": 0.5,
+    "high": 1.0
+  },
+  "foodMod": {
+    "small": 0.15,
+    "medium": 0.3,
+    "large": 0.5
+  },
+  "eventWeight": {
+    "common": 10,
+    "uncommon": 4,
+    "rare": 1
+  },
+  "checkDifficulty": {
+    "low": 30,
+    "medium": 50,
+    "high": 70
+  }
+}
