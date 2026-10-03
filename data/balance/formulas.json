@@ -1,6 +1,4 @@
 {
-  "version": 0,
-  "spec": "docs/design/specs/01-formulas.md",
   "stats": {
     "min": 0,
     "max": 100,
@@ -257,5 +255,8 @@
       "low": 0.005,
       "high": 0.015
     }
+  },
+  "events": {
+    "chancePerStep": 0.2
   }
 }

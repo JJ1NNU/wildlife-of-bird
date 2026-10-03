@@ -1,6 +1,5 @@
 {
   "speciesId": "parus-minor",
-  "spec": "docs/design/specs/01-formulas.md",
   "targets": {
     "avgRunYears": 4.5,
     "expectedTotalBreeding": 4.0,
