@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="꼬마물떼새 자리표시">
+  <!-- 자리표시 실루엣. 옆모습·왼쪽 향함, 몸길이 = 캔버스의 0.40(style-guide 2장), 발끝 = 위에서 92%. 잠정(#11) -->
+  <g fill="#7a8894">
+    <circle cx="74" cy="134" r="10"/>
+    <path d="M60 134 L66 131.5 L66 136.5 Z"/>
+    <ellipse cx="101" cy="146" rx="28" ry="14"/>
+    <path d="M124 139 L140 143 L124 151 Z"/>
+  </g>
+  <g stroke="#7a8894" stroke-width="2.5" stroke-linecap="round">
+    <path d="M97 158 L95 184 M106 158 L109 184"/>
+  </g>
+</svg>
