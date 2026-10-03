@@ -84,16 +84,19 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   };
 }
 
-/** 화면이 그대로 그리는 형태. 부족하면 클라이언트가 이슈로 요청한다. */
+/**
+ * 화면이 그대로 그리는 형태. 부족하면 클라이언트가 이슈로 요청한다.
+ * 복사본을 돌려준다 — 화면·봇이 고쳐도 `RunState`가 바뀌지 않게(결정론, #33).
+ */
 export function getView(state: RunState, _data: GameData): ViewModel {
-  return {
+  return structuredClone({
     at: state.at,
     speciesId: state.config.speciesId,
     player: state.player,
     totalBreeding: state.totalBreeding,
     gameOver: state.gameOver,
     recentLog: state.log.slice(-20),
-  };
+  });
 }
 
 /** 저장 문자열. 버전을 함께 적는다 (03-contracts 6장). */

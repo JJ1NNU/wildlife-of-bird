@@ -17,14 +17,30 @@ export type WeightTier = z.infer<typeof WeightTier>;
 
 const amount = z.number().finite();
 
+/**
+ * 등급 → 숫자. 각 효과의 의미는 `docs/design/specs/03-events.md` 6장 (#54 결정).
+ * 표의 모든 등급이 있어야 한다.
+ */
 export const EffectsTable = z
   .object({
     energy: z.record(Tier, amount),
     feather: z.record(Tier, amount),
     deathRisk: z.record(RiskTier, amount),
     broodRisk: z.record(RiskTier, amount),
+    /** 새끼 일부 사망 비율 */
+    chickLoss: z.record(Tier, amount),
     statGain: z.record(Tier, amount),
+    /** 짝 유대 변화 */
+    bond: z.record(Tier, amount),
+    /** 부상 단계 수 */
+    injury: z.record(Tier, z.number().int().positive()),
+    /** 그 시기 동안 위험 보정 × (1 + 값) */
+    riskMod: z.record(RiskTier, amount),
+    /** 그 시기 동안 섭취 보정 × (1 ± 값) */
+    foodMod: z.record(Tier, amount),
     eventWeight: z.record(WeightTier, amount),
+    /** 판정형 선택지의 난이도(비교할 스탯 값) */
+    checkDifficulty: z.record(RiskTier, amount),
   })
   .strict();
 export type EffectsTable = z.infer<typeof EffectsTable>;

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import type { DataIssue, RawFile, RawGameData } from '../load.ts';
@@ -45,12 +45,18 @@ export async function readDataDir(): Promise<{ raw: RawGameData; issues: DataIss
   const read = (files: string[]) =>
     files.map((f) => readJson(f, issues)).filter((f): f is RawFile => f !== undefined);
 
-  const effectsPath = (await listFiles('data/balance', 'effects.json'))[0];
-  const effects = effectsPath ? readJson(effectsPath, issues) : undefined;
+  /** 파일 하나짜리 묶음. 아직 없으면 undefined */
+  const readOne = (relative: string) => {
+    const absolute = path.join(repoRoot, relative);
+    return existsSync(absolute) ? readJson(absolute, issues) : undefined;
+  };
+  const effects = readOne('data/balance/effects.json');
+  const formulas = readOne('data/balance/formulas.json');
 
   return {
     raw: {
       ...(effects ? { effects } : {}),
+      ...(formulas ? { formulas } : {}),
       ecology: read(await listFiles('data/species', '.ecology.json')),
       balance: read(await listFiles('data/balance/species', '.json')),
       events: read(await listFiles('data/events', '.json')),
