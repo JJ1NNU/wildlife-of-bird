@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="두루미 자리표시">
+  <!-- 자리표시 실루엣. 옆모습·왼쪽 향함, 몸길이 = 캔버스의 0.92(style-guide 2장), 발끝 = 위에서 92%. 잠정(#11) -->
+  <g fill="#7a8894">
+    <path d="M34 22 L8 28 L34 28 Z"/>
+    <circle cx="40" cy="24" r="8"/>
+    <path d="M36 28 C40 50 50 70 84 88 L92 76 C64 62 52 44 46 24 Z"/>
+    <ellipse cx="116" cy="96" rx="44" ry="21" transform="rotate(10 116 96)"/>
+    <path d="M144 84 C164 86 182 96 192 110 C176 108 160 110 148 112 Z"/>
+  </g>
+  <g stroke="#7a8894" stroke-width="3" stroke-linecap="round">
+    <path d="M110 114 L106 184 M124 116 L130 184"/>
+  </g>
+</svg>

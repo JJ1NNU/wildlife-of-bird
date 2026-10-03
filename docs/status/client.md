@@ -2,25 +2,25 @@
 
 > 이 파일은 클라이언트·배포 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-03 (라운드 2)
+- 마지막 근무: 2026-10-04 (라운드 3)
 - 현재 마일스톤: M0 착수
 
 ## 진행 중
-- **PR #63** 웹 골격·PWA·deploy.yml + 엔진 `newRun → getView` 호출 (Closes #17) — main 위로 rebase, 충돌 해소, CI ✅ Deploy ✅. **`review:engine` 대기**(의존성·lock·biome.json)
-- **#76**(PM): 대표 폰 주소 등록 요청 — 지금 https://client-17-web-skeleton.wildlife-of-bird.pages.dev , #63 머지 후 https://main.wildlife-of-bird.pages.dev
+- **PR #63** (Closes #17) — 엔진 수정 요청(`formulas.json` 로드) 반영 `50bfa14`, 최신 main 위로 rebase. CI ✅ Deploy ✅. 미리보기에서 엔진 ViewModel이 실제로 표시됨. **`review:engine` 재확인 대기**
+- **#79** 토큰·자리표시 적용 — 글꼴 결정 댓글 남김(Pretendard subset 400·700 자체 호스팅, swap). 구현은 #78 · #63 머지 뒤
 
 ## 최근 완료
-- #60 닫음 — 비밀값으로 Cloudflare Pages 실제 배포 성공
-- #44 닫음 — 머지 후 리뷰 완료. "CI에 웹 빌드" 요청은 철회(deploy.yml이 PR·main마다 웹 빌드)
-- #16 ADR-002 (라운드 1, #61)
+- #63 엔진 수정 요청 반영 (라운드 3)
+- #60 #44 닫음, #76(PM)에 대표 폰 주소 전달 — 대표 폰 확인 ✅ (라운드 2)
 
 ## 막힘 (무엇을 · 누구를 기다리는지)
-- #63 머지: 엔진 리뷰
-- 화면에 ViewModel이 실제로 나오려면 GameData가 필요 → 효과 등급표 `data/balance/effects.json`(디자인 #48, 엔진 #65 뒤). 그 전엔 안내 문구
+- #63 머지: 엔진 재확인
+- #79 구현: 아트 PR #78 머지(리뷰 라벨은 없음, 머지 대기) + #63
+- #24: 엔진 M1 #21 · #63
 
 ## 다음 근무에서 할 일
-1. #63 승인되면: `gh pr update-branch 63` → CI 확인 → 스쿼시 머지 → main 배포 확인(`main.wildlife-of-bird.pages.dev`) → #76에 "고정 주소 동작" 댓글
-2. #48 머지 후: 배포 화면에 ViewModel JSON이 나오는지 확인 (안 나오면 원인 찾기)
+1. #63 승인되면: `gh pr update-branch 63` → CI 확인 → 스쿼시 머지 → `main.wildlife-of-bird.pages.dev` 동작 확인 → #76에 "고정 주소 동작" 댓글, #17 닫힘 확인
+2. #78 머지됐으면 #79 PR(토큰 CSS, 자리표시 SVG, 글꼴 subset + OFL.txt, `review:art`)
 3. M1 #24
 
 ## 메모 (다음 근무의 나에게)
@@ -30,4 +30,7 @@
 - 화면 타입체크는 `npm run build -w @wb/web` 안의 `tsc -p .`(루트 `tsc`는 packages만). CI는 안 돌리고 deploy.yml이 돌린다
 - Windows 체크아웃에서는 CRLF 때문에 `npm run lint`가 `version.json` 등을 잡는다 — CI(리눅스)에서는 문제 없음. 로컬은 `npx biome check apps`
 - `loadGameData`는 effects가 없으면 `data` 없이 이슈 0건을 돌려준다
-- 첫 화면 예산: JS+CSS gzip 200KB (지금 100.3KB)
+- 첫 화면 예산: JS+CSS gzip 200KB (지금 104.8KB)
+- Python으로 파일을 쓰면 Windows에서 CRLF가 된다 — `sed -i 's/$//'`로 되돌리거나 `newline='
+'`
+- 로컬 확인: `npm run build -w @wb/web` 후 `npm run preview -w @wb/web -- --port 4173`
