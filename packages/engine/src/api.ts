@@ -58,10 +58,17 @@ export function getChoices(state: RunState, _data: GameData): Choice[] {
   ];
 }
 
-/** 선택의 예상 결과. 난수를 쓰지 않으므로 몇 번 불러도 같은 값이다 (엔진 원칙 2). */
-export function preview(state: RunState, choiceId: string, data: GameData): Preview {
+/** 고를 수 있는 선택을 찾는다. 목록에 없거나 `disabled`면 던진다 (03-contracts 3장, #47) */
+function findChoice(state: RunState, choiceId: string, data: GameData): Choice {
   const choice = getChoices(state, data).find((c) => c.id === choiceId);
   if (!choice) throw new Error(`지금 고를 수 없는 선택이다: ${choiceId}`);
+  if (choice.disabled) throw new Error(`막힌 선택이다: ${choiceId} — ${choice.disabled.reason}`);
+  return choice;
+}
+
+/** 선택의 예상 결과. 난수를 쓰지 않으므로 몇 번 불러도 같은 값이다 (엔진 원칙 2). */
+export function preview(state: RunState, choiceId: string, data: GameData): Preview {
+  findChoice(state, choiceId, data);
   // 잠정(#6): 공식은 디자인의 위험·에너지 명세를 기다린다.
   return { deathRisk: 0, energyDelta: [0, 0], notes: [] };
 }
@@ -69,8 +76,7 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
 /** 선택을 실행하고 한 단계 진행한다. 모든 판정은 `LogEntry`를 남긴다 (엔진 원칙 5). */
 export function act(state: RunState, choiceId: string, data: GameData): ActResult {
   if (state.gameOver) throw new Error('이미 끝난 런이다');
-  const choice = getChoices(state, data).find((c) => c.id === choiceId);
-  if (!choice) throw new Error(`지금 고를 수 없는 선택이다: ${choiceId}`);
+  const choice = findChoice(state, choiceId, data);
 
   const at = advance(state.at);
   // 잠정(#6): 위험 판정의 공식은 디자인 명세를 기다린다. 지금은 난수를 한 번 당겨
