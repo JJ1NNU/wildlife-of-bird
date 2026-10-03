@@ -55,28 +55,36 @@
 | 시뮬레이션 실행 | `npm run sim [종 id] [시드]` |
 | e2e 테스트 | (`apps/web` 이후 클라이언트·QA가 채운다) |
 
-## 저장소 지도 (ADR-001 이후 엔진이 실제 구조로 갱신)
+## 저장소 지도 (엔진이 관리 — ADR-001 기준)
 
 ```
 CLAUDE.md  README.md  version.json  CHANGELOG.md
-apps/web/                 클라이언트 — 화면, PWA, 온라인 기능
+package.json  package-lock.json  tsconfig.json  biome.json  .gitattributes   엔진 — 루트 설정(npm workspaces)
+.github/workflows/ci.yml  엔진 — PR·main 검사 (타입체크·린트·테스트·데이터 검증)
+apps/web/                 클라이언트 — 화면(React + Vite), PWA, 온라인 기능  (#17에서 생성)
 infra/                    클라이언트 — 리더보드 백엔드 설정(테이블·보안 규칙·함수)
-packages/engine/          엔진 — 게임 규칙(순수·결정론)
-packages/schema/          엔진 — 데이터 타입·검증기
-packages/sim/             엔진 — 헤드리스 시뮬레이션 러너
+packages/schema/          엔진 — 데이터 타입·검증기(Zod)
+  src/                      effects · species · events · fact(값 단위 출처) · load(GameData)
+  src/cli/validate-data.ts  npm run validate:data
+packages/engine/          엔진 — 게임 규칙(순수·결정론). 의존성은 @wb/schema 하나
+  src/api.ts                newRun · getChoices · preview · act · getView · serialize · deserialize
+  src/rng.ts                시드 고정 난수(SplitMix32)
+packages/sim/             엔진 — 헤드리스 러너 · Bot 인터페이스 (npm run sim)
 packages/tokens/          아트 — 디자인 토큰(색·글꼴·간격)
 qa/                       QA — 봇, 리포트, e2e, 테스트 전략, 출시 체크리스트, CI용 검사 스크립트
-data/balance/             게임디자인 — 모든 조정 가능한 수치
+data/balance/             게임디자인 — 모든 조정 가능한 수치 (effects.json, species/<id>.json)
 data/calendar/            게임디자인 — 종별 연간 단계표
 data/titles/              게임디자인 — 칭호·업적(조건), 이름 글은 콘텐츠가 PR
-data/species|events|nodes|predators|codex|environment|text/   생태·콘텐츠
+data/species|events|nodes|predators|codex|environment|text/   생태·콘텐츠 (species/<id>.ecology.json)
 assets/                   아트 — 최종 에셋 (assets/inbox/는 대표의 이미지 투입함)
 docs/design/              게임디자인 — 기획서(gdd.md), 시스템 명세(specs/), 이벤트 컨셉(event-concepts/)
 docs/content/             생태·콘텐츠 — 출처, 사실 검증, 문체, 식별 특징
 docs/art/ docs/ux/        아트·UX
-docs/adr/                 기술 결정 기록
+docs/adr/                 기술 결정 기록 (0001 기술 스택)
 docs/studio/              PM — 협업 규칙, 로드맵, 결정 기록, 위험, 회고 (03-contracts는 엔진)
 docs/agents/              부서별 임무 문서 (PM)
 docs/status/              부서별 상태 파일 + 대시보드
 scripts/                  setup-github.sh(PM), art/(아트), data/(엔진: 데이터 변환·마이그레이션)
 ```
+
+TypeScript는 빌드 없이 실행된다. 패키지는 소스(`src/index.ts`)를 그대로 내보내므로 Vite와 Node가 직접 읽는다.
