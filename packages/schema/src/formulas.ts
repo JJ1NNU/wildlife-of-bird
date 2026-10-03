@@ -18,7 +18,7 @@ const int = z.number().int().nonnegative();
 /** 육아 강도 (`04-breeding`) */
 const Intensity = z.enum(['low', 'mid', 'high']);
 
-const table = <K extends readonly [string, ...string[]]>(keys: K, value: z.ZodType<number>) =>
+const table = <const K extends readonly [string, ...string[]]>(keys: K, value: z.ZodType<number>) =>
   z.record(z.enum(keys), value);
 
 /** 행동 하나의 계수 */
