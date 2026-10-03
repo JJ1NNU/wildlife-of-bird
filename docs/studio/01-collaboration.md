@@ -60,6 +60,7 @@
 | 리뷰 | `review:pm` `review:design` `review:content` `review:engine` `review:client` `review:art` `review:qa` | PR에 그 부서의 리뷰가 필요 |
 | 상태 | `status:blocked` `status:in-progress` | |
 | 우선순위 | `P0` `P1` `P2` | P0 = 이번 마일스톤 필수, P1 = 이번 마일스톤 목표, P2 = 여유 있으면 |
+| 심각도 | `sev:S1` `sev:S2` `sev:S3` `sev:S4` | `type:bug`에만 단다. 뜻은 `docs/agents/qa.md` 10장. 관문의 "S1 버그 0"은 이 라벨로 센다(02-roadmap 6장) |
 
 - 마일스톤: GitHub 마일스톤 `M0 착수` ~ `M7 출시·운영`. 제목은 `02-roadmap.md` 1장의 이름 열과 정확히 같다.
 - 라벨·마일스톤은 `scripts/setup-github.sh`로 만든다(PM 첫 근무).

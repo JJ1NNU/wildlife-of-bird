@@ -53,6 +53,12 @@ label "P0" "b60205" "이번 마일스톤 필수"
 label "P1" "d93f0b" "이번 마일스톤 목표"
 label "P2" "c2e0c6" "여유 있으면"
 
+# 버그 심각도 (뜻: docs/agents/qa.md 10장 / 관문의 "S1 버그 0" 집계: 02-roadmap 6장)
+label "sev:S1" "b60205" "치명 — 진행 불가·저장 손실·점수 오류·명백한 생태 오류 (관문 차단)"
+label "sev:S2" "d93f0b" "중대 — 규칙이 명세와 다름·화면 깨짐"
+label "sev:S3" "fbca04" "보통 — 불편·문구 오류"
+label "sev:S4" "c2e0c6" "사소 — 다듬기"
+
 # 마일스톤
 existing="$(gh api "repos/{owner}/{repo}/milestones?state=all&per_page=100" --jq '.[].title')"
 milestone() {
