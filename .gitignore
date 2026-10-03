@@ -1,0 +1,20 @@
+# 의존성·빌드
+node_modules/
+dist/
+build/
+coverage/
+.cache/
+
+# 비밀값 (형식은 .env.example로)
+.env
+.env.*
+!.env.example
+
+# 대용량 시뮬레이션 원본 (요약 리포트만 커밋)
+qa/reports/raw/
+
+# OS·에디터
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
