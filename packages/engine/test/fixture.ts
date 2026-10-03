@@ -5,18 +5,41 @@ import { EffectsTable, SpeciesEcology as SpeciesEcologySchema } from '@wb/schema
  * 테스트용 최소 데이터. `data/`의 진짜 데이터는 design·content가 소유하므로
  * 엔진 테스트는 자기 고정 데이터를 쓴다. 스키마로 검증해서 형식이 어긋나지 않게 한다.
  */
+const src = { sources: ['SRC-TEST'], factCheck: 'verified' } as const;
+
 const ecology: SpeciesEcology = SpeciesEcologySchema.parse({
   id: 'parus-minor',
   nameKo: '박새',
   scientificName: 'Parus minor',
-  residency: 'resident',
-  habitats: ['forest'],
+  residency: { value: 'resident', ...src },
+  habitats: { values: ['forest'], ...src },
   breeding: {
-    season: { fromPeriod: 7, toPeriod: 14 },
-    clutchSize: { min: 4, max: 13, typicalMin: 7, typicalMax: 10 },
-    broodsPerYearMax: 2,
-    incubationBy: 'female',
-    nestType: 'cavity',
+    season: { fromPeriod: 7, toPeriod: 14, ...src },
+    layStart: { fromPeriod: 6, toPeriod: 8, ...src },
+    layStartDriver: { value: 'spring-temperature', ...src },
+    clutchSize: { typicalMin: 7, typicalMax: 10, max: 18, ...src },
+    broodsPerYearMax: { value: 2, ...src },
+    incubationDays: { min: 12, max: 13, ...src },
+    nestlingDays: { min: 16, max: 20, ...src },
+    incubationBy: { value: 'female', ...src },
+    nestType: { value: 'cavity', ...src },
+  },
+  diet: {
+    primary: { values: ['insects'], ...src },
+    secondary: { values: ['seeds'], ...src },
+    nestlingFood: { values: ['caterpillars'], ...src },
+  },
+  lifespan: { sources: [], factCheck: 'needs-review', note: '테스트용 — 값 없음' },
+  alarmCalls: {
+    values: [
+      {
+        id: 'jar',
+        predatorType: 'snake',
+        incubatingFemaleResponse: 'leave-nest',
+        lateNestlingResponse: 'jump-out',
+        ...src,
+      },
+    ],
   },
   sources: ['SRC-TEST'],
   factCheck: 'verified',
