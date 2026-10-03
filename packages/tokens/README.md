@@ -1,7 +1,7 @@
 # @wb/tokens — 디자인 토큰 v0
 
 > 소유: 아트·UX. 바꾸려면 `review:art` PR. 상위 규칙: `docs/art/style-guide.md` 3장.
-> **잠정(#13)**: 그림 계열 색(sage·ochre·slate)은 화풍 A 팔레트에서 뽑았다. 화풍이 정해지면 확정한다.
+> 그림 계열 색(sage·ochre·slate)은 화풍 A(D-015)의 팔레트와 같다 — `docs/art/style-guide.md` 1.2.
 
 ## 쓰는 법
 
