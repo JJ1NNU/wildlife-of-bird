@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { z } from 'zod';
+import { fact } from '../src/fact.ts';
 import { loadGameData } from '../src/load.ts';
 
 describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)', () => {
@@ -51,5 +53,15 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
         reason: '생태 파일이 없는 종이다: no-such-bird',
       },
     ]);
+  });
+
+  it('verified인 사실에 출처가 없으면 잡아낸다 (#56 값 단위 출처)', () => {
+    const schema = fact({ value: z.string() });
+    expect(schema.safeParse({ value: 'female', sources: [], factCheck: 'verified' }).success).toBe(
+      false,
+    );
+    expect(
+      schema.safeParse({ value: 'female', sources: [], factCheck: 'needs-review' }).success,
+    ).toBe(true);
   });
 });

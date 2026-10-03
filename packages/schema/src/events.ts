@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { RiskTier, Tier, WeightTier } from './effects.ts';
+import { FactCheck } from './fact.ts';
 import { SpeciesId, StatName } from './species.ts';
 
 /**
@@ -52,7 +53,7 @@ export const GameEvent = z
     /** 이 이벤트가 생태적으로 왜 가능한지 — 우리 말로 */
     ecologyBasis: z.string().min(1),
     sources: z.array(z.string().min(1)).min(1, '생태 근거에는 출처가 필요하다'),
-    factCheck: z.enum(['verified', 'needs-review']),
+    factCheck: FactCheck,
   })
   .strict();
 export type GameEvent = z.infer<typeof GameEvent>;
