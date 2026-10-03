@@ -53,5 +53,10 @@
     "common": 10,
     "uncommon": 4,
     "rare": 1
+  },
+  "checkDifficulty": {
+    "low": 30,
+    "medium": 50,
+    "high": 70
   }
 }
