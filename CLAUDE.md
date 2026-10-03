@@ -52,7 +52,7 @@
 | 타입체크 · 린트 · 테스트 | `npm run typecheck` · `npm run lint` · `npm run test` (포맷 고치기: `npm run format`) |
 | CI와 같은 전체 검사 | `npm run check` |
 | 데이터 검증 | `npm run validate:data` |
-| 시뮬레이션 실행 | `npm run sim [종 id] [시드]` |
+| 시뮬레이션 실행 | `npm run sim -- --bot qa/bots/<봇>.ts --species <종 id> --runs <N> --seed-prefix <접두어> [--out runs.jsonl]` · 리플레이 `npm run sim -- replay runs.jsonl [--resume-at k]` |
 | e2e 테스트 | (`apps/web` 이후 클라이언트·QA가 채운다) |
 
 ## 저장소 지도 (엔진이 관리 — ADR-001 기준)

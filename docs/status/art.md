@@ -2,38 +2,36 @@
 
 > 이 파일은 아트·UX 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: **2026-10-03 (라운드 1)**
+- 마지막 근무: **2026-10-03 (라운드 2)**
 - 현재 마일스톤: M0 착수
 
 ## 진행 중
-- **#13 화풍 결정** — `status:blocked`. 대표의 이미지 생성(#32)을 기다린다. 기다리는 동안 #14를 끝냈다.
+- **#13 화풍 결정** — 비교표 완료(PR #70 머지, `style-options.md` 6장). **대표 선택 대기 #71**(`needs:ceo`, 추천 A). 선택되면 `style-guide.md` v1 → #13 닫기.
+- **#15** — PR #78 (`review:engine` 대기: 새 워크스페이스 패키지 → lock 8줄). 머지하면 #15 자동 닫힘.
 
 ## 최근 완료
-- **#13 (1/2)** PR #31 — `docs/art/style-options.md` 시안 3개(A 수채 도감 / B 평면 벡터 / C 저녁빛 회화, 아트 추천 **A**), `docs/art/style-guide.md` v0, `docs/art/prompts/batch-01-style-test.md` 복붙용 프롬프트 9개
-- **#32** 대표 작업 요청 발행 — 이미지 생성 배치 01, 9장, 예상 30~40분
-- **#14 완료** PR #50 — `docs/ux/screens.md` 화면 **21개**(M1에 12개) + 흐름도, `docs/ux/wireframes/` 저충실도 SVG 5장. headless Chrome 렌더로 360×640 넘침·겹침 검증
-- **#38**(장소 입력 구조) 아트 의견 — **A 찬성**, 360×640 계산 근거 제시
-- **#52**(→design) **#53**(→client) 확인 이슈 발행
+- **#13 비교표** PR #70 — 9장 시트·작은 크기(48/96/160px)·숲 위 글자 대비(AA 통과 픽셀 A 91% / B 68% / C 84%)·용량. 추천 A 유지
+- **#32 닫음** — 대표 9장 반영 완료
+- **#15** PR #78 — `packages/tokens/` v0(CSS 변수만, Pretendard OFL), `assets/placeholder/` 실루엣 4종, `docs/art/asset-list.md` v0
+- 발행: **#71**(대표 화풍 선택), **#79**(→client 토큰·자리표시 적용, 글꼴 방법), #11에 박새 식별 실패 댓글
 
 ## 막힘 (무엇을 · 누구를 기다리는지)
-- **#13 → 대표 (#32)**: 화풍 테스트 이미지 9장. 이것이 없으면 비교표도 `style-guide.md` v1도 못 간다. **M0 관문 조건이라 라운드 2 안에는 받아야 한다.** 다른 일(#15)은 막지 않는다.
-- #15의 자리표시 실루엣은 **#11(콘텐츠 식별 특징)** 이 있으면 정확해진다. 없어도 박새는 잠정으로 그릴 수 있다.
+- **#13 → 대표 (#71)**: 화풍 선택. M0 관문 조건.
+- **#78 → 엔진 리뷰**.
+- 박새 배치(#25)의 프롬프트는 **#11(콘텐츠 field-marks)** 을 기다린다.
 
 ## 다음 근무에서 할 일
-1. **#32에 `완료` 댓글이 달렸는가 먼저 확인.** 달렸으면 → `assets/inbox/batch-01/` 9장 비교표 작성 → `needs:ceo` 이슈(첫 줄에 추천안) → 선택되면 `style-guide.md` v1 (1장 화풍 채우기) → #13 닫기
-2. **#15** (P1, 막히지 않음): `packages/tokens/` v0 · `assets/placeholder/` 실루엣 4종 · `docs/art/asset-list.md` v0. **화풍 미정이므로 토큰은 `잠정(#13)` 표시.** 폰트는 OFL만, 한글 글립 필요
-3. 내게 온 `review:art` PR 확인 — `apps/web/**`과 `packages/tokens/**` `assets/**`이 바뀌면 온다
-4. #38이 A로 닫혔으면 S-10 와이어프레임 수정(장소 줄 → 정보 줄, 행동 목록에 `옮기기` 추가)과 `screens.md` 갱신
-5. #52·#53 답이 왔으면 반영
+1. **#71에 답이 달렸나.** 달렸으면 → `style-guide.md` 1장 v1(화풍 설명·팔레트·공통 블록·금지) + 6.3의 교훈 반영(1:1로 받아 자르기, 오른쪽 아래 생성 도구 표시 잘라내기, A면 배경에 `fewer fine details in the lower half`) → 토큰의 `잠정(#13)` 걷기 → #13 닫기. A가 아니면 토큰 그림 계열 색도 바꿀 것.
+2. **#78**: 엔진 승인되면 `gh pr update-branch 78` → CI → 스쿼시 머지.
+3. 내게 온 `review:art` PR (이번엔 없었다). #63이 머지되면 #79 PR이 올 것.
+4. **#25 (M1)**: 중충실도 와이어프레임 · 아이콘 v0 · 박새 배치. 배치는 #11과 화풍 선택 뒤.
+5. 지난 근무에서 남은 것: #38이 A로 닫혔으면 S-10 와이어프레임 수정, #52·#53 답 반영.
 
 ## 메모 (다음 근무의 나에게)
-- **ImageMagick이 대표 PC에 없다.** 대신 **Chrome headless가 SVG 렌더·검수에 쓸 수 있다**(이번에 와이어프레임 검수에 실제로 썼다). 명령은 `style-guide.md` 5장. 후처리 도구는 **M3까지 정하지 않기로 했다** — 그때까지 후처리할 것이 없다.
-  ```
-  chrome --headless=new --disable-gpu --no-sandbox --hide-scrollbars --window-size=400,700 "--screenshot=<절대경로>.png" "file:///<절대경로>.svg"
-  ```
-  경로는 **절대경로**로, 출력은 **스크래치패드 안**으로 쓸 것(다른 폴더는 액세스 거부가 났다).
-- **SVG를 heredoc으로 쓰면 bash 따옴표 파싱에서 깨진다.** Write 도구로 쓸 것.
-- 와이어프레임은 **반드시 렌더해서 눈으로 볼 것.** 이번에 글자 겹침 4곳이 코드만 봐서는 안 보였다. 한글은 9.5px에서 글자당 약 8~9px로 잡으면 대충 맞는다.
-- 03 번식 패널의 탭 버튼이 38px이다 — **44px 미달**. #25 중충실도에서 고칠 것.
-- 와이어프레임의 숫자·문구는 전부 **자리를 보여주는 예시**다. 실수로 실제 수치처럼 다루지 말 것.
-- 생태 사실은 직접 쓰지 말 것. 박새 식별 특징과 종별 체장을 `잠정(#11)`로 표시해 두었다 — #11이 오면 `style-guide.md` 2장과 `style-options.md` 5장을 고칠 것.
+- **Pillow(Python)가 대표 PC에 있다** — WebP 읽기·쓰기·크기 변환·시트 만들기 다 된다. ImageMagick·cwebp는 없다. 후처리 도구 후보 1순위(결정은 M3, `style-guide.md` 5장).
+- 배치 01 원본(2048px PNG)은 저장소 밖 `C:\dev\wild-bird-originals\batch-01\`. inbox의 9장은 화풍 결정 기록이므로 v1 확정 전에는 지우지 말 것.
+- Gemini는 **비율 지시를 무시한다**(4:5 → 1:1). 그리고 **박새를 유럽 박새처럼 노란 배로 그린다**. 다음 프롬프트에 부정어를 넣을 것.
+- Chrome headless: `"/c/Program Files/Google/Chrome/Application/chrome.exe" --headless=new --disable-gpu --no-sandbox --hide-scrollbars --allow-file-access-from-files --window-size=W,H "--screenshot=<스크래치패드>/x.png" "file:///…"`. 출력은 스크래치패드로.
+- 이 worktree에서 `npm run lint`가 `version.json` CRLF로 실패한다 — 로컬 줄바꿈 문제, main CI는 초록. 내 파일만 `npx biome check <경로>`로 확인.
+- SVG는 Write 도구로(heredoc 금지). 와이어프레임·실루엣은 반드시 렌더해서 볼 것.
+- 03 번식 패널 탭 버튼 38px — 44px 미달, #25에서 고칠 것.
