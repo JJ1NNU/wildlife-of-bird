@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 700" width="400" height="700" role="img" aria-label="독립과 계승 결정 화면 저충실도 와이어프레임">
+<title>S-24 독립 · 계승 결정 — 저충실도 와이어프레임 (360×640)</title>
+<style>
+  .f{fill:none;stroke:#333;stroke-width:1.5}
+  .box{fill:#f4f4f2;stroke:#9a9a94;stroke-width:1}
+  .art{fill:#eceae4;stroke:#9a9a94;stroke-width:1;stroke-dasharray:5 4}
+  .btn{fill:#e4e2dc;stroke:#6b6b66;stroke-width:1.2}
+  .prim{fill:#cfcdc4;stroke:#44443f;stroke-width:1.5}
+  .off{fill:#fff;stroke:#b5b5ae;stroke-width:1}
+  .sel{fill:#e9e5da;stroke:#7a3b1d;stroke-width:1.8}
+  text{font-family:system-ui,sans-serif;fill:#2a2a28}
+  .l{font-size:11px}.s{font-size:9.5px;fill:#55554f}.h{font-size:12.5px;font-weight:600}
+  .n{font-size:9px;fill:#7a3b1d;font-weight:600}
+  .cap{font-size:9px;fill:#8a8a84;font-style:italic}
+  .tt{fill:none;stroke:#b8744a;stroke-width:0.8;stroke-dasharray:3 2}
+</style>
+<text class="h" x="20" y="18">S-24 독립 · 계승 결정 — 360×640</text>
+<text class="cap" x="20" y="32">새끼가 독립하는 순간. 이때 총 번식 수가 +1로 확정된다(gdd 4.1).</text>
+<g transform="translate(20,44)">
+<rect class="f" x="0" y="0" width="360" height="640" rx="4"/>
+
+<rect class="box" x="0" y="0" width="360" height="46"/>
+<text class="h" x="10" y="20">새끼들이 독립했다</text>
+<text class="s" x="10" y="37">6월 하반 · 1차 번식 성공</text>
+<text class="n" x="350" y="20" text-anchor="end">총 번식 3 → 4</text>
+<text class="s" x="350" y="37" text-anchor="end">이소 5마리 중 4마리 독립</text>
+
+<text class="s" x="10" y="64">지금 개체 — 잔류하면</text>
+<rect class="box" x="0" y="70" width="360" height="74"/>
+<rect class="art" x="8" y="78" width="58" height="58"/><text class="s" x="37" y="111" text-anchor="middle">성조</text>
+<text class="l" x="76" y="92">나 · 박새 ♀ 2세 · 3세대</text>
+<text class="s" x="76" y="108">경험 B · 짝 유대 ●●●○ · 영역 유지</text>
+<text class="s" x="76" y="124">지역 지식 70% · 채식 B · 경계 B</text>
+<text class="n" x="350" y="92" text-anchor="end">노화 배율 ×1.0</text>
+<text class="n" x="350" y="108" text-anchor="end">3세부터 노화</text>
+<text class="n" x="350" y="124" text-anchor="end">1년 생존 68%</text>
+<text class="s" x="76" y="138">잔류 시: 7월 2차 번식 기회 · 털갈이 지연</text>
+
+<text class="s" x="10" y="164">새끼 — 계승하면 (하나 고른다)</text>
+<g>
+<rect class="sel" x="0" y="170" width="360" height="80"/><rect class="tt" x="2" y="172" width="356" height="76"/>
+<circle cx="18" cy="186" r="5" fill="#7a3b1d"/>
+<rect class="art" x="30" y="178" width="52" height="52"/><text class="s" x="56" y="207" text-anchor="middle">새끼</text>
+<text class="l" x="92" y="190">첫째 ♂</text>
+<text class="s" x="92" y="205">잠재력 B ~ A  (불확실)</text>
+<text class="s" x="92" y="220">은수저 0.78 (잘 먹고 자람)</text>
+<text class="s" x="92" y="235">성격 대담함? · 노래 아비+이웃2</text>
+<text class="n" x="350" y="190" text-anchor="end">첫 겨울 생존 54%</text>
+<text class="n" x="350" y="205" text-anchor="end">내년 번식 가능</text>
+<text class="n" x="350" y="220" text-anchor="end">미성숙기 없음</text>
+<text class="s" x="350" y="235" text-anchor="end">경험 초기화</text>
+</g>
+<g>
+<rect class="off" x="0" y="256" width="360" height="80"/><rect class="tt" x="2" y="258" width="356" height="76"/>
+<circle cx="18" cy="272" r="5" class="off"/>
+<rect class="art" x="30" y="264" width="52" height="52"/><text class="s" x="56" y="293" text-anchor="middle">새끼</text>
+<text class="l" x="92" y="276">둘째 ♀</text>
+<text class="s" x="92" y="291">잠재력 C ~ A  (매우 불확실)</text>
+<text class="s" x="92" y="306">은수저 0.41 (막내, 경쟁에 밀림)</text>
+<text class="s" x="92" y="321">성격 모름 · 노래 못 배움</text>
+<text class="n" x="350" y="276" text-anchor="end">첫 겨울 생존 41%</text>
+<text class="n" x="350" y="291" text-anchor="end">내년 번식 가능</text>
+<text class="s" x="350" y="306" text-anchor="end">관찰 턴을 쓰면</text>
+<text class="s" x="350" y="321" text-anchor="end">범위가 좁아진다</text>
+</g>
+<text class="cap" x="10" y="352">새끼 수가 4마리를 넘으면 이 목록만 세로 스크롤한다. 가로 스크롤은 쓰지 않는다.</text>
+
+<rect class="box" x="0" y="362" width="360" height="86"/>
+<text class="s" x="10" y="380">무엇을 비교하는가</text>
+<text class="s" x="10" y="396">· 잔류: 경험 · 짝 유대 · 영역 · 지역 지식을 유지. 대신 노화가 붙는다.</text>
+<text class="s" x="10" y="412">· 계승: 잠재력이 더 높을 수 있다. 대신 첫 겨울을 다시 겪고 경험이 0.</text>
+<text class="s" x="10" y="428">· 박새는 계승해도 다음 봄에 바로 번식한다 — 번식 공백이 없다.</text>
+<text class="s" x="10" y="444">· 유전은 잠재력만 간다. 내가 훈련으로 올린 스탯은 가지 않는다.</text>
+
+<rect class="box" x="0" y="458" width="360" height="46"/>
+<text class="s" x="10" y="476">잠재력 범위는 왜 넓은가</text>
+<text class="s" x="10" y="492">짝의 잠재력은 직접 보이지 않고 깃·노래 같은 신호로만 추정된다.</text>
+
+<rect class="btn" x="0" y="514" width="176" height="52"/><rect class="tt" x="2" y="518" width="172" height="44"/>
+<text class="l" x="88" y="538" text-anchor="middle">이 개체로 1년 더</text>
+<text class="s" x="88" y="554" text-anchor="middle">2차 번식 노린다</text>
+<rect class="prim" x="184" y="514" width="176" height="52"/><rect class="tt" x="186" y="518" width="172" height="44"/>
+<text class="l" x="272" y="538" text-anchor="middle">첫째로 계승</text>
+<text class="s" x="272" y="554" text-anchor="middle">되돌릴 수 없다</text>
+
+<text class="cap" x="180" y="588" text-anchor="middle">되돌릴 수 없는 선택이므로 확인 한 번을 더 받는다.</text>
+<rect class="btn" x="100" y="598" width="160" height="30" rx="15"/><rect class="tt" x="102" y="598" width="156" height="30"/>
+<text class="s" x="180" y="617" text-anchor="middle">가계도 먼저 보기</text>
+</g>
+</svg>

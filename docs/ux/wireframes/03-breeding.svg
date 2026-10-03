@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 700" width="400" height="700" role="img" aria-label="번식 패널 저충실도 와이어프레임">
+<title>S-21/S-22/S-23 번식 패널 — 저충실도 와이어프레임 (360×640)</title>
+<style>
+  .f{fill:none;stroke:#333;stroke-width:1.5}
+  .box{fill:#f4f4f2;stroke:#9a9a94;stroke-width:1}
+  .art{fill:#eceae4;stroke:#9a9a94;stroke-width:1;stroke-dasharray:5 4}
+  .btn{fill:#e4e2dc;stroke:#6b6b66;stroke-width:1.2}
+  .prim{fill:#cfcdc4;stroke:#44443f;stroke-width:1.5}
+  .off{fill:#fff;stroke:#b5b5ae;stroke-width:1}
+  .fill{fill:#9a9a94}
+  text{font-family:system-ui,sans-serif;fill:#2a2a28}
+  .l{font-size:11px}.s{font-size:9.5px;fill:#55554f}.h{font-size:12.5px;font-weight:600}
+  .n{font-size:9px;fill:#7a3b1d;font-weight:600}
+  .cap{font-size:9px;fill:#8a8a84;font-style:italic}
+  .tt{fill:none;stroke:#b8744a;stroke-width:0.8;stroke-dasharray:3 2}
+</style>
+<text class="h" x="20" y="18">S-21·22·23 번식 패널 — 360×640</text>
+<text class="cap" x="20" y="32">한 화면 두 탭: [짝 지시] [육아 방침]. 위쪽 둥지 상태는 두 탭에서 같이 보인다.</text>
+<g transform="translate(20,44)">
+<rect class="f" x="0" y="0" width="360" height="640" rx="4"/>
+
+<rect class="box" x="0" y="0" width="360" height="36"/>
+<text class="s" x="10" y="22">박새 ♀ 2세 · 5월 상반 · 에너지 48%</text>
+<text class="s" x="350" y="22" text-anchor="end">총 번식 3</text>
+
+<text class="s" x="10" y="52">번식 진행</text>
+<g>
+<circle class="fill" cx="26" cy="62" r="5"/><circle class="fill" cx="82" cy="62" r="5"/><circle class="fill" cx="138" cy="62" r="5"/>
+<circle cx="194" cy="62" r="6.5" fill="#7a3b1d"/>
+<circle class="off" cx="250" cy="62" r="5"/><circle class="off" cx="306" cy="62" r="5"/>
+<line x1="31" y1="62" x2="77" y2="62" stroke="#9a9a94"/><line x1="87" y1="62" x2="133" y2="62" stroke="#9a9a94"/><line x1="143" y1="62" x2="187" y2="62" stroke="#9a9a94"/><line x1="201" y1="62" x2="245" y2="62" stroke="#b5b5ae" stroke-dasharray="3 2"/><line x1="255" y1="62" x2="301" y2="62" stroke="#b5b5ae" stroke-dasharray="3 2"/>
+</g>
+<g class="s" text-anchor="middle" font-size="8.5">
+<text x="26" y="78">짝</text><text x="82" y="78">둥지</text><text x="138" y="78">산란</text><text x="194" y="78" fill="#7a3b1d" font-weight="600">육추</text><text x="250" y="78">이소</text><text x="306" y="78">돌봄</text>
+</g>
+
+<rect class="box" x="0" y="84" width="360" height="84"/>
+<rect class="art" x="8" y="92" width="68" height="68"/><text class="s" x="42" y="130" text-anchor="middle">둥지</text>
+<text class="l" x="86" y="106">나무구멍 둥지 · 육추 6일째</text>
+<text class="s" x="86" y="122">알 8개 → 부화 7 → 생존 6마리</text>
+<text class="s" x="86" y="138">짝: 수컷 3세 · 유대 ●●●○ · 신중함</text>
+<text class="s" x="86" y="154">먹이 수요 ▮▮▮▮▮▮▮▯▯▯ 70%</text>
+<text class="n" x="350" y="106" text-anchor="end">이소 기대 4.4마리</text>
+<text class="n" x="350" y="122" text-anchor="end">둥지 포식 7%/단계</text>
+<text class="n" x="350" y="154" text-anchor="end">번식 비용 높음</text>
+
+<rect class="prim" x="0" y="174" width="180" height="38"/><rect class="tt" x="2" y="174" width="176" height="38"/>
+<text class="l" x="90" y="198" text-anchor="middle">짝 지시</text>
+<rect class="off" x="180" y="174" width="180" height="38"/><rect class="tt" x="182" y="174" width="176" height="38"/>
+<text class="l" x="270" y="198" text-anchor="middle">육아 방침</text>
+
+<text class="s" x="10" y="228">이번 단계에 짝에게 부탁할 것 (1개)</text>
+<g>
+<rect class="btn" x="0" y="234" width="360" height="52"/><rect class="tt" x="2" y="238" width="356" height="44"/>
+<text class="l" x="10" y="252">먼 먹이 구역을 맡아 달라</text>
+<text class="s" x="10" y="267">신중한 성격은 먼 곳을 꺼린다</text>
+<rect x="258" y="240" width="92" height="18" rx="9" class="box"/><text class="n" x="304" y="253" text-anchor="middle">보통 54%</text>
+<text class="n" x="350" y="276" text-anchor="end">성공 시 먹이 +18%</text>
+</g>
+<g>
+<rect class="btn" x="0" y="290" width="360" height="52"/><rect class="tt" x="2" y="294" width="356" height="44"/>
+<text class="l" x="10" y="308">급이 속도를 올려 달라</text>
+<text class="s" x="10" y="323">내가 직전에 먹이를 날랐다 → 상호성 ↑</text>
+<rect x="258" y="296" width="92" height="18" rx="9" class="box"/><text class="n" x="304" y="309" text-anchor="middle">높음 78%</text>
+<text class="n" x="350" y="332" text-anchor="end">성공 시 성장 +12%</text>
+</g>
+<g>
+<rect class="btn" x="0" y="346" width="360" height="52"/><rect class="tt" x="2" y="350" width="356" height="44"/>
+<text class="l" x="10" y="364">둥지를 지켜 달라 (경계 담당)</text>
+<text class="s" x="10" y="379">짝의 컨디션이 낮다 → 자기 먹이가 먼저</text>
+<rect x="258" y="352" width="92" height="18" rx="9" class="box"/><text class="n" x="304" y="365" text-anchor="middle">낮음 31%</text>
+<text class="n" x="350" y="388" text-anchor="end">성공 시 위험 −4%p</text>
+</g>
+<g opacity="0.65">
+<rect class="off" x="0" y="402" width="360" height="52"/>
+<text class="l" x="10" y="420">알을 품어 달라</text>
+<text class="s" x="10" y="435">박새는 암컷이 포란한다 — 수컷에게 부탁할 수 없다</text>
+<rect x="258" y="408" width="92" height="18" rx="9" fill="#fff" stroke="#9a9a94"/><text class="s" x="304" y="421" text-anchor="middle">불가</text>
+</g>
+<text class="cap" x="10" y="470">불가는 숨기지 않고 이유와 함께 보여 준다 — 교육 요소(gdd 7.2)</text>
+
+<rect class="box" x="0" y="478" width="360" height="50"/>
+<text class="s" x="10" y="496">거절해도 파국은 없다</text>
+<text class="s" x="10" y="512">짝은 자기가 선호하는 대안 행동을 한다 (원래 효과의 70~90%).</text>
+
+<rect class="btn" x="0" y="536" width="176" height="44"/><rect class="tt" x="2" y="537" width="172" height="42"/>
+<text class="l" x="88" y="563" text-anchor="middle">지시 없이 넘기기</text>
+<rect class="prim" x="184" y="536" width="176" height="44"/><rect class="tt" x="186" y="537" width="172" height="42"/>
+<text class="l" x="272" y="563" text-anchor="middle">부탁하고 다음 단계</text>
+<text class="cap" x="180" y="600" text-anchor="middle">조성성 종(꼬마물떼새·두루미)은 육아 방침 탭의 항목이 바뀐다:</text>
+<text class="cap" x="180" y="614" text-anchor="middle">호위 거리 · 먹이터 안내 · 품어 주기 · 위장 지시 (gdd 7.3)</text>
+</g>
+</svg>
