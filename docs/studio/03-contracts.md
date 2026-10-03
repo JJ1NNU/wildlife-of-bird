@@ -130,7 +130,8 @@ interface ViewModel {
 - **결정론**: 난수 상태(`RunState.rng`, 32비트 정수)가 상태 안에 있다. `Math.random`·현재 시간 사용 금지. 테스트가 지킨다.
 - `RunState` 안에는 지금 난수 상태, 달력, 플레이어 개체, 점수(`totalBreeding`), 게임 오버 여부, 판정 기록(`log`)이 있다. **짝 · 새끼 · 가계도 · 세계 상태(장소·환경)는 디자인 상태 기계 명세(#5)와 함께 M1에 더한다.** 화면·봇은 `RunState`를 직접 읽지 않고 `getView`만 쓴다 — 그래서 `RunState` 내부가 바뀌어도 화면·봇이 깨지지 않는다.
 - `getView`는 화면에 필요한 모든 것을 준다. 부족하면 클라이언트가 `dept:engine` 이슈로 요청한다. `ViewModel`에 필드를 **더하는** 것은 깨지지 않는 변경이다.
-- 고를 수 없는 `choiceId`를 `preview`·`act`에 넘기면 던진다.
+- 고를 수 없는 `choiceId`(목록에 없거나 `disabled`)를 `preview`·`act`에 넘기면 던진다(#47).
+- **화면 표시 글자**는 엔진이 낸다: `formatRisk` · `formatEnergyDelta` · `formatStatGain` · `acceptanceBand` (`01-formulas` 7장). 화면은 `Preview`의 숫자를 이 함수로 바꿔 보여 준다 — 반올림 규칙이 화면·봇 리포트에서 갈라지지 않게.
 
 ### 시뮬레이터 — `@wb/sim`
 
