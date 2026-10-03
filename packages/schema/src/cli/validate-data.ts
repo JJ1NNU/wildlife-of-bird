@@ -17,6 +17,7 @@ const counted = [
   ['종 밸런스 (data/balance/species)', raw.balance.length],
   ['이벤트 파일 (data/events)', raw.events.length],
   ['효과 등급표 (data/balance/effects.json)', raw.effects ? 1 : 0],
+  ['공식 계수 (data/balance/formulas.json)', raw.formulas ? 1 : 0],
 ] as const;
 
 for (const [label, count] of counted) {
@@ -37,6 +38,6 @@ console.log(
   data
     ? `\n데이터 검증 통과 — 종 ${data.ecology.size}종, 이벤트 ${data.events.length}건`
     : checkedAny
-      ? '\n데이터 검증 통과 — 검사한 파일 모두 이상 없음 (효과 등급표가 아직 없어 게임 데이터 묶음은 만들지 않았다)'
+      ? '\n데이터 검증 통과 — 검사한 파일 모두 이상 없음 (효과 등급표·공식 계수가 아직 없어 게임 데이터 묶음은 만들지 않았다)'
       : '\n데이터 검증 통과 — 아직 검사할 데이터가 없다',
 );

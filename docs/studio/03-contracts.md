@@ -152,7 +152,7 @@ runOne(config: RunConfig, data: GameData, bot: Bot, maxSteps: number): RunResult
 ## 4. 데이터 계약 — `@wb/schema` (값은 예시)
 
 - 검증: `npm run validate:data` — CI에서도 돈다. 실패하면 **파일 · 파일 안의 위치 · 이유**를 알려 준다.
-- 스키마 v0이 담은 형식: 4.1 · 4.2 · 4.3. 4.4(장소·포식자·도감)와 `data/calendar/` `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
+- 스키마가 담은 형식: 4.1 · 4.2 · 4.3 · 4.3.1. 4.4(장소·포식자·도감)와 `data/calendar/` `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
 - 모든 객체는 **모르는 필드를 거부**한다(오타를 잡기 위해). 필드를 더하려면 8장 절차로 스키마를 함께 고친다.
 
 ### 4.1 종: 생태 사실(content)과 밸런스(design)의 분리
@@ -185,48 +185,63 @@ runOne(config: RunConfig, data: GameData, bot: Bot, maxSteps: number): RunResult
 - 값을 아직 못 찾은 사실은 값 없이 `needs-review`와 `note`(찾아볼 곳)만 둔다 — 지금은 `lifespan`. 스키마 `UnresolvedFact`.
 - 맨 위의 `sources`는 파일이 쓰는 출처 전체, `factCheck`는 파일 요약. 출시 판정(QA 체크리스트)은 사실마다 붙은 `factCheck`로 센다.
 - `id`: 학명을 소문자-하이픈으로. 파일 이름과 같게 쓴다.
-- `residency`: `resident` | `summer` | `winter` | `passage` (텃새·여름 철새·겨울 철새·나그네새). 잠정(#46)
+- `residency`: `resident` | `summer` | `winter` | `passage` (텃새·여름 철새·겨울 철새·나그네새). (content 확인, #46)
 - `breeding.clutchSize`: `min`(선택) `≤ typicalMin ≤ typicalMax ≤ max`, `incubationDays`·`nestlingDays`: `min ≤ max`를 검증한다.
 - `breeding.incubationBy`: `female` | `male` | `both`
 - 필드 이름과 의미는 content가 정한다. 필드를 더하면 8장 절차로 스키마를 같은 PR에서 고친다(`review:engine`).
 
-`data/balance/species/parus-minor.json` — design · 스키마 `SpeciesBalance`
+`data/balance/species/parus-minor.json` — design · 스키마 `SpeciesBalance` · 의미: `docs/design/specs/01-formulas.md` (줄임)
 ```json
 {
   "speciesId": "parus-minor",
-  "targets": { "avgRunYears": 4.5, "expectedTotalBreeding": 4.0 },
-  "nestSuccessBase": 0.55,
-  "secondBrood": { "energyCost": "large", "moltDelayPeriods": 2 },
+  "targets": { "avgRunYears": 4.5, "expectedTotalBreeding": 4.0, "tolerance": 0.1, "breedingYearRatio": 1.0,
+               "yearBreedingSuccess": 0.9, "firstBroodSuccess": 0.55, "decisionsPerYear": { "min": 60, "max": 90 } },
+  "aptitude": { "flight": "C", "foraging": "A", "vigilance": "A", "stamina": "D", "display": "B", "social": "A" },
+  "runStart": { "age": 1, "period": 1 },
+  "seasons": { "winter": [23, 24, 1, 2, 3, 4], "spring": [5, 6, 7, 8, 9, 10], "summer": [11, "…", 16], "autumn": [17, "…", 22] },
+  "basalPerStep": { "winter": 8, "spring": 6, "summer": 5, "autumn": 6 },
+  "predatorActivity": { "winter": 1.0, "nestling": 1.3, "…": "국면 이름 → 배수" },
+  "flockPhases": ["winter", "autumnFlock"],
+  "nestLossPerStep": 0.045,
   "agingStartAge": 3,
-  "aptitude": { "flight": "C", "foraging": "A", "vigilance": "A", "stamina": "D", "display": "B", "social": "A" }
+  "firstWinterRiskMult": 1.8,
+  "secondBrood": { "layByPeriod": 13, "energyCost": "large", "moltDelayPeriods": 2 }
 }
 ```
 - `speciesId`의 생태 파일이 있어야 한다(교차 검증).
-- `secondBrood`는 2차 번식이 있는 종만 쓴다(선택). `aptitude`는 종에 해당하는 스탯만(예: `navigation`은 철새만), 등급 `S`~`D`.
+- `seasons`: 1~24가 **정확히 한 번씩** 나와야 한다(검증).
+- `aptitude`는 종에 해당하는 스탯만(예: `navigation`은 철새만), 등급 `S`~`D`. 쓰는 등급마다 `formulas.json`의 `stats.aptitudeMean`·`aptitudeGrowth`에 계수가 있어야 한다(교차 검증).
+- `secondBrood`는 2차 번식이 있는 종만 쓴다(선택). v0의 `nestSuccessBase`는 `targets.firstBroodSuccess`(목표)와 `nestLossPerStep`(계수)로 나뉘었다(#54).
 
 ### 4.2 효과 등급표 — design
 
-`data/balance/effects.json` · 스키마 `EffectsTable` — 표의 모든 등급이 있어야 한다.
+`data/balance/effects.json` · 스키마 `EffectsTable` · 의미: `docs/design/specs/03-events.md` 6장 — 표의 모든 등급이 있어야 한다.
 ```json
 {
   "energy":     { "small": 5, "medium": 12, "large": 25 },
   "feather":    { "small": 5, "medium": 10, "large": 20 },
   "deathRisk":  { "low": 0.01, "medium": 0.03, "high": 0.08 },
   "broodRisk":  { "low": 0.1, "medium": 0.3, "high": 0.6 },
+  "chickLoss":  { "small": 0.15, "medium": 0.3, "large": 0.5 },
   "statGain":   { "small": 1, "medium": 3, "large": 6 },
-  "eventWeight":{ "common": 10, "uncommon": 4, "rare": 1 }
+  "bond":       { "small": 3, "medium": 8, "large": 15 },
+  "injury":     { "small": 2, "medium": 3, "large": 4 },
+  "riskMod":    { "low": 0.2, "medium": 0.5, "high": 1.0 },
+  "foodMod":    { "small": 0.15, "medium": 0.3, "large": 0.5 },
+  "eventWeight":{ "common": 10, "uncommon": 4, "rare": 1 },
+  "checkDifficulty": { "low": 30, "medium": 50, "high": 70 }
 }
 ```
-콘텐츠는 이벤트에 숫자 대신 등급을 쓰고, 디자인은 이 표만 바꿔 전체 밸런스를 조정한다. 새 효과 종류는 디자인이 추가하고 엔진이 해석기를 구현한다.
+콘텐츠는 이벤트에 숫자 대신 등급을 쓰고, 디자인은 이 표만 바꿔 전체 밸런스를 조정한다. 등급은 `small·medium·large`와 `low·medium·high`(그리고 가중치 `common·uncommon·rare`)뿐이다. `injury`는 정수(부상 단계 수). 새 효과 종류는 디자인이 추가하고 엔진이 해석기를 구현한다.
 
 ### 4.3 이벤트 — content (design 리뷰)
 
-`data/events/<이름>.json` 은 이벤트의 **배열**이다 · 스키마 `GameEvent`. 아래는 `data/events/parus-minor.json` 안의 한 항목
+`data/events/<종 또는 common>.json` 은 이벤트의 **배열**이다 · 스키마 `GameEvent` · 의미: `docs/design/specs/03-events.md`. 아래는 한 항목
 ```json
 {
   "id": "ev.parus-minor.snake-at-nest",
   "species": ["parus-minor"],
-  "when": { "phase": "nestling", "habitatAny": ["forest"] },
+  "when": { "phaseAny": ["nestling"], "habitatAny": ["forest"], "hasBrood": true, "hasMate": true },
   "weight": "uncommon",
   "title": "둥지 아래의 소리",
   "body": "둥지 구멍 아래 나무껍질을 무언가 천천히 긁으며 올라온다. 짝이 날카로운 경보음을 연달아 낸다.",
@@ -234,24 +249,34 @@ runOne(config: RunConfig, data: GameData, bot: Bot, maxSteps: number): RunResult
     {
       "id": "mob",
       "text": "짝과 함께 둥지 주변을 날며 경보음을 낸다",
-      "effects": [{ "type": "deathRisk", "tier": "low" }, { "type": "broodRisk", "tier": "medium" }]
+      "check": { "stat": "vigilance", "difficulty": "medium" },
+      "onSuccess": [{ "type": "broodRisk", "tier": "low" }, { "type": "bond", "tier": "small", "sign": "gain" }],
+      "onFail": [{ "type": "deathRisk", "tier": "low", "cause": "predation", "predator": "rat-snake" }, { "type": "broodRisk", "tier": "high" }]
     },
-    {
-      "id": "signal-flee",
-      "text": "새끼들이 둥지를 빠져나가도록 경보를 이어 간다",
-      "effects": [{ "type": "fledgeEarly" }]
-    }
+    { "id": "signal-flee", "text": "새끼들이 둥지를 빠져나가도록 경보를 이어 간다",
+      "effects": [{ "type": "fledgeEarly" }, { "type": "chickLoss", "tier": "small" }] },
+    { "id": "stay-away", "text": "몸을 낮추고 멀리서 지켜본다", "effects": [{ "type": "broodRisk", "tier": "high" }] }
   ],
   "ecologyBasis": "박새는 뱀에게 다른 포식자와 구별되는 경보음을 내며, 이를 들은 새끼는 둥지 구멍 밖으로 빠져나간다.",
-  "sources": ["SRC-001"],
+  "sources": ["SRC-001", "SRC-023"],
   "factCheck": "verified"
 }
 ```
-- `id`: `ev.<종 또는 공통>.<이름>` (소문자·숫자·하이픈). `species`의 종마다 생태 파일이 있어야 한다(교차 검증).
-- `when`: 지금은 `phase`(단계 이름, 주인은 design의 단계표)와 `habitatAny`만. 조건 종류는 디자인 명세(#7)에 맞춰 더한다.
-- `effects`의 종류: `energy` `feather`(등급 + `sign`: `gain` | `loss` — 잠정(#37)), `deathRisk` `broodRisk`(위험 등급), `statGain`(`stat` + 등급), `fledgeEarly`.
+- `id`: `ev.<종 또는 common>.<이름>` (소문자·숫자·하이픈). `species`의 종마다 생태 파일이 있어야 한다(교차 검증).
+- `draw`: `step`(기본 — 단계 이벤트) | `periodStart`(환경 카드).
+- `when`(모두 선택, 모두 참이어야 함): `phaseAny` `habitatAny` `periodFrom`·`periodTo`(함께, from > to면 해를 넘김) `sex` `ageMin` `ageMax` `hasMate` `hasBrood` `energyBelow`(0~1) `actionAny`. v0의 `phase`는 `phaseAny`로 바뀌었다(#54).
+- 선택지 두 모양: 고정 효과 `{ id, text, effects }` / 판정형 `{ id, text, check: { stat, difficulty }, onSuccess, onFail }`. 섞어 쓸 수 없다.
+- 효과 종류: `energy` `feather` `bond` `foodMod`(등급 + **`sign` 필수**: `gain` | `loss`, #37), `statGain`(`stat` + 등급), `chickLoss` `injury`(등급), `deathRisk`(위험 등급 + **`cause` 필수**: `cold` `accident` `disease` `predation`, `predation`이면 `predator` 선택), `broodRisk` `riskMod`(위험 등급), `fledgeEarly`.
+- **성립 조건 검증** (03-events 6.2): `bond` → `when.hasMate: true` / `broodRisk`·`chickLoss` → `when.hasBrood: true` / `fledgeEarly` → `when.phaseAny`가 `["nestling"]`뿐 / `statGain`·`check.stat` → 이벤트의 모든 종의 `aptitude`에 그 스탯 / 선택지 수: `step` 2~3개, `periodStart` 1~3개.
 - 글은 v1에서 데이터 파일에 한국어로 직접 쓴다(다국어는 P2).
 - `factCheck`: `verified` | `needs-review`. `needs-review` 항목은 출시 빌드에서 제외하거나 출시 전 해결(QA 출시 체크리스트).
+
+### 4.3.1 공식 계수 — design
+
+`data/balance/formulas.json` · 스키마 `Formulas` · 의미: `docs/design/specs/01-formulas.md` 전체.
+- 종 공통 계수. 최상위 키: `stats` `actions` `nodeTiers` `energy` `feather` `risk` `brood` `mate` `heredity` `silverSpoon` `aging` `display` `events`.
+- **키 하나하나 엄격히** 검사한다 — 오타 난 키가 조용히 기본값으로 빠지면 밸런스 버그를 찾기 어렵다(#54). 키를 더하거나 바꾸면 스키마를 같은 PR에서 고친다(`review:engine`).
+- 행동 id는 `forage` `rest` `train` `social` `explore` `move`로 고정이다 — 행동마다 엔진 로직이 따로 있기 때문이다.
 
 ### 4.4 장소·포식자·도감 — content
 - 장소(`data/nodes/`): `id`, 이름, 서식지 태그, 계절별 먹이·위험 기본 등급(등급의 숫자는 design), 연결된 장소, 해당 종.
