@@ -105,25 +105,77 @@ export const SpeciesEcology = z
   .strict();
 export type SpeciesEcology = z.infer<typeof SpeciesEcology>;
 
+const probability = z.number().min(0).max(1);
+const positive = z.number().positive();
+const SEASONS = ['winter', 'spring', 'summer', 'autumn'] as const;
+export const Season = z.enum(SEASONS);
+export type Season = z.infer<typeof Season>;
+
 /**
  * 종의 밸런스 수치 — `data/balance/species/<id>.json` (소유: design, 03-contracts 4.1)
+ * 필드의 의미: `docs/design/specs/01-formulas.md` (#54 결정).
  */
 export const SpeciesBalance = z
   .object({
     speciesId: SpeciesId,
+    /** 밸런스 목표치 — QA가 지표 목표로 읽는다 */
     targets: z
       .object({
-        avgRunYears: z.number().positive(),
-        expectedTotalBreeding: z.number().positive(),
+        avgRunYears: positive,
+        expectedTotalBreeding: positive,
+        tolerance: probability,
+        breedingYearRatio: probability,
+        yearBreedingSuccess: probability,
+        firstBroodSuccess: probability,
+        decisionsPerYear: z
+          .object({ min: z.number().int().positive(), max: z.number().int().positive() })
+          .strict()
+          .refine((d) => d.min <= d.max, { error: 'min은 max보다 클 수 없다', path: ['min'] }),
       })
       .strict(),
-    nestSuccessBase: z.number().min(0).max(1),
+    aptitude: z.partialRecord(StatName, Grade),
+    runStart: z.object({ age: z.number().int().nonnegative(), period: Period }).strict(),
+    /** 계절 → 시기 목록. 1~24가 정확히 한 번씩 */
+    seasons: z.record(Season, z.array(Period).min(1)).superRefine((seasons, ctx) => {
+      const seen = new Map<number, string>();
+      for (const season of SEASONS) {
+        for (const period of seasons[season]) {
+          const before = seen.get(period);
+          if (before) {
+            ctx.addIssue({
+              code: 'custom',
+              path: [season],
+              message:
+                before === season
+                  ? `시기 ${period}가 ${season}에 두 번 나온다`
+                  : `시기 ${period}가 ${before}와 ${season}에 겹친다`,
+            });
+          }
+          seen.set(period, season);
+        }
+      }
+      const missing = Array.from({ length: 24 }, (_, i) => i + 1).filter((p) => !seen.has(p));
+      if (missing.length > 0) {
+        ctx.addIssue({ code: 'custom', message: `어느 계절에도 없는 시기: ${missing.join(', ')}` });
+      }
+    }),
+    basalPerStep: z.record(Season, positive),
+    /** 국면 이름 → 포식자 활동 배수 */
+    predatorActivity: z.record(z.string().min(1), positive),
+    /** 무리 생활을 하는 국면 */
+    flockPhases: z.array(z.string().min(1)),
+    nestLossPerStep: probability,
+    agingStartAge: z.number().int().nonnegative(),
+    firstWinterRiskMult: positive,
+    /** 2차 번식이 있는 종만 */
     secondBrood: z
-      .object({ energyCost: Tier, moltDelayPeriods: z.number().int().nonnegative() })
+      .object({
+        layByPeriod: Period,
+        energyCost: Tier,
+        moltDelayPeriods: z.number().int().nonnegative(),
+      })
       .strict()
       .optional(),
-    agingStartAge: z.number().int().nonnegative(),
-    aptitude: z.partialRecord(StatName, Grade),
   })
   .strict();
 export type SpeciesBalance = z.infer<typeof SpeciesBalance>;

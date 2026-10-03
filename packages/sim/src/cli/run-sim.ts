@@ -22,7 +22,7 @@ if (!data || !speciesId) {
   console.error(
     [...readIssues, ...issues].length > 0
       ? '데이터가 어긋났다. `npm run validate:data`로 어디가 틀렸는지 보라.'
-      : '아직 실행할 종 데이터가 없다. data/species/ 와 data/balance/effects.json 이 필요하다.',
+      : '아직 실행할 종 데이터가 없다. data/species/ · data/balance/effects.json · data/balance/formulas.json 이 필요하다.',
   );
   process.exit([...readIssues, ...issues].length > 0 ? 1 : 0);
 }
