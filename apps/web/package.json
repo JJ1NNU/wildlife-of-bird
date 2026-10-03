@@ -9,6 +9,7 @@
     "preview": "vite preview --host"
   },
   "dependencies": {
+    "@wb/engine": "*",
     "@wb/schema": "*",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"

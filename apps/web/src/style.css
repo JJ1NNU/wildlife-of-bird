@@ -35,3 +35,8 @@ h2 {
   font-size: 0.875rem;
   overflow-wrap: anywhere;
 }
+pre {
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
