@@ -136,13 +136,19 @@ interface ViewModel {
 
 ```ts
 interface Bot {
-  name: string
+  id: string
+  version: string              // 전략을 바꾸면 올린다 — 판 기록에 남는다
   choose(input: { view: ViewModel; choices: Choice[]; previews: Map<string, Preview> }): string  // choiceId
 }
-runOne(config: RunConfig, data: GameData, bot: Bot, maxSteps: number): RunResult
+runOne(config: RunConfig, data: GameData, bot: Bot): RunRecord
+replay(record: { config, choices }, data: GameData, resumeAt?: number): string   // 마지막 상태 해시
 ```
 
-봇은 사람 플레이어와 같은 정보(`ViewModel` · `Choice` · `Preview`)만 본다. 봇 전략은 QA(`qa/bots/`), 러너·결과 형식은 엔진. 대량 실행과 결과 지표는 QA 요구(#19)에 맞춰 M1에 정한다.
+- 봇은 사람 플레이어와 같은 정보(`ViewModel` · `Choice` · `Preview`)만 본다. `getView`는 복사본이라 봇이 고쳐도 상태가 바뀌지 않는다. 봇 전략은 QA(`qa/bots/<이름>.ts`가 `Bot`을 `export default`), 러너·판 기록 형식은 엔진.
+- `previews`에는 `disabled`가 아닌 선택만 있다. 봇이 목록에 없거나 `disabled`인 id를 고르면, 엔진이 던지면, 선택이 0개면, 100년(2400시기)에 닿으면 — 그 판은 `error`를 적고 끝나며 러너는 다음 판으로 간다.
+- **판 기록**(JSONL, 판 하나 = 한 줄): `config` · `bot {id, version}` · `gameVersion` · `commit` · `choices`(선택 id 순서) · `result {totalBreeding, gameOver, endAt}` · `error`(null 또는 `{message, at, stack}`) · `finalStateHash`(`serialize` 결과의 SHA-256) · `log`.
+- `replay`는 `config` + `choices`를 다시 재생한다. `resumeAt = k`면 k번째 선택 앞에서 `serialize` → `deserialize`로 끊었다 이어 간다. 명령은 `CLAUDE.md` "시뮬레이션 실행".
+- 지표용 로그 종류(`decision` `breedingSeason` `breeding` `inheritance` `death` `event`, #33 4절)는 그 규칙을 구현할 때(M1, #21) 더한다.
 
 ### M0의 상태
 형은 확정이고 속은 자리표시다. 결정론 · 저장/불러오기 왕복만 실제로 보장한다. 실제 규칙은 M1(#21).
