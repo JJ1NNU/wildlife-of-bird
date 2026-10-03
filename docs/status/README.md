@@ -54,7 +54,7 @@
 | #100 단계표 스키마 (#91) | engine | base → main으로 바꿈, **충돌** → rebase · `review:design` `review:content` `review:client` |
 
 ## 막힘
-- **머지 권한**: 부서 세션의 `gh pr merge`가 여전히 막힘 → 라운드 3은 PM이 9건 대행(#96 #87 #94 #98 #99 #86 #89 #93 #101). 대표 설정 확인 필요(#1)
+- ~~머지 권한~~ 원인 찾음: `gh pr merge`를 다른 명령과 `&&`로 묶으면 허용 규칙이 안 맞아 막힌다. **단독 한 줄로 실행**(01-collaboration 8장, PR #102). 다음 근무부터 각 부서가 직접 머지
 
 ## 위험 요약
 `docs/studio/risks.md` v1.1 — 위험 12건. 가장 큰 셋:
