@@ -1,0 +1,109 @@
+{
+  "speciesId": "parus-minor",
+  "periods": [
+    {
+      "period": 1,
+      "steps": ["winter"]
+    },
+    {
+      "period": 2,
+      "steps": ["winter"]
+    },
+    {
+      "period": 3,
+      "steps": ["winter"]
+    },
+    {
+      "period": 4,
+      "steps": ["winter"]
+    },
+    {
+      "period": 5,
+      "steps": ["pairing", "pairing"]
+    },
+    {
+      "period": 6,
+      "steps": ["pairing", "pairing"]
+    },
+    {
+      "period": 7,
+      "steps": ["nestSite", "nestSite", "nestSite"]
+    },
+    {
+      "period": 8,
+      "steps": ["laying", "laying", "laying"]
+    },
+    {
+      "period": 9,
+      "steps": ["incubation", "incubation", "incubation"]
+    },
+    {
+      "period": 10,
+      "steps": ["nestling", "nestling", "nestling"]
+    },
+    {
+      "period": 11,
+      "steps": ["postFledge", "postFledge"]
+    },
+    {
+      "period": 12,
+      "steps": ["postFledge", "postFledge"]
+    },
+    {
+      "period": 13,
+      "steps": ["molt", "molt"]
+    },
+    {
+      "period": 14,
+      "steps": ["molt", "molt"]
+    },
+    {
+      "period": 15,
+      "steps": ["molt"]
+    },
+    {
+      "period": 16,
+      "steps": ["molt"]
+    },
+    {
+      "period": 17,
+      "steps": ["molt"]
+    },
+    {
+      "period": 18,
+      "steps": ["molt"]
+    },
+    {
+      "period": 19,
+      "steps": ["autumnFlock"]
+    },
+    {
+      "period": 20,
+      "steps": ["autumnFlock"]
+    },
+    {
+      "period": 21,
+      "steps": ["autumnFlock"]
+    },
+    {
+      "period": 22,
+      "steps": ["autumnFlock"]
+    },
+    {
+      "period": 23,
+      "steps": ["winter"]
+    },
+    {
+      "period": 24,
+      "steps": ["winter"]
+    }
+  ],
+  "rebrood": [
+    {
+      "steps": ["nestSite", "laying", "incubation"]
+    },
+    {
+      "steps": ["nestling", "nestling", "postFledge"]
+    }
+  ]
+}
