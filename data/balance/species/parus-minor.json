@@ -25,38 +25,10 @@
     "period": 1
   },
   "seasons": {
-    "winter": [
-      23,
-      24,
-      1,
-      2,
-      3,
-      4
-    ],
-    "spring": [
-      5,
-      6,
-      7,
-      8,
-      9,
-      10
-    ],
-    "summer": [
-      11,
-      12,
-      13,
-      14,
-      15,
-      16
-    ],
-    "autumn": [
-      17,
-      18,
-      19,
-      20,
-      21,
-      22
-    ]
+    "winter": [23, 24, 1, 2, 3, 4],
+    "spring": [5, 6, 7, 8, 9, 10],
+    "summer": [11, 12, 13, 14, 15, 16],
+    "autumn": [17, 18, 19, 20, 21, 22]
   },
   "basalPerStep": {
     "winter": 8,
@@ -75,10 +47,7 @@
     "molt": 1.0,
     "autumnFlock": 0.9
   },
-  "flockPhases": [
-    "winter",
-    "autumnFlock"
-  ],
+  "flockPhases": ["winter", "autumnFlock"],
   "nestLossPerStep": 0.045,
   "agingStartAge": 3,
   "firstWinterRiskMult": 1.8,

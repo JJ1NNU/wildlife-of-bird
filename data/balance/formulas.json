@@ -243,10 +243,7 @@
   "aging": {
     "riskPerYear": 0.25,
     "statDeclinePerYear": 3,
-    "declineStats": [
-      "flight",
-      "stamina"
-    ]
+    "declineStats": ["flight", "stamina"]
   },
   "display": {
     "riskDecimalsBelow": 0.1,
