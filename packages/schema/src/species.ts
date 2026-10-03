@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Tier } from './effects.ts';
-import { FactCheck, fact, SourceId, UnresolvedFact } from './fact.ts';
+import { FactCheck, fact, SourceId } from './fact.ts';
 
 /** 종 ID. 학명을 소문자 하이픈으로. 예: `parus-minor` */
 export const SpeciesId = z
@@ -93,7 +93,8 @@ export const SpeciesEcology = z
       })
       .strict(),
     diet: z.object({ primary: textList, secondary: textList, nestlingFood: textList }).strict(),
-    lifespan: UnresolvedFact,
+    /** 가락지 조사로 확인된 최장 생존 기록(개월). 평균 수명이 아니다 */
+    lifespan: fact({ maxRecordedMonths: count }),
     alarmCalls: z
       .object({ values: z.array(AlarmCall).min(1), note: z.string().min(1).optional() })
       .strict(),
