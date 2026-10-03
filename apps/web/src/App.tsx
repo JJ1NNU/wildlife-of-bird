@@ -1,5 +1,6 @@
 import { getView, newRun } from '@wb/engine';
 import versionFile from '../../../version.json';
+import { birdUrl } from './art.ts';
 import { fileCount, loaded } from './data.ts';
 
 /**
@@ -44,7 +45,16 @@ export function App() {
       <section>
         <h2>엔진</h2>
         {view ? (
-          <pre data-testid="engine-view">{JSON.stringify(view, null, 2)}</pre>
+          <>
+            <img
+              className="bird"
+              src={birdUrl(view.speciesId)}
+              alt={data?.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}
+              width={200}
+              height={200}
+            />
+            <pre data-testid="engine-view">{JSON.stringify(view, null, 2)}</pre>
+          </>
         ) : (
           <p data-testid="engine-view" className="muted">
             게임 데이터가 준비되면 새 런을 시작해 화면 정보를 보여 준다
