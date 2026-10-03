@@ -1,7 +1,8 @@
 # 모듈 경계 · 소유권 · 인터페이스 계약
 
-> 관리: 엔진. 상태: **초안 v0** — 엔진이 M0에 v1로 확정한다(데이터 필드의 의미는 디자인·콘텐츠와 `type:decision`으로 합의).
-> 아래의 파일 경로·함수 이름은 ADR-001(기술 스택) 결정에 맞춰 바뀔 수 있다. 원칙(1장)과 소유권(2장)은 유지한다.
+> 관리: 엔진. 상태: **v1** (2026-10-03, ADR-001 반영). 바꾸는 법은 8장.
+> 3장의 타입은 `packages/engine/src/types.ts`, 4장의 형식은 `packages/schema/src/`가 **실제 정의**이고 이 문서는 그 요약이다. 둘이 다르면 코드가 맞고, 이 문서를 고친다.
+> 데이터 필드의 **의미**는 그 파일의 소유 부서가 정한다. 엔진은 그 의미대로 타입·검증기를 만든다.
 
 ---
 
@@ -49,7 +50,7 @@
 | `docs/agents/` | pm | 부서별 임무 문서 (각 부서는 개정을 PM에 제안) |
 | `docs/status/<부서>.md` | 각 부서 | 상태 파일 |
 | `docs/status/README.md` | pm | 대시보드 |
-| 루트 설정·잠금 파일(패키지 매니저·tsconfig·린트 등) | engine | 의존성을 추가하는 부서는 잠금 파일 변경을 포함해 `review:engine` |
+| 루트 설정·잠금 파일: `package.json` `package-lock.json` `tsconfig.json` `biome.json` `.gitattributes` | engine | 의존성을 추가하는 부서는 잠금 파일 변경을 포함해 `review:engine`. 각 워크스페이스의 `package.json`은 그 패키지의 소유 부서 |
 | `version.json` `CHANGELOG.md` `README.md` `docs/README.md` `.gitignore` | pm | |
 | `.github/workflows/ci.yml` | engine | 검사 |
 | `.github/workflows/deploy.yml` | client | 배포 |
@@ -60,18 +61,20 @@
 
 ---
 
-## 3. 엔진 API (초안)
+## 3. 엔진 API — `@wb/engine`
 
 ```ts
-// 모든 함수는 순수 함수다. data = 검증된 게임 데이터 묶음(GameData).
+import { newRun, getChoices, preview, act, getView, serialize, deserialize } from '@wb/engine';
+import type { GameData } from '@wb/schema';   // 검증된 데이터 묶음 (4장)
 
+// 모든 함수는 순수 함수다. 같은 입력이면 언제나 같은 출력.
 newRun(config: RunConfig, data: GameData): RunState
 getChoices(state: RunState, data: GameData): Choice[]               // 지금 고를 수 있는 모든 선택
 preview(state: RunState, choiceId: string, data: GameData): Preview // 난수를 쓰지 않는다
-act(state: RunState, choiceId: string, data: GameData): { state: RunState; log: LogEntry[] }
+act(state: RunState, choiceId: string, data: GameData): ActResult   // { state, log }
 getView(state: RunState, data: GameData): ViewModel                 // 화면이 그대로 그리는 형태
 serialize(state: RunState): string
-deserialize(text: string, data: GameData): RunState                 // 버전 확인·마이그레이션
+deserialize(text: string, data: GameData): RunState                 // 저장 버전이 다르면 던진다 (6장)
 ```
 
 ```ts
@@ -82,6 +85,8 @@ interface RunConfig {
   mode: 'free' | 'weekly'
   weeklyId?: string           // 주간 시드 모드일 때
 }
+
+interface CalendarAt { year: number; period: number; step: number }  // period: 1~24 (1 = 1월 상반)
 
 interface Choice {
   id: string
@@ -95,53 +100,97 @@ interface Choice {
 interface Preview {
   deathRisk: number              // 0~1, 화면에서 반올림 표시
   broodRisk?: number
-  energyDelta: [number, number]  // 예상 범위
-  statGains?: Record<string, number>
+  energyDelta: [number, number]  // 예상 범위 [최소, 최대]
+  statGains?: Partial<Record<StatName, number>>
   mateAcceptance?: number        // 짝 지시 수락률
   notes: string[]                // "배가 고파 위험한 곳을 골랐다" 같은 설명
 }
 
 interface LogEntry {
-  at: { year: number; period: number; step: number }  // period: 1~24 (1 = 1월 상반)
-  type: string                                        // 'event' | 'death' | 'breeding' | ...
+  at: CalendarAt
+  type: string                   // 'action' | 'event' | 'death' | 'breeding' | ...
   text: string
   deltas?: Record<string, number>
-  cause?: string                                      // 사망·실패 원인 (QA 분석용)
+  cause?: string                 // 사망·실패 원인 (QA 분석용)
+}
+
+interface ViewModel {
+  at: CalendarAt
+  speciesId: string
+  player: Bird                   // 종 · 성별 · 나이 · 에너지 · 스탯
+  totalBreeding: number          // 점수
+  gameOver: boolean
+  recentLog: LogEntry[]          // 최근 20건 — 이야기 피드
 }
 ```
 
-필수 성질
-- `RunState` 안에 난수 상태, 달력(년·시기·단계), 플레이어 개체, 짝, 새끼, 가계도, 세계 상태(장소·환경), 점수(`totalBreeding`), 게임 오버 여부가 있다.
-- `getView`는 화면에 필요한 모든 것을 준다. 부족하면 클라이언트가 엔진에 이슈로 요청한다.
-- 시뮬레이터는 같은 API를 쓴다: `봇.choose(view, choices, previews) → choiceId`.
+`StatName` = `flight` `foraging` `vigilance` `stamina` `display` `social` `navigation` (gdd 5.1장).
+
+### 필수 성질
+- **결정론**: 난수 상태(`RunState.rng`, 32비트 정수)가 상태 안에 있다. `Math.random`·현재 시간 사용 금지. 테스트가 지킨다.
+- `RunState` 안에는 지금 난수 상태, 달력, 플레이어 개체, 점수(`totalBreeding`), 게임 오버 여부, 판정 기록(`log`)이 있다. **짝 · 새끼 · 가계도 · 세계 상태(장소·환경)는 디자인 상태 기계 명세(#5)와 함께 M1에 더한다.** 화면·봇은 `RunState`를 직접 읽지 않고 `getView`만 쓴다 — 그래서 `RunState` 내부가 바뀌어도 화면·봇이 깨지지 않는다.
+- `getView`는 화면에 필요한 모든 것을 준다. 부족하면 클라이언트가 `dept:engine` 이슈로 요청한다. `ViewModel`에 필드를 **더하는** 것은 깨지지 않는 변경이다.
+- 고를 수 없는 `choiceId`를 `preview`·`act`에 넘기면 던진다.
+
+### 시뮬레이터 — `@wb/sim`
+
+```ts
+interface Bot {
+  name: string
+  choose(input: { view: ViewModel; choices: Choice[]; previews: Map<string, Preview> }): string  // choiceId
+}
+runOne(config: RunConfig, data: GameData, bot: Bot, maxSteps: number): RunResult
+```
+
+봇은 사람 플레이어와 같은 정보(`ViewModel` · `Choice` · `Preview`)만 본다. 봇 전략은 QA(`qa/bots/`), 러너·결과 형식은 엔진. 대량 실행과 결과 지표는 QA 요구(#19)에 맞춰 M1에 정한다.
+
+### M0의 상태
+형은 확정이고 속은 자리표시다. 결정론 · 저장/불러오기 왕복만 실제로 보장한다. 실제 규칙은 M1(#21).
 
 ---
 
-## 4. 데이터 계약 (예시 형식 — 값은 예시)
+## 4. 데이터 계약 — `@wb/schema` (값은 예시)
+
+- 검증: `npm run validate:data` — CI에서도 돈다. 실패하면 **파일 · 파일 안의 위치 · 이유**를 알려 준다.
+- 스키마 v0이 담은 형식: 4.1 · 4.2 · 4.3. 4.4(장소·포식자·도감)와 `data/calendar/` `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
+- 모든 객체는 **모르는 필드를 거부**한다(오타를 잡기 위해). 필드를 더하려면 8장 절차로 스키마를 함께 고친다.
 
 ### 4.1 종: 생태 사실(content)과 밸런스(design)의 분리
 
-`data/species/parus-minor.ecology.json` — content
+`data/species/parus-minor.ecology.json` — content · 스키마 `SpeciesEcology` (줄임 — 전체는 실제 파일)
 ```json
 {
   "id": "parus-minor",
   "nameKo": "박새",
   "scientificName": "Parus minor",
-  "residency": "resident",
-  "habitats": ["forest", "woodland-edge"],
+  "residency": { "value": "resident", "sources": ["SRC-004"], "factCheck": "needs-review" },
+  "habitats": { "values": ["forest", "woodland-edge"], "sources": ["SRC-004"], "factCheck": "needs-review" },
   "breeding": {
-    "season": { "fromPeriod": 7, "toPeriod": 14 },
-    "clutchSize": { "min": 4, "max": 13, "typicalMin": 7, "typicalMax": 10 },
-    "broodsPerYearMax": 2,
-    "incubationBy": "female",
-    "nestType": "cavity"
+    "season": { "fromPeriod": 7, "toPeriod": 14, "sources": ["SRC-004"], "factCheck": "needs-review" },
+    "clutchSize": { "typicalMin": 7, "typicalMax": 10, "max": 18, "sources": ["SRC-004"], "factCheck": "needs-review",
+                    "note": "최소값은 출처에 없어 비웠다" },
+    "incubationDays": { "min": 12, "max": 13, "sources": ["SRC-004"], "factCheck": "needs-review" },
+    "incubationBy": { "value": "female", "sources": ["SRC-001"], "factCheck": "verified" },
+    "...": "layStart · layStartDriver · broodsPerYearMax · nestlingDays · nestType"
   },
-  "sources": ["SRC-004"],
-  "factCheck": "verified"
+  "diet": { "primary": { "values": ["insects", "spiders"], "sources": ["SRC-004"], "factCheck": "needs-review" }, "...": "secondary · nestlingFood" },
+  "lifespan": { "sources": [], "factCheck": "needs-review", "note": "출처를 찾지 못해 값을 비웠다. 찾아볼 곳: ..." },
+  "alarmCalls": { "values": [ { "id": "jar", "predatorType": "snake", "...": "...", "sources": ["SRC-001"], "factCheck": "verified" } ] },
+  "sources": ["SRC-001", "SRC-004", "SRC-005"],
+  "factCheck": "needs-review"
 }
 ```
+- **사실마다 출처를 붙인다** (#56 결정 — 한 파일 안에서도 사실마다 출처 등급이 다르다). 사실 하나 = 값 + `sources` · `factCheck`(`verified` | `needs-review`) · `note?`. 값의 모양은 셋 중 하나: 하나의 값 `value` / 목록 `values` / 여러 필드(`min`·`max` 등)를 그대로. 스키마 `fact()`.
+- `verified`인 사실은 출처가 1개 이상 있어야 한다.
+- 값을 아직 못 찾은 사실은 값 없이 `needs-review`와 `note`(찾아볼 곳)만 둔다 — 지금은 `lifespan`. 스키마 `UnresolvedFact`.
+- 맨 위의 `sources`는 파일이 쓰는 출처 전체, `factCheck`는 파일 요약. 출시 판정(QA 체크리스트)은 사실마다 붙은 `factCheck`로 센다.
+- `id`: 학명을 소문자-하이픈으로. 파일 이름과 같게 쓴다.
+- `residency`: `resident` | `summer` | `winter` | `passage` (텃새·여름 철새·겨울 철새·나그네새). 잠정(#46)
+- `breeding.clutchSize`: `min`(선택) `≤ typicalMin ≤ typicalMax ≤ max`, `incubationDays`·`nestlingDays`: `min ≤ max`를 검증한다.
+- `breeding.incubationBy`: `female` | `male` | `both`
+- 필드 이름과 의미는 content가 정한다. 필드를 더하면 8장 절차로 스키마를 같은 PR에서 고친다(`review:engine`).
 
-`data/balance/species/parus-minor.json` — design
+`data/balance/species/parus-minor.json` — design · 스키마 `SpeciesBalance`
 ```json
 {
   "speciesId": "parus-minor",
@@ -152,10 +201,12 @@ interface LogEntry {
   "aptitude": { "flight": "C", "foraging": "A", "vigilance": "A", "stamina": "D", "display": "B", "social": "A" }
 }
 ```
+- `speciesId`의 생태 파일이 있어야 한다(교차 검증).
+- `secondBrood`는 2차 번식이 있는 종만 쓴다(선택). `aptitude`는 종에 해당하는 스탯만(예: `navigation`은 철새만), 등급 `S`~`D`.
 
 ### 4.2 효과 등급표 — design
 
-`data/balance/effects.json`
+`data/balance/effects.json` · 스키마 `EffectsTable` — 표의 모든 등급이 있어야 한다.
 ```json
 {
   "energy":     { "small": 5, "medium": 12, "large": 25 },
@@ -170,7 +221,7 @@ interface LogEntry {
 
 ### 4.3 이벤트 — content (design 리뷰)
 
-`data/events/parus-minor.json` 안의 한 항목
+`data/events/<이름>.json` 은 이벤트의 **배열**이다 · 스키마 `GameEvent`. 아래는 `data/events/parus-minor.json` 안의 한 항목
 ```json
 {
   "id": "ev.parus-minor.snake-at-nest",
@@ -196,6 +247,9 @@ interface LogEntry {
   "factCheck": "verified"
 }
 ```
+- `id`: `ev.<종 또는 공통>.<이름>` (소문자·숫자·하이픈). `species`의 종마다 생태 파일이 있어야 한다(교차 검증).
+- `when`: 지금은 `phase`(단계 이름, 주인은 design의 단계표)와 `habitatAny`만. 조건 종류는 디자인 명세(#7)에 맞춰 더한다.
+- `effects`의 종류: `energy` `feather`(등급 + `sign`: `gain` | `loss` — 잠정(#37)), `deathRisk` `broodRisk`(위험 등급), `statGain`(`stat` + 등급), `fledgeEarly`.
 - 글은 v1에서 데이터 파일에 한국어로 직접 쓴다(다국어는 P2).
 - `factCheck`: `verified` | `needs-review`. `needs-review` 항목은 출시 빌드에서 제외하거나 출시 전 해결(QA 출시 체크리스트).
 
@@ -226,10 +280,11 @@ interface LogEntry {
 ## 6. 저장 형식과 버전
 
 ```json
-{ "saveVersion": 1, "gameVersion": "0.1.0", "state": { } }
+{ "saveVersion": 1, "state": { } }
 ```
-- `gameVersion`: 루트 `version.json`의 값. PM이 관문 통과 때 `0.<M번호>.0`으로 올린다(02-roadmap 5장). 데이터 버전은 따로 두지 않는다.
-- `saveVersion`: 저장 형식이 바뀌면 엔진이 올린다. 친구 알파(M3) 전에는 버전이 다르면 "새 게임 시작" 안내로 충분하고, 알파 이후 형식이 바뀔 때부터 마이그레이션을 제공한다.
+- `serialize`가 만들고 `deserialize`가 읽는다. 화면은 이 문자열을 그대로 보관만 한다(예: `localStorage`).
+- `saveVersion`: 저장 형식이 바뀌면 엔진이 올린다. 친구 알파(M3) 전에는 버전이 다르면 `deserialize`가 던지고, 화면이 "새 게임 시작"을 안내하면 충분하다. 알파 이후 형식이 바뀔 때부터 마이그레이션을 제공한다.
+- v0 초안의 `gameVersion` 필드는 **뺐다** — 저장 파일에서 읽는 곳이 없다(01-collaboration 15장). 게임 버전은 루트 `version.json`에 있고(PM이 관문 통과 때 올린다, 02-roadmap 5장), 리더보드 기록(7장)에는 클라이언트가 `version.json`에서 읽어 넣는다. 데이터 버전은 따로 두지 않는다.
 
 ## 7. 리더보드 기록 — client (서버 설계는 ADR-002)
 
@@ -248,6 +303,6 @@ interface LogEntry {
 
 ## 8. 계약 변경 절차
 
-1. 엔진(또는 요청 부서)이 이 문서와 스키마를 함께 고치는 PR을 연다.
+1. 엔진(또는 요청 부서)이 이 문서와 스키마(`packages/schema`)·엔진 타입(`packages/engine/src/types.ts`)을 함께 고치는 PR을 연다. `npm run check`가 통과해야 한다.
 2. 영향받는 부서에 `review:*` 라벨.
 3. 호환이 깨지는 변경이면 기존 데이터 파일을 새 형식으로 바꾸는 변환 스크립트(`scripts/data/`)를 같은 PR에서 실행해 함께 커밋하고, 전 부서에 `type:task` 공지 이슈를 만든다.

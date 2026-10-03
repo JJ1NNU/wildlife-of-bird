@@ -32,8 +32,11 @@ if (issues.length > 0) {
   process.exit(1);
 }
 
+const checkedAny = counted.some(([, n]) => n > 0);
 console.log(
   data
     ? `\n데이터 검증 통과 — 종 ${data.ecology.size}종, 이벤트 ${data.events.length}건`
-    : '\n데이터 검증 통과 — 아직 검사할 데이터가 없다',
+    : checkedAny
+      ? '\n데이터 검증 통과 — 검사한 파일 모두 이상 없음 (효과 등급표가 아직 없어 게임 데이터 묶음은 만들지 않았다)'
+      : '\n데이터 검증 통과 — 아직 검사할 데이터가 없다',
 );
