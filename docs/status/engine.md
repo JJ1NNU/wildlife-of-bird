@@ -2,30 +2,28 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-03 (라운드 2)
-- 현재 마일스톤: M0 착수
+- 마지막 근무: 2026-10-04 (라운드 3)
+- 현재 마일스톤: M0 착수 → M1 착수(#21)
 
 ## 진행 중
-- 없음
+- **PR #96** `01-formulas` v0 공식 1~8장 + 명세 예시 테스트(28) + 화면 표시 함수(`formatRisk` 등) + disabled 선택 거부(#47). 테스트 고정 데이터 → 실제 `data/`. update-branch 후 CI 통과 — **머지만 남음**(이 세션 `gh pr merge` 자동 승인 모드에 막힘 → PM/대표에게 부탁 댓글)
+- **PR #100** (#91) 단계표 스키마 · 국면 열거 `Phase` · 교차 검증 · `phaseLastStep` · `moltDelayPeriods` 삭제. **#94(design) 위에 쌓음** → #94 머지 뒤 base를 main으로 바꾸고 머지. `review:design` `review:content` `review:client`
+- #21 M1 — 다음 조각 계획은 아래
 
-## 최근 완료 (라운드 2)
-- **#54 → PR #65 머지** 스키마 개정. design·content 승인. content 의견 반영: 예시 이벤트 출처 SRC-023 추가, `residency` 잠정(#46) 해제. #48에 "이제 rebase → format → 머지" 알림
-  - 미반영(막지 않는 의견): design ① 국면 이름 오타 검증 → 디자인 #8 단계표 때 교차 검증 ② `periodStart` + `actionAny` 검증 → 쓰는 이벤트가 생길 때
-- **#33 → PR #80 머지** 봇 인터페이스(`id`·`version`) · 러너 오류 처리(disabled · 예외 · 선택 0 · 2400시기 상한 → 판 오류 후 다음 판) · 판 기록 JSONL · `replay` · CLI(`npm run sim -- --bot …` / `replay`) · `getView` 복사본(#47)
-  - #33 4절 지표 로그 종류 → #21로 넘김(댓글). QA에 사용 확인 이슈 #81
-- **리뷰 PR #63**(client 웹 골격): **수정 요청** — `data.ts`가 `formulas.json`을 안 읽어 #65 이후 `GameData`가 영원히 안 묶임. 나머지(의존성·lock·biome·deploy) 이상 없음. `review:engine` 유지
+## 최근 완료 (라운드 3)
+- 리뷰: **#77 승인**(lifespan 스키마, `UnresolvedFact`는 계약이라 남김) · **#78 승인**(`@wb/tokens`, #63과 lock 충돌 — 나중 머지 쪽이 `npm install`로) · **#63 재확인: 아직 `formulas` 미반영 → 수정 요청 유지** + #100 이후 `calendar` glob도 필요하다고 알림
+- #8에 단계표 형식 제안 → 디자인 #94와 엇갈림 → **#94 형식 채택**(정정 댓글). #23에 장소 데이터 요구(계절별 먹이·위험·**경쟁** 등급, 양방향 links, 시작 장소)
 
 ## 막힘 (무엇을 · 누구를 기다리는지)
-- 없음
+- 머지 권한: #96 머지 대기(PM/대표)
+- `data/nodes/` 첫 파일(content #23) — 판정 1·3을 `act`에 붙이려면 장소의 먹이·위험·경쟁 등급이 필요
 
 ## 다음 근무에서 할 일
-1. **PR #63 재확인** — client가 `formulas` 추가했으면 승인(`승인 (engine)` + 라벨 떼기)
-2. #48(디자인) 머지됐는지 확인 — 안 됐으면 main 깨짐 위험(format) 확인
-3. **M1 착수 (#21)** — 디자인 #40(상태 기계) · #48(공식) · #55(이벤트) 머지 상태 확인 후:
-   - 엔진 테스트 고정 데이터 → 실제 `data/`로 (`fixture.ts`의 `formulas: {} as Formulas` 제거)
-   - `RunState` 확장(짝·새끼·가계도·세계, 잠정(#5)), #38대로 선택 id `action.<행동>` · `move.<장소>`
-   - 규칙마다 #33 4절 로그(`decision` `breedingSeason` `breeding` `inheritance` `death` `event`)
-4. #81 QA 답 확인
+1. #96 · #100 머지 확인(#100은 #94 머지 후 base 변경 → update-branch → CI → 머지). 리뷰 의견 반영
+2. #63 재확인 — `formulas` + `calendar` glob 들어왔으면 승인
+3. **#21 다음 조각** — `RunState` 확장(달력: 그 해 단계표 사본·시기 안 단계, 장소·연속 체류, 깃털, 잠재력, 경험 연수) → `getChoices` 평평한 목록(`action.<행동>` 6개 + `move.<장소>`) → `act`에 판정 1·2·3(에너지→스탯→위험) + 아사·포식 사망으로 런 종료 + `decision`·`death` 로그 + 00-core-loop 3.1 예시 테스트. 장소 파일이 없으면 엔진 테스트 고정 장소로(실제 `data/`는 안 건드림)
+4. 그다음: 관문(4.6) · 재번식/분할 해제(4.4·4.5) · 번식 · 계승 · 점수 · 이벤트 해석기. 2차 번식 관문 kind = `secondBrood`(Choice kind에 추가)
+5. #81 QA 답 확인
 
 ## 메모 (다음 근무의 나에게)
 - **쌓인 PR의 아래 PR을 머지할 때 `--delete-branch` 금지** — base가 지워지면 GitHub가 위 PR을 닫는다(#42 사고). 머지 전 `gh pr list --base <브랜치>`
@@ -35,4 +33,6 @@
 - `npm run check` = CI와 같은 검사. Windows Git Bash에서 `git show <ref>:<path>`가 경로 변환으로 깨지면 `MSYS_NO_PATHCONV=1`
 - Node 타입 제거는 npm workspaces 심링크를 realpath로 풀어서 `@wb/*`가 된다. `erasableSyntaxOnly` → enum 금지
 - `@wb/schema` 메인 입구는 브라우저용(fs 없음). fs는 `@wb/schema/cli/read-data`. `@wb/sim`은 Node 전용(node:crypto)
+- 유전 정규분포 표본은 아직 없음 — 번식 구현 때 시드 난수로(Box–Muller 등) 만들고 ADR에 남긴다(01-formulas 5장)
+- `packages/schema` `table()`은 `const` 타입 인자여야 키가 살아 있다(#96)
 - `잠정(#5)` `잠정(#6)` — `grep -rn "잠정(#" packages docs/studio/03-contracts.md`
