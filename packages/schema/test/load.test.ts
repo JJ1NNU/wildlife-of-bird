@@ -36,7 +36,10 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
               weight: 'common',
               title: 'ㄱ',
               body: 'ㄴ',
-              options: [{ id: 'a', text: 'ㄷ', effects: [] }],
+              options: [
+                { id: 'a', text: 'ㄷ', effects: [] },
+                { id: 'b', text: 'ㅁ', effects: [] },
+              ],
               ecologyBasis: 'ㄹ',
               sources: ['SRC-TEST'],
               factCheck: 'verified',
