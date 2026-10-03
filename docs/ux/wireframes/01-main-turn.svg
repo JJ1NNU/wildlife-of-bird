@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 700" width="400" height="700" role="img" aria-label="메인 턴 화면 저충실도 와이어프레임">
+<title>S-10 메인 턴 — 저충실도 와이어프레임 (360×640)</title>
+<style>
+  .f{fill:none;stroke:#333;stroke-width:1.5}
+  .box{fill:#f4f4f2;stroke:#9a9a94;stroke-width:1}
+  .art{fill:#eceae4;stroke:#9a9a94;stroke-width:1;stroke-dasharray:5 4}
+  .btn{fill:#e4e2dc;stroke:#6b6b66;stroke-width:1.2}
+  .prim{fill:#cfcdc4;stroke:#44443f;stroke-width:1.5}
+  .gauge{fill:#dedcd5;stroke:#9a9a94;stroke-width:1}
+  .fill{fill:#9a9a94}
+  t,text{font-family:system-ui,'Malgun Gothic',sans-serif;fill:#2a2a28}
+  .l{font-size:11px}.s{font-size:9.5px;fill:#55554f}.h{font-size:12.5px;font-weight:600}
+  .n{font-size:9px;fill:#7a3b1d;font-weight:600}
+  .cap{font-size:9px;fill:#8a8a84;font-style:italic}
+  .tt{fill:none;stroke:#b8744a;stroke-width:0.8;stroke-dasharray:3 2}
+</style>
+<text class="h" x="20" y="18">S-10 메인 턴 (행동 고르기) — 360×640</text>
+<text class="cap" x="20" y="32">점선 주황 = 44px 터치 영역 / 주황 글자 = 확률·예상치 자리 / 점선 회색 = 그림 자리</text>
+<g transform="translate(20,44)">
+<rect class="f" x="0" y="0" width="360" height="640" rx="4"/>
+
+<!-- 상태 바 0-56 -->
+<rect class="box" x="0" y="0" width="360" height="56"/>
+<text class="l" x="10" y="18">박새 ♀ · 2세 · 3세대</text>
+<text class="l" x="350" y="18" text-anchor="end">총 번식 3</text>
+<text class="s" x="10" y="38">에너지</text>
+<rect class="gauge" x="48" y="29" width="150" height="12" rx="6"/><rect class="fill" x="49" y="30" width="96" height="10" rx="5"/>
+<text class="n" x="204" y="38">64%</text>
+<text class="s" x="243" y="38">깃털</text>
+<circle class="fill" cx="272" cy="35" r="4"/><circle class="fill" cx="284" cy="35" r="4"/><circle class="fill" cx="296" cy="35" r="4"/><circle cx="308" cy="35" r="4" fill="#fff" stroke="#9a9a94"/>
+
+<!-- 시기 바 56-76 -->
+<rect class="box" x="0" y="56" width="360" height="20"/>
+<text class="s" x="10" y="70">4월 상반 · 9 / 24시기 · 번식기</text>
+<text class="s" x="350" y="70" text-anchor="end">자동저장 ✓</text>
+<g fill="#9a9a94">
+<rect x="176" y="66" width="7" height="5"/><rect x="186" y="66" width="7" height="5"/><rect x="196" y="66" width="7" height="5"/><rect x="206" y="66" width="7" height="5"/>
+</g>
+<g fill="#fff" stroke="#9a9a94" stroke-width="0.8">
+<rect x="216" y="66" width="7" height="5"/><rect x="226" y="66" width="7" height="5"/><rect x="236" y="66" width="7" height="5"/><rect x="246" y="66" width="7" height="5"/><rect x="256" y="66" width="7" height="5"/><rect x="266" y="66" width="7" height="5"/><rect x="276" y="66" width="7" height="5"/><rect x="286" y="66" width="7" height="5"/>
+</g>
+
+<!-- 그림 영역 76-248 -->
+<rect class="art" x="0" y="76" width="360" height="172"/>
+<text class="s" x="180" y="128" text-anchor="middle">그림 레이어 (2겹)</text>
+<text class="s" x="180" y="146" text-anchor="middle">bg.forest.spring.day</text>
+<text class="s" x="180" y="162" text-anchor="middle">+ bird.parus-minor.adult-f.breeding.perch</text>
+<text class="cap" x="180" y="182" text-anchor="middle">배경 위 45%는 UI가 덮는다 (style-guide 2장)</text>
+<rect x="8" y="84" width="92" height="22" rx="11" class="btn"/><text class="s" x="54" y="99" text-anchor="middle">개체 보기 ▸</text>
+
+<!-- 환경 카드 248-300 -->
+<rect class="box" x="0" y="248" width="360" height="52"/>
+<text class="s" x="10" y="264">환경</text>
+<text class="l" x="10" y="281">흐림 · 기온 낮음 · 애벌레 적은 해</text>
+<text class="n" x="350" y="264" text-anchor="end">먹이 −20%</text>
+<text class="n" x="350" y="281" text-anchor="end">위험 배율 ×1.2</text>
+
+<!-- 장소 300-348 -->
+<rect class="btn" x="0" y="300" width="360" height="48"/>
+<rect class="tt" x="2" y="302" width="356" height="44"/>
+<text class="l" x="10" y="320">장소 · 묵은 참나무 숲</text>
+<text class="s" x="10" y="337">먹이 보통 · 경쟁 높음 · 지역 지식 70%</text>
+<text class="n" x="300" y="320">위험 4%</text>
+<text class="s" x="350" y="337" text-anchor="end">지도 ▸</text>
+
+<!-- 행동 348-556 -->
+<text class="s" x="10" y="362">행동 고르기 (1개)</text>
+<g>
+<rect class="prim" x="0" y="368" width="360" height="46"/><rect class="tt" x="2" y="369" width="356" height="44"/>
+<text class="l" x="10" y="386">채식 — 애벌레 찾기</text><text class="s" x="10" y="402">에너지 회복 위주</text>
+<text class="n" x="350" y="386" text-anchor="end">에너지 +12~18</text><text class="n" x="350" y="402" text-anchor="end">위험 4%</text>
+</g>
+<g>
+<rect class="btn" x="0" y="418" width="360" height="46"/><rect class="tt" x="2" y="419" width="356" height="44"/>
+<text class="l" x="10" y="436">훈련 — 영역 노래</text><text class="s" x="10" y="452">과시 올리기</text>
+<text class="n" x="350" y="436" text-anchor="end">과시 +2~4</text><text class="n" x="350" y="452" text-anchor="end">위험 9%</text>
+</g>
+<g>
+<rect class="btn" x="0" y="468" width="360" height="46"/><rect class="tt" x="2" y="469" width="356" height="44"/>
+<text class="l" x="10" y="486">사회 — 혼성군 합류</text><text class="s" x="10" y="502">동료 카드 1장</text>
+<text class="n" x="350" y="486" text-anchor="end">경계 +1~2</text><text class="n" x="350" y="502" text-anchor="end">위험 2%</text>
+</g>
+<g>
+<rect class="btn" x="0" y="518" width="360" height="46"/><rect class="tt" x="2" y="519" width="356" height="44"/>
+<text class="l" x="10" y="536">탐색 — 새 나무구멍 찾기</text><text class="s" x="10" y="552">지역 지식 공개</text>
+<text class="n" x="350" y="536" text-anchor="end">지식 +15%</text><text class="n" x="350" y="552" text-anchor="end">위험 11%</text>
+</g>
+<text class="cap" x="180" y="578" text-anchor="middle">행동이 5개를 넘으면 이 목록만 세로 스크롤한다</text>
+
+<!-- 결정 584-628 -->
+<rect class="prim" x="0" y="584" width="360" height="44" rx="4"/><rect class="tt" x="2" y="585" width="356" height="42"/>
+<text class="h" x="180" y="611" text-anchor="middle">이 행동으로 진행</text>
+
+<!-- 하단 여백 -->
+<text class="cap" x="180" y="636" text-anchor="middle">판정 결과는 같은 화면에 겹쳐 뜬다(S-12) — 화면 전환 없음</text>
+</g>
+</svg>

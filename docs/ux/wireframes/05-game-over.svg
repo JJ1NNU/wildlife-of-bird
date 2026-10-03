@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 700" width="400" height="700" role="img" aria-label="게임 오버 생애 기록 화면 저충실도 와이어프레임">
+<title>S-30 게임 오버 · 생애 기록 — 저충실도 와이어프레임 (360×640)</title>
+<style>
+  .f{fill:none;stroke:#333;stroke-width:1.5}
+  .box{fill:#f4f4f2;stroke:#9a9a94;stroke-width:1}
+  .art{fill:#eceae4;stroke:#9a9a94;stroke-width:1;stroke-dasharray:5 4}
+  .btn{fill:#e4e2dc;stroke:#6b6b66;stroke-width:1.2}
+  .prim{fill:#cfcdc4;stroke:#44443f;stroke-width:1.5}
+  .fill{fill:#9a9a94}
+  text{font-family:system-ui,sans-serif;fill:#2a2a28}
+  .l{font-size:11px}.s{font-size:9.5px;fill:#55554f}.h{font-size:12.5px;font-weight:600}
+  .big{font-size:40px;font-weight:700;fill:#2a2a28}
+  .n{font-size:9px;fill:#7a3b1d;font-weight:600}
+  .cap{font-size:9px;fill:#8a8a84;font-style:italic}
+  .tt{fill:none;stroke:#b8744a;stroke-width:0.8;stroke-dasharray:3 2}
+</style>
+<text class="h" x="20" y="18">S-30 게임 오버 · 생애 기록 — 360×640</text>
+<text class="cap" x="20" y="32">독립 순간 점수가 확정되므로 여기서 정산할 미결 점수가 없다(gdd 11.1).</text>
+<g transform="translate(20,44)">
+<rect class="f" x="0" y="0" width="360" height="640" rx="4"/>
+
+<rect class="art" x="0" y="0" width="360" height="120"/>
+<text class="s" x="180" y="56" text-anchor="middle">그림: bg.forest.winter.day (새 없이)</text>
+<text class="cap" x="180" y="74" text-anchor="middle">사인에 맞는 배경을 쓴다. 죽은 새는 그리지 않는다.</text>
+<text class="h" x="180" y="100" text-anchor="middle">1월 하반 — 한파가 닷새 이어졌다</text>
+
+<text class="s" x="10" y="140">박새 ♀ · 4세 · 3세대 · 사인: 에너지 고갈</text>
+<text class="s" x="350" y="140" text-anchor="end">런 길이 4년 2개월</text>
+
+<rect class="box" x="0" y="150" width="360" height="92"/>
+<text class="s" x="180" y="170" text-anchor="middle">최종 점수 · 총 번식 수</text>
+<text class="big" x="180" y="214" text-anchor="middle">6</text>
+<text class="s" x="180" y="232" text-anchor="middle">종별 가중치 없음 — 네 종이 같은 자로 비교된다</text>
+
+<rect class="box" x="0" y="252" width="360" height="52"/>
+<text class="s" x="10" y="270">생애 칭호</text>
+<text class="h" x="10" y="290">네 번의 겨울을 난 숲의 경보관</text>
+<text class="cap" x="350" y="290" text-anchor="end">기록일 뿐 점수에 더하지 않는다</text>
+
+<text class="s" x="10" y="324">부가 기록 (점수 아님)</text>
+<g>
+<rect class="box" x="0" y="330" width="176" height="40"/>
+<text class="s" x="10" y="346">독립시킨 새끼</text><text class="l" x="166" y="348" text-anchor="end">27마리</text>
+<rect class="box" x="184" y="330" width="176" height="40"/>
+<text class="s" x="194" y="346">최장 계보</text><text class="l" x="350" y="348" text-anchor="end">3세대</text>
+<rect class="box" x="0" y="374" width="176" height="40"/>
+<text class="s" x="10" y="390">최장수 개체</text><text class="l" x="166" y="392" text-anchor="end">4세 7개월</text>
+<rect class="box" x="184" y="374" width="176" height="40"/>
+<text class="s" x="194" y="390">도감</text><text class="l" x="350" y="392" text-anchor="end">18 / 40</text>
+</g>
+
+<text class="s" x="10" y="434">가문 기록</text>
+<rect class="box" x="0" y="440" width="360" height="72"/>
+<g stroke="#9a9a94" fill="none">
+<circle class="fill" cx="40" cy="462" r="6"/><circle class="fill" cx="120" cy="462" r="6"/><circle class="fill" cx="200" cy="462" r="6"/>
+<line x1="46" y1="462" x2="114" y2="462"/><line x1="126" y1="462" x2="194" y2="462"/>
+<circle cx="80" cy="492" r="4"/><circle cx="104" cy="492" r="4"/><circle cx="160" cy="492" r="4"/><circle cx="184" cy="492" r="4"/><circle cx="240" cy="492" r="4"/>
+<line x1="120" y1="468" x2="104" y2="488"/><line x1="200" y1="468" x2="184" y2="488"/>
+</g>
+<text class="s" x="40" y="482" text-anchor="middle">1세대</text><text class="s" x="120" y="482" text-anchor="middle">2세대</text><text class="s" x="200" y="482" text-anchor="middle">3세대</text>
+<text class="s" x="350" y="462" text-anchor="end">가계도 전체 보기 ▸</text>
+
+<rect class="btn" x="0" y="522" width="176" height="44"/><rect class="tt" x="2" y="523" width="172" height="42"/>
+<text class="l" x="88" y="549" text-anchor="middle">리더보드</text>
+<rect class="btn" x="184" y="522" width="176" height="44"/><rect class="tt" x="186" y="523" width="172" height="42"/>
+<text class="l" x="272" y="549" text-anchor="middle">결과 카드 공유</text>
+<rect class="prim" x="0" y="574" width="360" height="44" rx="4"/><rect class="tt" x="2" y="575" width="356" height="42"/>
+<text class="h" x="180" y="601" text-anchor="middle">새로 시작</text>
+
+<text class="cap" x="180" y="632" text-anchor="middle">도감·칭호는 런이 끝나도 남는다. 수치 보너스가 아니라 정보 해금이다(gdd 5.4).</text>
+</g>
+</svg>

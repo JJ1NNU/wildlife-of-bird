@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 700" width="400" height="700" role="img" aria-label="이벤트 카드 화면 저충실도 와이어프레임">
+<title>S-13 이벤트 카드 — 저충실도 와이어프레임 (360×640)</title>
+<style>
+  .f{fill:none;stroke:#333;stroke-width:1.5}
+  .box{fill:#f4f4f2;stroke:#9a9a94;stroke-width:1}
+  .art{fill:#eceae4;stroke:#9a9a94;stroke-width:1;stroke-dasharray:5 4}
+  .btn{fill:#e4e2dc;stroke:#6b6b66;stroke-width:1.2}
+  .prim{fill:#cfcdc4;stroke:#44443f;stroke-width:1.5}
+  text{font-family:system-ui,sans-serif;fill:#2a2a28}
+  .l{font-size:11px}.s{font-size:9.5px;fill:#55554f}.h{font-size:12.5px;font-weight:600}
+  .n{font-size:9px;fill:#7a3b1d;font-weight:600}
+  .cap{font-size:9px;fill:#8a8a84;font-style:italic}
+  .tt{fill:none;stroke:#b8744a;stroke-width:0.8;stroke-dasharray:3 2}
+</style>
+<text class="h" x="20" y="18">S-13 이벤트 카드 (선택지형) — 360×640</text>
+<text class="cap" x="20" y="32">메인 턴 위에 덮어 뜬다. 뒤 화면 상태 바는 그대로 보인다.</text>
+<g transform="translate(20,44)">
+<rect class="f" x="0" y="0" width="360" height="640" rx="4"/>
+
+<rect class="box" x="0" y="0" width="360" height="36"/>
+<text class="s" x="10" y="22">박새 ♀ 2세 · 4월 상반 · 에너지 64%</text>
+<text class="s" x="350" y="22" text-anchor="end">총 번식 3</text>
+
+<rect class="art" x="0" y="36" width="360" height="176"/>
+<text class="s" x="180" y="116" text-anchor="middle">그림: scene.parus-minor.snake-alarm</text>
+<text class="cap" x="180" y="134" text-anchor="middle">전용 장면 그림은 핵심 장면에만. 대부분의 이벤트는</text>
+<text class="cap" x="180" y="148" text-anchor="middle">배경 + 새 + 아이콘 조합으로 처리한다(art.md 7장)</text>
+
+<text class="h" x="10" y="234">둥지 아래로 뱀이 올라온다</text>
+<rect x="258" y="220" width="92" height="18" rx="9" class="box"/><text class="s" x="304" y="233" text-anchor="middle">위험 · 둥지</text>
+<text class="l" x="10" y="256">나는 뱀 경보음을 냈다. 둥지 안의 새끼들이</text>
+<text class="l" x="10" y="272">구멍 밖으로 뛰쳐나가려 몸을 일으킨다.</text>
+<text class="s" x="10" y="294">경계 B · 지역 지식 70% → 선택지 결과가 더 정확히 보인다</text>
+<text class="s" x="10" y="310">도감: 누룩뱀 (처음 만남 — 기록됨)</text>
+
+<text class="s" x="10" y="334">어떻게 할까</text>
+<g>
+<rect class="btn" x="0" y="340" width="360" height="54"/><rect class="tt" x="2" y="344" width="356" height="46"/>
+<text class="l" x="10" y="358">새끼들을 뛰쳐나가게 둔다</text>
+<text class="s" x="10" y="373">뱀을 피하지만 땅의 새끼는 다른 포식자에 노출된다</text>
+<text class="n" x="10" y="388">이소 수 기대 3.2마리</text><text class="n" x="350" y="388" text-anchor="end">번식 성공 62%</text>
+</g>
+<g>
+<rect class="btn" x="0" y="398" width="360" height="54"/><rect class="tt" x="2" y="402" width="356" height="46"/>
+<text class="l" x="10" y="416">웅크려 숨으라 신호한다</text>
+<text class="s" x="10" y="431">뱀이 지나가면 전원 생존, 들키면 한배를 잃는다</text>
+<text class="n" x="10" y="446">이소 수 기대 2.9마리</text><text class="n" x="350" y="446" text-anchor="end">번식 성공 48%</text>
+</g>
+<g>
+<rect class="btn" x="0" y="456" width="360" height="54"/><rect class="tt" x="2" y="460" width="356" height="46"/>
+<text class="l" x="10" y="474">짝과 함께 모빙으로 쫓는다</text>
+<text class="s" x="10" y="489">짝 수락률 보통 (54%) · 내가 다칠 수 있다</text>
+<text class="n" x="10" y="504">이소 수 기대 4.1마리</text><text class="n" x="350" y="504" text-anchor="end">내 부상 14%</text>
+</g>
+
+<rect class="box" x="0" y="520" width="360" height="58"/>
+<text class="s" x="10" y="538">왜 이런 선택인가 (접을 수 있음)</text>
+<text class="s" x="10" y="553">박새는 뱀과 다른 포식자에 서로 다른 경보음을 쓴다.</text>
+<text class="s" x="10" y="568">뱀 경보를 들은 새끼는 둥지에서 뛰쳐나가는 반응을 보인다.</text>
+
+<text class="cap" x="180" y="598" text-anchor="middle">생태 설명 글은 콘텐츠 부서가 쓴다. 출처는 콘텐츠의 sources.md.</text>
+<rect class="prim" x="110" y="606" width="140" height="28" rx="14"/><text class="s" x="180" y="624" text-anchor="middle">도감에 기록하고 닫기</text>
+</g>
+</svg>
