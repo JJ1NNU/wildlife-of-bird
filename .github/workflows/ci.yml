@@ -1,0 +1,41 @@
+# 소유: 엔진 부서. 검사가 하나라도 실패하면 main이 "깨진" 상태다
+# (01-collaboration.md 5장 1순위: 깨뜨린 PR의 작성 부서가 최우선으로 고친다).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          # TypeScript를 빌드 없이 그대로 실행한다 (ADR-001). 타입 제거는 Node 22.18+ 기본.
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: 타입체크
+        run: npm run typecheck
+
+      - name: 린트 · 포맷
+        run: npm run lint
+
+      - name: 테스트
+        run: npm run test
+
+      - name: 데이터 검증
+        run: npm run validate:data

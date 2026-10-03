@@ -1,0 +1,27 @@
+{
+  "name": "wildlife-of-bird",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "vitest run",
+    "validate:data": "node packages/schema/src/cli/validate-data.ts",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run validate:data"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@types/node": "^24.19.1",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
+  }
+}
