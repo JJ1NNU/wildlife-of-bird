@@ -33,6 +33,9 @@
 | SRC-005 | 「박새, 지리산에서 가장 먼저 번식한다」, 이데일리, 2012-04-29 (국립공원관리공단 7개 국립공원 번식 조사 인용) | [link](https://www.edaily.co.kr/News/Read?mediaCodeNo=257&newsId=01498966599501040) | D | 산란 시작일이 지역·연도에 따라 다르다(2012년 지리산 3월 31일). 번식 시기는 **먹이 곤충이 가장 많은 때**에 맞추므로 산란 준비기의 기온이 중요하다 | 확인 |
 | SRC-023 | Suzuki, T. N. (2011) "Parental alarm calls warn nestlings about different predatory threats", *Current Biology* 21(1):R15–R16 | [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC4434992/) | A | **새끼의 반응**: 이소 직전(17일령) 새끼가 `jar`(뱀)에는 둥지 구멍 밖으로 뛰쳐나가고 `chicka`에는 구멍 안에서 웅크린다. 뱀은 구멍에 들어오고, 까마귀·담비는 입구 밖에서 공격하기 때문 | 확인(서지는 SRC-001 본문의 인용으로 확인, 쪽수는 2차 인용) |
 | SRC-024 | 임신재·손승훈·김규중 (2011) 「활엽수림에 설치한 인공새집을 이용한 박새류의 번식 생태」, 『한국산림과학회지』 100(3):397–401 | [link](https://cau.scholarworks.kr/handle/2019.sw.cau/32161) | A | 국내 박새류의 산란 시작일·산란수·포란 기간·육추 기간·번식 성공률이 **연도에 따라 다르다**. 종별 수치는 전문(PDF)을 받아야 확인 가능 — 미확보 | 확인(서지만) |
+| SRC-025 | 山階鳥類研究所・環境省生物多様性センター (2022-10-20) 『バンディングかわら版』 第5号 (조류 표지조사 소식지) | [link](https://www.biodic.go.jp/banding/pdf/news_5.pdf) | B | 일본 가락지 조사의 종별 **최장 생존 확인 기록**: シジュウカラ(*Parus minor*) **7년 11개월**. 최장 기록일 뿐 평균 수명이 아니다. 지역은 일본 | 확인 |
+| SRC-026 | 大迫義人・三原学 (1998) 「標識調査から得られた鳥類の外部計測値, 捕獲時期および生存日数」, 『Ciconia』(福井県自然保護センター研究報告) 7:7–12 | [link](https://fncc.pref.fukui.lg.jp/wp-content/uploads/2018/12/cico-702.pdf) | A | 일본 후쿠이현 한 조사지(1991~1997)에서 シジュウカラ가 첫 표지 후 **1,514일** 뒤 다시 잡혔다(7년 조사 중 최장). 같은 곳에서 연중 머물며 번식·월동 | 확인 |
+| SRC-027 | Carey, G. J. & Leven, M. R. (2023) "Japanese Tit *Parus minor*", *The Avifauna of Hong Kong*, 홍콩조류협회(HKBWS), 2024-01-10 갱신 | [link](https://avifauna.hkbws.org.hk/species/0270/034800) | C | 식별 특징: 흰 뺨·흰 뒷목, 멱에서 배 가운데로 이어지는 검정, 회백색 배, 흰 날개띠, 수컷은 다리 사이 검정이 넓다, 어린 새는 위 올리브·아래 노르스름·흰 입가. **홍콩의 아종은 등이 회청색** — 한국 개체의 등 색 근거로는 쓰지 않는다 | 확인 |
 
 ### 꼬마물떼새 (Charadrius dubius)
 
@@ -40,6 +43,7 @@
 |---|---|---|---|---|---|
 | SRC-006 | (서지 미확인) 네이처링 관찰 기록 — 필드가이드 인용 | [link](https://www.naturing.net/o/2487763) | E | 도래·체류 시기, 둥지·포란 | 미확인 |
 | SRC-007 | 「꼬마물떼새」, 위키백과 | [link](https://ko.wikipedia.org/wiki/꼬마물떼새) | E | 알 4개, 포란 24~28일 암수 교대, 월동지 | 미확인 |
+| SRC-029 | Carey, G. J. & Pang, C. Y. (2023) "Little Ringed Plover *Charadrius dubius*", *The Avifauna of Hong Kong*, HKBWS | [link](https://avifauna.hkbws.org.hk/species/0080/010700) | C | 식별 특징: 노란 눈테, 머리 검정(수컷이 더), 검은 부리·옅은 다리, 암컷·비번식깃은 갈색 섞임, 어린 새는 끊긴 가슴띠·흐린 눈테, 날개띠 없음 | 확인 |
 
 ### 저어새 (Platalea minor)
 
@@ -51,6 +55,7 @@
 | SRC-011 | (서지 미확인) 2026년 저어새 국제 동시 센서스 보도 — 세계 7,746마리 | [link](https://taiwan.md/en/nature/black-faced-spoonbill/) | D | 세계 개체수(2026) | 미확인 |
 | SRC-012 | (서지 미확인) 국내 번식쌍 약 3,300쌍·남해안 첫 번식 확인 보도 | [link](https://www.newswhoplus.com/news/articleView.html?idxno=66366) | D | 국내 번식쌍(2026) | 미확인 |
 | SRC-013 | (서지 미확인) 저어새 육추기 먹이의 담수 습지 의존 연구 | [link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8270140/) | A | 새끼 먹이로 담수 습지 먹이가 많이 쓰인다 → 육추기 먹이터 선택 | 미확인 |
+| SRC-028 | Yu, Y. T. & Pang, C. Y. (2023) "Black-faced Spoonbill *Platalea minor*", *The Avifauna of Hong Kong*, HKBWS, 2024-12-03 갱신 | [link](https://avifauna.hkbws.org.hk/species/0160/021900) | C | 식별 특징: 검은 맨살 얼굴·검은 주걱 부리, 번식깃의 황금빛 담황색 목둘레·담황색 댕기, 날개 끝 성조 흰색/어린 새 검은색, 성조 깃까지 4~5년 | 확인 |
 
 ### 두루미 (Grus japonensis)
 
@@ -61,6 +66,8 @@
 | SRC-016 | (서지 미확인) 철원 두루미 1,567마리(2025-11 조사) 보도, 강원도민일보 | [link](https://www.kado.net/news/articleView.html?idxno=2022415) | D | 철원 월동 개체수(2025) | 미확인 |
 | SRC-017 | (서지 미확인) 2025년 가을 폭우·추수 지연으로 낙곡 먹이 감소, 한국일보 | [link](https://www.hankookilbo.com/news/article/A2025121214570002042) | D | 월동지 작황이 그해 먹이를 좌우한다 → 환경 변화 이벤트 근거 | 미확인 |
 | SRC-018 | (서지 미확인) 두루미 월동지 서식지 감소 보도, G1방송 | [link](https://www.g1tv.co.kr/news/?mid=1_207_3&newsid=298300) | D | 월동지 농경지 감소 | 미확인 |
+| SRC-030 | San Diego Zoo Wildlife Alliance Library, "Red-crowned Crane (*Grus japonensis*)" Fact Sheet — Summary · Physical Characteristics, 2026-01-14 갱신 | [link](https://ielc.libguides.com/sdzg/factsheets/redcrownedcrane/characteristics) | C | 식별 특징: 정수리 붉은 맨살, 검은 목·흰 뒷목, 흰 첫째날개깃·검은 둘째·셋째날개깃, 암수 거의 같음(수컷이 조금 큼), 어린 새 흰색·계피색·회색, 갓 부화한 새끼 붉은 갈색 | 확인 |
+| SRC-031 | 「Red-crowned crane」, 영어 위키백과 | [link](https://en.wikipedia.org/wiki/Red-crowned_crane) | E | 서 있을 때 검은 둘째날개깃이 꼬리처럼 보이지만 꼬리는 흰색. (암컷 뺨·멱이 회색이라는 서술은 SRC-030과 어긋나 쓰지 않는다) | 확인 |
 
 ### 환경 변화 · 그 밖의 종
 

@@ -32,7 +32,7 @@ data/species/parus-minor.ecology.json
 ```
 
 - `verified`이면 출처가 1개 이상 필요하다.
-- 값을 아직 못 찾은 사실은 값 없이 `{ "sources": [], "factCheck": "needs-review", "note": "찾아볼 곳" }` (지금은 `lifespan`).
+- 값을 아직 못 찾은 사실은 값 없이 `{ "sources": [], "factCheck": "needs-review", "note": "찾아볼 곳" }` (지금은 없음).
 - 스키마 코드: `src/fact.ts`의 `fact()` · `UnresolvedFact`.
 
 ## 지금 담은 형식 (M0 — #54 개정)
