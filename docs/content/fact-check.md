@@ -35,6 +35,7 @@
 | P-11 | 서식지 `habitats` | forest, woodland-edge | SRC-004 (E) | 전문 도감 | 열림 — 태그 어휘는 `data/nodes`(#23)와 함께 |
 | P-12 | 체류 `residency` · 둥지 `nestType` | 텃새 · 나무구멍 | SRC-004 (E) · 구멍은 SRC-001·023 간접 | 전문 도감 | 열림 — P-10과 같이 |
 | P-13 | 수명 최장 기록 `lifespan` | 95개월 | SRC-025 (B) · SRC-026 (A) | — | **해결** (PR #77) |
+| P-15 | 이벤트 `data/events/parus-minor.json` 겨울·짝 맺기 8건 (`mixed-flock-join` 말고 전부) | 서열(`flock-rank`) · 해 질 녘 채식과 밤 포식(`long-cold-night`) · 어린 새의 어른 따라 배우기(`first-winter-follow`) · 새매 매복(`sparrowhawk-ambush`) · 영역 노래(`territory-song-duel`) · 구애 먹이(`courtship-feeding`) · 짝 지키기(`rival-near-mate`) · 꽃샘추위(`late-frost-song`) | 붙인 출처(SRC-004 · 005 · 033)는 **종·계절·장소의 배경**까지만 뒷받침한다. 상황 자체의 출처는 없다 | 박새류 겨울 무리 서열·구애 먹이 연구, 일본 *P. minor* 번식 행동 문헌, 새매 먹이 조성 연구 | 열림 — 8건 `needs-review` |
 
 ### 박새 — 규칙으로 닫은 것
 
