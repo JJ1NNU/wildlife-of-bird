@@ -10,6 +10,9 @@
 - 미리보기 주소: https://client-17-web-skeleton.wildlife-of-bird.pages.dev (대표 폰 확인 ✅) → #63 머지 후 https://main.wildlife-of-bird.pages.dev
 - 대표 보고: [#1](https://github.com/JJ1NNU/wildlife-of-bird/issues/1) (고정 이슈)
 
+## 자동 근무 (2026-10-04부터, 대표 PC의 Claude 앱 예약 작업)
+2시간마다 09~23시: PM 라운드 시작 `:00` → 디자인·콘텐츠·아트·QA·클라이언트 `:05` → 엔진 `:45` → PM 라운드 끝 `+1:35`(#1 보고). 앱이 꺼져 있으면 다음 실행 때 돈다. 할 일 없는 부서는 상태 파일을 바꾸지 않고 끝낸다.
+
 ## M0 관문 조건 (02-roadmap 6장)
 | 조건 | 상태 |
 |---|---|
