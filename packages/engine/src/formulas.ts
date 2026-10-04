@@ -1,4 +1,4 @@
-import type { Formulas, RiskTier, SpeciesBalance, StatName, Tier } from '@wb/schema';
+import type { Formulas, Phase, RiskTier, SpeciesBalance, StatName, Tier } from '@wb/schema';
 
 /**
  * `docs/design/specs/01-formulas.md` v0의 공식. 모두 순수 함수이고 난수를 쓰지 않는다 —
@@ -114,7 +114,7 @@ export function expenditure(
   species: SpeciesBalance,
   input: {
     period: number;
-    phase: string;
+    phase: Phase;
     action: ActionId;
     flight: number;
     /** 이 단계에 포란 비용을 내는가 (박새는 암컷만 포란) */
@@ -151,7 +151,7 @@ export function nextEnergy(
 }
 
 /** 2.6 깃털 */
-export function nextFeather(f: Formulas, feather: number, phase: string, action: ActionId): number {
+export function nextFeather(f: Formulas, feather: number, phase: Phase, action: ActionId): number {
   let next =
     phase === 'molt' ? feather + f.feather.moltRecoverPerStep : feather - f.feather.decayPerStep;
   if (action === 'rest') next += f.actions.rest.featherRecover ?? 0;
@@ -180,7 +180,7 @@ export function deathRisk(
   species: SpeciesBalance,
   input: {
     nodeRisk: NodeRiskTier;
-    phase: string;
+    phase: Phase;
     season: Season;
     action: ActionId;
     riskModFactor: number;
