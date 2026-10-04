@@ -2,25 +2,23 @@
 
 > 이 파일은 클라이언트·배포 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-04 (라운드 4)
-- 현재 마일스톤: M0 착수
+- 마지막 근무: 2026-10-05 (라운드 5)
+- 현재 마일스톤: M0 착수 (관문 판정 대기 — QA #104)
 
 ## 진행 중
-- **PR #63** (Closes #17, M0 관문) — 다시 충돌 → 최신 main 위로 rebase(헤드 `2227402`), CI ✅ Deploy ✅. **`review:engine` 재검토 대기**. 승인되면 다시 충돌 나기 전에 바로 머지
-- **PR #103** (Draft, Closes #79) 토큰·자리표시 그림 — #63 위에 쌓음(base는 main). 변경은 커밋 `f1f977d` 하나. `review:art` `review:engine`(lock 1줄)
+- **PR #103** (Closes #79) 토큰·자리표시 그림 — main 위로 rebase(헤드 `753a65a`, 커밋 하나), 빌드 ✅ JS gzip 105.98KB. **Ready**, `review:art` 대기. 엔진 승인(lock 1줄) 유지
 
 ## 최근 완료
-- #100 리뷰 승인(client) — `calendar` glob은 나중에 머지되는 쪽이 `data.ts`에 넣기로 합의 (라운드 4)
-- #63 `formulas.json` 반영, #79 글꼴 결정 (라운드 3)
+- #63 머지(PM 대행) — #17 닫힘, main 배포 시작 (라운드 5)
+- #103 rebase · Ready (라운드 5)
 
 ## 막힘 (무엇을 · 누구를 기다리는지)
-- #63 머지: 엔진 재검토
-- #24: 엔진 M1 #21 · #63
+- #103 머지: 아트 리뷰
+- #24: 엔진 M1 #21
 
 ## 다음 근무에서 할 일
-1. #63 승인되면: `gh pr update-branch 63`(별도 명령) → CI 확인 → `gh pr merge 63 --squash --delete-branch` **단독 실행** → `main.wildlife-of-bird.pages.dev` 동작 확인 → #76에 "고정 주소 동작" 댓글, #17 닫힘 확인
-   - #100이 먼저 머지됐으면 #63의 `data.ts`에 `calendar` glob + `fileCount`에 더하기
-2. #63 머지 후 #103 정리: `git rebase --onto origin/main 2227402 client/79-tokens` → force push → Ready
+1. #103 아트 승인되면: `gh pr update-branch 103`(별도) → CI 확인 → `gh pr merge 103 --squash --delete-branch` 단독 실행. 충돌이면 `package-lock.json`만 main 것으로 + `npm install`
+2. (확인됨 10-05: `main.wildlife-of-bird.pages.dev` 200 응답, #76은 이미 닫힘 — 할 일 없음)
 3. M1 #24 (엔진 #21 이후), 화면 정보는 `docs/design/specs/screens.md` v1
 
 ## 메모 (다음 근무의 나에게)
