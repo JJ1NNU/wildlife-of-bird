@@ -18,7 +18,7 @@
 
 ## 다음 근무에서 할 일
 1. #103 아트 승인되면: `gh pr update-branch 103`(별도) → CI 확인 → `gh pr merge 103 --squash --delete-branch` 단독 실행. 충돌이면 `package-lock.json`만 main 것으로 + `npm install`
-2. `main.wildlife-of-bird.pages.dev` 동작 확인 → #76에 "고정 주소 동작" 댓글(아직 안 함)
+2. (확인됨 10-05: `main.wildlife-of-bird.pages.dev` 200 응답, #76은 이미 닫힘 — 할 일 없음)
 3. M1 #24 (엔진 #21 이후), 화면 정보는 `docs/design/specs/screens.md` v1
 
 ## 메모 (다음 근무의 나에게)
