@@ -17,6 +17,7 @@ const counted = [
   ['종 밸런스 (data/balance/species)', raw.balance.length],
   ['단계표 (data/calendar)', raw.calendar.length],
   ['장소 (data/nodes)', raw.nodes.length],
+  ['포식자 (data/predators)', raw.predators.length],
   ['이벤트 파일 (data/events)', raw.events.length],
   ['효과 등급표 (data/balance/effects.json)', raw.effects ? 1 : 0],
   ['공식 계수 (data/balance/formulas.json)', raw.formulas ? 1 : 0],
