@@ -9,6 +9,7 @@ const config: RunConfig = { speciesId: 'parus-minor', seed: 'test-seed', mode: '
 function play(choiceIds: string[]): RunState {
   let state = newRun(config, testData);
   for (const id of choiceIds) {
+    if (state.gameOver) break;
     state = act(state, id, testData).state;
   }
   return state;
