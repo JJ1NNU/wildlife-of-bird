@@ -37,6 +37,7 @@
 | P-13 | 수명 최장 기록 `lifespan` | 95개월 | SRC-025 (B) · SRC-026 (A) | — | **해결** (PR #77) |
 | P-14 | 장소 등급 `data/nodes/` — 숲 가장자리 · 농촌 마을 · 도시 공원 | 가장자리 중간 · 마을 위험·경쟁·먹이(봄~가을) 낮음 · 공원 번식기 위험·봄 경쟁 중간 | SRC-004 (E) — 서식지라는 것까지만 | 도시·농촌 박새 번식 성공률·포식 비교 연구, 가장자리 효과(둥지 포식) 연구 | 열림 — 숲 둘(노숙림·소나무숲)은 SRC-032·033(A)로 확인 |
 | P-15 | 이벤트 `data/events/parus-minor.json` 겨울·짝 맺기 8건 (`mixed-flock-join` 말고 전부) | 서열(`flock-rank`) · 해 질 녘 채식과 밤 포식(`long-cold-night`) · 어린 새의 어른 따라 배우기(`first-winter-follow`) · 새매 매복(`sparrowhawk-ambush`) · 영역 노래(`territory-song-duel`) · 구애 먹이(`courtship-feeding`) · 짝 지키기(`rival-near-mate`) · 꽃샘추위(`late-frost-song`) | 붙인 출처(SRC-004 · 005 · 033)는 **종·계절·장소의 배경**까지만 뒷받침한다. 상황 자체의 출처는 없다 | 박새류 겨울 무리 서열·구애 먹이 연구, 일본 *P. minor* 번식 행동 문헌, 새매 먹이 조성 연구 | 열림 — 8건 `needs-review` |
+| P-23 | 이벤트 `data/events/parus-minor.json` 둥지 자리·산란·포란·육추 12건 (#23 2차) | `verified` 4: `nest-box`(SRC-024·032·037·034) · `snake-alarm-incubating`(SRC-001) · `snake-at-nest`(SRC-023·001) · `caterpillar-shortage`(SRC-034·005). `needs-review` 8: `hole-competition`(구멍을 과시로 지키는지) · `shallow-hole`(박새가 깊이를 보고 고르는지 — SRC-036은 쇠박새) · `egg-making-hunger`(산란기 에너지 요구) · `jay-watching`(포식자 앞에서 둥지 출입을 줄이는지) · `mate-guarding`(짝 지키기 — SRC-042는 짝 밖 부성까지) · `feeding-incubating-mate` · `leave-eggs-to-feed`(SRC-040·041은 여러 종·유럽 박새) · `nest-cleaning`(SRC-038은 참새목 총설) | 박새류 산란기 짝 지키기·포란 중 급이 연구, 일본 *P. minor* 번식 행동 문헌 | 열림 — 8건 `needs-review` |
 
 ### 박새 — 규칙으로 닫은 것
 
@@ -86,3 +87,4 @@
 | 2026-10-04 | v0 — 박새 13 · 규칙 4 · 기획서 나머지 세 종 11. 전문가 질문 #84 |
 | 2026-10-05 | #84 전문가 답(SRC-034) 반영 — P-1~P-8 해결, P-9 열림 유지, G-3·G-7·G-9 메모 |
 | 2026-10-05 | #122 04-breeding 가정 P-16~P-22 — SRC-035~039 등록. P-20 둥지 자리 순서 일부 다름(인공새집) |
+| 2026-10-05 | #23 이벤트 2차 12건 — P-23, SRC-040~042 등록. N3을 얕은 구멍(SRC-036)으로 바꿈 |
