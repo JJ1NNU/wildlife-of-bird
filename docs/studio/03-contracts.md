@@ -108,7 +108,7 @@ interface Preview {
 
 interface LogEntry {
   at: CalendarAt
-  type: string                   // 'action' | 'event' | 'death' | 'breeding' | ...
+  type: string                   // 'decision' | 'death' | 'event' | 'breeding' | ...
   text: string
   deltas?: Record<string, number>
   cause?: string                 // 사망·실패 원인 (QA 분석용)
@@ -116,8 +116,11 @@ interface LogEntry {
 
 interface ViewModel {
   at: CalendarAt
+  phase: Phase                   // 지금 단계의 국면
   speciesId: string
-  player: Bird                   // 종 · 성별 · 나이 · 에너지 · 스탯
+  node: string                   // 지금 장소 id — 이름은 data.nodes
+  player: Bird                   // 종 · 성별 · 나이 · 에너지 · 스탯(현재값) · 잠재력 · 깃털 · 경험 연수
+  energyCap: number              // 에너지 상한(지방 상한, 01-formulas 2.1)
   totalBreeding: number          // 점수
   gameOver: boolean
   recentLog: LogEntry[]          // 최근 20건 — 이야기 피드
@@ -134,7 +137,7 @@ interface ViewModel {
 
 ### 필수 성질
 - **결정론**: 난수 상태(`RunState.rng`, 32비트 정수)가 상태 안에 있다. `Math.random`·현재 시간 사용 금지. 테스트가 지킨다.
-- `RunState` 안에는 지금 난수 상태, 달력, 플레이어 개체, 점수(`totalBreeding`), 게임 오버 여부, 판정 기록(`log`)이 있다. **짝 · 새끼 · 가계도 · 세계 상태(장소·환경)는 디자인 상태 기계 명세(#5)와 함께 M1에 더한다.** 화면·봇은 `RunState`를 직접 읽지 않고 `getView`만 쓴다 — 그래서 `RunState` 내부가 바뀌어도 화면·봇이 깨지지 않는다.
+- `RunState` 안에는 지금 난수 상태, 달력, **그 해의 실제 단계표**(`calendar`, 00-core-loop 8장), 지금 장소·연속 체류, 플레이어 개체, 점수(`totalBreeding`), 게임 오버 여부, 판정 기록(`log`)이 있다. **짝 · 새끼 · 가계도 · 환경은 그 규칙을 구현할 때(M1, #21) 더한다.** 화면·봇은 `RunState`를 직접 읽지 않고 `getView`만 쓴다 — 그래서 `RunState` 내부가 바뀌어도 화면·봇이 깨지지 않는다.
 - `getView`는 화면에 필요한 모든 것을 준다. 부족하면 클라이언트가 `dept:engine` 이슈로 요청한다. `ViewModel`에 필드를 **더하는** 것은 깨지지 않는 변경이다.
 - 고를 수 없는 `choiceId`(목록에 없거나 `disabled`)를 `preview`·`act`에 넘기면 던진다(#47).
 - **화면 표시 글자**는 엔진이 낸다: `formatRisk` · `formatEnergyDelta` · `formatStatGain` · `acceptanceBand` (`01-formulas` 7장). 화면은 `Preview`의 숫자를 이 함수로 바꿔 보여 준다 — 반올림 규칙이 화면·봇 리포트에서 갈라지지 않게.
@@ -157,8 +160,10 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 - `replay`는 `config` + `choices`를 다시 재생한다. `resumeAt = k`면 k번째 선택 앞에서 `serialize` → `deserialize`로 끊었다 이어 간다. 명령은 `CLAUDE.md` "시뮬레이션 실행".
 - 지표용 로그 종류(`decision` `breedingSeason` `breeding` `inheritance` `death` `event`, #33 4절)는 그 규칙을 구현할 때(M1, #21) 더한다.
 
-### M0의 상태
-형은 확정이고 속은 자리표시다. 결정론 · 저장/불러오기 왕복만 실제로 보장한다. 실제 규칙은 M1(#21).
+### 구현 상태 (M1 진행 중, #21)
+- 실제 규칙: 단계표(시기별 단계 수·국면) · 행동·훈련·옮기기 선택지 · 판정 1·2·3(에너지 → 스탯 → 위험, `00-core-loop` 3.1) · 아사(`starvation`)·포식(`predation`) 사망 · `period 1` 진입(나이·경험 +1, 노화, 단계표 초기화). 로그 `decision` · `death`.
+- 아직 없음: 관문 · 짝 · 번식 · 계승 · 점수 · 이벤트 · 환경 카드 · 계절 방침.
+- 잠정(#21): 런 시작 개체의 잠재력 = 종 평균(`stats.aptitudeMean`), 현재값 = 잠재력, 경험 연수 = `runStart.age`. 런 시작 개체의 성장 배율 1.
 
 ---
 
@@ -349,7 +354,7 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 ## 6. 저장 형식과 버전
 
 ```json
-{ "saveVersion": 1, "state": { } }
+{ "saveVersion": 2, "state": { } }
 ```
 - `serialize`가 만들고 `deserialize`가 읽는다. 화면은 이 문자열을 그대로 보관만 한다(예: `localStorage`).
 - `saveVersion`: 저장 형식이 바뀌면 엔진이 올린다. 친구 알파(M3) 전에는 버전이 다르면 `deserialize`가 던지고, 화면이 "새 게임 시작"을 안내하면 충분하다. 알파 이후 형식이 바뀔 때부터 마이그레이션을 제공한다.
