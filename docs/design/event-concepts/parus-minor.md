@@ -207,7 +207,7 @@
 
 **F2 `crow-near-fledglings` 이소 새끼를 노리는 까마귀** — uncommon · `phaseAny: [postFledge]` `hasBrood: true`
 - 상황: 큰부리까마귀가 새끼들이 앉은 가지 쪽으로 날아온다.
-- A 혼성군과 함께 몰아낸다(모빙) — `chk social medium` → 성공 `statGain vigilance small` / 실패 `injury medium` + `chickLoss small`
+- A 이웃 새들과 함께 몰아낸다(모빙) — 6월이라 가을 혼성군 표현을 피한다(#137) — `chk social medium` → 성공 `statGain vigilance small` / 실패 `injury medium` + `chickLoss small`
 - B 새끼들을 덤불 속으로 불러들인다 → `chickLoss small` + `energy small (loss)`
 - 긴장: 여러 종 모빙의 판정 vs 확실한 작은 손해.
 - 근거 단서: 경보음으로 여러 종이 함께 모빙 SRC-002. 까마귀의 이소 새끼 포식은 확인 필요.
@@ -221,12 +221,12 @@
 
 ## 8. 털갈이 `molt` — 시기 13–18
 
-**M1 `molt-sluggish` 깃이 빠져 둔하다** — common · `phaseAny: [molt]`
-- 상황: 날개깃이 빠져 날갯짓이 무겁다.
-- A 덤불 속에 숨어 지낸다 → `foodMod small (loss)`
-- B 평소처럼 먹이를 찾아다닌다 → `riskMod low`
+**M1 `molt-hunger` 새 깃을 기르는 몸** — common · `phaseAny: [molt]`
+- 상황: 새 깃을 만드느라 몸이 먹이를 더 원한다(SRC-045). 털갈이 중 비행 능력 저하는 작다는 연구(SRC-046)가 있어 '깃이 빠져 둔하다'는 쓰지 않는다(#137).
+- A 덤불 가까이에서만 먹는다 → `foodMod small (loss)`
+- B 탁 트인 풀밭까지 나간다 → `riskMod low`
 - 긴장: 그 시기의 먹이 vs 그 시기의 위험. 털갈이가 '쉬어 가는 시기'가 아니게.
-- 근거 단서: 털갈이 중 비행 능력 저하 — 확인 필요.
+- 근거 단서: 깃털 합성 에너지 SRC-045, 털갈이와 이륙 SRC-046 — fact-check P-24.
 
 **M2 `water-bath` 물웅덩이 목욕** — common · `phaseAny: [molt]`
 - 상황: 계곡의 얕은 웅덩이. 새 깃을 손질하기 좋다.
@@ -235,12 +235,12 @@
 - 긴장: 깃털(겨울 대비, `01-formulas` 2.6) vs 물가에서 드러나는 몸.
 - 근거 단서: 깃털 관리 물목욕(gdd 10장) — 확인 필요.
 
-**M3 `song-tutor` 이웃 어른의 노래** — common · `phaseAny: [molt]` `ageMax: 0`
+**M3 `song-tutor` 이웃 어른의 노래** — common · `phaseAny: [molt]` `sex: male` `ageMax: 0`
 - 상황: 갓 독립한 여름. 이웃 수컷의 노래가 들린다.
 - A 따라 부르며 배운다 → `statGain display medium` + `energy small (loss)`
 - B 먹이에 집중한다 → `energy small (gain)`
 - 긴장: 다음 봄 짝 맺기의 과시 vs 지금의 몸. 계승한 새끼에게만 나온다.
-- 근거 단서: 노래 학습 시기(gdd 10장 '노래 학습 시기 (박새)') — 학습 시기·암컷 해당 여부 확인 필요(암컷이면 `sex: male`을 더한다).
+- 근거 단서: 이웃에게 노래 배우기 SRC-047. 박새류 암컷 노래는 드물어 `sex: male`(#137, 출처 P-24). 계승한 수컷 새끼에게만 나온다.
 
 **M4 `diet-switch` 곤충에서 씨앗으로** — common · `phaseAny: [molt]` `periodFrom: 16` `periodTo: 18`
 - 상황: 곤충이 줄고 씨앗이 맺힌다. 껍질 까는 법이 서툴다.
