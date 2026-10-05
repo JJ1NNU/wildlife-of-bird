@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S-24 독립 · 계승 — 중충실도</title>
+<link rel="stylesheet" href="wf.css">
+<style>
+  .me { flex: none; margin: var(--wb-space-2) var(--wb-space-4) 0; padding: 8px 10px; }
+  .kid { align-items: flex-start; padding: 8px 10px; }
+  .kid .thumb { width: 40px; height: 40px; flex: none; border-radius: var(--wb-radius-m); background: var(--wb-color-paper); border: 1px solid var(--wb-color-line); display: flex; align-items: center; justify-content: center; }
+  .kid .thumb img { width: 34px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: var(--wb-font-size-small); margin-top: 2px; }
+  .sec { font-size: var(--wb-font-size-small); font-weight: var(--wb-font-weight-bold); color: var(--wb-color-ink-muted); }
+</style>
+</head>
+<body>
+<div class="page-head">
+  <h1>04 · S-24 독립 · 계승 결정 — 중충실도 (360 폭)</h1>
+  <p>기준: <code>specs/screens.md</code> v1 S-24 · <code>docs/ux/screens.md</code> 3장(되돌릴 수 없는 선택은 확인 한 번 더) · #53. 잠재력 범위 폭·넘어가는 것은 <code>05-inheritance</code>(M1) 전 — <b>잠정(#22)</b>: 실제 등급을 포함하는 연속 2등급.</p>
+  <p class="legend"><label><input type="checkbox" id="ann" checked> 주석 보기</label>
+    <span class="k p"></span>확률·예상치 자리 <span class="k t"></span>터치 영역 44px 이상 <span class="k f"></span>550 — 결정 영역 끝</p>
+</div>
+
+<div class="frames">
+
+<!-- ───────── A. 결정 화면 ───────── -->
+<section class="frame">
+<h2>A. 독립 순간 — 계승할 새끼 / 잔류</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="banner">새끼 4마리 독립 — 총 번식 3 → <span style="font-size:20px">4</span> 확정</div>
+    <div class="small muted" style="padding:4px var(--wb-space-4) 0">계승하든 남든 이미 확정이다.</div>
+    <div class="card me">
+      <div class="row"><span class="b">지금 개체 · 박새 ♀ 2세</span><span class="sp"></span><span class="cap">남으면</span></div>
+      <div class="facts"><span>노화 위험 <b class="p">×1.0</b> <span class="cap">(3세부터 오름)</span></span><span>짝 유대 <b>72</b></span></div>
+      <div class="row small" style="margin-top:2px"><span>다음 1년 생존 예상</span><span class="sp"></span><span class="b p" style="font-size:var(--wb-font-size-title)">68%</span></div>
+    </div>
+    <div class="list" style="padding-top:10px">
+      <div class="sec">새끼 — 계승하면 하나를 고른다</div>
+      <div class="opt t kid sel"><div class="thumb"><img src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt=""></div>
+        <div class="main"><div class="b">첫째 ♂</div>
+          <div class="facts"><span>잠재력 <b class="p">B~A</b></span><span>은수저 <b class="p">0.78</b></span></div>
+          <div class="facts"><span>첫 겨울 위험 <b class="p caution">×1.3</b></span></div></div></div>
+      <div class="opt t kid"><div class="thumb"><img src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt=""></div>
+        <div class="main"><div class="b">둘째 ♀</div>
+          <div class="facts"><span>잠재력 <b class="p">C~B</b></span><span>은수저 <b class="p">0.52</b></span></div>
+          <div class="facts"><span>첫 겨울 위험 <b class="p danger">×1.6</b></span></div></div></div>
+      <div class="cap">… 셋째·넷째 (이 목록만 스크롤)</div>
+    </div>
+    <div class="actions"><div class="btn t">이 개체로 1년 더</div><div class="btn prim t">첫째로 계승</div></div>
+  </div>
+  <div class="feed"><p class="cap">↓ 접힘 아래: "무엇을 비교하나" 설명(잔류 = 경험·유대·영역 유지 + 노화 / 계승 = 잠재력, 대신 첫 겨울·경험 0). 유전은 잠재력만 — 훈련한 스탯은 가지 않는다.</p></div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li><b>맨 위가 "총 번식 +1 확정"</b>(<code>00-core-loop</code> 6.1) — 고르기 전에 안심시킨다. 강조색 띠, 숫자를 크게.</li>
+  <li>새끼 카드: 성별 · 잠재력 <b>등급 범위</b> · 은수저 지수 · 첫 겨울 위험 보정(<code>01-formulas</code> 6.3). 숨은 값은 범위로만.</li>
+  <li>지금 개체: 나이 · 노화 배율 · 짝 유대 · <b>잔류 시 1년 생존 예상</b>(엔진 값, 계산법 <code>05-inheritance</code>).</li>
+  <li>두 버튼은 같은 무게(주 버튼 색은 고른 쪽 이름이 붙은 계승). 새끼를 안 고르면 계승 버튼 비활성 <code>새끼를 고르세요</code>.</li>
+  <li>새끼 그림은 <code>bird.parus-minor.juvenile</code> — 지금은 자리표시.</li>
+</ul>
+</section>
+
+<!-- ───────── B. 계승 확인 ───────── -->
+<section class="frame">
+<h2>B. 계승 확인 — 되돌릴 수 없다</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="banner">새끼 4마리 독립 — 총 번식 3 → 4 확정</div>
+  </div>
+  <div class="dim" style="top:0"></div>
+  <div class="sheet" style="bottom:90px">
+    <div class="hd"><div class="t1">첫째 ♂로 계승할까?</div><div class="small b danger" style="margin-top:2px">되돌릴 수 없다</div></div>
+    <div style="padding:0 var(--wb-space-4)">
+      <table class="kv">
+        <thead><tr><th>　</th><th>지금 개체</th><th>첫째 ♂</th></tr></thead>
+        <tbody>
+          <tr><td>나이</td><td>2세</td><td>0세</td></tr>
+          <tr><td>잠재력</td><td>—</td><td class="p">B~A</td></tr>
+          <tr><td>경험</td><td>B</td><td class="danger">처음부터</td></tr>
+          <tr><td>짝·영역</td><td>있음</td><td class="danger">없음</td></tr>
+          <tr><td>다음 1년</td><td class="p">생존 68%</td><td class="p">첫 겨울 위험 ×1.3</td></tr>
+        </tbody>
+      </table>
+      <p class="cap" style="margin-top:6px">넘어가는 것·처음부터인 것은 <code>05-inheritance</code>에서 확정 — 잠정(#22).</p>
+    </div>
+    <div class="actions"><div class="btn t">다시 고르기</div><div class="btn prim t">계승한다</div></div>
+  </div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>런에서 <b>유일하게 되돌릴 수 없는 선택</b> — 여기서만 확인을 한 번 더(<code>docs/ux/screens.md</code> 3장).</li>
+  <li>확인은 비교표: 무엇을 얻고 무엇을 잃는지 한눈에. 잃는 칸은 위험색 + 낱말.</li>
+  <li>"계승한다"를 위험색으로 칠하지 않는다 — 나쁜 선택이 아니다. 실수 방지는 시트 한 번으로 충분. 바깥 누르기·뒤로 = 다시 고르기.</li>
+</ul>
+</section>
+
+<!-- ───────── C. 잔류 → 2차 번식 ───────── -->
+<section class="frame">
+<h2>C. 잔류를 고르면 — 2차 번식 여부</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status">
+      <div class="row small"><span class="ico s i-summer"></span><span class="b">6월 하반</span><span class="muted">· 이소·돌봄 · 12 / 24</span><span class="sp"></span><span>총 번식 <b>4</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:55%"></i></div><span class="b">37</span><span class="muted">/ 67</span><span style="width:8px"></span><span class="ico s i-feather"></span><span>깃털 <b>44</b></span></div>
+    </div>
+    <div class="hd" style="padding:var(--wb-space-3) var(--wb-space-4) 0"><div class="b" style="font-size:var(--wb-font-size-title)">한 번 더 둥지를 틀까?</div>
+      <div class="small muted" style="line-height:1.45;margin-top:2px">짝과 함께 2차 번식을 할 수 있다.</div></div>
+    <div class="list" style="padding-top:10px">
+      <div class="opt t sel" style="align-items:flex-start;padding:8px 10px"><div class="main"><div class="b">2차 번식을 한다</div>
+        <div class="facts"><span class="p">에너지 <b>−10</b> → 27</span></div>
+        <div class="small caution" style="margin-top:4px;line-height:1.4"><b>털갈이 4단계가 번식으로 바뀐다</b> — 겨울에 깃털이 모자랄 수 있다.</div></div></div>
+      <div class="opt t" style="align-items:flex-start;padding:8px 10px"><div class="main"><div class="b">하지 않는다</div>
+        <div class="small muted" style="margin-top:2px">털갈이로 넘어가 깃털을 회복한다.</div></div></div>
+    </div>
+    <div class="actions"><div class="btn prim t">2차 번식 시작</div></div>
+  </div>
+  <div class="feed"><p class="cap">조건(<code>00-core-loop</code> 4.4)이 거짓이면 이 화면 없이 바로 S-10.</p></div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>잔류를 골랐고 2차 번식 조건이 참일 때만. 비용은 <code>species.secondBrood.energyCost</code>, 결과 에너지를 함께.</li>
+  <li>대가(털갈이 → 겨울 깃털 부족)는 주의색 + 굵은 문장 — 숫자보다 먼저 읽히게.</li>
+  <li>상태 바가 돌아온다 — 여기부터 다시 런 안(S-10 계열).</li>
+</ul>
+</section>
+
+</div>
+</body>
+</html>

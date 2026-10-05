@@ -9,10 +9,10 @@
     "note": "텃새. 기획서 8.2와 일치한다. E등급 단독."
   },
   "habitats": {
-    "values": ["forest", "woodland-edge"],
+    "values": ["forest", "settlement"],
     "sources": ["SRC-004"],
     "factCheck": "needs-review",
-    "note": "출처의 표현은 '산림, 공원, 정원, 농촌 부근'이다. M1에 쓰는 장소가 숲뿐이라 두 태그만 넣었다. 태그 어휘는 data/nodes 확정 후 맞춘다. E등급 단독."
+    "note": "출처의 표현은 '산림, 공원, 정원, 농촌 부근'이다. 태그는 data/nodes와 같은 어휘: 숲(forest) · 사람 곁(settlement). E등급 단독."
   },
   "breeding": {
     "season": {

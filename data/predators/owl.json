@@ -1,0 +1,10 @@
+{
+  "id": "owl",
+  "nameKo": "올빼미류",
+  "targets": ["adult"],
+  "basis": {
+    "sources": ["SRC-034"],
+    "factCheck": "verified",
+    "note": "박새 성조를 가끔 잡는다(SRC-034, '올빼미류'로만 답함 — 종을 나누지 않는다). 이벤트 long-cold-night(#114)의 predator id."
+  }
+}

@@ -165,7 +165,7 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 ## 4. 데이터 계약 — `@wb/schema` (값은 예시)
 
 - 검증: `npm run validate:data` — CI에서도 돈다. 실패하면 **파일 · 파일 안의 위치 · 이유**를 알려 준다.
-- 스키마가 담은 형식: 4.1 · 4.2 · 4.3 · 4.3.1 · 4.3.2 · 4.3.3 · 4.4 장소. 4.4의 포식자·도감과 `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
+- 스키마가 담은 형식: 4.1 · 4.2 · 4.3 · 4.3.1 · 4.3.2 · 4.3.3 · 4.4 장소·포식자. 4.4의 도감과 `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
 - 모든 객체는 **모르는 필드를 거부**한다(오타를 잡기 위해). 필드를 더하려면 8장 절차로 스키마를 함께 고친다.
 
 ### 4.1 종: 생태 사실(content)과 밸런스(design)의 분리
@@ -322,7 +322,9 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 - 장소(`data/nodes/<id>.json`, 스키마 `MapNode`): `id`(소문자-하이픈), `nameKo`, `species`(해당 종, 생태 파일 필요), `habitats`(서식지 태그), `links`(연결된 장소 — **양방향**, 자기 자신·없는 장소 금지), `seasons.<계절>`의 `food`·`risk`·`competition` 등급(이름은 `formulas.json` `nodeTiers`의 키, 숫자는 design), `basis`(등급 방향의 출처 · `factCheck` · `note`).
 - 시작 장소는 장소 파일이 아니라 종 밸런스 `runStart.node`(design). 그 종의 장소여야 한다.
 - `GameData.nodes`: 장소 id → 장소.
-- 포식자(`data/predators/`): `id`, 이름, 노리는 대상(성조·둥지·새끼), 사냥 방식, 대응 상성, 활동 계절·시간, 출처.
+- 포식자(`data/predators/<id>.json`, 스키마 `Predator`, #128): `id`(소문자-하이픈 — 사망 원인 `predation:<id>`), `nameKo`, `targets`(`adult` | `nest` — 둥지는 알·새끼), `basis`(출처 · `factCheck` · `note`). 사냥 방식·활동 계절은 쓰는 곳(도감·이벤트 조건)이 생길 때 필드로 더한다. 대응 상성은 이벤트 선택지가 구현한다(01-formulas).
+- 이벤트 `deathRisk.predator`는 `data/predators/`의 id여야 한다(포식자 파일이 있을 때 검사).
+- `GameData.predators`: 포식자 id → 포식자.
 - 도감(`data/codex/`): `id`, 분류(종·포식자·장소·현상), 본문, 해금 조건, 출처.
 
 ---

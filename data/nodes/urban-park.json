@@ -1,0 +1,34 @@
+{
+  "id": "urban-park",
+  "nameKo": "도시 공원",
+  "species": ["parus-minor"],
+  "habitats": ["settlement"],
+  "links": ["forest-edge", "village-farmland"],
+  "seasons": {
+    "spring": {
+      "food": "medium",
+      "risk": "medium",
+      "competition": "medium"
+    },
+    "summer": {
+      "food": "medium",
+      "risk": "medium",
+      "competition": "low"
+    },
+    "autumn": {
+      "food": "low",
+      "risk": "low",
+      "competition": "low"
+    },
+    "winter": {
+      "food": "low",
+      "risk": "low",
+      "competition": "low"
+    }
+  },
+  "basis": {
+    "sources": ["SRC-004"],
+    "factCheck": "needs-review",
+    "note": "인공새집이 있는 사람 곁. 공원·정원이 서식지라는 것은 SRC-004(E) 단독. 번식기 위험 medium(고양이·까치 등 사람 곁의 위험)과 봄 경쟁 medium(새집 자리 다툼)은 출처가 없다 — fact-check P-14."
+  }
+}

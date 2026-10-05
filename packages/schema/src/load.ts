@@ -7,11 +7,12 @@ import type { GameEvent } from './events.ts';
 import { GameEventFile, optionEffects } from './events.ts';
 import { Formulas } from './formulas.ts';
 import { MapNode } from './nodes.ts';
+import { Predator } from './predators.ts';
 import { SpeciesBalance, SpeciesEcology } from './species.ts';
 
 /**
  * 검증된 게임 데이터 묶음. 엔진의 모든 함수가 이것을 받는다 (03-contracts 3장).
- * 포식자·도감은 그 데이터의 소유 부서가 첫 파일을 올릴 때 형식을 확정하고
+ * 도감은 그 데이터의 소유 부서가 첫 파일을 올릴 때 형식을 확정하고
  * 여기에 더한다.
  */
 export interface GameData {
@@ -25,6 +26,8 @@ export interface GameData {
   calendar: Map<string, Calendar>;
   /** 지도 장소. id → 장소 */
   nodes: Map<string, MapNode>;
+  /** 포식자. id → 포식자 */
+  predators: Map<string, Predator>;
   events: GameEvent[];
 }
 
@@ -69,6 +72,7 @@ export interface RawGameData {
   balance: RawFile[];
   calendar: RawFile[];
   nodes: RawFile[];
+  predators: RawFile[];
   events: RawFile[];
 }
 
@@ -143,6 +147,17 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
     }
   }
 
+  const predators = new Map<string, Predator>();
+  for (const file of raw.predators) {
+    const parsed = check(Predator, file, issues);
+    if (!parsed) continue;
+    if (predators.has(parsed.id)) {
+      issues.push({ file: file.file, at: 'id', reason: `포식자 id가 겹친다: ${parsed.id}` });
+      continue;
+    }
+    predators.set(parsed.id, parsed);
+  }
+
   const events: GameEvent[] = [];
   for (const file of raw.events) {
     const parsed = check(GameEventFile, file, issues);
@@ -159,6 +174,7 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
       }
       checkStatsExist(event, index, balance, file.file, issues);
       checkEventPhases(event, index, calendar, file.file, issues);
+      checkPredatorsExist(event, index, predators, file.file, issues);
       events.push(event);
     }
   }
@@ -172,7 +188,7 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
 
   if (issues.length > 0 || !effects || !formulas || !breeding) return { issues };
   return {
-    data: { effects, formulas, breeding, ecology, balance, calendar, nodes, events },
+    data: { effects, formulas, breeding, ecology, balance, calendar, nodes, predators, events },
     issues,
   };
 }
@@ -328,6 +344,31 @@ function checkBreedingSpecies(
   for (const speciesId of balance.keys()) {
     if (!breeding.species[speciesId]) {
       issues.push({ file, at: 'species', reason: `${speciesId}의 번식 계수가 없다` });
+    }
+  }
+}
+
+/**
+ * 이벤트 `deathRisk.predator`가 `data/predators/`에 있어야 한다.
+ * 포식자 파일이 아직 없으면(#128 전) 확인하지 않는다.
+ */
+function checkPredatorsExist(
+  event: GameEvent,
+  index: number,
+  predators: Map<string, Predator>,
+  file: string,
+  issues: DataIssue[],
+): void {
+  if (predators.size === 0) return;
+  for (const [o, option] of event.options.entries()) {
+    for (const effect of optionEffects(option)) {
+      if (effect.type === 'deathRisk' && effect.predator && !predators.has(effect.predator)) {
+        issues.push({
+          file,
+          at: `[${index}].options[${o}]`,
+          reason: `없는 포식자다: ${effect.predator} (data/predators/)`,
+        });
+      }
     }
   }
 }
