@@ -11,6 +11,7 @@
   "dependencies": {
     "@wb/engine": "*",
     "@wb/schema": "*",
+    "@wb/tokens": "*",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },
