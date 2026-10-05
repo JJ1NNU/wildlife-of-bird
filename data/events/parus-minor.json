@@ -1,0 +1,472 @@
+[
+  {
+    "id": "ev.parus-minor.mixed-flock-join",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["winter"],
+      "habitatAny": ["forest"]
+    },
+    "weight": "common",
+    "title": "혼성군이 지나간다",
+    "body": "쇠박새와 진박새, 곤줄박이가 섞인 무리가 가지 사이를 훑으며 다가온다. 앞선 새가 나무껍질을 뒤지면 뒤따르는 새가 그 옆 가지를 뒤진다. 무리는 멈추지 않고 숲 안쪽으로 흘러간다.",
+    "options": [
+      {
+        "id": "follow",
+        "text": "무리를 따라간다",
+        "effects": [
+          {
+            "type": "foodMod",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "stay",
+        "text": "지금 자리에서 마저 먹는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "한국의 겨울 숲에서 박새는 쇠박새·진박새·곤줄박이 등과 섞인 무리로 다니며 먹이를 찾는다.",
+    "sources": ["SRC-033"],
+    "factCheck": "verified"
+  },
+  {
+    "id": "ev.parus-minor.flock-rank",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["winter"]
+    },
+    "weight": "common",
+    "title": "먹이 자리의 서열",
+    "body": "씨앗이 몰린 가지에 먼저 내려앉았는데, 몸집 큰 박새 한 마리가 날개를 펴고 다가온다. 무리의 다른 새들은 그 개체가 오면 자리를 비켜 준다.",
+    "options": [
+      {
+        "id": "hold",
+        "text": "자리를 지키고 버틴다",
+        "check": {
+          "stat": "social",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "gain"
+          },
+          {
+            "type": "statGain",
+            "stat": "social",
+            "tier": "small"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "injury",
+            "tier": "small"
+          },
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "yield",
+        "text": "물러나 무리 가장자리에서 먹는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "riskMod",
+            "tier": "low"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "겨울 무리 안에서는 먹이 자리를 두고 개체 사이에 밀고 밀리는 순서가 생긴다.",
+    "sources": ["SRC-033"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.long-cold-night",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["winter"],
+      "energyBelow": 0.5
+    },
+    "weight": "uncommon",
+    "title": "긴 밤을 앞두고",
+    "body": "해가 능선 뒤로 넘어간다. 숲 바닥부터 어두워지고, 무리의 새들이 하나둘 잠자리로 흩어진다. 몸에 붙은 지방은 아직 넉넉하지 않다.",
+    "options": [
+      {
+        "id": "keep-feeding",
+        "text": "어두워질 때까지 더 먹는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "gain"
+          },
+          {
+            "type": "deathRisk",
+            "tier": "low",
+            "cause": "predation",
+            "predator": "owl"
+          }
+        ]
+      },
+      {
+        "id": "roost-early",
+        "text": "일찍 잠자리 구멍에 든다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "작은 새는 겨울밤을 낮에 쌓은 지방으로 버틴다. 해 질 녘까지 먹으면 밤 포식자와 마주칠 수 있다.",
+    "sources": ["SRC-004"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.first-winter-follow",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["winter"],
+      "ageMax": 0
+    },
+    "weight": "common",
+    "title": "첫 겨울, 어른을 따라",
+    "body": "처음 맞는 겨울이다. 무리의 어른 새가 나무껍질 틈에 부리를 넣어 겨울을 나는 벌레를 끌어낸다. 같은 가지에서 해 보지만 부리 끝에 걸리는 것이 없다.",
+    "options": [
+      {
+        "id": "watch",
+        "text": "바짝 따라다니며 본다",
+        "effects": [
+          {
+            "type": "statGain",
+            "stat": "foraging",
+            "tier": "medium"
+          },
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "alone",
+        "text": "혼자 먹이를 뒤진다",
+        "effects": [
+          {
+            "type": "statGain",
+            "stat": "foraging",
+            "tier": "small"
+          },
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "겨울 혼성군에는 그해 태어난 어린 새도 섞여 다니며, 어른 새 곁에서 먹이를 찾는다.",
+    "sources": ["SRC-033"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.sparrowhawk-ambush",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["winter"]
+    },
+    "weight": "uncommon",
+    "title": "새매의 매복",
+    "body": "무리가 먹던 덤불 위로 새매가 낮게 미끄러져 들어온다. 가까운 새가 날카롭게 울자 무리가 한꺼번에 흩어진다.",
+    "options": [
+      {
+        "id": "dive",
+        "text": "가장 가까운 덤불 속으로 뛰어든다",
+        "check": {
+          "stat": "flight",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "statGain",
+            "stat": "flight",
+            "tier": "small"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "deathRisk",
+            "tier": "medium",
+            "cause": "predation",
+            "predator": "sparrowhawk"
+          }
+        ]
+      },
+      {
+        "id": "blend",
+        "text": "경보음을 내고 무리 속에 섞인다",
+        "effects": [
+          {
+            "type": "deathRisk",
+            "tier": "low",
+            "cause": "predation",
+            "predator": "sparrowhawk"
+          },
+          {
+            "type": "foodMod",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "겨울 숲의 작은 새 무리는 매류의 사냥감이다. 무리에 섞이거나 덤불로 숨어 피한다.",
+    "sources": ["SRC-033"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.territory-song-duel",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["pairing"],
+      "sex": "male"
+    },
+    "weight": "common",
+    "title": "경계의 노래",
+    "body": "이웃 수컷이 영역 경계의 높은 가지에 올라 같은 가락을 되풀이한다. 노랫소리가 점점 이쪽으로 옮겨 온다.",
+    "options": [
+      {
+        "id": "sing-back",
+        "text": "노래로 맞받는다",
+        "check": {
+          "stat": "display",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "statGain",
+            "stat": "display",
+            "tier": "small"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "chase",
+        "text": "날아가 쫓아낸다",
+        "check": {
+          "stat": "flight",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "statGain",
+            "stat": "display",
+            "tier": "medium"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "injury",
+            "tier": "small"
+          }
+        ]
+      },
+      {
+        "id": "concede",
+        "text": "경계를 조금 내준다",
+        "effects": [
+          {
+            "type": "foodMod",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "번식기가 다가오면 수컷은 노래로 영역을 알리고 이웃과 경계를 다툰다.",
+    "sources": ["SRC-004"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.courtship-feeding",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["pairing"],
+      "sex": "male",
+      "hasMate": true
+    },
+    "weight": "common",
+    "title": "구애 먹이",
+    "body": "짝이 몸을 낮추고 날개를 떨며 작게 운다. 부리를 벌린 채 이쪽을 향해 있다.",
+    "options": [
+      {
+        "id": "feed",
+        "text": "애벌레를 물어다 준다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          },
+          {
+            "type": "bond",
+            "tier": "medium",
+            "sign": "gain"
+          }
+        ]
+      },
+      {
+        "id": "self",
+        "text": "내 몫을 먼저 챙긴다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "박새류 수컷은 번식 전에 암컷에게 먹이를 물어다 준다. 암컷은 어린 새처럼 날개를 떨며 먹이를 조른다.",
+    "sources": ["SRC-004"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.rival-near-mate",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["pairing"],
+      "hasMate": true
+    },
+    "weight": "uncommon",
+    "title": "짝 곁의 다른 새",
+    "body": "같은 종의 다른 개체가 짝이 앉은 가지 근처를 오간다. 짝은 아랑곳없이 먹이를 뒤지고 있다.",
+    "options": [
+      {
+        "id": "drive-off",
+        "text": "끼어들어 쫓는다",
+        "check": {
+          "stat": "display",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "bond",
+            "tier": "medium",
+            "sign": "gain"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "injury",
+            "tier": "small"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "ignore",
+        "text": "상관하지 않고 먹이를 찾는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "번식기에는 짝 곁에 다른 개체가 다가오면 쫓아내는 행동이 흔하다.",
+    "sources": ["SRC-004"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.late-frost-song",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["pairing"]
+    },
+    "weight": "common",
+    "title": "꽃샘추위",
+    "body": "풀렸던 날씨가 다시 추워졌다. 가지 끝에 서리가 앉아 있고, 숨을 쉴 때마다 깃털을 부풀린다.",
+    "options": [
+      {
+        "id": "sing",
+        "text": "그래도 높은 가지에서 노래한다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          },
+          {
+            "type": "statGain",
+            "stat": "display",
+            "tier": "medium"
+          }
+        ]
+      },
+      {
+        "id": "bask",
+        "text": "볕 드는 곳에서 먹는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "이른 봄에는 기온이 오르내린다. 추운 날에는 몸을 데우는 데 에너지가 더 든다.",
+    "sources": ["SRC-005"],
+    "factCheck": "needs-review"
+  }
+]
