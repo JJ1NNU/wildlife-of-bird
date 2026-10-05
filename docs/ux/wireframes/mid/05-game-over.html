@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S-30 게임 오버 — 중충실도</title>
+<link rel="stylesheet" href="wf.css">
+<style>
+  .hero { flex: none; height: 150px; position: relative; overflow: hidden; background: linear-gradient(#c9cfc6 0 55%, #b5bdb2 55% 100%); filter: saturate(0.6); }
+  .hero img { position: absolute; left: 50%; top: 14px; height: 70%; transform: translateX(-50%); opacity: 0.85; }
+  .score { flex: none; text-align: center; padding: var(--wb-space-3) var(--wb-space-4) 0; }
+  .score .num { font-size: 48px; font-weight: var(--wb-font-weight-bold); line-height: 1; }
+  .cause { flex: none; margin: var(--wb-space-3) var(--wb-space-4) 0; padding: 10px 12px; }
+  .stats { flex: none; margin: var(--wb-space-2) var(--wb-space-4) 0; }
+</style>
+</head>
+<body>
+<div class="page-head">
+  <h1>05 · S-30 게임 오버 · 생애 기록 — 중충실도 (360 폭)</h1>
+  <p>기준: <code>specs/screens.md</code> v1 S-30 — 최종 점수 = 총 번식 수(정산 없음), 사망 원인(<code>00-core-loop</code> 8장 코드 → 글), 부가 기록(<code>02-scoring</code> 4장). 칭호(S-34)·가계도(S-31)·리더보드(S-32)는 M2~M3이라 자리만.</p>
+  <p class="legend"><label><input type="checkbox" id="ann" checked> 주석 보기</label>
+    <span class="k p"></span>확률·예상치 자리 <span class="k t"></span>터치 영역 44px 이상 <span class="k f"></span>550 — 결정 영역 끝</p>
+</div>
+
+<div class="frames">
+<section class="frame">
+<h2>A. 게임 오버</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="hero"><img src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt=""></div>
+    <div class="score">
+      <div class="cap">가문이 남긴 번식</div>
+      <div class="num">7</div>
+      <div class="small muted">4세대 · 6년 3개월</div>
+    </div>
+    <div class="card cause">
+      <div class="row"><span class="ico s i-risk danger"></span><span class="b">새매에게 잡혔다</span></div>
+      <div class="small muted" style="margin-top:2px;line-height:1.45">4세대 · 박새 ♂ 3세 · 1월 하반, 묵은 참나무 숲</div>
+    </div>
+    <div class="stats">
+      <table class="kv">
+        <tbody>
+          <tr><td>가장 오래 산 개체</td><td>2세대 ♀ · 4세</td></tr>
+          <tr><td>한 해 최다 독립</td><td>9마리</td></tr>
+          <tr><td>넘긴 겨울</td><td>6번</td></tr>
+        </tbody>
+      </table>
+      <p class="cap" style="margin-top:4px">부가 기록 항목은 <code>02-scoring</code> 4장 — 예시.</p>
+    </div>
+    <div style="flex:1"></div>
+    <div class="actions"><div class="btn t">공유</div><div class="btn prim t">새 가문 시작</div></div>
+  </div>
+  <div class="feed">
+    <p class="cap">↓ 접힘 아래 (M2 이후 채움)</p>
+    <p>가계도 보기 (S-31) · 리더보드 (S-32) · 생애 칭호 (S-34)</p>
+  </div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>점수 = 총 번식 수 <b>하나</b>. 크게, 가운데. 정산 애니메이션·보너스 합산 없음 — 점수는 독립 순간마다 이미 확정됐다.</li>
+  <li>사망 원인은 코드(<code>00-core-loop</code> 8장)를 콘텐츠 글로. 위험 아이콘 + 굵은 한 줄 + 어디·언제.</li>
+  <li>그림은 마지막 개체를 채도 낮춰서(장면 긴장은 명도·채도로, 피 없음 — style-guide 1.1).</li>
+  <li>"공유"는 M6 결과 공유 카드 — M1에서는 버튼을 숨겨도 된다. 그때 "새 가문 시작"이 한 줄을 다 쓴다.</li>
+</ul>
+</section>
+</div>
+</body>
+</html>

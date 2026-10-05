@@ -468,5 +468,610 @@
     "ecologyBasis": "이른 봄에는 기온이 오르내린다. 추운 날에는 몸을 데우는 데 에너지가 더 든다.",
     "sources": ["SRC-005"],
     "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.hole-competition",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["nestSite"],
+      "habitatAny": ["forest"]
+    },
+    "weight": "common",
+    "title": "같은 구멍",
+    "body": "봐 둔 나무구멍에 다른 작은 새가 드나든다. 입구 앞 가지에서 서로 날개를 펴고 소리를 낸다.",
+    "options": [
+      {
+        "id": "hold",
+        "text": "입구 앞에서 날개를 펴고 버틴다",
+        "check": {
+          "stat": "display",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "statGain",
+            "stat": "display",
+            "tier": "small"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "injury",
+            "tier": "small"
+          },
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "search",
+        "text": "다른 구멍을 찾아 나선다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "나무구멍 둥지 새는 쓸 만한 구멍을 두고 다툰다. 국내 인공새집 조사에서 박새와 다른 박새류가 같은 새집을 함께 쓰고, 둥지로 안전한 구멍은 깊고 단단한 것으로 한정된다. 구멍을 지키는 방법이 과시라는 것은 출처가 없다.",
+    "sources": ["SRC-032", "SRC-036"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.nest-box",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["nestSite"],
+      "habitatAny": ["settlement"]
+    },
+    "weight": "uncommon",
+    "title": "빈 새집",
+    "body": "공원 나무에 사람이 단 새집이 비어 있다. 아래 길로 사람이 오가고, 덤불 쪽에 고양이가 앉아 있다.",
+    "options": [
+      {
+        "id": "use-box",
+        "text": "새집에 이끼를 나르기 시작한다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "riskMod",
+            "tier": "low"
+          }
+        ]
+      },
+      {
+        "id": "forest-hole",
+        "text": "숲으로 가 나무구멍을 찾는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "박새는 사람이 단 인공새집에서 흔히 번식한다. 새집 자체는 자연 구멍보다 포식이 적은 경우가 많지만, 마을·공원에서는 고양이가 둥지를 노리는 포식자에 더해진다. 위험은 새집이 아니라 사람 곁이라는 자리에서 온다.",
+    "sources": ["SRC-024", "SRC-032", "SRC-037", "SRC-034"],
+    "factCheck": "verified"
+  },
+  {
+    "id": "ev.parus-minor.shallow-hole",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["nestSite"]
+    },
+    "weight": "uncommon",
+    "title": "얕은 구멍",
+    "body": "둥지 재료를 넣기 좋은 구멍을 찾았다. 그런데 입구가 넓고, 안이 얕아 바닥이 입구에서 가깝다.",
+    "options": [
+      {
+        "id": "take-it",
+        "text": "이 구멍에 둥지를 튼다",
+        "effects": [
+          {
+            "type": "riskMod",
+            "tier": "medium"
+          }
+        ]
+      },
+      {
+        "id": "keep-looking",
+        "text": "더 깊은 구멍을 찾는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "입구가 몸에 겨우 맞고 둥지가 입구에서 깊은 구멍일수록 포식자의 발과 부리가 닿지 않아 안전하다(쇠박새 연구). 국내 박새 둥지는 뱀·족제비·담비가 주로 턴다. 박새가 구멍 깊이를 보고 고르는지는 확인하지 못했다.",
+    "sources": ["SRC-036", "SRC-034"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.egg-making-hunger",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["laying"],
+      "sex": "female",
+      "hasMate": true,
+      "hasBrood": true
+    },
+    "weight": "common",
+    "title": "알을 낳는 아침",
+    "body": "새벽에 알 하나를 낳고 둥지를 나선다. 짝이 근처 가지에서 애벌레를 물고 있다.",
+    "options": [
+      {
+        "id": "beg",
+        "text": "날개를 떨며 짝에게 먹이를 조른다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "forage",
+        "text": "둥지를 비우고 직접 먹이를 찾는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "gain"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "박새 암컷은 하루에 알을 하나씩 낳고, 이 무렵 수컷이 암컷에게 먹이를 가져다준다. 산란기 암컷이 먹이를 얼마나 더 필요로 하는지는 출처를 찾지 못했다.",
+    "sources": ["SRC-004", "SRC-040"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.jay-watching",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["laying"],
+      "hasBrood": true,
+      "habitatAny": ["forest"]
+    },
+    "weight": "uncommon",
+    "title": "둥지 나무의 어치",
+    "body": "어치가 둥지 나무 옆 가지에 앉아 고개를 이리저리 돌린다. 둥지 구멍까지는 몇 걸음 거리다.",
+    "options": [
+      {
+        "id": "guard",
+        "text": "둥지 나무를 떠나지 않는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "stay-off",
+        "text": "멀리 떨어져 둥지에 드나들지 않는다",
+        "effects": [
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ]
+      },
+      {
+        "id": "mob",
+        "text": "경보음을 내며 어치 주위를 난다",
+        "check": {
+          "stat": "vigilance",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "statGain",
+            "stat": "vigilance",
+            "tier": "small"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "injury",
+            "tier": "small"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "어치는 박새 둥지를 가끔 턴다. 박새는 포식자에게 경보음을 내고, 다른 새와 함께 몰아내기도 한다. 포식자 앞에서 둥지 출입을 줄여 위치를 숨기는지는 확인하지 못했다.",
+    "sources": ["SRC-034", "SRC-002"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.mate-guarding",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["laying"],
+      "sex": "male",
+      "hasMate": true
+    },
+    "weight": "common",
+    "title": "영역 끝의 수컷",
+    "body": "짝이 알을 낳는 동안 이웃 수컷이 영역 끝 나무에 와서 노래한다. 짝은 둥지 근처에서 먹이를 찾고 있다.",
+    "options": [
+      {
+        "id": "stay-close",
+        "text": "짝 곁 가지를 떠나지 않는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "foodMod",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "forage",
+        "text": "먹이 찾기에 집중한다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "박새류에서는 짝이 아닌 수컷의 새끼가 한배에 섞이는 일이 흔하다(유럽 박새 연구). 산란기 수컷이 짝 곁을 지키는 행동의 박새 출처는 아직 없다.",
+    "sources": ["SRC-042"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.snake-alarm-incubating",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["incubation"],
+      "sex": "female",
+      "hasBrood": true
+    },
+    "weight": "uncommon",
+    "title": "밖의 경보음",
+    "body": "알을 품고 있는데 밖에서 짝이 짧고 거친 경보음을 연달아 낸다. 뱀에게만 내는 소리다.",
+    "options": [
+      {
+        "id": "leave",
+        "text": "구멍 밖으로 빠져나간다",
+        "effects": [
+          {
+            "type": "broodRisk",
+            "tier": "medium"
+          }
+        ]
+      },
+      {
+        "id": "stay",
+        "text": "알 위에 엎드려 그대로 머문다",
+        "check": {
+          "stat": "vigilance",
+          "difficulty": "high"
+        },
+        "onSuccess": [
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "deathRisk",
+            "tier": "medium",
+            "cause": "predation",
+            "predator": "rat-snake"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "high"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "박새는 뱀에게 따로 경보음을 낸다. 포란 중인 암컷은 이 소리를 들으면 둥지를 비우고, 다른 포식자의 경보음에는 머문다. 뱀은 구멍 안으로 들어오고, 둥지에 머문 어미를 잡기도 한다.",
+    "sources": ["SRC-001"],
+    "factCheck": "verified"
+  },
+  {
+    "id": "ev.parus-minor.feeding-incubating-mate",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["incubation"],
+      "sex": "male",
+      "hasMate": true,
+      "hasBrood": true
+    },
+    "weight": "common",
+    "title": "구멍 안의 부름",
+    "body": "짝이 품고 있는 구멍 안에서 가늘게 떨리는 소리가 난다. 수컷이 나타나면 소리가 빨라진다.",
+    "options": [
+      {
+        "id": "bring-often",
+        "text": "애벌레를 물고 자주 드나든다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          },
+          {
+            "type": "bond",
+            "tier": "medium",
+            "sign": "gain"
+          }
+        ]
+      },
+      {
+        "id": "self-first",
+        "text": "먼저 자기 배를 채운다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "포란을 암컷이 혼자 하는 참새목 새는 수컷이 품는 암컷에게 먹이를 가져다주는 경우가 많고, 수컷이 자주 먹일수록 암컷이 둥지를 덜 비운다(320종 비교 연구). 박새의 포란 중 급이 빈도는 확인하지 못했다.",
+    "sources": ["SRC-040", "SRC-001"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.leave-eggs-to-feed",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["incubation"],
+      "sex": "female",
+      "hasMate": true,
+      "hasBrood": true
+    },
+    "weight": "common",
+    "title": "오지 않는 짝",
+    "body": "한참을 품었는데 짝이 오지 않는다. 바깥 기온이 낮다.",
+    "options": [
+      {
+        "id": "wait",
+        "text": "알 위에서 짝을 기다린다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "gain"
+          }
+        ]
+      },
+      {
+        "id": "go-out",
+        "text": "잠깐 나가 먹고 돌아온다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "포란 중인 박새 암컷은 품기와 잠깐씩의 외출을 되풀이하며 먹이를 먹는다(유럽 박새 연구). 수컷이 먹이를 자주 가져올수록 암컷이 둥지를 덜 비운다. 외출이 알에 얼마나 위험한지의 박새 수치는 없다.",
+    "sources": ["SRC-041", "SRC-040"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.snake-at-nest",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["nestling"],
+      "phaseLastStep": true,
+      "habitatAny": ["forest"],
+      "hasBrood": true,
+      "hasMate": true
+    },
+    "weight": "uncommon",
+    "title": "둥지 아래의 소리",
+    "body": "둥지 구멍 아래 나무껍질을 무언가 천천히 긁으며 올라온다. 짝이 짧고 거친 경보음을 연달아 낸다.",
+    "options": [
+      {
+        "id": "mob",
+        "text": "짝과 함께 둥지 주변을 날며 경보음을 낸다",
+        "check": {
+          "stat": "vigilance",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "gain"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "deathRisk",
+            "tier": "low",
+            "cause": "predation",
+            "predator": "rat-snake"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "high"
+          }
+        ]
+      },
+      {
+        "id": "signal-flee",
+        "text": "새끼들이 둥지를 빠져나가도록 경보를 이어 간다",
+        "effects": [
+          {
+            "type": "fledgeEarly"
+          },
+          {
+            "type": "chickLoss",
+            "tier": "small"
+          }
+        ]
+      },
+      {
+        "id": "stay-away",
+        "text": "몸을 낮추고 멀리서 지켜본다",
+        "effects": [
+          {
+            "type": "broodRisk",
+            "tier": "high"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "뱀은 나무구멍 안으로 들어와 새끼를 먹는다. 박새는 뱀에게 따로 경보음을 내고, 이소가 가까운 새끼는 이 소리를 들으면 구멍 밖으로 뛰쳐나간다.",
+    "sources": ["SRC-023", "SRC-001"],
+    "factCheck": "verified"
+  },
+  {
+    "id": "ev.parus-minor.caterpillar-shortage",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["nestling"],
+      "hasBrood": true
+    },
+    "weight": "common",
+    "title": "애벌레가 모자라다",
+    "body": "둥지 가까운 나뭇잎에서 애벌레가 잘 보이지 않는다. 새끼들은 입을 벌리고 목을 뻗는다.",
+    "options": [
+      {
+        "id": "go-far",
+        "text": "먼 숲까지 날아가 애벌레를 나른다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          },
+          {
+            "type": "riskMod",
+            "tier": "low"
+          }
+        ]
+      },
+      {
+        "id": "make-do",
+        "text": "가까운 데서 작은 벌레로 때운다",
+        "effects": [
+          {
+            "type": "chickLoss",
+            "tier": "small"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "박새 새끼는 나방 애벌레를 주로 먹고, 부화 후 9~12일쯤에 가장 많이 먹는다. 번식 시기는 애벌레가 가장 많은 때에 맞추지만 해마다 어긋날 수 있다.",
+    "sources": ["SRC-034", "SRC-005"],
+    "factCheck": "verified"
+  },
+  {
+    "id": "ev.parus-minor.nest-cleaning",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["nestling"],
+      "hasBrood": true
+    },
+    "weight": "common",
+    "title": "둥지 청소",
+    "body": "새끼들이 자라면서 둥지 바닥에 배설물이 쌓이고, 깃 사이로 작은 진드기가 기어 다닌다.",
+    "options": [
+      {
+        "id": "clean",
+        "text": "배설물 주머니를 물어 멀리 버린다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "feed-only",
+        "text": "먹이 나르기에만 매달린다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "chickLoss",
+            "tier": "small"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "참새목 새는 새끼의 배설물 주머니와 둥지 속 기생충을 치운다. 위생을 지키고 포식자를 끌어들이는 흔적을 줄이는 기능이 제시된다. 박새의 청소 빈도는 확인하지 못했다.",
+    "sources": ["SRC-038", "SRC-037"],
+    "factCheck": "needs-review"
   }
 ]

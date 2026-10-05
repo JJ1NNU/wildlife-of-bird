@@ -17,7 +17,7 @@ import { iconStyle } from './icons.ts';
 import { clearRun, loadRun, saveRun } from './save.ts';
 
 /**
- * M1 화면(#24) — 첫 조각: S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
+ * M1 화면(#24): S-01 타이틀·이어하기 · S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
  * 배치는 아트 중충실도 와이어프레임(`docs/ux/wireframes/mid/01`, #123)과 #53(결정 영역 550)을 따른다.
  * 엔진이 아직 자리표시 선택만 내므로(#21) 이벤트 · 번식 · 계승 · 옮기기 펼침은 엔진이 선택을 내면 붙인다.
  * 잠정(#24): 화면 문구는 data/text/(콘텐츠)가 생기면 옮긴다.
@@ -61,9 +61,45 @@ function startRun(data: GameData): RunState {
 
 export function Game({ data }: { data: GameData }) {
   const [boot] = useState(() => loadRun(data));
-  const [state, setState] = useState<RunState>(() => boot.state ?? startRun(data));
+  const [state, setState] = useState<RunState | undefined>(boot.state);
+  const [onTitle, setOnTitle] = useState(true);
   const [picked, setPicked] = useState<string>();
-  const [notice, setNotice] = useState(boot.problem);
+
+  if (onTitle || !state) {
+    const saved = state && !state.gameOver ? state : undefined;
+    return (
+      <main className="game" data-testid="title">
+        <div className="over">
+          <h1>야생조류 키우기</h1>
+          {boot.problem && (
+            <p className="notice small">저장된 판을 불러오지 못했다 — {boot.problem}</p>
+          )}
+          {saved && (
+            <button
+              type="button"
+              className="btn prim"
+              onClick={() => setOnTitle(false)}
+              data-testid="continue"
+            >
+              이어하기 · {periodLabel(saved.at).text}
+            </button>
+          )}
+          <button
+            type="button"
+            className={saved ? 'btn' : 'btn prim'}
+            onClick={() => {
+              setState(startRun(data));
+              setPicked(undefined);
+              setOnTitle(false);
+            }}
+            data-testid="new-run"
+          >
+            새 판 시작
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   const view = getView(state, data);
   const choices = getChoices(state, data);
@@ -71,12 +107,11 @@ export function Game({ data }: { data: GameData }) {
   const pickedChoice = choices.find((c) => c.id === picked);
 
   function go() {
-    if (!picked) return;
+    if (!picked || !state) return;
     const next = act(state, picked, data).state;
     saveRun(next);
     setState(next);
     setPicked(undefined);
-    setNotice(undefined);
   }
 
   function restart() {
@@ -137,10 +172,6 @@ export function Game({ data }: { data: GameData }) {
             {view.player.sex === 'female' ? '♀' : '♂'} {view.player.age}세
           </div>
         </div>
-
-        {notice && (
-          <p className="notice small">저장된 판을 불러오지 못해 새 판을 시작했다 — {notice}</p>
-        )}
 
         <ul className="list" aria-label="행동">
           {choices.map((c) => {
