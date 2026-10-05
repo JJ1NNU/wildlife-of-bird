@@ -22,7 +22,8 @@
   },
   "runStart": {
     "age": 1,
-    "period": 1
+    "period": 1,
+    "node": "forest-edge"
   },
   "seasons": {
     "winter": [23, 24, 1, 2, 3, 4],

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Tier } from './effects.ts';
+import { CompetitionTier, FoodTier, NodeRiskTier } from './nodes.ts';
 import { Grade, StatName } from './species.ts';
 
 /**
@@ -67,9 +68,9 @@ export const Formulas = z
       .strict(),
     nodeTiers: z
       .object({
-        food: table(['scarce', 'low', 'medium', 'high', 'rich'], nonneg),
-        risk: table(['veryLow', 'low', 'medium', 'high', 'veryHigh'], probability),
-        competition: table(['none', 'low', 'medium', 'high'], probability),
+        food: z.record(FoodTier, nonneg),
+        risk: z.record(NodeRiskTier, probability),
+        competition: z.record(CompetitionTier, probability),
       })
       .strict(),
     energy: z

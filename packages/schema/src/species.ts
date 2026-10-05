@@ -152,7 +152,14 @@ export const SpeciesBalance = z
       })
       .strict(),
     aptitude: z.partialRecord(StatName, Grade),
-    runStart: z.object({ age: z.number().int().nonnegative(), period: Period }).strict(),
+    runStart: z
+      .object({
+        age: z.number().int().nonnegative(),
+        period: Period,
+        /** 시작 장소 id (`data/nodes/`). 장소 파일이 있으면 검증기가 확인한다 */
+        node: z.string().min(1),
+      })
+      .strict(),
     /** 계절 → 시기 목록. 1~24가 정확히 한 번씩 */
     seasons: z.record(Season, z.array(Period).min(1)).superRefine((seasons, ctx) => {
       const seen = new Map<number, string>();

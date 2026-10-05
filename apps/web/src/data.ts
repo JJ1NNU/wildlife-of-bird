@@ -30,6 +30,7 @@ const raw: RawGameData = {
   calendar: files(
     import.meta.glob('../../../data/calendar/*.json', { eager: true, import: 'default' }),
   ),
+  nodes: files(import.meta.glob('../../../data/nodes/*.json', { eager: true, import: 'default' })),
   events: files(
     import.meta.glob('../../../data/events/*.json', { eager: true, import: 'default' }),
   ),
@@ -37,4 +38,8 @@ const raw: RawGameData = {
 
 export const loaded = loadGameData(raw);
 export const fileCount =
-  raw.ecology.length + raw.balance.length + raw.calendar.length + raw.events.length;
+  raw.ecology.length +
+  raw.balance.length +
+  raw.calendar.length +
+  raw.nodes.length +
+  raw.events.length;
