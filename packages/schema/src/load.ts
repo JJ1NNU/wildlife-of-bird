@@ -1,5 +1,6 @@
 import './locale.ts';
 import type { z } from 'zod';
+import { Breeding } from './breeding.ts';
 import { Calendar, calendarPhases } from './calendar.ts';
 import { EffectsTable } from './effects.ts';
 import type { GameEvent } from './events.ts';
@@ -16,6 +17,8 @@ import { SpeciesBalance, SpeciesEcology } from './species.ts';
 export interface GameData {
   effects: EffectsTable;
   formulas: Formulas;
+  /** 번식 계수 (`04-breeding`) */
+  breeding: Breeding;
   ecology: Map<string, SpeciesEcology>;
   balance: Map<string, SpeciesBalance>;
   /** 종별 연간 단계표 */
@@ -61,6 +64,7 @@ function check<T>(schema: z.ZodType<T>, raw: RawFile, issues: DataIssue[]): T | 
 export interface RawGameData {
   effects?: RawFile;
   formulas?: RawFile;
+  breeding?: RawFile;
   ecology: RawFile[];
   balance: RawFile[];
   calendar: RawFile[];
@@ -162,9 +166,15 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
   const effects = raw.effects ? check(EffectsTable, raw.effects, issues) : undefined;
   const formulas = raw.formulas ? check(Formulas, raw.formulas, issues) : undefined;
   if (formulas) checkAptitudeGrades(balance, balanceFile, formulas, issues);
+  const breeding = raw.breeding ? check(Breeding, raw.breeding, issues) : undefined;
+  if (breeding && raw.breeding)
+    checkBreedingSpecies(breeding, raw.breeding.file, ecology, balance, issues);
 
-  if (issues.length > 0 || !effects || !formulas) return { issues };
-  return { data: { effects, formulas, ecology, balance, calendar, nodes, events }, issues };
+  if (issues.length > 0 || !effects || !formulas || !breeding) return { issues };
+  return {
+    data: { effects, formulas, breeding, ecology, balance, calendar, nodes, events },
+    issues,
+  };
 }
 
 /** 장소를 읽고 종·연결을 확인한다. 연결은 양방향이어야 한다(`00-core-loop` 3.4) */
@@ -294,6 +304,30 @@ function checkEventPhases(
           reason: `${speciesId}의 단계표에 없는 국면이다: ${phase}`,
         });
       }
+    }
+  }
+}
+
+/** `breeding.species`의 종은 생태 파일이 있어야 하고, 밸런스가 있는 종은 번식 계수도 있어야 한다 */
+function checkBreedingSpecies(
+  breeding: Breeding,
+  file: string,
+  ecology: Map<string, SpeciesEcology>,
+  balance: Map<string, SpeciesBalance>,
+  issues: DataIssue[],
+): void {
+  for (const speciesId of Object.keys(breeding.species)) {
+    if (!ecology.has(speciesId)) {
+      issues.push({
+        file,
+        at: `species.${speciesId}`,
+        reason: `생태 파일이 없는 종이다: ${speciesId}`,
+      });
+    }
+  }
+  for (const speciesId of balance.keys()) {
+    if (!breeding.species[speciesId]) {
+      issues.push({ file, at: 'species', reason: `${speciesId}의 번식 계수가 없다` });
     }
   }
 }

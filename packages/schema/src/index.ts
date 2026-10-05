@@ -7,6 +7,7 @@
  */
 import './locale.ts';
 
+export * from './breeding.ts';
 export * from './calendar.ts';
 export * from './effects.ts';
 export * from './events.ts';

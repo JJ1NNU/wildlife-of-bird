@@ -91,7 +91,7 @@ interface CalendarAt { year: number; period: number; step: number }  // period: 
 interface Choice {
   id: string
   kind: 'node' | 'action' | 'eventOption' | 'seasonPolicy'
-      | 'mateCandidate' | 'mateOrder' | 'clutchSize' | 'parentingPolicy'
+      | 'mateCandidate' | 'mateOrder' | 'nestSite' | 'clutchSize' | 'parentingPolicy' | 'secondBrood'
       | 'inheritance' | 'migration'
   label: string
   disabled?: { reason: string }  // 예: 생물학적으로 불가능한 짝 지시 → 이유 표시
@@ -126,6 +126,12 @@ interface ViewModel {
 
 `StatName` = `flight` `foraging` `vigilance` `stamina` `display` `social` `navigation` (gdd 5.1장).
 
+### 선택지 ID
+- 행동 `action.<행동>`(`forage` `rest` `social` `explore`), 훈련은 스탯마다 `action.train.<스탯>`(종 `aptitude`의 스탯마다 — 맨 `action.train`은 없다, #124), 이동 `move.<장소>`.
+- 번식 관문(`04-breeding` 1장)의 `kind`: `mateCandidate` `mateOrder` `nestSite` `clutchSize` `parentingPolicy` `secondBrood`. **관문이 열려 있으면 `getChoices`는 관문의 선택지만** 준다. 짝 지시·육아 방침은 판정 1 전에 받고 같은 단계에서 이어 행동을 고른다. 나머지 관문은 단계 흐름의 끝에 열린다.
+- 둥지 국면 동안(둥지 자리 관문 뒤 ~ `nestling` 끝) `move.*`는 `disabled`("둥지를 떠날 수 없다").
+- **육아 방침은 선택지 하나에 여러 항목**을 담는다 — 잠정(#121), 관문 구현 때 확정: `Choice`에 `items: { item, options, current, locked? }[]`(`locked` = `postFledge` 조정에서 못 바꾸는 항목), `act(state, 'parentingPolicy?intensity=high&allocation=compete')` — 빠진 항목은 현재값(처음에는 기본값). 항목 이름은 `intensity` + `breeding.json` `parenting`의 키.
+
 ### 필수 성질
 - **결정론**: 난수 상태(`RunState.rng`, 32비트 정수)가 상태 안에 있다. `Math.random`·현재 시간 사용 금지. 테스트가 지킨다.
 - `RunState` 안에는 지금 난수 상태, 달력, 플레이어 개체, 점수(`totalBreeding`), 게임 오버 여부, 판정 기록(`log`)이 있다. **짝 · 새끼 · 가계도 · 세계 상태(장소·환경)는 디자인 상태 기계 명세(#5)와 함께 M1에 더한다.** 화면·봇은 `RunState`를 직접 읽지 않고 `getView`만 쓴다 — 그래서 `RunState` 내부가 바뀌어도 화면·봇이 깨지지 않는다.
@@ -159,7 +165,7 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 ## 4. 데이터 계약 — `@wb/schema` (값은 예시)
 
 - 검증: `npm run validate:data` — CI에서도 돈다. 실패하면 **파일 · 파일 안의 위치 · 이유**를 알려 준다.
-- 스키마가 담은 형식: 4.1 · 4.2 · 4.3 · 4.3.1 · 4.3.2 · 4.4 장소. 4.4의 포식자·도감과 `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
+- 스키마가 담은 형식: 4.1 · 4.2 · 4.3 · 4.3.1 · 4.3.2 · 4.3.3 · 4.4 장소. 4.4의 포식자·도감과 `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
 - 모든 객체는 **모르는 필드를 거부**한다(오타를 잡기 위해). 필드를 더하려면 8장 절차로 스키마를 함께 고친다.
 
 ### 4.1 종: 생태 사실(content)과 밸런스(design)의 분리
@@ -301,6 +307,16 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 - 국면 이름은 열거 `Phase`(`00-core-loop` 2.2의 9개). 새 국면은 엔진 규칙과 함께 더한다(M4 `migration` 등).
 - 단계표는 기본값이고 런 상태가 실제 값이다(재번식·분할 해제). 행동 목록·관문은 단계표에 두지 않는다(`00-core-loop` 4.3 · 4.6).
 - `GameData.calendar`: 종 id → 단계표. 생태 파일이 있는 종이어야 한다.
+
+### 4.3.3 번식 계수 — design
+
+`data/balance/breeding.json` · 스키마 `Breeding` · 의미: `docs/design/specs/04-breeding.md`(키 이름으로 참조).
+- 최상위 키: `mate` `orders` `help` `nestSite` `parenting` `species`. `formulas.json`처럼 **키 하나하나 엄격히** 검사한다.
+- `orders.<id>.role`: 지시를 받는 **짝의 성별** → `native` | `shared` | `unusual` | `impossible`. 할 수 있는 성별이 있는 지시는 `cost`(`Tier` → `formulas.mate.costConflict`) · `risky` · `mateR`가 필요하다.
+- `nestSite.contestDifficulty`: 장소의 봄 경쟁 등급(`low` `medium` `high`) → 판정 난이도 등급(`effects.checkDifficulty`). `none`은 판정 없이 성공.
+- `parenting.<항목>`: 선택 → 효과. **첫 선택이 기본값**이고 효과가 없어야 한다(`{}`). 급이 강도(`low`·`mid`·`high`)는 `formulas.json`에 있어 여기 없다.
+- `species.<종>`: 종마다 다른 번식 계수. 생태 파일이 있는 종이어야 하고, 종 밸런스가 있는 종은 여기에도 있어야 한다.
+- `GameData.breeding`: 이 파일 그대로.
 
 ### 4.4 장소·포식자·도감 — content
 - 장소(`data/nodes/<id>.json`, 스키마 `MapNode`): `id`(소문자-하이픈), `nameKo`, `species`(해당 종, 생태 파일 필요), `habitats`(서식지 태그), `links`(연결된 장소 — **양방향**, 자기 자신·없는 장소 금지), `seasons.<계절>`의 `food`·`risk`·`competition` 등급(이름은 `formulas.json` `nodeTiers`의 키, 숫자는 design), `basis`(등급 방향의 출처 · `factCheck` · `note`).

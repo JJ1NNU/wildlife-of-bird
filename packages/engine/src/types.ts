@@ -30,8 +30,10 @@ export interface Choice {
     | 'seasonPolicy'
     | 'mateCandidate'
     | 'mateOrder'
+    | 'nestSite'
     | 'clutchSize'
     | 'parentingPolicy'
+    | 'secondBrood'
     | 'inheritance'
     | 'migration';
   label: string;

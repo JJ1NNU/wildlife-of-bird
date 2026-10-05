@@ -18,9 +18,14 @@ const formulas = one(
   import.meta.glob('../../../data/balance/formulas.json', { eager: true, import: 'default' }),
 );
 
+const breeding = one(
+  import.meta.glob('../../../data/balance/breeding.json', { eager: true, import: 'default' }),
+);
+
 const raw: RawGameData = {
   ...(effects ? { effects } : {}),
   ...(formulas ? { formulas } : {}),
+  ...(breeding ? { breeding } : {}),
   ecology: files(
     import.meta.glob('../../../data/species/*.ecology.json', { eager: true, import: 'default' }),
   ),
