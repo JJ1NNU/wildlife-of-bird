@@ -36,6 +36,8 @@
 | SRC-025 | 山階鳥類研究所・環境省生物多様性センター (2022-10-20) 『バンディングかわら版』 第5号 (조류 표지조사 소식지) | [link](https://www.biodic.go.jp/banding/pdf/news_5.pdf) | B | 일본 가락지 조사의 종별 **최장 생존 확인 기록**: シジュウカラ(*Parus minor*) **7년 11개월**. 최장 기록일 뿐 평균 수명이 아니다. 지역은 일본 | 확인 |
 | SRC-026 | 大迫義人・三原学 (1998) 「標識調査から得られた鳥類の外部計測値, 捕獲時期および生存日数」, 『Ciconia』(福井県自然保護センター研究報告) 7:7–12 | [link](https://fncc.pref.fukui.lg.jp/wp-content/uploads/2018/12/cico-702.pdf) | A | 일본 후쿠이현 한 조사지(1991~1997)에서 シジュウカラ가 첫 표지 후 **1,514일** 뒤 다시 잡혔다(7년 조사 중 최장). 같은 곳에서 연중 머물며 번식·월동 | 확인 |
 | SRC-027 | Carey, G. J. & Leven, M. R. (2023) "Japanese Tit *Parus minor*", *The Avifauna of Hong Kong*, 홍콩조류협회(HKBWS), 2024-01-10 갱신 | [link](https://avifauna.hkbws.org.hk/species/0270/034800) | C | 식별 특징: 흰 뺨·흰 뒷목, 멱에서 배 가운데로 이어지는 검정, 회백색 배, 흰 날개띠, 수컷은 다리 사이 검정이 넓다, 어린 새는 위 올리브·아래 노르스름·흰 입가. **홍콩의 아종은 등이 회청색** — 한국 개체의 등 색 근거로는 쓰지 않는다 | 확인 |
+| SRC-032 | 임신재·손승훈·김민진·강정훈 (2008) 「침엽수림과 활엽수림 지역에서 박새류의 인공새집 이용」, 『한국산림과학회지』 97(1):83–87 | [link](https://cau.scholarworks.kr/handle/2019.sw.cau/30732) | A | 국내 인공새집 조사(2006~2007 번식기): 박새류 번식쌍 수가 침엽수림보다 **활엽수림**에서 높았고, 박새는 한배 새끼 수·번식 성공률도 활엽수림에서 높았다. 진박새는 침엽수림에서 번식 성공률이 높았다. 수치는 전문 미확보 | 확인(서지·초록) |
+| SRC-033 | Lee, S. D. & Jabłoński, P. G. (1999) "Species composition and use of coniferous and deciduous trees in mixed-species flocks wintering near Seoul (Korea)", *Acta Ornithologica* 34(1):81–84 | [link](https://pure.ewha.ac.kr/en/publications/species-composition-and-use-of-coniferous-and-deciduous-trees-in-/) | A | 서울 근교 겨울 혼성군 37무리: 박새(논문 표기 *P. major* — 구 분류, 한국 개체는 지금의 *P. minor*)는 활엽수림보다 **침엽수림(소나무·전나무)**의 무리에서 더 높은 비율로 보였다. 진박새는 박새보다 침엽수를 더 자주 썼다 | 확인(서지·초록) |
 
 ### 꼬마물떼새 (Charadrius dubius)
 

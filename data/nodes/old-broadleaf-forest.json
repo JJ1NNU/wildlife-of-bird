@@ -1,0 +1,34 @@
+{
+  "id": "old-broadleaf-forest",
+  "nameKo": "활엽수 노숙림",
+  "species": ["parus-minor"],
+  "habitats": ["forest"],
+  "links": ["forest-edge", "pine-forest"],
+  "seasons": {
+    "spring": {
+      "food": "rich",
+      "risk": "medium",
+      "competition": "high"
+    },
+    "summer": {
+      "food": "rich",
+      "risk": "medium",
+      "competition": "high"
+    },
+    "autumn": {
+      "food": "medium",
+      "risk": "medium",
+      "competition": "medium"
+    },
+    "winter": {
+      "food": "low",
+      "risk": "medium",
+      "competition": "low"
+    }
+  },
+  "basis": {
+    "sources": ["SRC-024", "SRC-032"],
+    "factCheck": "verified",
+    "note": "번식하러 오는 곳. 국내 조사에서 박새 번식쌍 수·한배 새끼 수·번식 성공률이 침엽수림보다 활엽수림에서 높았다(SRC-032). 등급은 이 대비를 옮긴 게임 값이고, 겨울 먹이가 낮은 것은 소나무숲과의 대비(SRC-033). 여름 먹이를 봄과 같은 rich로 둔 것은 '어느 장소도 늘 최선이 아니게'(00-core-loop 3.4)를 맞춘 게임 값(design #110 리뷰)."
+  }
+}

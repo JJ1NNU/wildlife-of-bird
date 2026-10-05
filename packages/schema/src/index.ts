@@ -13,4 +13,5 @@ export * from './events.ts';
 export * from './fact.ts';
 export * from './formulas.ts';
 export * from './load.ts';
+export * from './nodes.ts';
 export * from './species.ts';

@@ -5,11 +5,12 @@ import { EffectsTable } from './effects.ts';
 import type { GameEvent } from './events.ts';
 import { GameEventFile, optionEffects } from './events.ts';
 import { Formulas } from './formulas.ts';
+import { MapNode } from './nodes.ts';
 import { SpeciesBalance, SpeciesEcology } from './species.ts';
 
 /**
  * 검증된 게임 데이터 묶음. 엔진의 모든 함수가 이것을 받는다 (03-contracts 3장).
- * 장소·포식자·도감은 그 데이터의 소유 부서가 첫 파일을 올릴 때 형식을 확정하고
+ * 포식자·도감은 그 데이터의 소유 부서가 첫 파일을 올릴 때 형식을 확정하고
  * 여기에 더한다.
  */
 export interface GameData {
@@ -19,6 +20,8 @@ export interface GameData {
   balance: Map<string, SpeciesBalance>;
   /** 종별 연간 단계표 */
   calendar: Map<string, Calendar>;
+  /** 지도 장소. id → 장소 */
+  nodes: Map<string, MapNode>;
   events: GameEvent[];
 }
 
@@ -61,6 +64,7 @@ export interface RawGameData {
   ecology: RawFile[];
   balance: RawFile[];
   calendar: RawFile[];
+  nodes: RawFile[];
   events: RawFile[];
 }
 
@@ -120,6 +124,21 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
     checkSpeciesPhases(species, calendarPhases(cal), file, issues);
   }
 
+  const nodes = loadNodes(raw.nodes, ecology, issues);
+  // 장소 파일이 아직 없으면(#110 전) 시작 장소는 확인하지 않는다
+  if (nodes.size > 0) {
+    for (const [speciesId, species] of balance) {
+      const start = nodes.get(species.runStart.node);
+      if (!start || !start.species.includes(speciesId)) {
+        issues.push({
+          file: balanceFile.get(speciesId) ?? 'data/balance/species',
+          at: 'runStart.node',
+          reason: `${speciesId}의 장소가 아니다: ${species.runStart.node} (data/nodes/)`,
+        });
+      }
+    }
+  }
+
   const events: GameEvent[] = [];
   for (const file of raw.events) {
     const parsed = check(GameEventFile, file, issues);
@@ -145,7 +164,48 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
   if (formulas) checkAptitudeGrades(balance, balanceFile, formulas, issues);
 
   if (issues.length > 0 || !effects || !formulas) return { issues };
-  return { data: { effects, formulas, ecology, balance, calendar, events }, issues };
+  return { data: { effects, formulas, ecology, balance, calendar, nodes, events }, issues };
+}
+
+/** 장소를 읽고 종·연결을 확인한다. 연결은 양방향이어야 한다(`00-core-loop` 3.4) */
+function loadNodes(
+  files: RawFile[],
+  ecology: Map<string, SpeciesEcology>,
+  issues: DataIssue[],
+): Map<string, MapNode> {
+  const nodes = new Map<string, MapNode>();
+  const nodeFile = new Map<string, string>();
+  for (const file of files) {
+    const parsed = check(MapNode, file, issues);
+    if (!parsed) continue;
+    if (nodes.has(parsed.id)) {
+      issues.push({ file: file.file, at: 'id', reason: `장소 id가 겹친다: ${parsed.id}` });
+      continue;
+    }
+    nodes.set(parsed.id, parsed);
+    nodeFile.set(parsed.id, file.file);
+  }
+  for (const node of nodes.values()) {
+    const file = nodeFile.get(node.id) ?? 'data/nodes';
+    for (const [i, speciesId] of node.species.entries()) {
+      if (!ecology.has(speciesId)) {
+        issues.push({ file, at: `species[${i}]`, reason: `생태 파일이 없는 종이다: ${speciesId}` });
+      }
+    }
+    for (const [i, link] of node.links.entries()) {
+      const other = nodes.get(link);
+      const reason =
+        link === node.id
+          ? '자기 자신과 연결할 수 없다'
+          : !other
+            ? `없는 장소다: ${link}`
+            : !other.links.includes(node.id)
+              ? `${link}의 links에 ${node.id}가 없다 — 연결은 양방향이어야 한다`
+              : undefined;
+      if (reason) issues.push({ file, at: `links[${i}]`, reason });
+    }
+  }
+  return nodes;
 }
 
 /**
