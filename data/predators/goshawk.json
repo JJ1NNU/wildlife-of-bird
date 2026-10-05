@@ -1,0 +1,10 @@
+{
+  "id": "goshawk",
+  "nameKo": "참매",
+  "targets": ["adult"],
+  "basis": {
+    "sources": ["SRC-034"],
+    "factCheck": "verified",
+    "note": "박새 성조를 드물게 잡는다(SRC-034). 이벤트 goshawk-chase(#23)의 predator id."
+  }
+}
