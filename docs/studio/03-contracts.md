@@ -30,7 +30,7 @@
 | `packages/tokens/` | art | 디자인 토큰(색·글꼴·간격) — 클라이언트가 가져다 쓴다 |
 | `qa/` | qa | 봇(`bots/`), 리포트(`reports/`), e2e, 테스트 전략·지표, 출시 체크리스트(`release-checklist.md`), CI용 검사 스크립트(`ci/` — `ci.yml`에서 부르는 연결은 엔진) |
 | `data/balance/` | design | 모든 조정 가능한 수치(공식 계수, 종별 밸런스, 효과 등급표, 목표치) |
-| `data/calendar/` | design | 종별 연간 단계표(시기 → 단계, 단계별 가능한 행동·이벤트 풀·결정) |
+| `data/calendar/` | design | 종별 연간 단계표(시기 → 단계마다의 국면, 재번식 시기) — 4.3.2 |
 | `data/titles/` | design | 칭호·업적의 조건 (이름·설명 글은 content가 PR로 작성, design 리뷰) |
 | `data/species/*.ecology.json` | content | 종의 생태 사실 |
 | `data/events/` | content | 이벤트(글·조건·생태 근거, 효과는 등급 참조) — design 리뷰 필수 |
@@ -159,7 +159,7 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 ## 4. 데이터 계약 — `@wb/schema` (값은 예시)
 
 - 검증: `npm run validate:data` — CI에서도 돈다. 실패하면 **파일 · 파일 안의 위치 · 이유**를 알려 준다.
-- 스키마가 담은 형식: 4.1 · 4.2 · 4.3 · 4.3.1. 4.4(장소·포식자·도감)와 `data/calendar/` `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
+- 스키마가 담은 형식: 4.1 · 4.2 · 4.3 · 4.3.1 · 4.3.2 · 4.4 장소. 4.4의 포식자·도감과 `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
 - 모든 객체는 **모르는 필드를 거부**한다(오타를 잡기 위해). 필드를 더하려면 8장 절차로 스키마를 함께 고친다.
 
 ### 4.1 종: 생태 사실(content)과 밸런스(design)의 분리
@@ -212,13 +212,14 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
   "nestLossPerStep": 0.045,
   "agingStartAge": 3,
   "firstWinterRiskMult": 1.8,
-  "secondBrood": { "layByPeriod": 13, "energyCost": "large", "moltDelayPeriods": 2 }
+  "secondBrood": { "layByPeriod": 13, "energyCost": "large" }
 }
 ```
 - `speciesId`의 생태 파일이 있어야 한다(교차 검증).
 - `seasons`: 1~24가 **정확히 한 번씩** 나와야 한다(검증).
 - `aptitude`는 종에 해당하는 스탯만(예: `navigation`은 철새만), 등급 `S`~`D`. 쓰는 등급마다 `formulas.json`의 `stats.aptitudeMean`·`aptitudeGrowth`에 계수가 있어야 한다(교차 검증).
-- `secondBrood`는 2차 번식이 있는 종만 쓴다(선택). v0의 `nestSuccessBase`는 `targets.firstBroodSuccess`(목표)와 `nestLossPerStep`(계수)로 나뉘었다(#54).
+- 국면 이름(`predatorActivity` 키 · `flockPhases`)은 열거 `Phase`이고, 그 종의 단계표(4.3.2)에 있는 국면이어야 한다(교차 검증, #91). 밸런스가 있는 종은 단계표도 있어야 한다.
+- `secondBrood`는 2차 번식이 있는 종만 쓴다(선택). 털갈이 지연은 재번식이 `molt` 시기를 차지하는 것으로 생기므로 `moltDelayPeriods`는 없앴다(#91, `00-core-loop` 4.4). v0의 `nestSuccessBase`는 `targets.firstBroodSuccess`(목표)와 `nestLossPerStep`(계수)로 나뉘었다(#54).
 
 ### 4.2 효과 등급표 — design
 
@@ -248,7 +249,7 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 {
   "id": "ev.parus-minor.snake-at-nest",
   "species": ["parus-minor"],
-  "when": { "phaseAny": ["nestling"], "habitatAny": ["forest"], "hasBrood": true, "hasMate": true },
+  "when": { "phaseAny": ["nestling"], "phaseLastStep": true, "habitatAny": ["forest"], "hasBrood": true, "hasMate": true },
   "weight": "uncommon",
   "title": "둥지 아래의 소리",
   "body": "둥지 구멍 아래 나무껍질을 무언가 천천히 긁으며 올라온다. 짝이 날카로운 경보음을 연달아 낸다.",
@@ -271,10 +272,10 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 ```
 - `id`: `ev.<종 또는 common>.<이름>` (소문자·숫자·하이픈). `species`의 종마다 생태 파일이 있어야 한다(교차 검증).
 - `draw`: `step`(기본 — 단계 이벤트) | `periodStart`(환경 카드).
-- `when`(모두 선택, 모두 참이어야 함): `phaseAny` `habitatAny` `periodFrom`·`periodTo`(함께, from > to면 해를 넘김) `sex` `ageMin` `ageMax` `hasMate` `hasBrood` `energyBelow`(0~1) `actionAny`. v0의 `phase`는 `phaseAny`로 바뀌었다(#54).
+- `when`(모두 선택, 모두 참이어야 함): `phaseAny`(국면 열거 `Phase`, 이벤트의 모든 종의 단계표에 있어야 함) `phaseLastStep`(그 국면이 이어지는 마지막 단계, #73) `habitatAny` `periodFrom`·`periodTo`(함께, from > to면 해를 넘김) `sex` `ageMin` `ageMax` `hasMate` `hasBrood` `energyBelow`(0~1) `actionAny`. v0의 `phase`는 `phaseAny`로 바뀌었다(#54).
 - 선택지 두 모양: 고정 효과 `{ id, text, effects }` / 판정형 `{ id, text, check: { stat, difficulty }, onSuccess, onFail }`. 섞어 쓸 수 없다.
 - 효과 종류: `energy` `feather` `bond` `foodMod`(등급 + **`sign` 필수**: `gain` | `loss`, #37), `statGain`(`stat` + 등급), `chickLoss` `injury`(등급), `deathRisk`(위험 등급 + **`cause` 필수**: `cold` `accident` `disease` `predation`, `predation`이면 `predator` 선택), `broodRisk` `riskMod`(위험 등급), `fledgeEarly`.
-- **성립 조건 검증** (03-events 6.2): `bond` → `when.hasMate: true` / `broodRisk`·`chickLoss` → `when.hasBrood: true` / `fledgeEarly` → `when.phaseAny`가 `["nestling"]`뿐 / `statGain`·`check.stat` → 이벤트의 모든 종의 `aptitude`에 그 스탯 / 선택지 수: `step` 2~3개, `periodStart` 1~3개.
+- **성립 조건 검증** (03-events 6.2): `bond` → `when.hasMate: true` / `broodRisk`·`chickLoss` → `when.hasBrood: true` / `fledgeEarly` → `when.phaseAny`가 `["nestling"]`뿐 **그리고** `phaseLastStep: true` (#73) / `statGain`·`check.stat` → 이벤트의 모든 종의 `aptitude`에 그 스탯 / 선택지 수: `step` 2~3개, `periodStart` 1~3개.
 - 글은 v1에서 데이터 파일에 한국어로 직접 쓴다(다국어는 P2).
 - `factCheck`: `verified` | `needs-review`. `needs-review` 항목은 출시 빌드에서 제외하거나 출시 전 해결(QA 출시 체크리스트).
 
@@ -285,8 +286,26 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 - **키 하나하나 엄격히** 검사한다 — 오타 난 키가 조용히 기본값으로 빠지면 밸런스 버그를 찾기 어렵다(#54). 키를 더하거나 바꾸면 스키마를 같은 PR에서 고친다(`review:engine`).
 - 행동 id는 `forage` `rest` `train` `social` `explore` `move`로 고정이다 — 행동마다 엔진 로직이 따로 있기 때문이다.
 
+### 4.3.2 연간 단계표 — design
+
+`data/calendar/<종>.json` · 스키마 `Calendar` · 의미: `docs/design/specs/00-core-loop.md` 4장
+```json
+{
+  "speciesId": "parus-minor",
+  "periods": [ { "period": 1, "steps": ["winter"] }, { "period": 7, "steps": ["nestSite", "nestSite", "nestSite"] } ],
+  "rebrood": [ { "steps": ["nestSite", "laying", "incubation"] }, { "steps": ["nestling", "nestling", "postFledge"] } ]
+}
+```
+- `periods`: 시기 1~24가 **차례로 한 번씩**. `steps`는 단계마다의 국면 이름, 길이 = 단계 수(1~3).
+- `rebrood`: 재번식을 하면 다음 시기부터 덮어쓰는 시기들(1개 이상, 각 1~3단계).
+- 국면 이름은 열거 `Phase`(`00-core-loop` 2.2의 9개). 새 국면은 엔진 규칙과 함께 더한다(M4 `migration` 등).
+- 단계표는 기본값이고 런 상태가 실제 값이다(재번식·분할 해제). 행동 목록·관문은 단계표에 두지 않는다(`00-core-loop` 4.3 · 4.6).
+- `GameData.calendar`: 종 id → 단계표. 생태 파일이 있는 종이어야 한다.
+
 ### 4.4 장소·포식자·도감 — content
-- 장소(`data/nodes/`): `id`, 이름, 서식지 태그, 계절별 먹이·위험 기본 등급(등급의 숫자는 design), 연결된 장소, 해당 종.
+- 장소(`data/nodes/<id>.json`, 스키마 `MapNode`): `id`(소문자-하이픈), `nameKo`, `species`(해당 종, 생태 파일 필요), `habitats`(서식지 태그), `links`(연결된 장소 — **양방향**, 자기 자신·없는 장소 금지), `seasons.<계절>`의 `food`·`risk`·`competition` 등급(이름은 `formulas.json` `nodeTiers`의 키, 숫자는 design), `basis`(등급 방향의 출처 · `factCheck` · `note`).
+- 시작 장소는 장소 파일이 아니라 종 밸런스 `runStart.node`(design). 그 종의 장소여야 한다.
+- `GameData.nodes`: 장소 id → 장소.
 - 포식자(`data/predators/`): `id`, 이름, 노리는 대상(성조·둥지·새끼), 사냥 방식, 대응 상성, 활동 계절·시간, 출처.
 - 도감(`data/codex/`): `id`, 분류(종·포식자·장소·현상), 본문, 해금 조건, 출처.
 

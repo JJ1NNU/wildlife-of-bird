@@ -59,6 +59,8 @@ export async function readDataDir(): Promise<{ raw: RawGameData; issues: DataIss
       ...(formulas ? { formulas } : {}),
       ecology: read(await listFiles('data/species', '.ecology.json')),
       balance: read(await listFiles('data/balance/species', '.json')),
+      calendar: read(await listFiles('data/calendar', '.json')),
+      nodes: read(await listFiles('data/nodes', '.json')),
       events: read(await listFiles('data/events', '.json')),
     },
     issues,

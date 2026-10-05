@@ -11,6 +11,23 @@ export type SpeciesId = z.infer<typeof SpeciesId>;
 /** 시기 1~24 (1 = 1월 상반). gdd 4.2장 */
 export const Period = z.number().int().min(1).max(24);
 
+/**
+ * 국면 이름 (`00-core-loop` 2.2). 엔진의 규칙이 국면마다 다르므로(털갈이 비용·급이·둥지 손실 등)
+ * 데이터가 새 국면을 쓰려면 이 열거와 엔진을 함께 고친다. `migration` `wintering`은 M4.
+ */
+export const Phase = z.enum([
+  'winter',
+  'pairing',
+  'nestSite',
+  'laying',
+  'incubation',
+  'nestling',
+  'postFledge',
+  'molt',
+  'autumnFlock',
+]);
+export type Phase = z.infer<typeof Phase>;
+
 /** 스탯 이름. gdd 5.1장 */
 export const StatName = z.enum([
   'flight',
@@ -135,7 +152,14 @@ export const SpeciesBalance = z
       })
       .strict(),
     aptitude: z.partialRecord(StatName, Grade),
-    runStart: z.object({ age: z.number().int().nonnegative(), period: Period }).strict(),
+    runStart: z
+      .object({
+        age: z.number().int().nonnegative(),
+        period: Period,
+        /** 시작 장소 id (`data/nodes/`). 장소 파일이 있으면 검증기가 확인한다 */
+        node: z.string().min(1),
+      })
+      .strict(),
     /** 계절 → 시기 목록. 1~24가 정확히 한 번씩 */
     seasons: z.record(Season, z.array(Period).min(1)).superRefine((seasons, ctx) => {
       const seen = new Map<number, string>();
@@ -161,10 +185,10 @@ export const SpeciesBalance = z
       }
     }),
     basalPerStep: z.record(Season, positive),
-    /** 국면 이름 → 포식자 활동 배수 */
-    predatorActivity: z.record(z.string().min(1), positive),
+    /** 국면 이름 → 포식자 활동 배수. 없는 국면은 1 */
+    predatorActivity: z.partialRecord(Phase, positive),
     /** 무리 생활을 하는 국면 */
-    flockPhases: z.array(z.string().min(1)),
+    flockPhases: z.array(Phase),
     nestLossPerStep: probability,
     agingStartAge: z.number().int().nonnegative(),
     firstWinterRiskMult: positive,
@@ -173,7 +197,6 @@ export const SpeciesBalance = z
       .object({
         layByPeriod: Period,
         energyCost: Tier,
-        moltDelayPeriods: z.number().int().nonnegative(),
       })
       .strict()
       .optional(),

@@ -13,6 +13,8 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
         },
       ],
       balance: [],
+      calendar: [],
+      nodes: [],
       events: [],
     });
 
@@ -25,6 +27,8 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
     const { issues } = loadGameData({
       ecology: [],
       balance: [],
+      calendar: [],
+      nodes: [],
       events: [
         {
           file: 'data/events/ghost.json',
@@ -66,5 +70,110 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
     expect(
       schema.safeParse({ value: 'female', sources: [], factCheck: 'needs-review' }).success,
     ).toBe(true);
+  });
+
+  it('단계표의 시기 빠짐 · 중복 · 4단계, 단계표에 없는 국면을 잡아낸다 (#91)', () => {
+    const periods = Array.from({ length: 24 }, (_, i) => ({ period: i + 1, steps: ['winter'] }));
+    periods[6] = { period: 6, steps: ['nestSite'] }; // 6이 두 번, 7이 빠짐
+    periods[9] = { period: 10, steps: ['nestling', 'nestling', 'nestling', 'nestling'] };
+    const { issues } = loadGameData({
+      ecology: [],
+      balance: [],
+      calendar: [
+        {
+          file: 'data/calendar/parus-minor.json',
+          json: { speciesId: 'parus-minor', periods, rebrood: [{ steps: ['nestlng'] }] },
+        },
+      ],
+      nodes: [],
+      events: [],
+    });
+    expect(issues.map((i) => i.at)).toEqual([
+      'periods[9].steps',
+      'periods[6].period',
+      'rebrood[0].steps[0]',
+    ]);
+  });
+
+  it('이벤트가 그 종의 단계표에 없는 국면을 쓰면 잡아낸다 (#91)', () => {
+    const periods = Array.from({ length: 24 }, (_, i) => ({ period: i + 1, steps: ['winter'] }));
+    const { issues } = loadGameData({
+      ecology: [],
+      balance: [],
+      calendar: [
+        {
+          file: 'data/calendar/parus-minor.json',
+          json: { speciesId: 'parus-minor', periods, rebrood: [{ steps: ['molt'] }] },
+        },
+      ],
+      nodes: [],
+      events: [
+        {
+          file: 'data/events/parus-minor.json',
+          json: [
+            {
+              id: 'ev.parus-minor.x',
+              species: ['parus-minor'],
+              when: { phaseAny: ['nestling'] },
+              weight: 'common',
+              title: 'ㄱ',
+              body: 'ㄴ',
+              options: [
+                { id: 'a', text: 'ㄷ', effects: [] },
+                { id: 'b', text: 'ㅁ', effects: [] },
+              ],
+              ecologyBasis: 'ㄹ',
+              sources: ['SRC-TEST'],
+              factCheck: 'verified',
+            },
+          ],
+        },
+      ],
+    });
+    expect(issues).toContainEqual({
+      file: 'data/events/parus-minor.json',
+      at: '[0].when.phaseAny[0]',
+      reason: 'parus-minor의 단계표에 없는 국면이다: nestling',
+    });
+  });
+
+  it('장소 연결이 한쪽으로만 나 있거나 없는 장소를 가리키면 잡아낸다', () => {
+    const seasons = Object.fromEntries(
+      ['winter', 'spring', 'summer', 'autumn'].map((k) => [
+        k,
+        { food: 'medium', risk: 'medium', competition: 'medium' },
+      ]),
+    );
+    const node = (id: string, links: string[]) => ({
+      file: `data/nodes/${id}.json`,
+      json: {
+        id,
+        nameKo: id,
+        species: ['parus-minor'],
+        habitats: ['forest'],
+        links,
+        seasons,
+        basis: { sources: [], factCheck: 'needs-review' },
+      },
+    });
+    const { issues } = loadGameData({
+      ecology: [],
+      balance: [],
+      calendar: [],
+      nodes: [
+        node('a-wood', ['b-wood', 'ghost-wood']),
+        node('b-wood', ['c-wood']),
+        node('c-wood', ['b-wood']),
+      ],
+      events: [],
+    });
+    expect(issues.filter((i) => i.at.startsWith('links'))).toEqual([
+      {
+        file: 'data/nodes/a-wood.json',
+        at: 'links[0]',
+        reason: 'b-wood의 links에 a-wood가 없다 — 연결은 양방향이어야 한다',
+      },
+      { file: 'data/nodes/a-wood.json', at: 'links[1]', reason: '없는 장소다: ghost-wood' },
+    ]);
   });
 });

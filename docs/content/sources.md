@@ -69,6 +69,24 @@
 | SRC-030 | San Diego Zoo Wildlife Alliance Library, "Red-crowned Crane (*Grus japonensis*)" Fact Sheet — Summary · Physical Characteristics, 2026-01-14 갱신 | [link](https://ielc.libguides.com/sdzg/factsheets/redcrownedcrane/characteristics) | C | 식별 특징: 정수리 붉은 맨살, 검은 목·흰 뒷목, 흰 첫째날개깃·검은 둘째·셋째날개깃, 암수 거의 같음(수컷이 조금 큼), 어린 새 흰색·계피색·회색, 갓 부화한 새끼 붉은 갈색 | 확인 |
 | SRC-031 | 「Red-crowned crane」, 영어 위키백과 | [link](https://en.wikipedia.org/wiki/Red-crowned_crane) | E | 서 있을 때 검은 둘째날개깃이 꼬리처럼 보이지만 꼬리는 흰색. (암컷 뺨·멱이 회색이라는 서술은 SRC-030과 어긋나 쓰지 않는다) | 확인 |
 
+### 전문가 검수 답
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-034 | 조류 조사 동아리 회원의 서면 답(대표가 전달), #84 질문 A Q1~Q6 · B1~B3. 이슈 댓글 2026-10-04(KST). **답한 사람·동아리 이름 미기재** — #84에 보충 요청 | [link](https://github.com/JJ1NNU/wildlife-of-bird/issues/84) | C | 박새: 한배 보통 7~10(국내 인공새집 평균 7~8 안팎, 상한 11~12, 15개 이상은 대개 두 암컷의 산란), 포란 12~14일(13일 전후 최빈), 육추 16~20일(교란·날씨로 22일까지), 2회 번식은 소수·해마다 차이 큼(국내 비율 모름, 두 번째 산란 5월 하순~6월), 산란 중심 4월 상순~하순(따뜻한 해·남부 3월 말), 번식기 4~7월, 둥지·성조 포식자 목록, 새끼 먹이는 나비목 애벌레 주식. 생존율은 국내 자료 없음(유럽 *P. major* 수치만). B1~B3은 국내 확인 없음·2차 전언 — 4장 N-6 | 확인(이슈 원문) |
+
+### 박새류 번식 일반 — 04-breeding 가정 확인 (#122)
+
+> 다른 *Parus*·*Poecile* 종이나 여러 종을 묶은 연구다. 박새(*P. minor*)에 대해서는 **방향**의 근거로만 쓰고, 수치를 박새 사실 문장으로 옮기지 않는다(4장 N-1과 같은 규칙).
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-035 | Culina, A., Radersma, R. & Sheldon, B. C. (2015) "Trading up: the fitness consequences of divorce in monogamous birds", *Biological Reviews* 90(4):1015–1034 | [link](https://www.bib.irb.hr/1157432) | A | 일부일처 조류 64종 메타분석: 이혼은 **번식 성공이 낮았던 뒤에** 일어나고, 이혼한 새는 다음 번식 성공이 오르는 경향 → 04-breeding "성공 뒤 드묾 · 실패 뒤 늘어남"의 방향 | 서지·초록까지 |
+| SRC-036 | Wesołowski, T. (2002) "Anti-predator adaptations in nesting Marsh Tits *Parus palustris*: the role of nest-site security", *Ibis* 144(4):593–601 | [link](https://digilab.uwr.edu.pl/en/dlibra/publication/77374/anti-predator-adaptations-in-nesting-marsh-tits-parus-palustris-the-role-of-nest-site-security-wesolowski-tomasz) | A | 쇠박새(폴란드 비아워비에자 원시림, 자연 나무구멍): 입구가 몸에 겨우 맞고, 벽이 단단하고, **둥지가 포식자의 손(발)이 닿지 않을 만큼 깊은** 구멍이 안전하다는 '둥지 자리 안전' 가설 검증 → 깊은 구멍 < 얕은 구멍 | 서지·초록까지 |
+| SRC-037 | Møller, A. P. (1989) "Parasites, predators and nest boxes: facts and artefacts in nest box studies of birds?", *Oikos* 56(3):421–423 | [link](https://agris.fao.org/search/en/records/6471cb1069d6cbfdd4a2d964) | A | 인공새집은 자연 구멍보다 **포식과 외부기생충을 줄이는** 경우가 많다(새집 연구의 인공 효과). 해마다 묵은 둥지를 치우면 기생충이 크게 준다 | 서지·초록까지 |
+| SRC-038 | Guigueno, M. F. & Sealy, S. G. (2012) "Nest sanitation in passerine birds: implications for egg rejection in hosts of brood parasites", *Journal of Ornithology* 153(1):35–52. doi:10.1007/s10336-011-0731-0 | [link](https://link.springer.com/doi/10.1007/s10336-011-0731-0) | A | 참새목의 둥지 청소(배설물 주머니·알껍데기·기생 무척추동물·죽은 새끼 치우기) 총설. 기능으로 위생·포식자 유인 줄이기 등이 제시된다 | 서지·초록까지 |
+| SRC-039 | Rodríguez, S., van Noordwijk, A. J., Álvarez, E. & Barba, E. (2016) "A recipe for postfledging survival in great tits *Parus major*: be large and be early (but not too much)", *Ecology and Evolution* 6(13):4458–4467. doi:10.1002/ece3.2192 | [link](https://pmc.ncbi.nlm.nih.gov/articles/PMC4930993/) | A | 스페인 박새(*P. major*) 1993~2010: 첫해 이소 후 생존은 **몸(부척)이 큰 새끼일수록 높다**. 이소 **나이**는 다루지 않음 | 확인 |
+
 ### 환경 변화 · 그 밖의 종
 
 | ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
@@ -88,6 +106,7 @@
 - **N-2 (SRC-004)**: 박새의 포란 12~13일·육추 16~20일·한배 7~10개는 현재 **E등급 출처 단독**이다. 기획서 8.2의 수치도 같은 계통이다. A·B등급 교차 확인이 필요하다. 찾아볼 곳: SRC-024의 전문(PDF), 국립생물자원관 『한반도의 생물다양성』 종 정보, 『한국의 새』 등 전문 도감.
 - **N-3 (SRC-004)**: 이 자료는 학명을 *Parus major*로 적는다(구 분류). 한국 박새의 학명은 *Parus minor*이며, 자료의 수치가 어느 분류 기준의 것인지 확인이 필요하다.
 - **N-4**: 기획서 8.4의 박새 포식자 목록(누룩뱀 등 뱀, 족제비, 담비, 어치·큰부리까마귀, 새매·참매, 올빼미류)은 출처가 없다. SRC-001·002·023은 **뱀·까마귀·담비**만 포식자로 언급한다. 나머지는 `needs-review`.
+- **N-6 (SRC-034)**: 전문가 답 중 **답한 분이 "모른다"·"직접 확인하길 권한다"고 한 부분**은 출처로 쓰지 않는다 — 박새 국내 생존율, 꼬마물떼새 국내 2회 번식(B1), 저어새 갈매기류 포식(B2, "모니터링 보고에 언급된 것으로 안다"), 두루미 철원 가족 서열(B3). 이 셋은 답이 가리킨 원 자료(번식지 모니터링 보고, 홋카이도·북미 두루미 연구)를 해당 마일스톤에 찾는다.
 - **N-5**: `03-contracts.md` 4.3의 이벤트 예시는 새끼의 둥지 탈출 근거로 SRC-001을 가리키지만, 그 사실의 원 출처는 **SRC-023**이다(SRC-001은 포란 중 암컷의 반응). 실제 데이터에서는 SRC-023을 쓴다.
 
 ## 5. 출처를 추가하는 법
