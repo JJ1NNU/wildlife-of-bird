@@ -144,6 +144,7 @@
 - **수정 요청**: `수정 요청 (<부서>): …` 댓글로 구체적으로. 라벨은 그대로 둔다.
 - **머지**: `review:*` 라벨이 하나도 없고 CI가 통과하면 **작성 부서가** 스쿼시 머지한다. 작성 부서의 세션이 끝났으면 PM이 머지할 수 있다.
   - **머지 명령은 단독으로 실행한다**: `gh pr merge <번호> --squash --delete-branch` 한 줄만. `cd ... &&`, `gh pr update-branch ... &&`, `sleep`, `gh pr checks` 등과 묶으면 허용 규칙 `Bash(gh pr merge:*)`가 맞지 않아 자동 승인 모드가 막는다(라운드 2~3). update-branch · CI 확인은 앞선 별도 명령으로.
+  - **머지 전에 자기 worktree를 브랜치에서 뗀다**: `git -C C:/dev/wb-<부서> switch --detach origin/main` (별도 명령). 브랜치를 체크아웃한 worktree가 있으면 `--delete-branch`가 그 worktree를 지운다(#113).
 - **머지 직전 CI는 최신 main 기준이어야 한다.** PR을 연 뒤 다른 PR이 main에 들어갔으면 `gh pr update-branch <번호>`로 맞추고 CI를 다시 돌린 뒤 머지한다. 각자 통과한 두 PR이 합쳐져 main을 깨뜨린 적이 있다(#56).
 - **쌓인 PR**(base가 다른 PR의 브랜치)의 아래 PR을 머지할 때는 `--delete-branch`를 쓰지 않는다. 위 PR의 base를 main으로 바꾼 뒤 브랜치를 지운다. 먼저 지우면 GitHub가 위 PR을 닫아 버린다(#42).
 - **CI가 아직 없을 때**(엔진의 첫 CI가 main에 들어가기 전): 작성 부서가 할 수 있는 검증을 직접 하고 PR 본문에 결과를 적으면 "CI 통과"로 본다.
