@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S-13 이벤트 카드 — 중충실도</title>
+<link rel="stylesheet" href="wf.css">
+<style>
+  .ev-art { flex: none; height: 96px; position: relative; overflow: hidden; border-radius: var(--wb-radius-l) var(--wb-radius-l) 0 0;
+    background: linear-gradient(#9fae9c 0 55%, #8a9a87 55% 100%); filter: brightness(0.82); }
+  .ev-art .cap { position: absolute; left: 12px; bottom: 6px; color: #f4f2ec; }
+  .choice { padding: 8px 10px; background: var(--wb-color-card); border: 1px solid var(--wb-color-line); border-radius: var(--wb-radius-m); min-height: 44px; }
+  .choice.sel { border: 2px solid var(--wb-color-sage-strong); background: #e8efe6; }
+  .choice .q { font-size: 15px; font-weight: var(--wb-font-weight-bold); margin-bottom: 4px; }
+  .fx { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: var(--wb-font-size-small); }
+  .fx > span { display: inline-flex; align-items: center; gap: 3px; }
+  .chk { font-size: var(--wb-font-size-small); line-height: 1.45; }
+  .chk .pct { font-weight: var(--wb-font-weight-bold); }
+  .lab { display: inline-block; width: 30px; font-size: var(--wb-font-size-caption); font-weight: var(--wb-font-weight-bold); }
+</style>
+</head>
+<body>
+<div class="page-head">
+  <h1>02 · S-13 이벤트 카드 — 중충실도 (360 폭)</h1>
+  <p>기준: <code>specs/screens.md</code> v1 S-13 · <code>03-events</code> 5.3(선택지 표시)·6.1(<code>fledgeEarly</code>) · #53(겹침, 결정 영역 550). 글·숫자는 자리를 보여 주는 예시다 — 글은 콘텐츠, 숫자는 엔진이 붙인다.</p>
+  <p class="legend"><label><input type="checkbox" id="ann" checked> 주석 보기</label>
+    <span class="k p"></span>확률·예상치 자리 <span class="k t"></span>터치 영역 44px 이상 <span class="k f"></span>550 — 결정 영역 끝</p>
+</div>
+
+<div class="frames">
+
+<!-- ───────── A. 고정 효과 + 판정형 ───────── -->
+<section class="frame">
+<h2>A. 선택지 3개 — 고정 효과 둘 · 판정형 하나</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status">
+      <div class="row small"><span class="ico s i-winter"></span><span class="b">1월 하반</span><span class="muted">· 겨울나기 · 2 / 24</span><span class="sp"></span><span>총 번식 <b>3</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:60%"></i></div><span class="b">40</span><span class="muted">/ 67</span><span style="width:8px"></span><span class="ico s i-feather"></span><span>깃털 <b>60</b></span></div>
+    </div>
+  </div>
+  <div class="dim" style="top:56px"></div>
+  <div class="sheet" style="top:64px;bottom:90px">
+    <div class="ev-art"><span class="cap">scene 또는 지금 배경을 어둡게 (style-guide 1.1)</span></div>
+    <div class="hd" style="padding-top:10px">
+      <div class="t1">머리 위를 도는 그림자</div>
+      <div class="small muted" style="line-height:1.45">혼성군의 쇠박새가 날카롭게 울었다. 덤불 위로 새매 한 마리가 낮게 돈다.</div>
+    </div>
+    <div class="list" style="padding-top:0">
+      <div class="choice t"><div class="q">덤불 속으로 파고든다</div>
+        <div class="fx"><span class="p">에너지 <b>−3</b></span><span class="risk lo p"><span class="ico s i-risk"></span>사망 위험 0.3%</span></div></div>
+      <div class="choice t sel"><div class="q">가지에 붙어 꼼짝하지 않는다</div>
+        <div class="chk"><span class="p">경계 판정 <span class="pct">82%</span></span><br>
+          <span class="lab good">성공</span><span class="p">에너지 <b>−1</b></span><br>
+          <span class="lab danger">실패</span><span class="risk hi p"><span class="ico s i-risk"></span>사망 위험 6%</span></div></div>
+      <div class="choice t"><div class="q">못 본 척 계속 먹는다</div>
+        <div class="fx"><span class="p">에너지 <b>+4</b></span><span class="risk hi p"><span class="ico s i-risk"></span>사망 위험 4%</span></div></div>
+    </div>
+    <div class="actions"><div class="btn prim t">이렇게 한다</div></div>
+  </div>
+    <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>고정 효과: 효과마다 실제 숫자 한 덩이(5.3). 위험은 S-10과 같은 색·아이콘·낱말 규칙.</li>
+  <li>판정형: <b>"<스탯> 판정 N%"</b>(정수) 줄 + 성공·실패 줄. 성공·실패는 색만이 아니라 낱말로.</li>
+  <li>상태 바는 덮지 않는다 — 에너지를 보며 고르게. 카드는 상태 바 아래부터 550 안.</li>
+  <li>선택이 끝나야 닫힌다. 뒤로 버튼·바깥 누르기 무시(#53-1). 결과는 S-12와 같은 시트로.</li>
+  <li>선택지가 많아 넘치면 <b>선택지 목록만</b> 스크롤, 그림(96)은 먼저 줄인다(0까지).</li>
+</ul>
+</section>
+
+<!-- ───────── B. fledgeEarly ───────── -->
+<section class="frame">
+<h2>B. 새끼가 있는 때 — <code>fledgeEarly</code> 선택지</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status">
+      <div class="row small"><span class="ico s i-summer"></span><span class="b">5월 하반</span><span class="muted">· 육추 · 10 / 24</span><span class="sp"></span><span>총 번식 <b>3</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:45%"></i></div><span class="b">30</span><span class="muted">/ 67</span><span style="width:8px"></span><span class="ico s i-feather"></span><span>깃털 <b>48</b></span></div>
+    </div>
+  </div>
+  <div class="dim" style="top:56px"></div>
+  <div class="sheet" style="top:64px;bottom:90px">
+    <div class="ev-art"><span class="cap">bg 어둡게 + 둥지 상자</span></div>
+    <div class="hd" style="padding-top:10px">
+      <div class="t1">둥지 아래의 족제비</div>
+      <div class="small muted" style="line-height:1.45">둥지 상자 아래 덤불이 흔들린다. 새끼들은 깃이 거의 다 났다.</div>
+      <div class="cap" style="margin-top:4px">둥지: 새끼 <b>5</b>마리</div>
+    </div>
+    <div class="list" style="padding-top:0">
+      <div class="choice t sel"><div class="q">새끼들을 불러낸다</div>
+        <div class="small b caution" style="margin-bottom:2px">새끼들이 지금 둥지를 떠난다</div>
+        <div class="fx"><span class="danger p">새끼 <b>2</b>마리를 잃는다</span><span class="p">에너지 <b>−4</b></span></div></div>
+      <div class="choice t"><div class="q">짝과 함께 경보음을 낸다</div>
+        <div class="chk"><span class="p">경계 판정 <span class="pct">64%</span></span><br>
+          <span class="lab good">성공</span><span class="p">둥지를 잃을 위험 10%</span><br>
+          <span class="lab danger">실패</span><span class="risk hi p"><span class="ico s i-risk"></span>사망 위험 1.0%</span> · <span class="p">둥지를 잃을 위험 60%</span></div></div>
+    </div>
+    <div class="actions"><div class="btn prim t">이렇게 한다</div></div>
+  </div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li><code>fledgeEarly</code>가 든 선택지는 첫 줄에 <b>"새끼들이 지금 둥지를 떠난다"</b>(주의색 + 굵게), 붙은 <code>chickLoss</code>는 <b>마리 수(올림)</b>로(6.1). 둥지의 지금 새끼 수를 본문 아래 한 줄로 — 잃는 수와 비교하게.</li>
+  <li>새끼·둥지 효과는 위험 띠 대신 숫자 + 낱말. 띠(낮음·보통·높음)는 내 사망 위험에만 쓴다(7.1의 범위).</li>
+  <li>이소 뒤 흐름(국면이 돌봄으로)은 S-23 스텝퍼가 보여 준다.</li>
+</ul>
+</section>
+
+</div>
+</body>
+</html>

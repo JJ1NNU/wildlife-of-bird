@@ -14,6 +14,7 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
       ],
       balance: [],
       calendar: [],
+      nodes: [],
       events: [],
     });
 
@@ -27,6 +28,7 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
       ecology: [],
       balance: [],
       calendar: [],
+      nodes: [],
       events: [
         {
           file: 'data/events/ghost.json',
@@ -83,6 +85,7 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
           json: { speciesId: 'parus-minor', periods, rebrood: [{ steps: ['nestlng'] }] },
         },
       ],
+      nodes: [],
       events: [],
     });
     expect(issues.map((i) => i.at)).toEqual([
@@ -103,6 +106,7 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
           json: { speciesId: 'parus-minor', periods, rebrood: [{ steps: ['molt'] }] },
         },
       ],
+      nodes: [],
       events: [
         {
           file: 'data/events/parus-minor.json',
@@ -131,5 +135,45 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
       at: '[0].when.phaseAny[0]',
       reason: 'parus-minor의 단계표에 없는 국면이다: nestling',
     });
+  });
+
+  it('장소 연결이 한쪽으로만 나 있거나 없는 장소를 가리키면 잡아낸다', () => {
+    const seasons = Object.fromEntries(
+      ['winter', 'spring', 'summer', 'autumn'].map((k) => [
+        k,
+        { food: 'medium', risk: 'medium', competition: 'medium' },
+      ]),
+    );
+    const node = (id: string, links: string[]) => ({
+      file: `data/nodes/${id}.json`,
+      json: {
+        id,
+        nameKo: id,
+        species: ['parus-minor'],
+        habitats: ['forest'],
+        links,
+        seasons,
+        basis: { sources: [], factCheck: 'needs-review' },
+      },
+    });
+    const { issues } = loadGameData({
+      ecology: [],
+      balance: [],
+      calendar: [],
+      nodes: [
+        node('a-wood', ['b-wood', 'ghost-wood']),
+        node('b-wood', ['c-wood']),
+        node('c-wood', ['b-wood']),
+      ],
+      events: [],
+    });
+    expect(issues.filter((i) => i.at.startsWith('links'))).toEqual([
+      {
+        file: 'data/nodes/a-wood.json',
+        at: 'links[0]',
+        reason: 'b-wood의 links에 a-wood가 없다 — 연결은 양방향이어야 한다',
+      },
+      { file: 'data/nodes/a-wood.json', at: 'links[1]', reason: '없는 장소다: ghost-wood' },
+    ]);
   });
 });

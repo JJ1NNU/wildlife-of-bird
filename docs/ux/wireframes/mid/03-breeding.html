@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S-20~23 번식 — 중충실도</title>
+<link rel="stylesheet" href="wf.css">
+<style>
+  .nest { flex: none; margin: var(--wb-space-2) var(--wb-space-4) 0; padding: 8px 10px; }
+  .nest .row + .row { margin-top: 4px; }
+  .acc { display: inline-block; min-width: 44px; padding: 2px 6px; border-radius: var(--wb-radius-s); text-align: center; font-size: 13px; font-weight: var(--wb-font-weight-bold); color: var(--wb-color-on-strong); }
+  .acc.hi { background: var(--wb-color-sage-strong); }
+  .acc.mid { background: var(--wb-color-ochre-strong); }
+  .acc.lo { background: var(--wb-color-slate-strong); }
+  .acc.no { background: transparent; color: var(--wb-color-ink-muted); border: 1px dashed var(--wb-color-slate); }
+  .seg { display: flex; gap: var(--wb-space-2); }
+  .seg > div { flex: 1; min-height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--wb-color-slate); border-radius: var(--wb-radius-m); font-size: var(--wb-font-size-small); background: var(--wb-color-paper); }
+  .seg > .on { background: var(--wb-color-slate-strong); color: var(--wb-color-on-strong); border-color: var(--wb-color-slate-strong); font-weight: var(--wb-font-weight-bold); }
+  .sum { flex: none; margin: 0 var(--wb-space-4); padding: 8px 10px; border-top: 2px solid var(--wb-color-sage-strong); display: flex; gap: 12px; }
+  .sum .big { font-size: var(--wb-font-size-title); font-weight: var(--wb-font-weight-bold); }
+  .strip { position: absolute; left: 0; right: 0; bottom: 0; min-height: 44px; padding: 4px var(--wb-space-4); background: rgb(250 248 242 / 0.94); border-top: 1px solid var(--wb-color-line); }
+</style>
+</head>
+<body>
+<div class="page-head">
+  <h1>03 · S-20 짝 후보 · S-21 짝 지시 · S-22 육아 방침 · S-23 둥지 진행 — 중충실도 (360 폭)</h1>
+  <p>기준: <code>specs/screens.md</code> v1 S-20~S-23·관문 패널 · #53(결정 영역 550, 탭 44px). 짝 신호와 육아 방침 항목은 디자인 <code>04-breeding</code>(M1) 전이라 <b>잠정(#22)</b> 자리만 그렸다.</p>
+  <p class="legend"><label><input type="checkbox" id="ann" checked> 주석 보기</label>
+    <span class="k p"></span>확률·예상치 자리 <span class="k t"></span>터치 영역 44px 이상 <span class="k f"></span>550 — 결정 영역 끝</p>
+</div>
+
+<div class="frames">
+
+<!-- ───────── A. S-10 번식기 — 둥지 띠 ───────── -->
+<section class="frame">
+<h2>A. 번식기의 S-10 — 그림 아래 둥지 띠</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status">
+      <div class="row small"><span class="ico s i-summer"></span><span class="b">5월 상반</span><span class="muted">· 육추 · 10 / 24</span><span class="sp"></span><span>총 번식 <b>3</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:48%"></i></div><span class="b">32</span><span class="muted">/ 67</span><span style="width:8px"></span><span class="ico s i-feather"></span><span>깃털 <b>52</b></span></div>
+    </div>
+    <div class="art">
+      <img class="bird" src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt="">
+      <div class="chip t" style="left:0"><span>박새 ♀ 2세 ▸</span></div>
+      <div class="strip t"><div class="row small"><span class="b">둥지 · 육추 2/3</span><span>새끼 <b>5</b></span><span class="sp"></span><span class="p">둥지 손실 <b>4%</b></span><span class="muted">▸</span></div>
+        <div class="row cap"><span>짝 ♂ 3세 · 유대 72</span><span class="sp"></span><span class="b caution">이번 단계 짝 지시 있음</span></div></div>
+    </div>
+    <div class="list">
+      <div class="opt t sel"><span class="ico i-forage"></span><div class="main"><div class="b">채식</div><div class="cap">채식 +1.0 · 새끼 먹이 포함</div></div>
+        <div class="vals"><div class="p">에너지 <b>+2</b></div><div class="risk mid p"><span class="ico s i-risk"></span>0.9% <span class="w">보통</span></div></div></div>
+      <div class="opt t"><span class="ico i-rest"></span><div class="main"><div class="b">휴식</div><div class="cap">깃털 +5</div></div>
+        <div class="vals"><div>에너지 <b>−3</b></div><div class="risk lo"><span class="ico s i-risk"></span>0.4% <span class="w">낮음</span></div></div></div>
+      <div class="opt t"><span class="ico i-train"></span><div class="main"><div class="b">훈련 ▾</div><div class="cap">스탯 하나를 고른다</div></div>
+        <div class="vals"><div>에너지 <b>−6</b></div><div class="risk mid"><span class="ico s i-risk"></span>1.0% <span class="w">보통</span></div></div></div>
+      <div class="opt t"><span class="ico i-social"></span><div class="main"><div class="b">사회</div><div class="cap">사회 +2.0 · 과시 +1.0</div></div>
+        <div class="vals"><div>에너지 <b>−3</b></div><div class="risk mid"><span class="ico s i-risk"></span>0.8% <span class="w">보통</span></div></div></div>
+      <div class="cap">… 탐색 · 옮기기 (목록 안 스크롤)</div>
+    </div>
+    <div class="actions"><div class="btn prim t">채식으로 진행</div></div>
+  </div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>번식 국면(짝 맺기 ~ 돌봄)에는 그림 아래 판이 <b>둥지 띠</b>로 바뀐다: 국면·단계, 알/새끼 수, 이번 단계 둥지 손실 위험%, 짝·유대, 이번 단계에 짝 지시가 있는지.</li>
+  <li>흐름(<code>00-core-loop</code> 3장): 행동을 고르고 진행 → <b>이번 단계에 짝 지시가 있으면</b> 번식 패널(B)이 짝 지시 탭으로 열린다 → 지시를 고르면 판정. 짝 지시는 별도 결정(1년 5~8회, 5.2). 띠의 "짝 지시 있음"으로 미리 알린다. 띠를 누르면 패널을 열어 보기만 할 수 있다.</li>
+  <li>번식 비용이 행동 에너지 값에 이미 들어 있다(예상치는 엔진 값 그대로).</li>
+</ul>
+</section>
+
+<!-- ───────── B. S-23 + S-21 짝 지시 ───────── -->
+<section class="frame">
+<h2>B. 번식 패널 — S-23 둥지 진행 + S-21 짝 지시</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status" style="height:44px;justify-content:center">
+      <div class="row"><span class="t" style="width:44px;height:44px;display:flex;align-items:center">◂</span><span class="b">번식</span><span class="sp"></span><span class="small muted">5월 상반 · 에너지 32 / 67</span></div>
+    </div>
+    <div class="card nest">
+      <div class="stepper">
+        <div class="st done"><i></i>짝</div><div class="st done"><i></i>둥지</div><div class="st done"><i></i>산란</div><div class="st done"><i></i>포란</div><div class="st now"><i></i>육추</div><div class="st w"><i></i>이소·돌봄</div><div class="end muted">▸독립</div>
+      </div>
+      <div class="row small" style="margin-top:6px"><span>나무구멍 · 육추 <b>2/3</b>단계</span><span class="sp"></span><span>알 8 → 부화 7 → 새끼 <b>5</b></span></div>
+      <div class="row small"><span class="p">이번 단계 둥지 손실 <b class="caution">4%</b></span><span class="sp"></span><span class="muted">짝 ♂ 3세 · 유대 <b style="color:var(--wb-color-ink)">72</b></span></div>
+    </div>
+    <div class="tabs"><div class="tab on t">짝 지시</div><div class="tab t">육아 방침</div></div>
+    <div class="list">
+      <div class="opt t sel"><div class="main"><div class="b">먹이를 더 날라 다오</div><div class="cap">내가 직전에 먹이를 날랐다 — 서로 돕는다</div></div><span class="acc hi p">높음</span></div>
+      <div class="opt t"><div class="main"><div class="b">먼 먹이 터를 맡아 다오</div><div class="cap">짝은 신중해서 먼 곳을 꺼린다</div></div><span class="acc mid p">보통</span></div>
+      <div class="opt t"><div class="main"><div class="b">둥지를 지켜 다오</div><div class="cap">짝이 지쳐 자기 먹이가 먼저다</div></div><span class="acc lo p">낮음</span></div>
+      <div class="opt dis"><div class="main"><div class="b">새끼를 품어 다오</div><div class="cap">박새는 암컷만 품는다 — 수컷에게 부탁할 수 없다</div></div><span class="acc no p">불가</span></div>
+      <div class="cap">거절해도 파국은 없다 — 짝은 자기가 고른 일을 한다(원래 효과의 일부).</div>
+    </div>
+    <div class="actions"><div class="btn t" style="flex:0 0 120px">지시 없음</div><div class="btn prim t">이 지시로</div></div>
+  </div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>스텝퍼 <b>6칸</b> = 국면 1:1(짝 → 둥지 → 산란 → 포란 → 육추 → 이소·돌봄), 끝 표시 <b>독립</b>. 칸 아래 글자가 있어 색만으로 전하지 않는다. 재번식은 '짝' 칸을 완료로 두고 둥지부터.</li>
+  <li>수락률은 <b>등급만</b>(높음·보통·낮음·불가) — 숫자 없음(<code>01-formulas</code> 7.4). 저충실도의 % 표기는 지웠다. 불가는 숨기지 않고 이유와 함께.</li>
+  <li>탭 높이 44(저충실도 38에서 올림, #53-4). 짝이 죽어 단독 육아면 이 자리에 <b>둥지 포기</b> 선택지(B-2) — 위험색 테두리, 결과(잃는 새끼 수)를 함께.</li>
+  <li>"이 지시로"·"지시 없음" = 판정으로 진행(행동 + 지시가 한 단계). ◂는 S-10으로 돌아가 행동을 다시 고른다. 결과는 S-12에 함께(01-C).</li>
+</ul>
+</section>
+
+<!-- ───────── C. S-22 육아 방침 (육추 관문) ───────── -->
+<section class="frame">
+<h2>C. S-22 육아 방침 — 육추 첫 단계 관문</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status" style="height:44px;justify-content:center">
+      <div class="row"><span class="t" style="width:44px;height:44px;display:flex;align-items:center">◂</span><span class="b">번식</span><span class="sp"></span><span class="small muted">5월 상반 · 에너지 40 / 67</span></div>
+    </div>
+    <div class="card nest">
+      <div class="stepper">
+        <div class="st done"><i></i>짝</div><div class="st done"><i></i>둥지</div><div class="st done"><i></i>산란</div><div class="st done"><i></i>포란</div><div class="st now"><i></i>육추</div><div class="st w"><i></i>이소·돌봄</div><div class="end muted">▸독립</div>
+      </div>
+      <div class="row small" style="margin-top:6px"><span>육추 <b>1/3</b>단계 · 새끼 <b>7</b></span><span class="sp"></span><span class="p">둥지 손실 <b class="caution">4%</b></span></div>
+    </div>
+    <div class="tabs"><div class="tab t">짝 지시</div><div class="tab on t">육아 방침</div></div>
+    <div class="list" style="gap:10px">
+      <div><div class="small b" style="margin-bottom:4px">먹이 나누기 <span class="cap">잠정(#22)</span></div>
+        <div class="seg"><div class="t">고르게</div><div class="on t">큰 새끼 먼저</div></div></div>
+      <div><div class="small b" style="margin-bottom:4px">급이 속도 <span class="cap">잠정(#22)</span></div>
+        <div class="seg"><div class="t">느긋이</div><div class="t">보통</div><div class="on t">힘껏</div></div></div>
+      <div><div class="small b" style="margin-bottom:4px">둥지 지키기 <span class="cap">잠정(#22)</span></div>
+        <div class="seg"><div class="on t">짧게</div><div class="t">길게</div></div></div>
+      <div class="cap">… 항목 7개는 <code>04-breeding</code>에서. 넘치면 이 목록만 스크롤.</div>
+    </div>
+    <div class="sum">
+      <div><div class="cap">이소 기대</div><div class="big p">4.6<span class="small">마리</span></div></div>
+      <div><div class="cap">내 번식 비용</div><div class="big p">−7<span class="small"> 에너지/단계</span></div></div>
+    </div>
+    <div class="actions"><div class="btn prim t">이 방침으로</div></div>
+  </div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>방침은 조합으로 평가한다 — 항목을 바꿀 때마다 아래 요약(<b>이소 기대 수 · 단계당 내 번식 비용</b>)이 바뀐다. 요약은 버튼 바로 위에 붙박이.</li>
+  <li>항목은 2~3칸 선택(44px). 슬라이더는 쓰지 않는다 — 정확히 누르기 어렵고 값이 엔진 단계와 맞지 않는다.</li>
+  <li>육추 첫 단계에 관문으로 열리고, 그 뒤에는 탭에서 다시 볼 수 있다(바꿀 수 있는지는 <code>04-breeding</code>).</li>
+</ul>
+</section>
+
+<!-- ───────── D. 산란수 관문 ───────── -->
+<section class="frame">
+<h2>D. 관문 — 산란수 (산란 첫 단계)</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status" style="height:44px;justify-content:center">
+      <div class="row"><span class="t" style="width:44px;height:44px;display:flex;align-items:center;visibility:hidden">◂</span><span class="b">번식 — 몇 개를 낳을까</span><span class="sp"></span><span class="small muted">에너지 44 / 67</span></div>
+    </div>
+    <div class="card nest">
+      <div class="stepper">
+        <div class="st done"><i></i>짝</div><div class="st done"><i></i>둥지</div><div class="st now"><i></i>산란</div><div class="st"><i></i>포란</div><div class="st"><i></i>육추</div><div class="st w"><i></i>이소·돌봄</div><div class="end muted">▸독립</div>
+      </div>
+    </div>
+    <div class="list">
+      <div class="row cap" style="padding:0 10px"><span style="width:56px">산란수</span><span class="sp"></span><span style="width:62px" class="r">이소 기대</span><span style="width:56px" class="r">은수저</span><span style="width:70px" class="r">급이 비용</span></div>
+      <div class="opt t"><span class="b" style="width:56px">6개</span><span class="sp"></span><span class="p r" style="width:62px">3.9</span><span class="p r" style="width:56px">0.82</span><span class="p r" style="width:70px">−5/단계</span></div>
+      <div class="opt t"><span class="b" style="width:56px">8개</span><span class="sp"></span><span class="p r" style="width:62px">4.6</span><span class="p r" style="width:56px">0.71</span><span class="p r" style="width:70px">−7/단계</span></div>
+      <div class="opt t sel"><span class="b" style="width:56px">10개</span><span class="sp"></span><span class="p r b" style="width:62px">4.9</span><span class="p r" style="width:56px">0.58</span><span class="p r" style="width:70px">−9/단계</span></div>
+      <div class="opt t"><span class="b" style="width:56px">12개</span><span class="sp"></span><span class="p r" style="width:62px">4.7</span><span class="p r caution" style="width:56px">0.44</span><span class="p r" style="width:70px">−11/단계</span></div>
+      <div class="card small" style="padding:8px 10px;line-height:1.45">많이 낳으면 한 마리 몫이 준다 — <b>은수저 지수</b>가 낮은 새끼는 첫 겨울이 더 위험하다.</div>
+    </div>
+    <div class="actions"><div class="btn prim t">10개 낳기</div></div>
+  </div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>관문은 패널 전체를 쓰고 <b>뒤로 가기 없음</b>(고를 때까지 진행 안 됨). 같은 꼴: <b>둥지 자리</b>(후보마다 둥지 손실 위험% · 경쟁 등급), 육추의 육아 방침(C).</li>
+  <li>산란수 줄은 표처럼 열을 맞춘다 — 세 값을 위아래로 비교하게. 값은 엔진(<code>04-breeding</code>에서 계산법 확정).</li>
+  <li>설명 카드는 처음 몇 번만(튜토리얼 <code>06-tutorial</code>, M3) — 지금은 늘 보인다.</li>
+</ul>
+</section>
+
+<!-- ───────── E. S-20 짝 후보 ───────── -->
+<section class="frame">
+<h2>E. S-20 짝 후보 — 짝 맺기 첫 단계 관문</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status" style="height:44px;justify-content:center">
+      <div class="row"><span class="t" style="width:44px;height:44px;display:flex;align-items:center;visibility:hidden">◂</span><span class="b">짝 후보</span><span class="sp"></span><span class="small muted">3월 상반 · 내 과시 <b style="color:var(--wb-color-ink)">C</b></span></div>
+    </div>
+    <div class="list" style="gap:10px">
+      <div class="small muted">신호는 정직하지만 전부는 아니다 — 잠재력은 직접 보이지 않는다.</div>
+      <div class="opt t sel" style="align-items:flex-start;padding:8px 10px"><div class="main"><div class="b">♂ 수컷 A <span class="cap">3세</span></div>
+        <div class="row cap" style="margin-top:4px;gap:10px"><span>깃 선명도 <span class="grade">B</span></span><span>노래 <span class="grade">A</span></span><span>영역 <span class="grade">C</span></span></div></div>
+        <div class="r"><div class="cap">나를 받아들일</div><span class="acc mid p">보통</span></div></div>
+      <div class="opt t" style="align-items:flex-start;padding:8px 10px"><div class="main"><div class="b">♂ 수컷 B <span class="cap">1세</span></div>
+        <div class="row cap" style="margin-top:4px;gap:10px"><span>깃 선명도 <span class="grade">C</span></span><span>노래 <span class="grade">D</span></span><span>영역 <span class="grade">B</span></span></div></div>
+        <div class="r"><div class="cap">나를 받아들일</div><span class="acc hi p">높음</span></div></div>
+      <div class="opt t" style="align-items:flex-start;padding:8px 10px"><div class="main"><div class="b">♂ 수컷 C <span class="cap">2세</span></div>
+        <div class="row cap" style="margin-top:4px;gap:10px"><span>깃 선명도 <span class="grade">A</span></span><span>노래 <span class="grade">B</span></span><span>영역 <span class="grade">A</span></span></div></div>
+        <div class="r"><div class="cap">나를 받아들일</div><span class="acc lo p">낮음</span></div></div>
+      <div class="opt dis" style="align-items:flex-start;padding:8px 10px"><div class="main"><div class="b">이번 단계는 고르지 않는다</div><div class="cap">다음 단계에 후보가 바뀔 수 있다</div></div></div>
+    </div>
+    <div class="actions"><div class="btn prim t">수컷 A에게 다가가기</div></div>
+  </div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>후보마다 정직한 신호 3개를 <b>등급</b>으로 + 받아들여질 확률 <b>등급</b>. <b>잠정(#22)</b>: 신호 종류·수는 <code>04-breeding</code>.</li>
+  <li>후보 카드는 세로 목록(가로 스와이프 없음). 4명을 넘으면 목록만 스크롤.</li>
+  <li>"고르지 않기"가 실제로 가능한 선택인지는 <code>04-breeding</code> — 아니면 지운다.</li>
+</ul>
+</section>
+
+</div>
+</body>
+</html>

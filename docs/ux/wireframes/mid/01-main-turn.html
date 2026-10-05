@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S-10 메인 턴 — 중충실도</title>
+<link rel="stylesheet" href="wf.css">
+</head>
+<body>
+<div class="page-head">
+  <h1>01 · S-10 메인 턴 · S-12 판정 결과 — 중충실도 (360 폭)</h1>
+  <p>기준: 디자인 <code>specs/screens.md</code> v1 S-10·S-12 · #38 결정 A(옮기기에 목적지가 딸림, 입력 1회) · 클라이언트 #53(결정 영역 높이 550, 그 아래 피드만 스크롤). 숫자·문구는 자리를 보여 주는 예시다.</p>
+  <p class="legend"><label><input type="checkbox" id="ann" checked> 주석 보기</label>
+    <span class="k p"></span>확률·예상치 자리 <span class="k t"></span>터치 영역 44px 이상 <span class="k f"></span>550 — 결정 영역 끝</p>
+</div>
+
+<div class="frames">
+
+<!-- ───────── A. 기본: 행동 하나 고름 ───────── -->
+<section class="frame">
+<h2>A. 기본 — 채식을 고른 상태</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status">
+      <div class="row small"><span class="ico s i-spring"></span><span class="b">4월 상반</span><span class="muted">· 짝 맺기 · 9 / 24</span><span class="sp"></span><span class="p">총 번식 <b>3</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:57%"></i></div><span class="p b">38</span><span class="muted">/ 67</span>
+        <span style="width:8px"></span><span class="ico s i-feather"></span><span class="p">깃털 <b>60</b></span></div>
+    </div>
+    <div class="art">
+      <img class="bird" src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt="">
+      <div class="chip t" style="left:0"><span>박새 ♀ 2세 ▸</span></div>
+      <div class="chip t" style="right:0"><span class="p">늦은 추위 · 먹이 −20% ▸</span></div>
+      <div class="plate"><div class="row"><span class="b small">묵은 참나무 숲</span><span class="sp"></span><span class="small p">먹이 보통 · 경쟁 높음</span></div>
+        <div class="cap p">3단계째 머묾 — 먹이가 줄고 있다</div></div>
+    </div>
+    <div class="list">
+      <div class="opt t sel"><span class="ico i-forage"></span><div class="main"><div class="b">채식</div><div class="cap p">채식 +1.0</div></div>
+        <div class="vals"><div class="p">에너지 <b>+6</b></div><div class="risk mid p"><span class="ico s i-risk"></span>0.6% <span class="w">보통</span></div></div></div>
+      <div class="opt t"><span class="ico i-rest"></span><div class="main"><div class="b">휴식</div><div class="cap p">깃털 +5</div></div>
+        <div class="vals"><div class="p">에너지 <b>+1</b></div><div class="risk lo p"><span class="ico s i-risk"></span>0.4% <span class="w">낮음</span></div></div></div>
+      <div class="opt t"><span class="ico i-train"></span><div class="main"><div class="b">훈련 ▾</div><div class="cap">스탯 하나를 고른다</div></div>
+        <div class="vals"><div class="p">에너지 <b>−2</b></div><div class="risk mid p"><span class="ico s i-risk"></span>0.7% <span class="w">보통</span></div></div></div>
+      <div class="opt t"><span class="ico i-social"></span><div class="main"><div class="b">사회</div><div class="cap p">사회 +2.0 · 과시 +1.0</div></div>
+        <div class="vals"><div class="p">에너지 <b>+1</b></div><div class="risk mid p"><span class="ico s i-risk"></span>0.5% <span class="w">보통</span></div></div></div>
+      <div class="opt t"><span class="ico i-explore"></span><div class="main"><div class="b">탐색</div><div class="cap p">경계 +1.0</div></div>
+        <div class="vals"><div class="p">에너지 <b>0</b></div><div class="risk mid p"><span class="ico s i-risk"></span>0.8% <span class="w">보통</span></div></div></div>
+      <div class="opt t"><span class="ico i-move"></span><div class="main"><div class="b">옮기기 ▾</div><div class="cap">갈 수 있는 곳 3</div></div>
+        <div class="vals cap">목적지마다<br>따로 표시</div></div>
+    </div>
+    <div class="actions"><div class="btn prim t">채식으로 진행</div></div>
+  </div>
+  <div class="feed"><p class="cap">↓ 접힘 아래 — 이 부분만 스크롤</p><p>지난 단계: 휴식 — 에너지 +2, 깃털 +5. 이웃 수컷이 노래를 시작했다.</p></div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>행동 줄 = 이름 · 예상 성장(아래) · <b>에너지 변화 · 위험%</b>(오른쪽) 셋. 판정이 에너지 → 위험 순이라 둘을 나란히(#52).</li>
+  <li>위험은 <b>색 + 아이콘 + 숫자 + 낱말</b>. 띠 경계는 <code>display.riskBands</code>(엔진 값).</li>
+  <li>줄을 누르면 고름, 아래 버튼으로 진행(잘못 누름 방지). 고르기 전 버튼은 <code>행동을 고르세요</code>(비활성).</li>
+  <li>그림 120(≤550) / 172(그 이상). 장소 줄은 #38 A대로 <b>정보</b>만 — 그림 아래 판에 얹었다. 환경은 오른쪽 위 칩(누르면 시기 환경 카드).</li>
+  <li>그림 2겹: <code>bg.forest.spring.day</code> + <code>bird.parus-minor.adult-f.breeding</code>. 새 그림은 종이색 바탕 그대로 — 판·칩은 반투명 종이색(style-guide 3장).</li>
+</ul>
+</section>
+
+<!-- ───────── B. 옮기기 펼침 ───────── -->
+<section class="frame">
+<h2>B. 옮기기 펼침 — 목적지 카드(최대 4)</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status">
+      <div class="row small"><span class="ico s i-spring"></span><span class="b">4월 상반</span><span class="muted">· 짝 맺기 · 9 / 24</span><span class="sp"></span><span>총 번식 <b>3</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:57%"></i></div><span class="b">38</span><span class="muted">/ 67</span>
+        <span style="width:8px"></span><span class="ico s i-feather"></span><span>깃털 <b>60</b></span></div>
+    </div>
+    <div class="art">
+      <img class="bird" src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt="">
+      <div class="chip t" style="left:0"><span>박새 ♀ 2세 ▸</span></div>
+      <div class="chip t" style="right:0"><span>늦은 추위 · 먹이 −20% ▸</span></div>
+      <div class="plate"><div class="row"><span class="b small">묵은 참나무 숲</span><span class="sp"></span><span class="small">먹이 보통 · 경쟁 높음</span></div>
+        <div class="cap">3단계째 머묾 — 먹이가 줄고 있다</div></div>
+    </div>
+    <div class="list">
+      <div class="cap">↑ 위 행동 4개는 목록 안에서 스크롤됨</div>
+      <div class="opt t"><span class="ico i-explore"></span><div class="main"><div class="b">탐색</div><div class="cap">경계 +1.0</div></div>
+        <div class="vals"><div>에너지 <b>0</b></div><div class="risk mid"><span class="ico s i-risk"></span>0.8% <span class="w">보통</span></div></div></div>
+      <div class="opt t open"><span class="ico i-move"></span><div class="main"><div class="b">옮기기 ▴</div><div class="cap p">비행 +1.0 (어디로 가든)</div></div>
+        <div class="vals cap">접기</div></div>
+      <div class="opt t sub sel"><div class="main"><div class="b">마을 뒷산 덤불</div><div class="cap p">먹이 많음 · 경쟁 보통</div></div>
+        <div class="vals"><div class="p">에너지 <b>−5</b></div><div class="risk mid p"><span class="ico s i-risk"></span>1.2% <span class="w">보통</span></div></div></div>
+      <div class="opt t sub"><div class="main"><div class="b">계곡 물가</div><div class="cap p">먹이 보통 · 경쟁 낮음</div></div>
+        <div class="vals"><div class="p">에너지 <b>−6</b></div><div class="risk hi p"><span class="ico s i-risk"></span>2.1% <span class="w">높음</span></div></div></div>
+      <div class="opt t sub"><div class="main"><div class="b">공원 둥지 상자</div><div class="cap p">먹이 적음 · 경쟁 높음</div></div>
+        <div class="vals"><div class="p">에너지 <b>−4</b></div><div class="risk lo p"><span class="ico s i-risk"></span>0.4% <span class="w">낮음</span></div></div></div>
+    </div>
+    <div class="actions"><div class="btn prim t">마을 뒷산 덤불로 옮기기</div></div>
+  </div>
+  <div class="feed"><p>지난 단계: 휴식 — 에너지 +2, 깃털 +5.</p></div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>펼침은 화면만의 상태(결정 아님, 저장 안 됨). 목적지를 고르고 진행 = <code>act('move.&lt;장소&gt;')</code> 1회.</li>
+  <li>목적지 카드는 행동 줄과 <b>같은 자</b>: 에너지 변화(= 이동 비용) · 도착지 위험% · 먹이·경쟁 등급. 값은 <code>preview(state, 'move.&lt;장소&gt;')</code>.</li>
+  <li>펼치면 목록이 옮기기 줄로 스크롤된다 — 결정 버튼은 늘 같은 자리.</li>
+  <li>훈련 ▾도 같은 방식으로 펼쳐 스탯 6개(비행·채식·경계·체력·과시·사회 — 박새는 항법 없음)를 줄로 고른다 — <b>잠정(#25)</b>: 엔진 선택지 ID가 정해지지 않았다.</li>
+</ul>
+</section>
+
+<!-- ───────── C. S-12 판정 결과 겹침 ───────── -->
+<section class="frame">
+<h2>C. S-12 판정 결과 — S-10 위에 겹침</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status">
+      <div class="row small"><span class="ico s i-spring"></span><span class="b">4월 상반</span><span class="muted">· 짝 맺기 · 9 / 24</span><span class="sp"></span><span>총 번식 <b>3</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:63%"></i></div><span class="b">42</span><span class="muted">/ 67</span>
+        <span style="width:8px"></span><span class="ico s i-feather"></span><span>깃털 <b>60</b></span></div>
+    </div>
+    <div class="art"><img class="bird" src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt=""></div>
+  </div>
+  <div class="dim" style="top:56px"></div>
+  <div class="sheet" style="bottom:90px">
+    <div class="hd"><div class="t1">채식 — 살아남았다</div><div class="small muted">애벌레를 몇 마리 찾았지만 추위로 적었다.</div></div>
+    <div style="padding:0 var(--wb-space-4)">
+      <table class="kv">
+        <thead><tr><th>　</th><th>예상</th><th>실제</th></tr></thead>
+        <tbody>
+          <tr><td><span class="row"><span class="ico s i-energy"></span>에너지</span></td><td class="p">+6</td><td class="p b">+4</td></tr>
+          <tr><td>채식</td><td class="p">+1.0</td><td class="p b">+1.0 <span class="cap">(C → B)</span></td></tr>
+          <tr><td><span class="row"><span class="ico s i-risk"></span>위험 판정</span></td><td class="p">0.6%</td><td class="b good">살아남음 ✓</td></tr>
+        </tbody>
+      </table>
+      <div class="card small" style="margin-top:var(--wb-space-2);padding:8px 10px">짝 지시 <b>먹이 날라 주기</b> — <b class="good">수락</b>. 내 에너지 −2 덜 썼다.</div>
+    </div>
+    <div class="actions"><div class="btn prim t">확인</div></div>
+  </div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>예상 대비 실제(학습 장치). 위험은 확률을 다시 보이지 않고 "살아남음"만 — 예상 칸에 고를 때의 값만 남겼다.</li>
+  <li>짝 지시를 한 단계면 수락/거절과 그 결과 한 줄(B-6). 거절이면 짝이 대신 한 행동과 효과.</li>
+  <li>시트 높이는 내용만큼, 결정 영역(550) 안. 뒤로 버튼 = 확인과 같음(#53-1).</li>
+  <li>판정 뒤 이벤트가 있으면 이 시트를 닫은 다음 S-13이 뜬다.</li>
+</ul>
+</section>
+
+<!-- ───────── D. 굶주림 경고 + 큰 화면 ───────── -->
+<section class="frame">
+<h2>D. 굶주림 경고 — 높이 640 이상(그림 172)</h2>
+<div class="phone">
+  <div class="zone" style="height:640px">
+    <div class="status starving">
+      <div class="row small"><span class="ico s i-spring"></span><span class="b">4월 상반</span><span class="muted">· 짝 맺기 · 9 / 24</span><span class="sp"></span><span>총 번식 <b>3</b></span></div>
+      <div class="row small danger"><span class="ico s i-energy"></span><span class="b">굶주림</span><div class="gauge warn"><i style="width:13%"></i></div><span class="p b">9</span><span>/ 67</span>
+        <span style="width:6px"></span><span class="ico s i-feather" style="color:var(--wb-color-ink)"></span><span style="color:var(--wb-color-ink)">깃털 <b>60</b></span></div>
+    </div>
+    <div class="art tall">
+      <img class="bird" src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt="">
+      <div class="chip t" style="left:0"><span>박새 ♀ 2세 ▸</span></div>
+      <div class="chip t" style="right:0"><span>늦은 추위 · 먹이 −20% ▸</span></div>
+      <div class="plate"><div class="row"><span class="b small">묵은 참나무 숲</span><span class="sp"></span><span class="small">먹이 보통 · 경쟁 높음</span></div>
+        <div class="cap">3단계째 머묾 — 먹이가 줄고 있다</div></div>
+    </div>
+    <div class="list">
+      <div class="opt t"><span class="ico i-forage"></span><div class="main"><div class="b">채식</div><div class="cap">채식 +1.0</div></div>
+        <div class="vals"><div>에너지 <b>+6</b></div><div class="risk hi p"><span class="ico s i-risk"></span>1.9% <span class="w">높음</span></div></div></div>
+      <div class="opt t"><span class="ico i-rest"></span><div class="main"><div class="b">휴식</div><div class="cap">깃털 +5</div></div>
+        <div class="vals"><div>에너지 <b>+1</b></div><div class="risk hi p"><span class="ico s i-risk"></span>1.6% <span class="w">높음</span></div></div></div>
+      <div class="opt t"><span class="ico i-train"></span><div class="main"><div class="b">훈련 ▾</div><div class="cap">스탯 하나를 고른다</div></div>
+        <div class="vals"><div class="danger b p">에너지 −2 → 7</div><div class="risk hi p"><span class="ico s i-risk"></span>3.4% <span class="w">높음</span></div></div></div>
+      <div class="opt t"><span class="ico i-social"></span><div class="main"><div class="b">사회</div><div class="cap">사회 +2.0 · 과시 +1.0</div></div>
+        <div class="vals"><div>에너지 <b>+1</b></div><div class="risk hi p"><span class="ico s i-risk"></span>1.8% <span class="w">높음</span></div></div></div>
+      <div class="opt t"><span class="ico i-explore"></span><div class="main"><div class="b">탐색</div><div class="cap">경계 +1.0</div></div>
+        <div class="vals"><div>에너지 <b>0</b></div><div class="risk hi p"><span class="ico s i-risk"></span>2.6% <span class="w">높음</span></div></div></div>
+      <div class="opt t"><span class="ico i-move"></span><div class="main"><div class="b">옮기기 ▾</div><div class="cap">갈 수 있는 곳 3</div></div><div class="vals cap">목적지마다<br>따로 표시</div></div>
+    </div>
+    <div class="actions"><div class="btn off t">행동을 고르세요</div></div>
+  </div>
+  
+</div>
+<ul class="note">
+  <li>굶주림(<code>에너지 / 지방 상한 &lt; energy.starvationWarnRatio</code>, 엔진 ViewModel 값): 상태 바 전체가 경고 바탕 + <b>"굶주림" 낱말</b> + 위험색 게이지. 배너를 따로 두지 않는다 — 결정 영역 높이를 쓰지 않으려고.</li>
+  <li>에너지가 줄어드는 행동은 결과값(<code>−2 → 7</code>)을 함께 보인다 — 0은 확정 사망(B-1). <b>잠정(#25)</b>: 굶주림일 때만.</li>
+  <li>높이가 넉넉하면 그림만 커지고(172) 나머지는 그대로. 행동 6개가 스크롤 없이 다 보인다.</li>
+</ul>
+</section>
+
+</div>
+</body>
+</html>
