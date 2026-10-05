@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { RiskTier, Tier, WeightTier } from './effects.ts';
 import { FactCheck, SourceId } from './fact.ts';
-import { Period, SpeciesId, StatName } from './species.ts';
+import { Period, Phase, SpeciesId, StatName } from './species.ts';
 
 /**
  * 이벤트 — `data/events/<종 또는 common>.json` (소유: content, design 리뷰 필수).
@@ -50,8 +50,10 @@ const names = z.array(z.string().min(1)).min(1);
 /** 조건 — 적힌 것이 **모두** 참이어야 한다. 비어 있으면 늘 참 (03-events 4장) */
 export const EventWhen = z
   .object({
-    /** 국면 이름 (`00-core-loop` 2.2) */
-    phaseAny: names.optional(),
+    /** 국면 이름 (`00-core-loop` 2.2). 이벤트의 모든 종의 단계표에 있어야 한다 */
+    phaseAny: z.array(Phase).min(1).optional(),
+    /** 지금 단계가 그 국면이 이어지는 마지막 단계인가 (`00-core-loop` 4.7, #73) */
+    phaseLastStep: z.boolean().optional(),
     habitatAny: names.optional(),
     /** from > to면 해를 넘긴다 (23~4 = 23·24·1·2·3·4) */
     periodFrom: Period.optional(),
@@ -145,9 +147,13 @@ function checkEffectPreconditions(event: z.infer<typeof EventBase>, ctx: z.Refin
       }
       if (
         effect.type === 'fledgeEarly' &&
-        !(when.phaseAny?.length === 1 && when.phaseAny[0] === 'nestling')
+        !(
+          when.phaseAny?.length === 1 &&
+          when.phaseAny[0] === 'nestling' &&
+          when.phaseLastStep === true
+        )
       ) {
-        fail('fledgeEarly 효과에는 when.phaseAny: ["nestling"]이 필요하다');
+        fail('fledgeEarly 효과에는 when.phaseAny: ["nestling"]과 phaseLastStep: true가 필요하다');
       }
     }
   }

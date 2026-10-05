@@ -1,5 +1,6 @@
 import './locale.ts';
 import type { z } from 'zod';
+import { Calendar, calendarPhases } from './calendar.ts';
 import { EffectsTable } from './effects.ts';
 import type { GameEvent } from './events.ts';
 import { GameEventFile, optionEffects } from './events.ts';
@@ -8,7 +9,7 @@ import { SpeciesBalance, SpeciesEcology } from './species.ts';
 
 /**
  * 검증된 게임 데이터 묶음. 엔진의 모든 함수가 이것을 받는다 (03-contracts 3장).
- * 장소·포식자·도감·단계표는 그 데이터의 소유 부서가 첫 파일을 올릴 때 형식을 확정하고
+ * 장소·포식자·도감은 그 데이터의 소유 부서가 첫 파일을 올릴 때 형식을 확정하고
  * 여기에 더한다.
  */
 export interface GameData {
@@ -16,6 +17,8 @@ export interface GameData {
   formulas: Formulas;
   ecology: Map<string, SpeciesEcology>;
   balance: Map<string, SpeciesBalance>;
+  /** 종별 연간 단계표 */
+  calendar: Map<string, Calendar>;
   events: GameEvent[];
 }
 
@@ -57,6 +60,7 @@ export interface RawGameData {
   formulas?: RawFile;
   ecology: RawFile[];
   balance: RawFile[];
+  calendar: RawFile[];
   events: RawFile[];
 }
 
@@ -89,6 +93,33 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
     }
   }
 
+  const calendar = new Map<string, Calendar>();
+  for (const file of raw.calendar) {
+    const parsed = check(Calendar, file, issues);
+    if (!parsed) continue;
+    calendar.set(parsed.speciesId, parsed);
+    if (!ecology.has(parsed.speciesId)) {
+      issues.push({
+        file: file.file,
+        at: 'speciesId',
+        reason: `생태 파일이 없는 종이다: data/species/${parsed.speciesId}.ecology.json 이 필요하다`,
+      });
+    }
+  }
+  for (const [speciesId, species] of balance) {
+    const file = balanceFile.get(speciesId) ?? 'data/balance/species';
+    const cal = calendar.get(speciesId);
+    if (!cal) {
+      issues.push({
+        file,
+        at: 'speciesId',
+        reason: `단계표가 없는 종이다: data/calendar/${speciesId}.json 이 필요하다`,
+      });
+      continue;
+    }
+    checkSpeciesPhases(species, calendarPhases(cal), file, issues);
+  }
+
   const events: GameEvent[] = [];
   for (const file of raw.events) {
     const parsed = check(GameEventFile, file, issues);
@@ -104,6 +135,7 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
         }
       }
       checkStatsExist(event, index, balance, file.file, issues);
+      checkEventPhases(event, index, calendar, file.file, issues);
       events.push(event);
     }
   }
@@ -113,7 +145,7 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
   if (formulas) checkAptitudeGrades(balance, balanceFile, formulas, issues);
 
   if (issues.length > 0 || !effects || !formulas) return { issues };
-  return { data: { effects, formulas, ecology, balance, events }, issues };
+  return { data: { effects, formulas, ecology, balance, calendar, events }, issues };
 }
 
 /**
@@ -152,6 +184,55 @@ function checkStatsExist(
             reason: `${speciesId}에 없는 스탯이다: ${stat} (종 밸런스 aptitude)`,
           });
         }
+      }
+    }
+  }
+}
+
+/**
+ * 종 밸런스가 쓰는 국면 이름이 그 종의 단계표에 있어야 한다 (#91). 없는 국면의 계수는
+ * 조용히 쓰이지 않으므로(오타 `nestlng` 등) 여기서 잡는다.
+ */
+function checkSpeciesPhases(
+  species: SpeciesBalance,
+  phases: Set<string>,
+  file: string,
+  issues: DataIssue[],
+): void {
+  const used = [
+    ...Object.keys(species.predatorActivity).map((p) => [`predatorActivity.${p}`, p] as const),
+    ...species.flockPhases.map((p, i) => [`flockPhases[${i}]`, p] as const),
+  ];
+  for (const [at, phase] of used) {
+    if (!phases.has(phase)) {
+      issues.push({
+        file,
+        at,
+        reason: `${species.speciesId}의 단계표에 없는 국면이다: ${phase} (data/calendar/${species.speciesId}.json)`,
+      });
+    }
+  }
+}
+
+/** 이벤트의 `phaseAny`가 이벤트의 모든 종의 단계표에 있어야 한다 (#91) */
+function checkEventPhases(
+  event: GameEvent,
+  index: number,
+  calendar: Map<string, Calendar>,
+  file: string,
+  issues: DataIssue[],
+): void {
+  for (const speciesId of event.species) {
+    const cal = calendar.get(speciesId);
+    if (!cal) continue; // 단계표가 없는 종은 종 쪽 검사가 알린다
+    const phases = calendarPhases(cal);
+    for (const [p, phase] of (event.when.phaseAny ?? []).entries()) {
+      if (!phases.has(phase)) {
+        issues.push({
+          file,
+          at: `[${index}].when.phaseAny[${p}]`,
+          reason: `${speciesId}의 단계표에 없는 국면이다: ${phase}`,
+        });
       }
     }
   }
