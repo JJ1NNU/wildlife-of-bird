@@ -28,12 +28,12 @@
 
 | ID | 용도 | 우선 | 비고 |
 |---|---|---|---|
-| `bird.parus-minor.adult-m.breeding.perch` | 메인 화면 주인공 | P0 | 배치 01에서 식별 특징 실패(`style-options.md` 6.3) → #11로 프롬프트 재작성 |
-| `bird.parus-minor.adult-f.breeding.perch` | 짝 | P0 | 암수 차이는 #11 |
-| `bird.parus-minor.chick.nest` | 둥지 단계 | P0 | |
-| `bird.parus-minor.juv.perch` | 독립·계승 | P0 | |
+| `bird.parus-minor.adult-m.breeding.perch` | 메인 화면 주인공 | P0 | 배치 01에서 식별 특징 실패(`style-options.md` 6.3) → field-marks로 재작성, **배치 02**(`prompts/batch-02-parus-minor.md`) |
+| `bird.parus-minor.adult-f.breeding.perch` | 짝 | P0 | 배치 02. 암컷 = 세로줄 가늘게(field-marks 1장) |
+| `bird.parus-minor.chick.nest` | 둥지 단계 | P0 | 식별 특징 출처 없음(field-marks 1장) → 콘텐츠 #95 답 뒤 배치 03 |
+| `bird.parus-minor.juv.perch` | 독립·계승 | P0 | 배치 02. 노르스름한 배는 어린 새만 |
 | `bird.parus-minor.egg` | 산란·포란 | P1 | |
-| `bird.parus-minor.adult.nonbreeding.perch` | 겨울 | P2 | 깃 차이가 작으면 생략(#11) |
+| `bird.parus-minor.adult.nonbreeding.perch` | 겨울 | P2 | **생략** — 계절 깃 차이 출처 없음, 같은 깃으로 그린다(field-marks 1장) |
 | `bg.forest.spring.day` · `.summer.day` · `.autumn.day` · `.winter.day` | 메인 배경 | P0 | M2 배경 배치. 계절 4장, 시간대 변화는 색 필터로 |
 | `bg.forest.nest-hole` | 둥지 화면 | P1 | 나무구멍 근경 |
 | `pred.rat-snake` | 뱀 경보(고유 메카닉) | P0 | 포식자 목록은 콘텐츠 확정 후(gdd 8.4 [검수 필요]) |
