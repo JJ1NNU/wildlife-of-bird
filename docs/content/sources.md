@@ -92,6 +92,22 @@
 | SRC-041 | Basso, A. & Richner, H. (2015) "Predator-specific effects on incubation behaviour and offspring growth in great tits", *PLoS ONE* 10(4):e0121088. doi:10.1371/journal.pone.0121088 | [link](https://doi.org/10.1371/journal.pone.0121088) | A | 스위스 박새(*P. major*): 포란 암컷은 품기(on-bout)와 외출(off-bout)을 되풀이한다. 족제비는 **포란 중인 암컷과 새끼**를, 새매는 성조와 이소한 새끼를 노린다. 포식자 모형을 두면 외출·복귀 횟수가 준다 → leave-eggs-to-feed | 초록까지 |
 | SRC-042 | Patrick, S. C., Chapman, J. R., Dugdale, H. L., Quinn, J. L. & Sheldon, B. C. (2012) "Promiscuity, paternity and personality in the great tit", *Proceedings of the Royal Society B* 279(1734):1724–1730. doi:10.1098/rspb.2011.1820 | [link](https://doi.org/10.1098/rspb.2011.1820) | A | 영국 박새(*P. major*): 짝 밖 수컷의 새끼(extra-pair paternity)가 한배에 섞인다 → mate-guarding의 배경. 짝 지키기 행동 자체는 다루지 않는다 | 초록까지 |
 
+### 박새류 · 작은 새 일반 — 이벤트 3차 (#23)
+
+> 위 표와 같은 규칙: 다른 종·지역 연구는 박새(*P. minor*)에 대해 **방향**의 근거로만 쓰고, 이벤트는 `needs-review`로 둔다.
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-043 | Verhulst, S. & Hut, R. A. (1996) "Post-fledging care, multiple breeding and the costs of reproduction in the great tit", *Animal Behaviour* 51(5):957–966 | [link](https://www.researchgate.net/publication/42788141) | A | 네덜란드 박새(*P. major*): 이소 후 돌봄은 평균 약 20일(10~32일). 2차 번식을 하면 암컷의 이소 후 돌봄이 준다 → scattered-fledglings · early-independence | 서지·요지까지 |
+| SRC-044 | Naef-Daenzer, B., Widmer, F. & Nuber, M. (2001) "Differential post-fledging survival of great and coal tits in relation to their condition and fledging date", *Journal of Animal Ecology* 70(5):730–738. doi:10.1046/j.0021-8790.2001.00533.x | [link](https://doi.org/10.1046/j.0021-8790.2001.00533.x) | A | 스위스 박새·진박새 이소 후 20일 추적: 새끼의 약 절반이 죽고 주 원인은 **포식**, 이소 직후 며칠의 사망률이 가장 높다. 이소 때 무거울수록 산다 → scattered-fledglings | 서지·요지까지 |
+| SRC-045 | Lindström, Å., Visser, G. H. & Daan, S. (1993) "The energetic cost of feather synthesis is proportional to basal metabolic rate", *Physiological Zoology* 66(4):490–510 | [link](https://research.rug.nl/en/publications/the-energetic-cost-of-feather-synthesis-is-proportional-to-basal-/) | A | 흰눈썹울새·홍방울새 측정: 깃털을 만드는 데 드는 에너지가 크다 → molt-hunger | 서지·초록까지 |
+| SRC-046 | Williams, E. V. & Swaddle, J. P. (2003) "Moult, flight performance and wingbeat kinematics during take-off in European starlings *Sturnus vulgaris*", *Journal of Avian Biology* 34:371–378 | [link](https://jpswad.people.wm.edu/JAB2003.pdf) | A | 찌르레기: 털갈이 **중** 이륙 능력 저하는 작고, 털갈이를 **마친 뒤** 좋아진다 → 컨셉 M1의 '깃이 빠져 둔하다'를 쓰지 않은 이유(Lind 2001, 참새도 저하 없음) | 확인(초록) |
+| SRC-047 | McGregor, P. K. & Krebs, J. R. (1989) "Song learning in adult great tits (*Parus major*): effects of neighbours", *Behaviour* (권·쪽 미확인) | [link](https://www.semanticscholar.org/paper/d49f717bfd2c12828f829717c2dc1156d09460bb) | A | 영국 박새(*P. major*): 새로 넣은 노래가 새 이웃의 노래와 가장 닮았다 — 이웃에게서 배우고, 배우는 기간이 어른까지 이어질 수 있다 → song-tutor | 서지·요지까지 |
+| SRC-048 | Perdeck, A. C., Visser, M. E. & Van Balen, J. H. (2000) "Great Tit *Parus major* survival, and the beech-crop cycle", *Ardea* 88(1):99–108 | [link](https://pure.knaw.nl/portal/en/publications/great-tit-parus-major-survival-and-the-beech-crop-cycle/) | A | 네덜란드 박새: 겨울 너도밤나무 열매 양이 어린 새·어른의 연생존율과 가장 강하게 관련된다 → diet-switch(씨앗이 겨울을 가른다) | 서지·요지까지 |
+| SRC-049 | Beauchamp, G. (2008) "What is the magnitude of the group-size effect on vigilance?", *Behavioral Ecology* 19(6):1361–1368. doi:10.1093/beheco/arn096 | [link](https://doi.org/10.1093/beheco/arn096) | A | 조류·포유류 메타분석: 무리가 클수록 개체의 경계(살피기)가 준다 → flock-size | 서지까지 |
+| SRC-050 | Kalb, N., Anger, F. & Randler, C. (2019) "Subtle variations in mobbing calls are predator-specific in great tits (*Parus major*)", *Scientific Reports* 9:6572. doi:10.1038/s41598-019-43087-9 | [link](https://doi.org/10.1038/s41598-019-43087-9) | A | 독일 박새: 올빼미(*Strix aluco*)·새매 박제에 모빙 소리를 낸다. 올빼미는 위협이 **낮은** 쪽, 새매는 높은 쪽 → owl-mobbing | 확인(초록) |
+| SRC-051 | Brilot, B. O. & Bateson, M. (2012) "Water bathing alters threat perception in starlings", *Biology Letters* 8(3):379–381. doi:10.1098/rsbl.2011.1200 | [link](https://doi.org/10.1098/rsbl.2011.1200) | A | 대부분의 새가 물목욕을 한다. 목욕 물을 못 쓴 찌르레기는 경보음 뒤 덜 먹고 더 살폈다(깃털 관리 가설) → water-bath | 확인(초록) |
+
 ### 환경 변화 · 그 밖의 종
 
 | ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
