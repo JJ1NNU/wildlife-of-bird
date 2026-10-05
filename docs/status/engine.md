@@ -2,29 +2,28 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-05 (라운드 7)
+- 마지막 근무: 2026-10-06 (라운드 8)
 - 현재 마일스톤: M0 대표 승인 대기(#115) · M1 진행(#21)
 
 ## 진행 중
-- **PR #131** 포식자 스키마 `Predator` · 이벤트 `deathRisk.predator` 존재 검사(포식자 파일이 있을 때만) — `review:content`. #128의 5개 파일로 `validate:data` 통과 확인
-- **PR #132** `breeding.json` 스키마 · `GameData.breeding` · `Choice.kind` `nestSite`·`secondBrood` · 03-contracts 4.3.3 + 3장 선택지 ID · 육아 방침 형식 잠정(#121) — `review:design`. `species` 블록 이동 제안은 철회(그대로 둠)
-- **#131 · #132는 같은 파일을 고친다**(`load.ts` · `read-data.ts` · `validate-data.ts` · `apps/web/src/data.ts` · 03-contracts) — 먼저 머지된 쪽 뒤에 나머지를 main에 맞춰 충돌을 풀고 `npm run check`
-- #21 M1 — 다음 조각(아래 3번) 아직 시작 안 함
+- #21 M1 — 단계 판정 조각 머지(#144). 다음은 관문 조각(아래 2번)
+- #121 남은 것 = `act` 관문 흐름(#21 관문 조각에서)
 
-## 최근 완료 (라운드 7)
-- **#126 머지**(장소 스키마) — design·content 승인
-- **#128 승인**(engine) — 포식자 형식 그대로 받음, 스키마는 #131
+## 최근 완료 (라운드 8)
+- **#131 머지**(포식자 스키마) · **#132 머지**(breeding.json 스키마) — #132는 main(#131)과 `load.ts`·03-contracts 충돌 해결 후
+- **#144 머지**(#21 조각): `RunState`에 그 해 단계표 사본(`calendar`)·`node`·`stay`, 개체 `potential`·`feather`·`expYears` / `getChoices` 평평한 목록(`action.*` · `action.train.<스탯>` · `move.<장소>`) / `act` 판정 1·2·3 + 아사·포식 + `decision`·`death` 로그 / `period 1` 진입(나이·경험·노화·단계표 초기화) / `getView`에 `phase`·`node`·`energyCap` / `SAVE_VERSION` 2. 판정 코드는 `packages/engine/src/step.ts`(`judgeStep` — preview·act 공유)
+- **#143 열음**(design): 겨울 에너지 수지가 모든 장소에서 음수 → 무작위 봇 평균 0.22년, 탐욕 봇 0.33년, 거의 전부 아사. + 런 시작 스탯 잠정 결정 요청
 
 ## 막힘 (무엇을 · 누구를 기다리는지)
-- #131 ← content 리뷰 · #132 ← design 리뷰
+- #143 ← design (밸런스 데이터 · 런 시작 스탯). 엔진 일은 막히지 않음
 
 ## 다음 근무에서 할 일
-1. #131 · #132 리뷰 결과 → 차례로 머지(두 번째는 충돌 해결 후)
-2. #121 남은 것(3번 `act` 관문 흐름)은 #21 다음 조각 뒤
-3. **#21 다음 조각** — `RunState` 확장(달력: 그 해 단계표 사본·시기 안 단계, 장소·연속 체류, 깃털, 잠재력, 경험 연수) → `getChoices` 평평한 목록(`action.<행동>` · `action.train.<스탯>` · `move.<장소>` — 03-contracts 3장 '선택지 ID', #132) → `act`에 판정 1·2·3(에너지→스탯→위험) + 아사·포식 사망 + `decision`·`death` 로그 + 00-core-loop 3.1 예시 테스트. 장소는 `GameData.nodes`(#110 머지 전이면 엔진 테스트 고정 장소)
-4. 그다음: 관문(4.6, 04-breeding) · 재번식/분할 해제(4.4·4.5) · 번식 · 계승 · 점수 · 이벤트 해석기
-5. #81 QA 답 확인
-6. main에 lint 경고 1건(`load.ts` runStart.node 검사 — optional chain). 다음에 그 줄을 고칠 때 같이
+1. #143 결정이 오면 런 시작 스탯 잠정(#21) 반영(`api.ts` newRun)
+2. **#21 관문 조각** — 03-contracts 3장: 관문이 열려 있으면 관문 선택지만. 계절 방침(시기 5·11·17·23 첫 단계) · 짝 후보(`pairing` 첫 단계, 04-breeding 2장) · 둥지 자리 · 산란수 · 짝 지시(판정 1 전) · 육아 방침(`Choice.items` 잠정 #121) · 둥지 국면 `move.*` disabled. 관문 대기 상태를 `RunState`에 둔다
+3. 그다음: 번식(둥지 손실·새끼 사망·은수저·유전 — 정규분포 표본 ADR) · 독립 → 점수 · 계승 · 재번식/분할 해제(4.4·4.5) · 이벤트 해석기(foodMod·riskMod·부상)
+4. #81 QA 답 확인
+5. main lint 경고 1건(`load.ts` runStart.node optional chain) — 그 줄을 고칠 때 같이
+6. 성능 재측정(#47): 무작위 봇 200판 6초(짧은 판). 판이 길어지면 `act`의 로그 배열 전체 복사를 다시 본다
 
 ## 메모 (다음 근무의 나에게)
 - 머지는 `bash scripts/merge-pr.sh <번호>`(리뷰·CI 확인 포함). 그 전에 `git -C C:/dev/wb-engine switch --detach origin/main`(#113)

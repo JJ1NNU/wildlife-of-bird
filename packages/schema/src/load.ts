@@ -1,27 +1,33 @@
 import './locale.ts';
 import type { z } from 'zod';
+import { Breeding } from './breeding.ts';
 import { Calendar, calendarPhases } from './calendar.ts';
 import { EffectsTable } from './effects.ts';
 import type { GameEvent } from './events.ts';
 import { GameEventFile, optionEffects } from './events.ts';
 import { Formulas } from './formulas.ts';
 import { MapNode } from './nodes.ts';
+import { Predator } from './predators.ts';
 import { SpeciesBalance, SpeciesEcology } from './species.ts';
 
 /**
  * 검증된 게임 데이터 묶음. 엔진의 모든 함수가 이것을 받는다 (03-contracts 3장).
- * 포식자·도감은 그 데이터의 소유 부서가 첫 파일을 올릴 때 형식을 확정하고
+ * 도감은 그 데이터의 소유 부서가 첫 파일을 올릴 때 형식을 확정하고
  * 여기에 더한다.
  */
 export interface GameData {
   effects: EffectsTable;
   formulas: Formulas;
+  /** 번식 계수 (`04-breeding`) */
+  breeding: Breeding;
   ecology: Map<string, SpeciesEcology>;
   balance: Map<string, SpeciesBalance>;
   /** 종별 연간 단계표 */
   calendar: Map<string, Calendar>;
   /** 지도 장소. id → 장소 */
   nodes: Map<string, MapNode>;
+  /** 포식자. id → 포식자 */
+  predators: Map<string, Predator>;
   events: GameEvent[];
 }
 
@@ -61,10 +67,12 @@ function check<T>(schema: z.ZodType<T>, raw: RawFile, issues: DataIssue[]): T | 
 export interface RawGameData {
   effects?: RawFile;
   formulas?: RawFile;
+  breeding?: RawFile;
   ecology: RawFile[];
   balance: RawFile[];
   calendar: RawFile[];
   nodes: RawFile[];
+  predators: RawFile[];
   events: RawFile[];
 }
 
@@ -139,6 +147,17 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
     }
   }
 
+  const predators = new Map<string, Predator>();
+  for (const file of raw.predators) {
+    const parsed = check(Predator, file, issues);
+    if (!parsed) continue;
+    if (predators.has(parsed.id)) {
+      issues.push({ file: file.file, at: 'id', reason: `포식자 id가 겹친다: ${parsed.id}` });
+      continue;
+    }
+    predators.set(parsed.id, parsed);
+  }
+
   const events: GameEvent[] = [];
   for (const file of raw.events) {
     const parsed = check(GameEventFile, file, issues);
@@ -155,6 +174,7 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
       }
       checkStatsExist(event, index, balance, file.file, issues);
       checkEventPhases(event, index, calendar, file.file, issues);
+      checkPredatorsExist(event, index, predators, file.file, issues);
       events.push(event);
     }
   }
@@ -162,9 +182,15 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
   const effects = raw.effects ? check(EffectsTable, raw.effects, issues) : undefined;
   const formulas = raw.formulas ? check(Formulas, raw.formulas, issues) : undefined;
   if (formulas) checkAptitudeGrades(balance, balanceFile, formulas, issues);
+  const breeding = raw.breeding ? check(Breeding, raw.breeding, issues) : undefined;
+  if (breeding && raw.breeding)
+    checkBreedingSpecies(breeding, raw.breeding.file, ecology, balance, issues);
 
-  if (issues.length > 0 || !effects || !formulas) return { issues };
-  return { data: { effects, formulas, ecology, balance, calendar, nodes, events }, issues };
+  if (issues.length > 0 || !effects || !formulas || !breeding) return { issues };
+  return {
+    data: { effects, formulas, breeding, ecology, balance, calendar, nodes, predators, events },
+    issues,
+  };
 }
 
 /** 장소를 읽고 종·연결을 확인한다. 연결은 양방향이어야 한다(`00-core-loop` 3.4) */
@@ -292,6 +318,55 @@ function checkEventPhases(
           file,
           at: `[${index}].when.phaseAny[${p}]`,
           reason: `${speciesId}의 단계표에 없는 국면이다: ${phase}`,
+        });
+      }
+    }
+  }
+}
+
+/** `breeding.species`의 종은 생태 파일이 있어야 하고, 밸런스가 있는 종은 번식 계수도 있어야 한다 */
+function checkBreedingSpecies(
+  breeding: Breeding,
+  file: string,
+  ecology: Map<string, SpeciesEcology>,
+  balance: Map<string, SpeciesBalance>,
+  issues: DataIssue[],
+): void {
+  for (const speciesId of Object.keys(breeding.species)) {
+    if (!ecology.has(speciesId)) {
+      issues.push({
+        file,
+        at: `species.${speciesId}`,
+        reason: `생태 파일이 없는 종이다: ${speciesId}`,
+      });
+    }
+  }
+  for (const speciesId of balance.keys()) {
+    if (!breeding.species[speciesId]) {
+      issues.push({ file, at: 'species', reason: `${speciesId}의 번식 계수가 없다` });
+    }
+  }
+}
+
+/**
+ * 이벤트 `deathRisk.predator`가 `data/predators/`에 있어야 한다.
+ * 포식자 파일이 아직 없으면(#128 전) 확인하지 않는다.
+ */
+function checkPredatorsExist(
+  event: GameEvent,
+  index: number,
+  predators: Map<string, Predator>,
+  file: string,
+  issues: DataIssue[],
+): void {
+  if (predators.size === 0) return;
+  for (const [o, option] of event.options.entries()) {
+    for (const effect of optionEffects(option)) {
+      if (effect.type === 'deathRisk' && effect.predator && !predators.has(effect.predator)) {
+        issues.push({
+          file,
+          at: `[${index}].options[${o}]`,
+          reason: `없는 포식자다: ${effect.predator} (data/predators/)`,
         });
       }
     }

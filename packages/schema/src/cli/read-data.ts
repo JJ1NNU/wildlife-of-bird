@@ -52,15 +52,18 @@ export async function readDataDir(): Promise<{ raw: RawGameData; issues: DataIss
   };
   const effects = readOne('data/balance/effects.json');
   const formulas = readOne('data/balance/formulas.json');
+  const breeding = readOne('data/balance/breeding.json');
 
   return {
     raw: {
       ...(effects ? { effects } : {}),
       ...(formulas ? { formulas } : {}),
+      ...(breeding ? { breeding } : {}),
       ecology: read(await listFiles('data/species', '.ecology.json')),
       balance: read(await listFiles('data/balance/species', '.json')),
       calendar: read(await listFiles('data/calendar', '.json')),
       nodes: read(await listFiles('data/nodes', '.json')),
+      predators: read(await listFiles('data/predators', '.json')),
       events: read(await listFiles('data/events', '.json')),
     },
     issues,
