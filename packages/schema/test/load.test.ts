@@ -15,6 +15,7 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
       balance: [],
       calendar: [],
       nodes: [],
+      predators: [],
       events: [],
     });
 
@@ -29,6 +30,7 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
       balance: [],
       calendar: [],
       nodes: [],
+      predators: [],
       events: [
         {
           file: 'data/events/ghost.json',
@@ -86,6 +88,7 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
         },
       ],
       nodes: [],
+      predators: [],
       events: [],
     });
     expect(issues.map((i) => i.at)).toEqual([
@@ -107,6 +110,7 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
         },
       ],
       nodes: [],
+      predators: [],
       events: [
         {
           file: 'data/events/parus-minor.json',
@@ -165,6 +169,7 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
         node('b-wood', ['c-wood']),
         node('c-wood', ['b-wood']),
       ],
+      predators: [],
       events: [],
     });
     expect(issues.filter((i) => i.at.startsWith('links'))).toEqual([
@@ -174,6 +179,62 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
         reason: 'b-wood의 links에 a-wood가 없다 — 연결은 양방향이어야 한다',
       },
       { file: 'data/nodes/a-wood.json', at: 'links[1]', reason: '없는 장소다: ghost-wood' },
+    ]);
+  });
+
+  it('이벤트가 없는 포식자를 가리키면 잡아낸다', () => {
+    const { issues } = loadGameData({
+      ecology: [],
+      balance: [],
+      calendar: [],
+      nodes: [],
+      predators: [
+        {
+          file: 'data/predators/owl.json',
+          json: {
+            id: 'owl',
+            nameKo: '올빼미류',
+            targets: ['adult'],
+            basis: { sources: [], factCheck: 'needs-review' },
+          },
+        },
+      ],
+      events: [
+        {
+          file: 'data/events/common.json',
+          json: [
+            {
+              id: 'ev.common.x',
+              species: ['parus-minor'],
+              when: {},
+              weight: 'common',
+              title: 'ㄱ',
+              body: 'ㄴ',
+              options: [
+                {
+                  id: 'a',
+                  text: 'ㄷ',
+                  effects: [
+                    { type: 'deathRisk', tier: 'low', cause: 'predation', predator: 'owl' },
+                    { type: 'deathRisk', tier: 'low', cause: 'predation', predator: 'hawk' },
+                  ],
+                },
+                { id: 'b', text: 'ㅁ', effects: [] },
+              ],
+              ecologyBasis: 'ㄹ',
+              sources: ['SRC-TEST'],
+              factCheck: 'verified',
+            },
+          ],
+        },
+      ],
+    });
+    expect(issues.filter((i) => i.reason.startsWith('없는 포식자'))).toEqual([
+      {
+        file: 'data/events/common.json',
+        at: '[0].options[0]',
+        reason: '없는 포식자다: hawk (data/predators/)',
+      },
     ]);
   });
 });
