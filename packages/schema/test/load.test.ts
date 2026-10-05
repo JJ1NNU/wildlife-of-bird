@@ -13,6 +13,7 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
         },
       ],
       balance: [],
+      calendar: [],
       events: [],
     });
 
@@ -25,6 +26,7 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
     const { issues } = loadGameData({
       ecology: [],
       balance: [],
+      calendar: [],
       events: [
         {
           file: 'data/events/ghost.json',
@@ -66,5 +68,68 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
     expect(
       schema.safeParse({ value: 'female', sources: [], factCheck: 'needs-review' }).success,
     ).toBe(true);
+  });
+
+  it('단계표의 시기 빠짐 · 중복 · 4단계, 단계표에 없는 국면을 잡아낸다 (#91)', () => {
+    const periods = Array.from({ length: 24 }, (_, i) => ({ period: i + 1, steps: ['winter'] }));
+    periods[6] = { period: 6, steps: ['nestSite'] }; // 6이 두 번, 7이 빠짐
+    periods[9] = { period: 10, steps: ['nestling', 'nestling', 'nestling', 'nestling'] };
+    const { issues } = loadGameData({
+      ecology: [],
+      balance: [],
+      calendar: [
+        {
+          file: 'data/calendar/parus-minor.json',
+          json: { speciesId: 'parus-minor', periods, rebrood: [{ steps: ['nestlng'] }] },
+        },
+      ],
+      events: [],
+    });
+    expect(issues.map((i) => i.at)).toEqual([
+      'periods[9].steps',
+      'periods[6].period',
+      'rebrood[0].steps[0]',
+    ]);
+  });
+
+  it('이벤트가 그 종의 단계표에 없는 국면을 쓰면 잡아낸다 (#91)', () => {
+    const periods = Array.from({ length: 24 }, (_, i) => ({ period: i + 1, steps: ['winter'] }));
+    const { issues } = loadGameData({
+      ecology: [],
+      balance: [],
+      calendar: [
+        {
+          file: 'data/calendar/parus-minor.json',
+          json: { speciesId: 'parus-minor', periods, rebrood: [{ steps: ['molt'] }] },
+        },
+      ],
+      events: [
+        {
+          file: 'data/events/parus-minor.json',
+          json: [
+            {
+              id: 'ev.parus-minor.x',
+              species: ['parus-minor'],
+              when: { phaseAny: ['nestling'] },
+              weight: 'common',
+              title: 'ㄱ',
+              body: 'ㄴ',
+              options: [
+                { id: 'a', text: 'ㄷ', effects: [] },
+                { id: 'b', text: 'ㅁ', effects: [] },
+              ],
+              ecologyBasis: 'ㄹ',
+              sources: ['SRC-TEST'],
+              factCheck: 'verified',
+            },
+          ],
+        },
+      ],
+    });
+    expect(issues).toContainEqual({
+      file: 'data/events/parus-minor.json',
+      at: '[0].when.phaseAny[0]',
+      reason: 'parus-minor의 단계표에 없는 국면이다: nestling',
+    });
   });
 });
