@@ -123,6 +123,8 @@
 | SRC-058 | Seki, S.-I. (2005) "The effects of a typhoon (9918 Bart, 1999) on the bird community in a warm temperate forest, Southern Japan", *Ornithological Science* 4(2):117–128. doi:10.2326/osj.4.117 | [link](https://doi.org/10.2326/osj.4.117) | A | 같은 태풍 뒤 첫 겨울: 열매·씨앗을 먹는 새가 줄어 전체 개체수가 줄었고 둘째 겨울에 회복 → typhoon-warning | 확인(초록) |
 | SRC-059 | Carlson, A. (1994) "Cavity breeding birds and clearcuts", *Ornis Fennica* 71:120–122 | [link](https://ornisfennica.journal.fi/article/download/133402/81948/292568) | A | 스웨덴 벌채지(1989~1990): 구멍 난 나무를 남겨도 박새·푸른박새는 **숲에서 떨어진 구멍을 피했다** — 먹이를 숲에서 구하므로 → logging | 확인(원문) |
 | SRC-069 | 기상청 날씨누리 「태풍 통계 — 태풍발생현황」, 평년 1991–2020년 (2026-10-07 열람) | [link](https://www.weather.go.kr/plus/typ/statistic.jsp) | B | 우리나라에 영향을 준 태풍 평년 개수: 6월 0.3 · **7월 1.0 · 8월 1.2 · 9월 0.8** · 10월 0.1, 한 해 3.4개 → typhoon-warning 시기(15–18 = 8~9월)가 가장 잦은 때와 맞음. 7월도 잦다 | 확인(원문) |
+| SRC-070 | Bojarinova, J., Lehikoinen, E. & Eeva, T. (1999) "Dependence of postjuvenile moult on hatching date, condition and sex in the Great Tit", *Journal of Avian Biology* 30(4):437– (끝 쪽 미확인). doi:10.2307/3677016 | [link](https://doi.org/10.2307/3677016) | A | 핀란드 남부 박새(*P. major*): 어린 새 첫 털갈이의 시작·기간·범위는 **부화일**이 가장 크게 좌우 — 첫배는 7월, 둘째배는 8월 중순에 시작. 암컷이 더 늦게, 덜 넓게 간다 → first-moult | 서지(crossref)·요지까지 |
+| SRC-071 | Rymkevich, T. A. & Bojarinova, J. G. (1996) "Variation in the extent of postjuvenile moult in the Great Tit near Lake Ladoga (Russia)", *Bird Study* 43(1):47–59. doi:10.1080/00063659609460995 | [link](https://doi.org/10.1080/00063659609460995) | A | 러시아 박새(*P. major*): 어린 새 첫 털갈이의 **범위가 개체마다 다르다** → first-moult | 서지까지(crossref) |
 
 ### 박새 둥지 안 새끼 — 식별 특징 (#167)
 

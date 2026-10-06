@@ -41,6 +41,7 @@
 | P-24 | 이벤트 `data/events/parus-minor.json` 이소 후·털갈이·가을 무리 10건 (#23 3차) | 모두 `needs-review`. `scattered-fledglings`·`early-independence`(SRC-043·044, 유럽 박새) · `crow-near-fledglings`(까마귀가 이소 새끼를 노리는지) · `molt-hunger`(SRC-045 다른 종 · 컨셉 M1 '깃이 빠져 둔하다'는 SRC-046과 어긋나 상황을 바꿈) · `water-bath`(물가 포식 위험) · `song-tutor`(SRC-047 유럽 박새 · 학습 시기 · 암컷 노래 드묾의 출처 — `sex: male`을 더함) · `diet-switch`(SRC-048 유럽 · 국내 전환 시기) · `flock-size`(SRC-049 일반 · 무리 안 먹이 경쟁) · `owl-mobbing`(SRC-050 유럽 박새) · `goshawk-chase`(덤불·무리 피하기 차이) | 일본 *P. minor* 이소 후 돌봄·털갈이·가을 식단 문헌, 국내 박새 혼성군 연구 | 열림 — 10건 `needs-review` |
 | P-25 | 이벤트 `data/events/parus-minor.json` 털갈이 M5 · 환경 카드 E1–E8 9건 (#23 4차) | 모두 `needs-review`. `storm-night`·`cold-rainy-spell`(SRC-052 총설 · SRC-056 사막딱새) · `cold-wave`·`heavy-snow`(SRC-053·054 유럽 박새 — 눈이 먹이를 얼마나 줄이는지는 근거 없음) · `pine-seed-year`(SRC-048 너도밤나무 — 소나무 솔씨 풍흉 근거 없음) · `early-leaf-out`(SRC-055 유럽) · `hawk-settled-nearby`(새매의 국내 체류 시기) · `logging`(SRC-059 스웨덴 · SRC-057) · `typhoon-warning`(SRC-057·058 일본. 국내 태풍 시기는 **확인** — SRC-069 기상청 평년: 7~9월, 8월 최다. 15–18(8~9월)은 맞고 7월(13–14)도 평년 1.0개라 빠진 셈이지만 그 시기는 육추·이소 이벤트가 차지해 그대로 둠. 남은 것: 박새가 태풍을 어떻게 피하는지. '구멍으로 피한다'는 근거가 없어 A 선택지 글만 '숲 안쪽에 머문다'로 바꿈, 효과·id 그대로 #165) | 국내 박새 겨울 먹이·적설 연구, 국내 새매 월동 기록 | 열림 — 9건 `needs-review`(typhoon-warning 시기는 해결) |
 | P-26 | 도감 `data/codex/phenomenon.caterpillar-peak.json` (#23) | 번식 시기가 먹이 곤충이 가장 많은 때와 맞물리고, 산란 준비기 기온이 중요하다 | SRC-005 (D) 단독 | 국내 박새 산란일·애벌레 발생 시기 비교 연구 | 열림 — 나머지 도감 9건은 `verified` |
+| P-27 | 이벤트 `data/events/parus-minor.json` 털갈이 3건 (#200 2번 1차) | 모두 `needs-review`. `first-moult`(SRC-070·071 유럽·러시아 박새 — 국내 어린 박새 첫 털갈이 시기) · `first-mixed-flock`(SRC-033 겨울 · SRC-057 일본 9월 — 국내 혼성군이 생기는 시기, 진박새·곤줄박이와 섞이는지) · `roost-hole`(SRC-067 리뷰 — 기생충을 깃 손실로 옮긴 것은 게임 해석) | 일본 *P. minor* 첫 털갈이·혼성군 형성 시기 문헌 | 열림 — 3건 `needs-review` |
 
 ### 박새 — 규칙으로 닫은 것
 
@@ -96,3 +97,4 @@
 | 2026-10-06 | #23 도감 10건(종 1 · 포식자 4 · 현상 3 · 장소 2) — P-26. 참매·족제비는 출처가 SRC-034 한 줄뿐이라 보류 |
 | 2026-10-07 | #165 — P-11·P-12·P-20 해결, P-10 부식만 해결(SRC-027 C). E8 A 글 바꿈. 종 데이터 needs-review 6→2 |
 | 2026-10-07 | P-25 typhoon-warning 시기 확인 — SRC-069(기상청 태풍 평년) 등록, 근거 글에 시기 한 문장 |
+| 2026-10-07 | #200 2번 1차 — 털갈이 이벤트 3건(P-27), SRC-070·071 등록. 이벤트 43건 |
