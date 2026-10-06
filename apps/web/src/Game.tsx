@@ -74,7 +74,28 @@ const GATE_GO = {
   nestSite: { done: (label: string) => `${label}에 짓기`, none: '둥지 자리를 고르세요' },
   clutchSize: { done: (label: string) => `${label} 낳기`, none: '알 수를 고르세요' },
   mateOrder: { done: (label: string) => `짝에게 · ${label}`, none: '짝에게 맡길 일을 고르세요' },
+  parentingPolicy: { done: () => '이 방침으로', none: '이대로 진행' },
 } as const;
+/** 육아 방침 선택 id → 칸 글 (와이어프레임 mid/03 C). 잠정(#21): `data/text/`가 생기면 옮긴다 */
+const POLICY_WORD: Record<string, string> = {
+  low: '적게',
+  mid: '보통',
+  high: '많이',
+  even: '고르게',
+  compete: '센 새끼 먼저',
+  quantity: '양 많이',
+  quality: '질 좋게',
+  feedFocus: '먹이 우선',
+  clean: '청소',
+  full: '다 자라서',
+  early: '일찍',
+  long: '길게',
+  short: '짧게',
+  safe: '안전',
+  varied: '여러 곳',
+  predator: '포식자',
+  song: '노래',
+};
 const GRADE_WORD = { high: '높음', mid: '보통', low: '낮음' } as const;
 const HINT_WORD = { bold: '대담해 보인다', shy: '조심스러워 보인다' } as const;
 const SEASON = [
@@ -256,6 +277,15 @@ export function Game({ data }: { data: GameData }) {
   const choices = getChoices(state, data);
   const when = periodLabel(view.at);
   const pickedChoice = choices.find((c) => c.id === picked);
+  // S-22: 항목별 값은 선택 id 뒤(`parentingPolicy?item=opt&…`)에 담는다 — 안 고른 항목은 지금 걸린 값
+  const policyCards = view.gate?.kind === 'parentingPolicy' ? view.gate.cards : undefined;
+  const policyQuery = new URLSearchParams(picked?.split('?')[1] ?? '');
+  const policyValues = Object.fromEntries(
+    (policyCards ?? []).map((c) => [c.item, policyQuery.get(c.item) ?? c.current]),
+  );
+  const policyChanged = (policyCards ?? []).some((c) => policyValues[c.item] !== c.current);
+  const policyAdjust = (policyCards ?? []).some((c) => c.locked);
+  const gateId = policyCards ? (picked ?? 'parentingPolicy') : pickedChoice?.id;
   // 장소 등급은 종의 계절 구분(밸런스)을 따른다 — 엔진의 seasonOf와 같은 규칙
   const seasonPeriods = data.balance.get(view.speciesId)?.seasons;
   const season =
@@ -317,7 +347,7 @@ export function Game({ data }: { data: GameData }) {
   function go() {
     if (!state) return;
     if (view.gate) {
-      if (picked) commit(act(state, picked, data).state);
+      if (gateId) commit(act(state, gateId, data).state);
       return;
     }
     // 칸마다 act — 마지막 칸을 채우면 엔진이 루틴을 실행한다
@@ -640,6 +670,37 @@ export function Game({ data }: { data: GameData }) {
               고른 지시는 이 국면이 끝날 때까지. 거절하면 짝은 다른 일을 한다 — 원래 효과의 일부만.
             </li>
           </ul>
+        ) : view.gate?.kind === 'parentingPolicy' ? (
+          <ul className="list" aria-label="육아 방침" data-testid="gate-parentingPolicy">
+            <li className="gate-title b">{policyAdjust ? '육아 방침 조정' : '육아 방침 정하기'}</li>
+            {view.gate.cards.map((it, i) => (
+              <li key={it.item} className={`pol${it.locked ? ' lock' : ''}`}>
+                <span className="lab small b">
+                  {i + 1} {it.label}
+                  {it.locked && <span className="muted"> · 잠김</span>}
+                </span>
+                <fieldset className="seg" aria-label={it.label}>
+                  {it.options.map((o) => (
+                    <button
+                      key={o}
+                      type="button"
+                      className={policyValues[it.item] === o ? 'on' : undefined}
+                      aria-pressed={policyValues[it.item] === o}
+                      disabled={it.locked}
+                      onClick={() =>
+                        setPicked(
+                          `parentingPolicy?${new URLSearchParams({ ...policyValues, [it.item]: o })}`,
+                        )
+                      }
+                      data-testid={`policy-${it.item}-${o}`}
+                    >
+                      {POLICY_WORD[o] ?? o}
+                    </button>
+                  ))}
+                </fieldset>
+              </li>
+            ))}
+          </ul>
         ) : view.gate?.kind === 'clutchSize' ? (
           <ul className="list" aria-label="산란수" data-testid="gate-clutchSize">
             <li className="gate-title b">알을 몇 개 낳을까</li>
@@ -874,13 +935,17 @@ export function Game({ data }: { data: GameData }) {
             <button
               type="button"
               className="btn prim"
-              disabled={!pickedChoice}
+              disabled={!gateId}
               onClick={go}
               data-testid="go"
             >
-              {pickedChoice
-                ? GATE_GO[view.gate.kind].done(pickedChoice.label)
-                : GATE_GO[view.gate.kind].none}
+              {policyCards
+                ? policyChanged || !policyAdjust
+                  ? GATE_GO.parentingPolicy.done()
+                  : GATE_GO.parentingPolicy.none
+                : pickedChoice
+                  ? GATE_GO[view.gate.kind].done(pickedChoice.label)
+                  : GATE_GO[view.gate.kind].none}
             </button>
           ) : replay ? (
             replayDone ? (

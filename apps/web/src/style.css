@@ -277,6 +277,59 @@ h1 {
   padding: 0 var(--wb-space-1);
 }
 
+/* S-22 육아 방침: 항목 이름 왼쪽, 칸 오른쪽 한 줄 (와이어프레임 mid/03 C) */
+.pol {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+}
+.pol .lab {
+  flex: 0 0 72px;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+.pol .seg {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.pol .seg button {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 2px;
+  line-height: 1.15;
+  font-size: var(--wb-font-size-caption);
+  color: inherit;
+  word-break: keep-all;
+  background: var(--wb-color-paper);
+  border: 1px solid var(--wb-color-slate);
+  border-radius: var(--wb-radius-m);
+  cursor: pointer;
+}
+.pol .seg button.on {
+  background: var(--wb-color-slate-strong);
+  color: var(--wb-color-on-strong);
+  border-color: var(--wb-color-slate-strong);
+  font-weight: var(--wb-font-weight-bold);
+}
+.pol.lock .seg button {
+  cursor: default;
+  border-style: dashed;
+  background: var(--wb-color-card);
+  color: var(--wb-color-ink-muted);
+}
+.pol.lock .seg button.on {
+  background: var(--wb-color-line);
+  color: var(--wb-color-ink);
+  border-color: var(--wb-color-slate);
+}
+
 /* S-30 죽은 이유 (#176) */
 .cause {
   margin: 0;

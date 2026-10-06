@@ -11,7 +11,6 @@ import type { Choice, LogEntry, MateOrder, MateOrderCard, RunState } from './typ
  * 짝 지시 관문 `mateOrder` — 04-breeding 3장. 짝이 있는 둥지 국면의 첫 단계, 첫 칸보다 먼저 열린다.
  * 고르면 같은 단계에서 이어 칸을 고른다. 지시는 그 국면이 끝날 때까지 걸린다.
  * 잠정(#21): `guardNest`(둥지 손실)·`feedHigh`(짝 급이 몫 → 은수저)는 걸어 두기만 한다 — 둥지 손실·은수저 조각에서 효과.
- * 상호성의 '급이 강도 high 단계'는 육아 방침 조각에서 — 지금은 도움(`feedMate`) 단계만 센다.
  */
 
 /** 짝 지시를 받는 둥지 국면 (3.1) */
@@ -219,7 +218,12 @@ export function orderValue(state: RunState, id: string, none: number, full: numb
  */
 export function carryOrder(prev: RunState, next: RunState, data: GameData): RunState {
   const window = data.formulas.mate.reciprocityWindowSteps;
-  const helped = prev.order?.id.startsWith('help.') ?? false;
+  // 급이 국면에 급이 강도 `high`인 단계도 도움 단계다 (04-breeding 6.1)
+  const prevPhase = phaseAt(prev.calendar, prev.at);
+  const fedHigh =
+    prev.parenting?.intensity === 'high' &&
+    (prevPhase === 'nestling' || prevPhase === 'postFledge');
+  const helped = (prev.order?.id.startsWith('help.') ?? false) || fedHigh;
   const recentHelp = [...(prev.recentHelp ?? []), helped].slice(-window);
   const { order, ...rest } = next;
   const keep = order && next.mate && order.phase === phaseAt(next.calendar, next.at);
