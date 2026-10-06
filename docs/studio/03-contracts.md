@@ -125,6 +125,7 @@ interface ViewModel {
   gameOver: boolean
   gate?: { kind: 'mateCandidate', cards: MateCandidateCard[] }  // 열린 관문 — 짝 후보(S-20)
        | { kind: 'mateOrder', cards: { choiceId, acceptance?: 'high' | 'mid' | 'low' }[] }  // 짝 지시 — 수락률은 등급만
+       | { kind: 'parentingPolicy', cards: Choice['items'] }  // 육아 방침 — 항목별 선택·현재값
   recentLog: LogEntry[]          // 최근 20건 — 이야기 피드
 }
 
@@ -147,7 +148,7 @@ interface MateCandidateCard {    // 신호만 — 실제 잠재력·성격은 �
 - 번식 관문(`04-breeding` 1장)의 `kind`: `mateCandidate` `mateOrder` `nestSite` `clutchSize` `parentingPolicy` `secondBrood`. **관문이 열려 있으면 `getChoices`는 관문의 선택지만** 준다. 짝 지시·육아 방침은 판정 1 전에 받고 같은 단계에서 이어 행동을 고른다. 나머지 관문은 단계 흐름의 끝에 열린다.
 - 짝 지시 관문의 선택지 id는 `mateOrder.none` · `mateOrder.<지시>` · `help.<도움>`(`breeding.json` `orders`·`help`의 키, 그 국면·성별에 맞는 것만). 짝이 있는 둥지 국면의 첫 단계에 **첫 칸보다 먼저** 열리고, 고르면 같은 단계의 칸으로 간다(달력 그대로). 불가능한 지시(`role: impossible`)는 `disabled`. `preview`의 `mateAcceptance`와 카드 등급은 성격 확인 전이면 `neutral`로 계산한 화면용 값. 로그 `order`(`deltas.acceptance`·`effect`, 거절이면 `cause: 'refused'`). `RunState.order`가 그 국면 동안 걸린다.
 - 둥지 국면 동안(둥지 자리 관문 뒤 ~ `nestling` 끝) `move.*`는 `disabled`("둥지를 떠날 수 없다").
-- **육아 방침은 선택지 하나에 여러 항목**을 담는다 — 잠정(#121), 관문 구현 때 확정: `Choice`에 `items: { item, options, current, locked? }[]`(`locked` = `postFledge` 조정에서 못 바꾸는 항목), `act(state, 'parentingPolicy?intensity=high&allocation=compete')` — 빠진 항목은 현재값(처음에는 기본값). 항목 이름은 `intensity` + `breeding.json` `parenting`의 키.
+- **육아 방침은 선택지 하나에 여러 항목**을 담는다(확정, #21): 선택지는 `parentingPolicy` 하나, `Choice.items: { item, label, options, current, locked? }[]`(`locked` = `postFledge` 조정에서 못 바꾸는 `nestCare`·`fledgeTiming`). `act(state, 'parentingPolicy?intensity=high&allocation=compete')` — 빠진 항목은 현재값(처음에는 기본값, 급이 강도는 `mid`), 맨 `parentingPolicy`는 그대로 두기. 없는 항목·선택이나 잠긴 항목을 바꾸면 던진다. 항목 이름은 `intensity` + `breeding.json` `parenting`의 키. 새끼가 있는 `nestling`·`postFledge` 첫 단계에 짝 지시 다음, **첫 칸보다 먼저** 열리고 고르면 같은 단계의 칸으로 간다. `getView().gate`는 `{ kind: 'parentingPolicy', cards: items }`. 로그 `parenting`. `RunState.parenting`은 둥지가 있는 동안 걸린다.
 
 ### 행동 루틴 — 칸 단위 입력 (#186, 잠정)
 `00-core-loop` 3.5(#175)를 API로 옮긴 것. **함수 목록·`Bot` 인터페이스·선택지 id는 그대로**다 — 루틴은 "칸 하나 = `act` 하나"로 들어온다.

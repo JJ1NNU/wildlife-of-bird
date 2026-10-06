@@ -1568,6 +1568,141 @@
     "factCheck": "needs-review"
   },
   {
+    "id": "ev.parus-minor.first-moult",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["molt"],
+      "ageMax": 0
+    },
+    "weight": "common",
+    "title": "어린 깃을 벗는 여름",
+    "body": "둥지를 떠날 때 입은 어린 깃이 몸에서부터 하나둘 빠진다. 그 자리에 새 깃이 돋는다. 며칠째 먹어도 배가 금세 꺼진다.",
+    "options": [
+      {
+        "id": "rich-patch",
+        "text": "벌레가 많은 트인 숲 가장자리에 오래 머문다",
+        "effects": [
+          {
+            "type": "feather",
+            "tier": "medium",
+            "sign": "gain"
+          },
+          {
+            "type": "riskMod",
+            "tier": "low"
+          }
+        ]
+      },
+      {
+        "id": "familiar-cover",
+        "text": "늘 다니던 덤불 가에서만 먹이를 찾는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "어린 박새는 첫여름에 첫 털갈이를 한다. 핀란드 박새에서는 일찍 태어난 새일수록 일찍 시작했다(첫배 7월, 둘째배 8월 중순). 암컷은 더 늦게, 덜 넓게 갈았다. 어디까지 가는지는 개체마다 다르다. 깃을 만드는 데는 에너지가 든다(다른 작은 새). 모두 유럽·러시아 박새(*P. major*) 연구다.",
+    "sources": ["SRC-070", "SRC-071", "SRC-045"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.first-mixed-flock",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["molt"],
+      "ageMax": 0,
+      "periodFrom": 17,
+      "periodTo": 18
+    },
+    "weight": "uncommon",
+    "title": "처음 만난 섞인 무리",
+    "body": "진박새와 곤줄박이가 섞인 작은 무리가 가지를 옮겨 다니며 지나간다. 서로 짧은 소리를 주고받으며 한쪽 방향으로 흘러간다.",
+    "options": [
+      {
+        "id": "follow",
+        "text": "무리 끝에 붙어 따라간다",
+        "effects": [
+          {
+            "type": "statGain",
+            "stat": "social",
+            "tier": "medium"
+          },
+          {
+            "type": "foodMod",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "stay-alone",
+        "text": "제자리에서 혼자 먹이를 찾는다",
+        "effects": [
+          {
+            "type": "statGain",
+            "stat": "vigilance",
+            "tier": "small"
+          },
+          {
+            "type": "riskMod",
+            "tier": "low"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "서울 근교 겨울 혼성군에서 박새와 진박새가 함께 보였다. 일본에서는 9월 태풍 뒤 박새류가 혼성군에 더 끼었고, 잎이 줄어 포식 위험이 커진 탓으로 해석했다. 무리가 크면 개체가 덜 살펴도 된다. 국내에서 혼성군이 언제 생기기 시작하는지는 확인하지 못했다.",
+    "sources": ["SRC-033", "SRC-057", "SRC-049"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.roost-hole",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["molt"],
+      "periodFrom": 17,
+      "periodTo": 18
+    },
+    "weight": "uncommon",
+    "title": "비어 있는 나무구멍",
+    "body": "봄에 새끼를 키우던 나무구멍이 비어 있다. 안에는 바람이 들지 않지만, 묵은 둥지 재료가 그대로 깔려 있다.",
+    "options": [
+      {
+        "id": "roost-inside",
+        "text": "구멍 안에서 밤을 난다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "feather",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "roost-branch",
+        "text": "잎이 우거진 가지에서 잔다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "번식기 밖에 나무구멍·새집에서 자는 새는 바깥에서 자는 새보다 몸을 덜 식혀 에너지를 아낀다. 단점으로는 묵은 둥지의 외부기생충이 꼽힌다(리뷰). 깃 손실은 그 부담을 게임 수치로 옮긴 것이다. 포식 위험의 차이는 결론이 없다.",
+    "sources": ["SRC-067"],
+    "factCheck": "needs-review"
+  },
+  {
     "id": "ev.parus-minor.cold-wave",
     "species": ["parus-minor"],
     "draw": "periodStart",

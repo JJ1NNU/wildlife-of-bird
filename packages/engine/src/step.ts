@@ -15,6 +15,7 @@ import {
 } from './formulas.ts';
 import { nestLocked } from './nest.ts';
 import { orderValue } from './order.ts';
+import { feedCostMult, feedIntensity, parentingCost, playerRiskMult } from './parenting.ts';
 import type { Choice, RunState } from './types.ts';
 
 /**
@@ -170,12 +171,13 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
       // 박새는 암컷만 포란한다 (01-formulas 2.4)
       incubating: p.sex === 'female' && phase === 'incubation' && state.nest?.eggs !== undefined,
       feeding: (state.nest?.chicks ?? 0) > 0,
-      // 잠정(#21): 급이 강도는 육아 방침 조각에서 — 그 전에는 `mid`
-      feedIntensity: 'mid',
+      feedIntensity: feedIntensity(state, data),
+      feedCostMult: feedCostMult(state, data),
       chicks: state.nest?.chicks ?? 0,
     }) +
     layingCost(data, state) +
-    orderCost(state, data);
+    orderCost(state, data) +
+    parentingCost(state, data);
   // 9.4: 에너지 변화 전체(잠 회복 포함)와 깃털 변화는 ÷ 칸 수
   const recover = species.sleepRecoverPerStep[season];
   const { energy, starved } = nextEnergy(cap, p.energy, gained / n, (spent - recover) / n);
@@ -200,7 +202,8 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
     phase,
     season,
     action,
-    riskModFactor: 1,
+    // 잠정(#21): 이벤트·환경의 `riskMod`는 그 조각에서 — 지금은 육아 방침 `quality`만
+    riskModFactor: playerRiskMult(state, data),
     vigilance: stats.vigilance ?? 0,
     flight: stats.flight ?? 0,
     expYears: p.expYears,
