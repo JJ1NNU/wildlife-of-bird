@@ -298,3 +298,105 @@ h1 {
   text-align: left;
   font-variant-numeric: tabular-nums;
 }
+
+/* 루틴 칸 줄(#188, 와이어프레임 mid/06): 칸 44×52 이상, 360 폭에 6칸 + 간격 4 */
+.slots {
+  flex: none;
+  padding: 14px var(--wb-space-4) 0;
+}
+/* 루틴 화면은 그림을 120으로 — 상태 56 + 그림 120 + 칸 줄 84 + 표 + 버튼 60 = 550 */
+.art.short {
+  height: 120px;
+}
+.cells {
+  display: flex;
+  gap: 4px;
+}
+.cell {
+  position: relative;
+  flex: 1;
+  min-width: 44px;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  background: var(--wb-color-card);
+  border: 1px solid var(--wb-color-line);
+  border-radius: var(--wb-radius-m);
+  font-size: var(--wb-font-size-caption);
+  cursor: pointer;
+}
+.cell .n {
+  color: var(--wb-color-ink-muted);
+  line-height: 12px;
+}
+.cell .ico {
+  color: var(--wb-color-slate-strong);
+}
+.cell .e {
+  line-height: 14px;
+  font-weight: var(--wb-font-weight-bold);
+}
+.cell.cur {
+  border: 2px solid var(--wb-color-sage-strong);
+  background: var(--wb-color-paper);
+}
+.cell.empty {
+  border-style: dashed;
+  background: var(--wb-color-paper);
+}
+.cell .pl {
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  font-size: 10px;
+  line-height: 11px;
+  color: var(--wb-color-slate-strong);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.sum {
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+  padding: 4px 0 0;
+  font-size: var(--wb-font-size-small);
+}
+.slot-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.slot-table th,
+.slot-table td {
+  padding: 3px 4px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--wb-color-line);
+}
+.slot-table td:nth-child(3),
+.slot-table td:nth-child(4) {
+  white-space: nowrap;
+}
+.slot-table th {
+  color: var(--wb-color-ink-muted);
+  font-weight: normal;
+}
+.step {
+  min-width: 44px;
+  min-height: 32px;
+  background: var(--wb-color-card);
+  border: 1px solid var(--wb-color-line);
+  border-radius: var(--wb-radius-m);
+  cursor: pointer;
+}
+.step:disabled {
+  cursor: default;
+  color: var(--wb-color-ink-muted);
+}
+.actions .btn + .btn {
+  margin-left: var(--wb-space-2);
+}
