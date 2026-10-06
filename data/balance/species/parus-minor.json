@@ -37,6 +37,12 @@
     "summer": 5,
     "autumn": 5
   },
+  "sleepRecoverPerStep": {
+    "winter": 1,
+    "spring": 4,
+    "summer": 4,
+    "autumn": 4
+  },
   "predatorActivity": {
     "winter": 1.0,
     "pairing": 1.1,

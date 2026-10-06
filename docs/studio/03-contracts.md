@@ -146,7 +146,7 @@ interface MateCandidateCard {    // 신호만 — 실제 잠재력·성격은 �
 - 둥지 국면 동안(둥지 자리 관문 뒤 ~ `nestling` 끝) `move.*`는 `disabled`("둥지를 떠날 수 없다").
 - **육아 방침은 선택지 하나에 여러 항목**을 담는다 — 잠정(#121), 관문 구현 때 확정: `Choice`에 `items: { item, options, current, locked? }[]`(`locked` = `postFledge` 조정에서 못 바꾸는 항목), `act(state, 'parentingPolicy?intensity=high&allocation=compete')` — 빠진 항목은 현재값(처음에는 기본값). 항목 이름은 `intensity` + `breeding.json` `parenting`의 키.
 
-### 행동 루틴 — 칸 단위 입력 (#186, 잠정 — 구현은 #174 수치 PR 뒤)
+### 행동 루틴 — 칸 단위 입력 (#186, 잠정)
 `00-core-loop` 3.5(#175)를 API로 옮긴 것. **함수 목록·`Bot` 인터페이스·선택지 id는 그대로**다 — 루틴은 "칸 하나 = `act` 하나"로 들어온다.
 
 - **칸 채우기 = `act` 1회.** 루틴을 짜는 동안 `getChoices`는 **다음 빈 칸**의 선택지(`action.*` · `action.train.<스탯>` · `move.<장소>`, 지금과 같은 id)를 준다. 앞 칸에 옮기기를 넣었으면 그 장소 기준이다(3.5 '다음 칸부터 새 장소'). 채우는 `act`는 칸을 적어 두기만 한다 — **판정·난수 없음**.
@@ -177,7 +177,8 @@ interface LogEntry {
 - **로그**: 칸마다 `type: 'slot'`(`text` = 행동 이름, `deltas`, `slot`). 루틴이 실행될 때 **`decision` 1건**(`text` = 칸 이름들, `deltas` = 루틴 합) — 결정 셈(5.1·5.4)은 `decision` 수로 한다. 이벤트 뒤 다시 채우기의 실행은 `decision`이 아니라 `replan` 1건. 사망은 지금처럼 `death`(+ `slot`).
 - **봇**: 인터페이스 그대로. 칸마다 `choose`가 1번 불린다(`view.routine`으로 몇째 칸인지·제안값을 본다). 기존 봇은 고치지 않아도 돈다. `choose` 호출 수는 결정 수가 아니다 — 지표는 로그 `decision`으로 센다.
 - **저장·리플레이**: `RunState`에 짜는 중인 루틴(칸 수·채운 칸·이벤트로 멈춘 위치)이 있어 칸 사이 어디서든 `serialize`/`deserialize`·`replay --resume-at`이 이어진다. 판 기록 `choices`는 칸 id 순서(관문·이벤트 선택이 사이에 섞임). 구현 때 `SAVE_VERSION` +1.
-- **연속 체류(`stay`)**: 칸 단위로 센다(도착한 칸 0). 수치는 #174.
+- **연속 체류(`stay`)**: 칸 단위로 센다(도착한 칸 0). 칸 단위 수치(에너지·깃털 ÷ 칸 수, 고갈 `stay ÷ 칸 수`, 위험 `1 − (1 − p)^(1/칸 수)`, 잠 회복 `sleepRecoverPerStep`)는 `01-formulas` 9.4.
+- 구현(#186): `RunState.routine`(채운 칸)·`lastRoutine`(제안값), `SAVE_VERSION` 3. 에너지 상한은 칸마다 자른다. 잠정(#186): 이벤트가 아직 없어 `replan`은 늘 false.
 
 ### 필수 성질
 - **결정론**: 난수 상태(`RunState.rng`, 32비트 정수)가 상태 안에 있다. `Math.random`·현재 시간 사용 금지. 테스트가 지킨다.
@@ -207,7 +208,7 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 ### 구현 상태 (M1 진행 중, #21)
 - 실제 규칙: 단계표(시기별 단계 수·국면) · 행동·훈련·옮기기 선택지 · 판정 1·2·3(에너지 → 스탯 → 위험, `00-core-loop` 3.1) · 아사(`starvation`)·포식(`predation`) 사망 · `period 1` 진입(나이·경험 +1, 노화, 단계표 초기화). 로그 `decision` · `death`. **짝 후보 관문**(`pairing` 첫 단계, 04-breeding 2.2~2.4 — 후보 생성·신호·상호 선택·1장이면 자동 진행), `RunState.mate`·`gate`, 로그 `mate`. 정규분포 표본은 `nextNormal`(Box–Muller, 균등 2개).
 - 잠정(#21): 지난 짝의 생존·이혼·재결합 카드(04-breeding 2.1)는 종 키(`mateYearSurvival`·`divorce`)가 생기면 — 그 전에는 해마다 새 후보만 나오고 고르면 짝이 바뀐다.
-- 아직 없음: 나머지 관문 · 짝 지시 · 번식 · 계승 · 점수 · 이벤트 · 환경 카드 · 계절 방침 · 행동 루틴(위 절 — 지금은 단계마다 행동 1개).
+- 아직 없음: 나머지 관문 · 짝 지시 · 번식 · 계승 · 점수 · 이벤트 · 환경 카드 · 계절 방침.
 - 런 시작 개체의 잠재력 = 종 평균(`stats.aptitudeMean`), 현재값 = 잠재력 × `mate.candidateCurrentRatio`, 경험 연수 = `runStart.age`(05-inheritance 2장, #152). 잠정(#21): 런 시작 개체의 성장 배율 1.
 
 ---
