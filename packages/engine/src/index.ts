@@ -8,5 +8,6 @@ export * from './api.ts';
 export * from './calendar.ts';
 export * from './display.ts';
 export { mateAccepts } from './mate.ts';
+export { contestChance, nestHoles } from './nest.ts';
 export * from './rng.ts';
 export * from './types.ts';

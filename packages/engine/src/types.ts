@@ -112,7 +112,24 @@ export interface MateCandidate extends Mate {
 }
 
 /** 열려 있는 관문. 열려 있으면 `getChoices`는 관문의 선택지만 준다 (03-contracts 3장) */
-export type Gate = { kind: 'mateCandidate'; candidates: MateCandidate[] };
+export type Gate =
+  | { kind: 'mateCandidate'; candidates: MateCandidate[] }
+  | { kind: 'nestSite'; holes: string[] };
+
+/** 지은 둥지 (04-breeding 4장). 둥지 국면 동안 이 장소에 묶인다 */
+export interface Nest {
+  /** 구멍 id (`breeding.nestSite.holes`) — 경쟁에 지면 `shallow` */
+  site: string;
+  node: string;
+}
+
+/** 화면 S-23 둥지 자리 카드 */
+export interface NestSiteCard {
+  choiceId: string;
+  hole: string;
+  /** 경쟁 구멍만 — 차지할 확률 0~1 */
+  contestChance?: number;
+}
 
 /** 화면 S-20 카드 — 신호만, 실제 값은 없다 (04-breeding 2.3) */
 export interface MateCandidateCard {
@@ -144,6 +161,8 @@ export interface RunState {
   stay: number;
   player: Bird;
   mate?: Mate;
+  /** 지은 둥지. 둥지 국면을 벗어나면 없어진다 */
+  nest?: Nest;
   /** 열려 있는 관문. 관문이 열린 단계에 머물러 있다 — 관문을 고르면 다음 단계로 간다 */
   gate?: Gate;
   /** 점수 = 총 번식 수 (gdd 11.1장 [확정]) */
@@ -166,8 +185,11 @@ export interface ViewModel {
   energyCap: number;
   totalBreeding: number;
   gameOver: boolean;
-  /** 열려 있는 관문의 카드. 지금은 짝 후보(S-20)만 */
-  gate?: { kind: 'mateCandidate'; cards: MateCandidateCard[] };
+  /** 열려 있는 관문의 카드 — 짝 후보(S-20) · 둥지 자리(S-23) */
+  gate?:
+    | { kind: 'mateCandidate'; cards: MateCandidateCard[] }
+    | { kind: 'nestSite'; cards: NestSiteCard[] };
+  nest?: Nest;
   /** 최근 판정 기록 — 이야기 피드 */
   recentLog: LogEntry[];
 }
