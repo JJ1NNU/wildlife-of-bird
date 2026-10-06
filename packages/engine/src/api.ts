@@ -2,6 +2,7 @@ import type { GameData, StatName } from '@wb/schema';
 import { advance, phaseAt, yearCalendar } from './calendar.ts';
 import { agedStats, fatCap } from './formulas.ts';
 import { isPhaseStart, makeCandidates, mateCards, mateChoices } from './mate.ts';
+import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
 import { nextChance, seedFromString } from './rng.ts';
 import { judgeStep, mapNode, speciesBalance, stepChoices } from './step.ts';
 import type {
@@ -18,7 +19,7 @@ import type {
  * 엔진 API — 일곱 개의 순수 함수 (엔진 원칙 1, 03-contracts 3장).
  *
  * M1 진행 중(#21): 단계표·장소·행동·옮기기와 판정 1·2·3(에너지 → 스탯 → 위험), 아사·포식 사망은
- * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)만 있다. 번식·계승·이벤트는 아직 없다.
+ * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·둥지 자리(`nestSite`)가 있다. 번식·계승·이벤트는 아직 없다.
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
@@ -73,7 +74,8 @@ export function newRun(config: RunConfig, data: GameData): RunState {
 /** 지금 고를 수 있는 모든 선택. */
 export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gameOver) return [];
-  if (state.gate) return mateChoices(state.gate.candidates);
+  if (state.gate?.kind === 'mateCandidate') return mateChoices(state.gate.candidates);
+  if (state.gate?.kind === 'nestSite') return nestChoices(state.gate.holes);
   return stepChoices(state, data);
 }
 
@@ -88,7 +90,7 @@ function findChoice(state: RunState, choiceId: string, data: GameData): Choice {
 /** 선택의 예상 결과. 난수를 쓰지 않으므로 몇 번 불러도 같은 값이다 (엔진 원칙 2). */
 export function preview(state: RunState, choiceId: string, data: GameData): Preview {
   findChoice(state, choiceId, data);
-  // 짝 후보 고르기는 판정이 없다 — 위험·에너지 변화 없음
+  // 관문 고르기는 판정이 없다 — 위험·에너지 변화 없음
   if (state.gate) return { deathRisk: 0, energyDelta: [0, 0], notes: [] };
   const out = judgeStep(state, choiceId, data);
   const delta = out.energy - state.player.energy;
@@ -109,7 +111,8 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
 export function act(state: RunState, choiceId: string, data: GameData): ActResult {
   if (state.gameOver) throw new Error('이미 끝난 런이다');
   const choice = findChoice(state, choiceId, data);
-  if (state.gate) return pickMate(state, choiceId, data);
+  if (state.gate?.kind === 'mateCandidate') return pickMate(state, choiceId, data);
+  if (state.gate?.kind === 'nestSite') return pickNest(state, choiceId, data);
   const out = judgeStep(state, choiceId, data);
   const p = state.player;
 
@@ -158,19 +161,37 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
     }
     return { state: opened, log };
   }
+  // 둥지 자리: 짝이 있을 때만 (04-breeding 4장)
+  if (survived.mate && isPhaseStart(state.calendar, state.at, 'nestSite')) {
+    const holes = nestHoles(data, survived.node);
+    return {
+      state: { ...survived, gate: { kind: 'nestSite', holes }, log: [...state.log, ...log] },
+      log,
+    };
+  }
 
   return { state: { ...nextStep(survived, data), log: [...state.log, ...log] }, log };
 }
 
-/** 다음 단계로 (`period 1`이면 해 바뀜 처리까지) */
+/** 다음 단계로 (`period 1`이면 해 바뀜 처리까지). 둥지 국면을 벗어나면 둥지를 거둔다 */
 function nextStep(state: RunState, data: GameData): RunState {
-  return yearStart({ ...state, at: advance(state.at, state.calendar) }, data);
+  return releaseNest(yearStart({ ...state, at: advance(state.at, state.calendar) }, data));
+}
+
+/** 둥지 자리 관문을 닫고 다음 단계로 간다 (04-breeding 4장) */
+function pickNest(state: RunState, choiceId: string, data: GameData): ActResult {
+  const built = buildNest(state, choiceId, data);
+  const { gate: _g, ...closed } = built.state;
+  return {
+    state: { ...nextStep(closed, data), log: [...state.log, ...built.log] },
+    log: built.log,
+  };
 }
 
 /** 짝 후보 관문을 닫고 다음 단계로 간다 (04-breeding 2.2) */
 function pickMate(state: RunState, choiceId: string, data: GameData): ActResult {
   const index = Number(choiceId.split('.')[1]) - 1;
-  const c = state.gate?.candidates[index];
+  const c = state.gate?.kind === 'mateCandidate' ? state.gate.candidates[index] : undefined;
   if (!c) throw new Error(`없는 짝 후보다: ${choiceId}`);
   const { quality: _q, accepts: _a, plumageNoise: _n, hint: _h, ...mate } = c;
   const log: LogEntry[] = [{ at: state.at, type: 'mate', text: '짝을 맺었다' }];
@@ -209,9 +230,13 @@ export function getView(state: RunState, data: GameData): ViewModel {
     energyCap: fatCap(data.formulas, state.player.stats.stamina ?? 0),
     totalBreeding: state.totalBreeding,
     gameOver: state.gameOver,
-    ...(state.gate
+    ...(state.gate?.kind === 'mateCandidate'
       ? { gate: { kind: state.gate.kind, cards: mateCards(data, state.gate.candidates) } }
       : {}),
+    ...(state.gate?.kind === 'nestSite'
+      ? { gate: { kind: state.gate.kind, cards: nestCards(data, state, state.gate.holes) } }
+      : {}),
+    ...(state.nest ? { nest: state.nest } : {}),
     recentLog: state.log.slice(-20),
   });
 }
