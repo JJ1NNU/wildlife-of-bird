@@ -130,6 +130,7 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
     flight: stat('flight'),
     // 잠정(#21): 둥지·새끼는 번식 조각에서 — 그 전에는 포란·급이 비용이 없다
     incubating: false,
+    feeding: false,
     feedIntensity: 'mid',
     chicks: 0,
   });

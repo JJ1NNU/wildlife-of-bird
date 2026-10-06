@@ -65,7 +65,13 @@ describe('2. 에너지', () => {
   });
 
   it('2.4 소비', () => {
-    const base = { flight: 46, incubating: false, feedIntensity: 'mid', chicks: 0 } as const;
+    const base = {
+      flight: 46,
+      incubating: false,
+      feeding: false,
+      feedIntensity: 'mid',
+      chicks: 0,
+    } as const;
     expect(expenditure(f, tit, { ...base, period: 2, phase: 'winter', action: 'forage' })).toBe(9);
     expect(actionCost(f, 'move', 46)).toBeCloseTo(2.048, 9);
     const feeding = {
@@ -73,10 +79,16 @@ describe('2. 에너지', () => {
       period: 10,
       phase: 'nestling',
       action: 'forage',
+      feeding: true,
       feedIntensity: 'high',
       chicks: 8,
     } as const;
     expect(expenditure(f, tit, feeding)).toBeCloseTo(15.4, 9);
+    // 둥지 없는 새는 급이 국면에도 급이 비용을 내지 않는다(#162)
+    const noNest = { ...feeding, feeding: false, chicks: 0 };
+    expect(expenditure(f, tit, noNest)).toBe(
+      expenditure(f, tit, { ...noNest, phase: 'incubation' }),
+    );
   });
 
   it('2.5 갱신과 아사', () => {

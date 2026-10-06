@@ -119,6 +119,8 @@ export function expenditure(
     flight: number;
     /** 이 단계에 포란 비용을 내는가 (박새는 암컷만 포란) */
     incubating: boolean;
+    /** 이 단계에 돌보는 둥지가 있어 급이 비용을 내는가 — 둥지 없는 새는 급이 국면에도 내지 않는다 */
+    feeding: boolean;
     /** 급이 국면(`nestling` `postFledge`)의 급이 강도. 정하지 않았으면 `mid` */
     feedIntensity: Intensity;
     chicks: number;
@@ -127,7 +129,7 @@ export function expenditure(
   const e = f.energy;
   let brood = 0;
   if (input.incubating) brood = e.incubationCostPerStep;
-  else if (input.phase === 'nestling' || input.phase === 'postFledge') {
+  else if (input.feeding && (input.phase === 'nestling' || input.phase === 'postFledge')) {
     brood = e.feedCostByIntensity[input.feedIntensity] + e.feedCostPerChick * input.chicks;
   }
   const molt = input.phase === 'molt' ? e.moltCostPerStep : 0;
