@@ -36,13 +36,14 @@ export function newRun(config: RunConfig, data: GameData): RunState {
   if (!node) throw new Error(`런 시작 장소가 없다: ${config.speciesId}의 runStart.node`);
   mapNode(data, node);
 
-  // 잠정(#21): 런 시작 개체의 잠재력은 종 평균, 현재값은 잠재력과 같다(01-formulas 3.1 예시의
-  // '채식 70 · 경계 70'). 디자인이 정하면 바꾼다
+  // 런 시작 개체(05-inheritance 2장): 잠재력 = 종 평균(난수 없음), 현재값 = 보통 짝 후보와 같은 비율
   const potential: Partial<Record<StatName, number>> = {};
+  const stats: Partial<Record<StatName, number>> = {};
   for (const [stat, grade] of Object.entries(species.aptitude)) {
-    potential[stat as StatName] = f.stats.aptitudeMean[grade] ?? 0;
+    const p = f.stats.aptitudeMean[grade] ?? 0;
+    potential[stat as StatName] = p;
+    stats[stat as StatName] = p * data.breeding.mate.candidateCurrentRatio;
   }
-  const stats = { ...potential };
   return {
     config,
     rng: seedFromString(`${config.speciesId}:${config.seed}`),
@@ -59,7 +60,7 @@ export function newRun(config: RunConfig, data: GameData): RunState {
       stats,
       potential,
       feather: f.feather.runStart,
-      // 잠정(#21): 나이만큼 `period 1`을 지났다고 본다(01-formulas 3.1 예시: 나이 1, 경험 1년)
+      // 05-inheritance 2장: 경험 연수 = `runStart.age` (짝 후보와 같은 셈)
       expYears: species.runStart.age,
     },
     totalBreeding: 0,
