@@ -197,7 +197,14 @@ export interface MateCandidateCard {
   accepts: boolean;
   /** 지난 짝 카드 — 맨 앞에 1장, 늘 받아들인다 (2.2) */
   previous?: boolean;
+  /** 지난 짝만: 스탯마다 잠재력 등급 범위 [아래, 위] (05-inheritance 4장) */
+  potentialRange?: Partial<Record<StatName, [string, string]>>;
+  /** 지난 짝만: 유대 지금 → 재결합 뒤 (2.2) */
+  bond?: { now: number; reunion: number };
 }
+
+/** 지난 짝이 없어진 이유 (04-breeding 2.1) */
+export type MateGone = 'mateDeath' | 'divorce';
 
 /**
  * 런의 전체 상태. 저장 파일의 `state`가 이것이다.
@@ -225,6 +232,8 @@ export interface RunState {
   nest?: Nest;
   /** 마지막으로 거둔 둥지에 새끼가 남아 있었나 — 다음 `pairing`의 이혼 확률 (04-breeding 2.1). 그때 지운다 */
   broodFledged?: boolean;
+  /** 지난 짝이 없어진 이유 — 짝 후보 관문을 닫을 때 지운다 (04-breeding 2.1) */
+  mateGone?: MateGone;
   /**
    * 열려 있는 관문. 짝 지시는 단계 시작에 열려 고르면 같은 단계의 칸으로,
    * 나머지는 단계 끝에 열려 고르면 다음 단계로 간다
@@ -258,7 +267,7 @@ export interface ViewModel {
   gameOver: boolean;
   /** 열려 있는 관문의 카드 — 짝 후보(S-20) · 짝 지시 · 둥지 자리(S-23) · 산란수 */
   gate?:
-    | { kind: 'mateCandidate'; cards: MateCandidateCard[] }
+    | { kind: 'mateCandidate'; cards: MateCandidateCard[]; previousGone?: MateGone }
     | { kind: 'mateOrder'; cards: MateOrderCard[] }
     | { kind: 'nestSite'; cards: NestSiteCard[] }
     | { kind: 'clutchSize'; cards: ClutchSizeCard[] }
