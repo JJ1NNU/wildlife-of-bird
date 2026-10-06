@@ -513,6 +513,55 @@
     "factCheck": "needs-review"
   },
   {
+    "id": "ev.parus-minor.mate-in-flock",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["pairing"],
+      "sex": "male",
+      "hasMate": true
+    },
+    "weight": "common",
+    "title": "무리 속의 짝",
+    "body": "겨울 무리가 아직 다 흩어지지 않았다. 짝은 무리 끝 가지에서 먹이를 찾고, 다른 새들은 먹이가 많은 덤불 쪽으로 몰려간다.",
+    "options": [
+      {
+        "id": "with-mate",
+        "text": "짝 곁에 붙어 함께 먹이를 찾는다",
+        "effects": [
+          {
+            "type": "foodMod",
+            "tier": "small",
+            "sign": "loss"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "gain"
+          }
+        ]
+      },
+      {
+        "id": "with-flock",
+        "text": "무리를 따라 덤불로 간다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "박새류는 겨울 무리 안에서 짝을 맺는다. 영국 옥스퍼드 박새 연구에서 겨울에 어울린 암컷이 적은 수컷, 그리고 짝이 겨울에 어울린 암컷들 가운데 순위가 낮았던 수컷은 번식 뒤 갈라서는 일이 더 많았다. 첫 번식인 새도 더 많이 갈라섰다. 암컷 쪽의 겨울 관계로는 이혼을 예측하지 못했다. 유럽 박새 연구다. 곁에 붙어 다니는 선택이 유대를 높인다는 것은 게임의 선택이다.",
+    "sources": ["SRC-080"],
+    "factCheck": "needs-review"
+  },
+  {
     "id": "ev.parus-minor.hole-competition",
     "species": ["parus-minor"],
     "when": {
@@ -997,6 +1046,63 @@
     ],
     "ecologyBasis": "포란 중인 박새 암컷은 품기와 잠깐씩의 외출을 되풀이하며 먹이를 먹는다(유럽 박새 연구). 수컷이 먹이를 자주 가져올수록 암컷이 둥지를 덜 비운다. 외출이 알에 얼마나 위험한지의 박새 수치는 없다.",
     "sources": ["SRC-041", "SRC-040"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.hiss-at-entrance",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["incubation"],
+      "sex": "female",
+      "hasBrood": true
+    },
+    "weight": "uncommon",
+    "title": "입구의 그림자",
+    "body": "알을 품고 있는데 둥지 구멍 입구가 어두워진다. 무언가가 머리를 들이밀고 안을 들여다본다.",
+    "options": [
+      {
+        "id": "hiss",
+        "text": "입구를 향해 몸을 치켜세우고 쉭 소리를 낸다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ]
+      },
+      {
+        "id": "crouch",
+        "text": "소리 없이 알 위에 납작 엎드린다",
+        "check": {
+          "stat": "vigilance",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "deathRisk",
+            "tier": "medium",
+            "cause": "predation"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "high"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "포란 중인 박새류 암컷은 둥지 구멍에 포식자가 다가오면 쉭 하는 소리를 낸다. 실험에서 박제 딱따구리를 둥지 상자에 넣자 암컷의 약 73%가 이 소리를 냈고, 소리를 내는지 여부는 새마다 해가 바뀌어도 대체로 같았다. 실제 포식자가 덮친 횟수는 같았지만 소리를 낸 암컷이 더 많이 살아남았고, 소리를 들려주자 고양이가 둥지 상자 공격을 멈췄다. 유럽 박새 연구다. 쉭 소리에 드는 기운과 알이 지켜지는 정도는 게임의 선택이다.",
+    "sources": ["SRC-078", "SRC-079"],
     "factCheck": "needs-review"
   },
   {
