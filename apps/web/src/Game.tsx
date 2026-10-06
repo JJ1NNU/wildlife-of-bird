@@ -12,6 +12,7 @@ import {
   type MateCandidateCard,
   type NestSiteCard,
   newRun,
+  type Preview,
   preview,
   type RunState,
   roundHalfUp,
@@ -30,6 +31,9 @@ import { clearRun, loadRun, saveRun } from './save.ts';
  * 개발용 빨리 감기(QA 평균 봇)는 피드 위에 둔다 — 결정 영역 배치를 건드리지 않고, 출시 빌드에서는 숨긴다.
  * 짝 후보(S-20) · 둥지 자리(S-23) 관문은 결정 영역을 통째로 쓴다(와이어프레임 mid/03 E·F) — 지난 짝 카드·구멍별 둥지 손실%는 엔진이 내면(#21).
  * 개발용 스탯 표 · 피드 줄마다 스탯 변화 · 게임 오버의 죽은 이유는 대표 플레이테스트용(#176).
+ * 행동은 단계마다 칸 N개 루틴으로 짠다(#188, 와이어프레임 mid/06 A·B): 기본값 = 엔진 제안(전 단계 루틴), 칸 채우기는
+ * 화면만의 계획이고 "진행"에서 칸마다 `act`한다(#191). 칸 k의 예상은 1~k−1칸을 채운 상태에서 `preview`.
+ * 잠정(#188): S-12 칸별 자동 재생(C)·이벤트 뒤 남은 칸 고치기(D)는 다음 조각 — 지금은 피드에 칸 줄이 남는다.
  * 이벤트 · 나머지 번식 관문 · 계승은 엔진이 그 선택을 내면 붙인다(#21).
  * 잠정(#24): 화면 문구는 data/text/(콘텐츠)가 생기면 옮긴다.
  */
@@ -90,13 +94,49 @@ function periodLabel(at: CalendarAt): { text: string; season: string } {
   };
 }
 
-/** 한 단계에 같은 종류·같은 글의 기록은 두 번 남지 않는다 */
+/** 한 단계에 같은 종류·같은 칸·같은 글의 기록은 두 번 남지 않는다 */
 function logKey(l: LogEntry): string {
-  return `${l.at.year}.${l.at.period}.${l.at.step}.${l.type}.${l.text}`;
+  return `${l.at.year}.${l.at.period}.${l.at.step}.${l.type}.${l.slot ?? ''}.${l.text}`;
 }
 
-/** 기록 한 줄의 변화: 스탯(소수 첫째) 먼저, 에너지·깃털(정수) 뒤 — 0으로 반올림되면 뺀다 (#176) */
-function deltaText(deltas: Record<string, number> = {}): string {
+/** 칸 단위 에너지 — 소수 첫째 자리(#206, 01-formulas 9.4). 0이면 부호 없이 */
+function energy1(x: number): string {
+  const n = roundHalfUp(x, 1);
+  if (n === 0) return '0';
+  return `${n > 0 ? '+' : '−'}${Math.abs(n).toFixed(1)}`;
+}
+
+/** 칸 줄의 아이콘 — 훈련·옮기기는 묶음 아이콘 */
+function slotIcon(id: string): string {
+  return GROUPS.find((g) => id.startsWith(g.prefix))?.icon ?? `icon.${id}`;
+}
+
+/** 칸 하나의 계획: 그 칸을 채우기 전 상태(선택지·`preview` 기준)와 고른 선택 */
+interface SlotPlan {
+  /** 이 칸의 선택지를 내는 상태 (앞 칸까지 채움). 앞 칸이 비면 없다 */
+  before: RunState | undefined;
+  id: string | null;
+  preview: Preview | undefined;
+}
+
+/**
+ * 계획한 칸들을 앞에서부터 채워 본다(채우기 `act`는 판정·난수 없음, #191). 못 고르는 칸은 비우고,
+ * 빈 칸 뒤로는 선택지를 알 수 없다. 마지막 칸은 채우지 않는다 — 채우면 루틴이 실행된다.
+ */
+function planSlots(base: RunState, plan: (string | null)[], data: GameData): SlotPlan[] {
+  let s: RunState | undefined = base;
+  return plan.map((want, k) => {
+    const before = s;
+    const ok = before && want && getChoices(before, data).some((c) => c.id === want && !c.disabled);
+    const id = ok ? want : null;
+    const p = before && id ? preview(before, id, data) : undefined;
+    s = before && id && k < plan.length - 1 ? act(before, id, data).state : undefined;
+    return { before, id, preview: p };
+  });
+}
+
+/** 기록 한 줄의 변화: 스탯(소수 첫째) 먼저, 에너지·깃털(정수, 칸 줄은 소수 첫째 #206) 뒤 — 0으로 반올림되면 뺀다 (#176) */
+function deltaText(deltas: Record<string, number> = {}, perSlot = false): string {
   const stats: string[] = [];
   const res: string[] = [];
   for (const [k, x] of Object.entries(deltas)) {
@@ -105,7 +145,7 @@ function deltaText(deltas: Record<string, number> = {}): string {
       const name = STAT_WORD[k.slice('stat.'.length) as StatName] ?? k;
       if (n !== 0) stats.push(`${name} ${n > 0 ? '+' : '−'}${Math.abs(n).toFixed(1)}`);
     } else {
-      const t = formatEnergyDelta(x);
+      const t = perSlot ? energy1(x) : formatEnergyDelta(x);
       if (t !== '0') res.push(`${RES_WORD[k] ?? k} ${t}`);
     }
   }
@@ -113,8 +153,9 @@ function deltaText(deltas: Record<string, number> = {}): string {
 }
 
 function logLine(l: LogEntry): string {
-  const d = deltaText(l.deltas);
-  return `${periodLabel(l.at).text} ${l.at.step}단계 — ${l.text}${d ? ` · ${d}` : ''}`;
+  const d = deltaText(l.deltas, l.slot !== undefined);
+  const where = `${periodLabel(l.at).text} ${l.at.step}단계${l.slot ? ` ${l.slot}칸` : ''}`;
+  return `${where} — ${l.text}${d ? ` · ${d}` : ''}`;
 }
 
 function startRun(data: GameData): RunState {
@@ -129,6 +170,10 @@ export function Game({ data }: { data: GameData }) {
   const [onTitle, setOnTitle] = useState(true);
   const [picked, setPicked] = useState<string>();
   const [open, setOpen] = useState<GroupKey>();
+  /** 고친 루틴(남은 칸). 없으면 엔진 제안 그대로 */
+  const [edited, setEdited] = useState<(string | null)[]>();
+  /** 고치는 칸(0부터, 남은 칸 기준). 없으면 루틴 보기(A) */
+  const [cursor, setCursor] = useState<number>();
 
   if (onTitle || !state) {
     const saved = state && !state.gameOver ? state : undefined;
@@ -176,25 +221,80 @@ export function Game({ data }: { data: GameData }) {
     seasonPeriods &&
     (Object.keys(seasonPeriods) as Season[]).find((k) => seasonPeriods[k].includes(view.at.period));
 
-  function go() {
-    if (!picked || !state) return;
-    const next = act(state, picked, data).state;
+  // 루틴(관문·게임 오버가 아닐 때): 남은 칸의 계획과 칸마다 예상
+  const plan = view.routine ? (edited ?? view.routine.suggested) : [];
+  const slots = view.routine ? planSlots(state, plan, data) : [];
+  const done = view.routine?.filled.length ?? 0;
+  const ready = slots.length > 0 && slots.every((s) => s.id);
+  // 요약 줄: 루틴 합 위험 1 − Π(1 − pₖ) — 띠는 합에만(#206)
+  const sumRisk = 1 - slots.reduce((q, s) => q * (1 - (s.preview?.deathRisk ?? 0)), 1);
+  // 칸마다 끝난 뒤 에너지 (preview의 변화는 앞 칸까지 채운 상태 기준이라 더하면 된다)
+  let e = view.player.energy;
+  const energyAfter = slots.map((s) => {
+    e += s.preview?.energyDelta[0] ?? 0;
+    return e;
+  });
+
+  const sumBand = formatRisk(data.formulas, sumRisk);
+  const cursorSlot =
+    cursor !== undefined && slots[cursor]?.before
+      ? { k: cursor, before: slots[cursor].before }
+      : undefined;
+  const cursorChoices = cursorSlot ? getChoices(cursorSlot.before, data) : [];
+
+  /** 칸 k 앞에 옮기기가 있으면 그 칸의 장소 이름 — 다음 칸부터 새 장소(3.5) */
+  function placeBefore(k: number): string | undefined {
+    const move = plan
+      .slice(0, k)
+      .findLast((id) => id?.startsWith('move.'))
+      ?.slice('move.'.length);
+    return move && (data.nodes.get(move)?.nameKo ?? move);
+  }
+
+  function labelOf(s: SlotPlan): string {
+    const c = s.before && getChoices(s.before, data).find((x) => x.id === s.id);
+    return c ? c.label : (s.id ?? '');
+  }
+
+  function commit(next: RunState) {
     saveRun(next);
     setState(next);
     setPicked(undefined);
     setOpen(undefined);
+    setEdited(undefined);
+    setCursor(undefined);
+  }
+
+  function go() {
+    if (!state) return;
+    if (view.gate) {
+      if (picked) commit(act(state, picked, data).state);
+      return;
+    }
+    // 칸마다 act — 마지막 칸을 채우면 엔진이 루틴을 실행한다
+    if (!ready) return;
+    commit(slots.reduce((s, slot) => act(s, slot.id as string, data).state, state));
+  }
+
+  /** 고치는 칸에 선택을 넣고 다음 칸으로 — 마지막 칸이면 루틴 보기로 */
+  function fill(k: number, id: string) {
+    const next = plan.slice();
+    next[k] = id;
+    setEdited(next);
+    setOpen(undefined);
+    setCursor(k + 1 < plan.length ? k + 1 : undefined);
   }
 
   function restart() {
     clearRun();
-    setState(startRun(data));
-    setPicked(undefined);
+    commit(startRun(data));
   }
 
-  /** 선택 한 줄: 이름 · 예상 성장(아래) · 에너지 변화 · 위험%(오른쪽) — 와이어프레임 A */
-  function row(c: Choice, group?: GroupKey) {
-    if (!state) return null;
-    const p = c.disabled ? undefined : preview(state, c.id, data);
+  /** 선택 한 줄: 이름 · 예상 성장(아래) · 에너지 변화 · 위험%(오른쪽) — 와이어프레임 A.
+   * 루틴 칸이면 그 칸 상태 기준, 에너지는 소수 첫째 자리, 위험은 숫자만(띠는 루틴 합에만, #206) */
+  function row(c: Choice, slot: { k: number; before: RunState }, group?: GroupKey) {
+    const p = c.disabled ? undefined : preview(slot.before, c.id, data);
+    const selected = plan[slot.k] === c.id;
     const risk = p && formatRisk(data.formulas, p.deathRisk);
     const [lo, hi] = p?.energyDelta ?? [0, 0];
     const gains = Object.entries(p?.statGains ?? {})
@@ -219,10 +319,10 @@ export function Game({ data }: { data: GameData }) {
       <li key={c.id}>
         <button
           type="button"
-          className={`opt${group ? ' sub' : ''}${c.id === picked ? ' sel' : ''}`}
-          aria-pressed={c.id === picked}
+          className={`opt${group ? ' sub' : ''}${selected ? ' sel' : ''}`}
+          aria-pressed={selected}
           disabled={!!c.disabled}
-          onClick={() => setPicked(c.id)}
+          onClick={() => fill(slot.k, c.id)}
           data-testid={`choice-${c.id}`}
         >
           {!group && <span className="ico" style={iconStyle(`icon.${c.id}`)} />}
@@ -233,16 +333,11 @@ export function Game({ data }: { data: GameData }) {
           {p && risk && (
             <span className="vals">
               <span>
-                에너지{' '}
-                <b>
-                  {lo === hi
-                    ? formatEnergyDelta(lo)
-                    : `${formatEnergyDelta(lo)}~${formatEnergyDelta(hi)}`}
-                </b>
+                에너지 <b>{lo === hi ? energy1(lo) : `${energy1(lo)}~${energy1(hi)}`}</b>
               </span>
-              <span className={`risk ${risk.band}`}>
+              <span className="risk">
                 <span className="ico s" style={iconStyle('icon.risk')} />
-                {risk.text} <span className="w">{RISK_WORD[risk.band]}</span>
+                {risk.text}
               </span>
             </span>
           )}
@@ -439,7 +534,7 @@ export function Game({ data }: { data: GameData }) {
           </ul>
         ) : (
           <>
-            <div className="art">
+            <div className="art short">
               <img className="art-bird" src={birdUrl(view.speciesId)} alt="" />
               <div className="plate small">
                 {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
@@ -448,68 +543,215 @@ export function Game({ data }: { data: GameData }) {
               </div>
             </div>
 
-            <ul className="list" aria-label="행동">
-              {choices
-                .filter((c) => !GROUPS.some((g) => c.id.startsWith(g.prefix)))
-                .map((c) => row(c))}
-              {GROUPS.map((g) => {
-                const members = choices.filter((c) => c.id.startsWith(g.prefix));
-                if (members.length === 0) return null;
-                const isOpen = open === g.key;
-                const pickedHere = members.find((c) => c.id === picked);
-                return [
-                  <li key={g.key}>
+            <div className="slots" data-testid="routine">
+              <div className="cells">
+                {slots.map((s, k) => {
+                  const place = placeBefore(k);
+                  return (
                     <button
+                      // biome-ignore lint/suspicious/noArrayIndexKey: 칸은 자리로 구분한다
+                      key={k}
                       type="button"
-                      className={`opt${!isOpen && pickedHere ? ' sel' : ''}`}
-                      aria-expanded={isOpen}
-                      onClick={(e) => {
-                        setOpen(isOpen ? undefined : g.key);
-                        // 펼치면 그 줄을 목록 맨 위로 — 결정 버튼은 늘 같은 자리(와이어프레임 B)
-                        const el = e.currentTarget;
-                        if (!isOpen)
-                          requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
-                      }}
-                      data-testid={`group-${g.key}`}
+                      className={`cell${k === cursor ? ' cur' : ''}${s.id ? '' : ' empty'}`}
+                      aria-pressed={k === cursor}
+                      onClick={() => setCursor(k === cursor ? undefined : k)}
+                      data-testid={`slot-${done + k + 1}`}
                     >
-                      <span className="ico" style={iconStyle(g.icon)} />
-                      <span className="main">
-                        <span className="b">
-                          {g.label} {isOpen ? '▴' : '▾'}
-                        </span>
-                        <span className="cap">
-                          {pickedHere
-                            ? pickedHere.label
-                            : g.key === 'move'
-                              ? `갈 수 있는 곳 ${members.length}`
-                              : '스탯 하나를 고른다'}
-                        </span>
+                      {place && <span className="pl">{place}</span>}
+                      <span className="n">{done + k + 1}</span>
+                      {s.id && <span className="ico s" style={iconStyle(slotIcon(s.id))} />}
+                      <span className="e">
+                        {s.preview ? energy1(s.preview.energyDelta[0]) : '—'}
                       </span>
                     </button>
-                  </li>,
-                  ...(isOpen ? members.map((c) => row(c, g.key)) : []),
-                ];
-              })}
-            </ul>
+                  );
+                })}
+              </div>
+              <div className="sum">
+                <span>
+                  에너지 {roundHalfUp(view.player.energy)} →{' '}
+                  <b>{ready ? roundHalfUp(energyAfter.at(-1) ?? 0) : '—'}</b>
+                </span>
+                <span className="sp" />
+                <span>{slots.length}칸 합</span>
+                {ready ? (
+                  <span className={`risk ${sumBand.band}`} data-testid="routine-risk">
+                    <span className="ico s" style={iconStyle('icon.risk')} />
+                    {sumBand.text} <span className="w">{RISK_WORD[sumBand.band]}</span>
+                  </span>
+                ) : (
+                  <span className="muted">빈 칸이 있다</span>
+                )}
+              </div>
+            </div>
+
+            {cursor === undefined ? (
+              <div className="list">
+                <table className="slot-table small" aria-label="칸별 예상">
+                  <thead>
+                    <tr>
+                      <th>칸</th>
+                      <th>행동</th>
+                      <th>에너지</th>
+                      <th>위험</th>
+                      <th>성장</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {slots.map((s, k) => (
+                      // biome-ignore lint/suspicious/noArrayIndexKey: 칸은 자리로 구분한다
+                      <tr key={k}>
+                        <td>{done + k + 1}</td>
+                        <td>{s.id ? labelOf(s) : <span className="muted">비었다</span>}</td>
+                        <td>
+                          {s.preview &&
+                            `${energy1(s.preview.energyDelta[0])} → ${roundHalfUp(energyAfter[k] ?? 0, 1).toFixed(1)}`}
+                        </td>
+                        <td>{s.preview && formatRisk(data.formulas, s.preview.deathRisk).text}</td>
+                        <td>
+                          {Object.entries(s.preview?.statGains ?? {})
+                            .map(([st, x]) => `${STAT_WORD[st as StatName]} ${formatStatGain(x)}`)
+                            .join(' · ')}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="muted small">
+                  칸을 누르면 그 칸을 고친다. 고치는 탭은 결정이 아니다.
+                </p>
+              </div>
+            ) : (
+              <ul className="list" aria-label={`${done + cursor + 1}칸 행동`}>
+                <li className="gate-title row small">
+                  <span className="b">{done + cursor + 1}칸</span>
+                  {cursor > 0 && (
+                    <span className="muted">
+                      — {done + cursor}칸 뒤 에너지{' '}
+                      {roundHalfUp(energyAfter[cursor - 1] ?? 0, 1).toFixed(1)}에서
+                    </span>
+                  )}
+                  <span className="sp" />
+                  <button
+                    type="button"
+                    className="step"
+                    disabled={cursor === 0}
+                    onClick={() => setCursor(cursor - 1)}
+                    aria-label="앞 칸"
+                  >
+                    ◂
+                  </button>
+                  <button
+                    type="button"
+                    className="step"
+                    disabled={cursor === slots.length - 1}
+                    onClick={() => setCursor(cursor + 1)}
+                    aria-label="다음 칸"
+                  >
+                    ▸
+                  </button>
+                </li>
+                {!cursorSlot ? (
+                  <li className="gate-title muted small">앞의 빈 칸을 먼저 채운다.</li>
+                ) : (
+                  <>
+                    {cursorChoices
+                      .filter((c) => !GROUPS.some((g) => c.id.startsWith(g.prefix)))
+                      .map((c) => row(c, cursorSlot))}
+                    {GROUPS.map((g) => {
+                      const members = cursorChoices.filter((c) => c.id.startsWith(g.prefix));
+                      if (members.length === 0) return null;
+                      const isOpen = open === g.key;
+                      const pickedHere = members.find((c) => c.id === plan[cursor]);
+                      return [
+                        <li key={g.key}>
+                          <button
+                            type="button"
+                            className={`opt${!isOpen && pickedHere ? ' sel' : ''}`}
+                            aria-expanded={isOpen}
+                            onClick={(e) => {
+                              setOpen(isOpen ? undefined : g.key);
+                              // 펼치면 그 줄을 목록 맨 위로 — 결정 버튼은 늘 같은 자리(와이어프레임 B)
+                              const el = e.currentTarget;
+                              if (!isOpen)
+                                requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
+                            }}
+                            data-testid={`group-${g.key}`}
+                          >
+                            <span className="ico" style={iconStyle(g.icon)} />
+                            <span className="main">
+                              <span className="b">
+                                {g.label} {isOpen ? '▴' : '▾'}
+                              </span>
+                              <span className="cap">
+                                {pickedHere
+                                  ? pickedHere.label
+                                  : g.key === 'move'
+                                    ? `갈 수 있는 곳 ${members.length}`
+                                    : '스탯 하나를 고른다'}
+                              </span>
+                            </span>
+                          </button>
+                        </li>,
+                        ...(isOpen ? members.map((c) => row(c, cursorSlot, g.key)) : []),
+                      ];
+                    })}
+                  </>
+                )}
+              </ul>
+            )}
           </>
         )}
 
         <div className="actions">
-          <button
-            type="button"
-            className="btn prim"
-            disabled={!pickedChoice}
-            onClick={go}
-            data-testid="go"
-          >
-            {view.gate
-              ? pickedChoice
+          {view.gate ? (
+            <button
+              type="button"
+              className="btn prim"
+              disabled={!pickedChoice}
+              onClick={go}
+              data-testid="go"
+            >
+              {pickedChoice
                 ? GATE_GO[view.gate.kind].done(pickedChoice.label)
-                : GATE_GO[view.gate.kind].none
-              : pickedChoice
-                ? `${pickedChoice.label} 진행`
-                : '행동을 고르세요'}
-          </button>
+                : GATE_GO[view.gate.kind].none}
+            </button>
+          ) : cursor === undefined ? (
+            <button
+              type="button"
+              className="btn prim"
+              onClick={() => (ready ? go() : setCursor(slots.findIndex((s) => !s.id)))}
+              data-testid="go"
+            >
+              {ready ? '이 루틴으로 진행' : '빈 칸 채우기'}
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="btn"
+                disabled={!edited}
+                onClick={() => {
+                  setEdited(undefined);
+                  setOpen(undefined);
+                }}
+                data-testid="routine-reset"
+              >
+                되돌리기
+              </button>
+              <button
+                type="button"
+                className="btn prim"
+                onClick={() => {
+                  setCursor(undefined);
+                  setOpen(undefined);
+                }}
+                data-testid="routine-view"
+              >
+                루틴 보기
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -520,13 +762,7 @@ export function Game({ data }: { data: GameData }) {
             <button
               type="button"
               className="btn"
-              onClick={() => {
-                const next = fastForward(state, data);
-                saveRun(next);
-                setState(next);
-                setPicked(undefined);
-                setOpen(undefined);
-              }}
+              onClick={() => commit(fastForward(state, data))}
               data-testid="fast-forward"
             >
               1년 빨리 감기
