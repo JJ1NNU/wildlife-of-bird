@@ -74,6 +74,7 @@ const GATE_GO = {
   nestSite: { done: (label: string) => `${label}에 짓기`, none: '둥지 자리를 고르세요' },
   clutchSize: { done: (label: string) => `${label} 낳기`, none: '알 수를 고르세요' },
   mateOrder: { done: (label: string) => `짝에게 · ${label}`, none: '짝에게 맡길 일을 고르세요' },
+  parentingPolicy: { done: () => '이 방침으로 돌보기', none: '육아 방침을 확인하세요' },
 } as const;
 const GRADE_WORD = { high: '높음', mid: '보통', low: '낮음' } as const;
 const HINT_WORD = { bold: '대담해 보인다', shy: '조심스러워 보인다' } as const;
@@ -638,6 +639,28 @@ export function Game({ data }: { data: GameData }) {
             {view.gate.cards.map((card) => orderRow(card))}
             <li className="gate-title muted small">
               고른 지시는 이 국면이 끝날 때까지. 거절하면 짝은 다른 일을 한다 — 원래 효과의 일부만.
+            </li>
+          </ul>
+        ) : view.gate?.kind === 'parentingPolicy' ? (
+          // 잠정(#21): 항목별로 고르는 S-22 화면은 클라이언트가 — 지금은 걸린 방침 그대로 확인만
+          <ul className="list" aria-label="육아 방침" data-testid="gate-parentingPolicy">
+            <li className="gate-title b">육아 방침</li>
+            <li>
+              <button
+                type="button"
+                className={`opt${picked === 'parentingPolicy' ? ' sel' : ''}`}
+                aria-pressed={picked === 'parentingPolicy'}
+                onClick={() => setPicked('parentingPolicy')}
+                data-testid="choice-parentingPolicy"
+              >
+                <span className="main">
+                  {view.gate.cards.map((it) => (
+                    <span key={it.item} className="cap">
+                      {it.label} · {it.current}
+                    </span>
+                  ))}
+                </span>
+              </button>
             </li>
           </ul>
         ) : view.gate?.kind === 'clutchSize' ? (
