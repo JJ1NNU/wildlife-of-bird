@@ -276,3 +276,25 @@ h1 {
   list-style: none;
   padding: 0 var(--wb-space-1);
 }
+
+/* S-30 죽은 이유 (#176) */
+.cause {
+  margin: 0;
+  font-size: var(--wb-font-size-title);
+}
+
+/* 개발용 스탯 표 (#176) — 출시 빌드에서는 없음 */
+.stats {
+  border-collapse: collapse;
+  margin-bottom: var(--wb-space-3);
+}
+.stats caption {
+  text-align: left;
+  white-space: nowrap;
+}
+.stats th,
+.stats td {
+  padding: 0 var(--wb-space-3) 0 0;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
