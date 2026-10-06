@@ -1703,6 +1703,57 @@
     "factCheck": "needs-review"
   },
   {
+    "id": "ev.parus-minor.late-brood-moult",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["molt"],
+      "ageMin": 1,
+      "periodFrom": 13,
+      "periodTo": 14,
+      "hasMate": true
+    },
+    "weight": "uncommon",
+    "title": "깃이 빠지는데 조르는 새끼",
+    "body": "늦게 둥지를 떠난 어린 새들이 아직 날개를 떨며 먹이를 조른다. 내 몸에서는 낡은 깃이 하나둘 빠지기 시작했다. 며칠째 먹이를 물어 나르느라 쉴 틈이 없다.",
+    "options": [
+      {
+        "id": "keep-feeding",
+        "text": "어린 새들에게 계속 먹이를 물어다 준다",
+        "effects": [
+          {
+            "type": "feather",
+            "tier": "small",
+            "sign": "loss"
+          },
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "own-moult",
+        "text": "먹이 나르기는 짝에게 맡기고 내 깃을 기른다",
+        "effects": [
+          {
+            "type": "feather",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "푸른박새에서 첫배를 치워 늦게 다시 번식하게 하자 털갈이와 새끼 돌봄이 겹쳤다. 털갈이를 시작한 수컷은 새끼에게 먹이를 덜 날랐고, 수컷의 털갈이가 이를수록 새끼가 더 많이 죽었다. 연구자들은 이를 암수 사이의 갈등으로 보았다. 깃을 만드는 데는 에너지가 든다(다른 작은 새). 짝 관계가 나빠지는 것은 그 갈등을 게임 수치로 옮긴 것이다. 박새(*P. minor*)에서 털갈이와 육아가 얼마나 겹치는지는 확인하지 못했다.",
+    "sources": ["SRC-072", "SRC-045"],
+    "factCheck": "needs-review"
+  },
+  {
     "id": "ev.parus-minor.cold-wave",
     "species": ["parus-minor"],
     "draw": "periodStart",
