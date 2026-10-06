@@ -156,7 +156,8 @@ export type Gate =
   | { kind: 'mateOrder'; options: string[] }
   | { kind: 'nestSite'; holes: string[] }
   | { kind: 'clutchSize'; options: number[] }
-  | { kind: 'parentingPolicy' };
+  | { kind: 'parentingPolicy' }
+  | { kind: 'secondBrood' };
 
 /** 지은 둥지 (04-breeding 4장). 둥지 국면 동안 이 장소에 묶인다 */
 export interface Nest {
@@ -175,6 +176,13 @@ export interface ClutchSizeCard {
   eggs: number;
   /** 관문 뒤 `laying` 단계마다 더 드는 소비 — 수컷이면 0 */
   layingCost: number;
+}
+
+/** 2차 번식 여부 관문 카드 (04-breeding 7장) */
+export interface SecondBroodCard {
+  choiceId: string;
+  /** 고르는 순간 잃는 에너지 — '안 한다'는 0 */
+  energyCost: number;
 }
 
 /** 화면 S-23 둥지 자리 카드 */
@@ -225,6 +233,8 @@ export interface RunState {
   nest?: Nest;
   /** 마지막으로 거둔 둥지에 새끼가 남아 있었나 — 다음 `pairing`의 이혼 확률 (04-breeding 2.1). 그때 지운다 */
   broodFledged?: boolean;
+  /** 그 해에 지은 둥지 수 — 1년 최대 2번식(00-core-loop 4.4 조건 1). `period 1`에 지운다 */
+  yearNests?: number;
   /**
    * 열려 있는 관문. 짝 지시는 단계 시작에 열려 고르면 같은 단계의 칸으로,
    * 나머지는 단계 끝에 열려 고르면 다음 단계로 간다
@@ -262,7 +272,8 @@ export interface ViewModel {
     | { kind: 'mateOrder'; cards: MateOrderCard[] }
     | { kind: 'nestSite'; cards: NestSiteCard[] }
     | { kind: 'clutchSize'; cards: ClutchSizeCard[] }
-    | { kind: 'parentingPolicy'; cards: ParentingItemChoice[] };
+    | { kind: 'parentingPolicy'; cards: ParentingItemChoice[] }
+    | { kind: 'secondBrood'; cards: SecondBroodCard[] };
   nest?: Nest;
   /** 루틴을 짜는 중일 때만 (관문 중에는 없음, 03-contracts 3장 '행동 루틴') */
   routine?: {

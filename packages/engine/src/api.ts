@@ -1,4 +1,11 @@
 import type { GameData, StatName } from '@wb/schema';
+import {
+  chooseSecondBrood,
+  endBreeding,
+  secondBroodCards,
+  secondBroodChoices,
+  secondBroodDue,
+} from './brood.ts';
 import { advance, phaseAt, yearCalendar } from './calendar.ts';
 import { chicksSurvive, clutchCards, clutchChoices, clutchOptions, hatchIfDue } from './clutch.ts';
 import { agedStats, fatCap } from './formulas.ts';
@@ -31,7 +38,7 @@ import type {
  * 엔진 API — 일곱 개의 순수 함수 (엔진 원칙 1, 03-contracts 3장).
  *
  * M1 진행 중(#21): 단계표·장소·행동·옮기기와 판정 1·2·3(에너지 → 스탯 → 위험), 아사·포식 사망은
- * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·짝 지시(`mateOrder`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)·육아 방침(`parentingPolicy`)이 있고, 부화를 굴린다. 번식·계승·이벤트는 아직 없다.
+ * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·짝 지시(`mateOrder`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)·육아 방침(`parentingPolicy`)·2차 번식 여부(`secondBrood`, 실패 뒤만)가 있고, 부화를 굴린다. 번식·계승·이벤트는 아직 없다.
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
@@ -91,6 +98,7 @@ export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gate?.kind === 'nestSite') return nestChoices(state.gate.holes);
   if (state.gate?.kind === 'clutchSize') return clutchChoices(state.gate.options);
   if (state.gate?.kind === 'parentingPolicy') return parentingChoices(state, data);
+  if (state.gate?.kind === 'secondBrood') return secondBroodChoices();
   // 루틴의 다음 빈 칸 — 앞 칸에 옮기기를 넣었으면 그 장소 기준 (03-contracts 3장 '행동 루틴')
   return stepChoices(projected(state, data), data);
 }
@@ -150,6 +158,7 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   if (state.gate?.kind === 'nestSite') return pickNest(state, choiceId, data);
   if (state.gate?.kind === 'clutchSize') return pickClutch(state, choiceId, data);
   if (state.gate?.kind === 'parentingPolicy') return pickPolicy(state, choiceId, data);
+  if (state.gate?.kind === 'secondBrood') return pickSecondBrood(state, choiceId, data);
   const filled = [...(state.routine ?? []), choiceId];
   // 칸 채우기: 판정·난수 없음
   if (filled.length < slotCount(state)) return { state: { ...state, routine: filled }, log: [] };
@@ -165,8 +174,16 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   log.push(...hatched.log);
   // 새끼 개별 사망: 급이 국면의 판정 3 다음 (01-formulas 3.3)
   const raised = chicksSurvive(hatched.state, data);
-  const survived = raised.state;
   log.push(...raised.log);
+  // 번식 실패(B-5): 2차 번식 여부 관문, 열리지 않으면 분할 해제 (00-core-loop 4.4 · 4.5)
+  const failed = moved.nest !== undefined && raised.state.nest === undefined;
+  if (failed && secondBroodDue(raised.state, data)) {
+    return {
+      state: { ...raised.state, gate: { kind: 'secondBrood' }, log: [...state.log, ...log] },
+      log,
+    };
+  }
+  const survived = failed ? endBreeding(raised.state) : raised.state;
 
   // 흐름의 마지막: 관문 (00-core-loop 4.6). 열리면 이 단계에 머문다
   if (isPhaseStart(state.calendar, state.at, 'pairing')) {
@@ -248,6 +265,15 @@ function pickPolicy(state: RunState, choiceId: string, data: GameData): ActResul
   return { state: { ...closed, log: [...state.log, ...set.log] }, log: set.log };
 }
 
+/** 2차 번식 여부 관문을 닫고 다음 단계로 간다 (04-breeding 7장) */
+function pickSecondBrood(state: RunState, choiceId: string, data: GameData): ActResult {
+  const chosen = chooseSecondBrood(state, choiceId, data);
+  const { gate: _g, ...closed } = chosen.state;
+  const next = nextStep(closed, data);
+  const log = [...chosen.log, ...next.log];
+  return { state: { ...next.state, log: [...state.log, ...log] }, log };
+}
+
 /** 둥지 자리 관문을 닫고 다음 단계로 간다 (04-breeding 4장) */
 function pickNest(state: RunState, choiceId: string, data: GameData): ActResult {
   const built = buildNest(state, choiceId, data);
@@ -296,10 +322,11 @@ function yearStart(state: RunState, data: GameData): ActResult {
   const species = speciesBalance(data, state.config.speciesId);
   const age = state.player.age + 1;
   const mate = mateYear(state, data);
+  const { yearNests: _y, ...rest } = mate.state;
   return {
     log: mate.log,
     state: {
-      ...mate.state,
+      ...rest,
       calendar: yearCalendar(data, state.config.speciesId),
       player: {
         ...state.player,
@@ -339,6 +366,9 @@ export function getView(state: RunState, data: GameData): ViewModel {
       : {}),
     ...(state.gate?.kind === 'parentingPolicy'
       ? { gate: { kind: state.gate.kind, cards: parentingChoices(state, data)[0]?.items ?? [] } }
+      : {}),
+    ...(state.gate?.kind === 'secondBrood'
+      ? { gate: { kind: state.gate.kind, cards: secondBroodCards(state, data) } }
       : {}),
     ...(state.nest ? { nest: state.nest } : {}),
     ...(state.gate || state.gameOver
