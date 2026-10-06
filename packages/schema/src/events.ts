@@ -159,9 +159,14 @@ function checkEffectPreconditions(event: z.infer<typeof EventBase>, ctx: z.Refin
   }
 }
 
+/** 이벤트 ID. 예: `ev.parus-minor.owl-mobbing` */
+export const EventId = z
+  .string()
+  .regex(/^ev\.[a-z0-9-]+\.[a-z0-9-]+$/, 'ev.<종 또는 common>.<이름> 형식');
+
 const EventBase = z
   .object({
-    id: z.string().regex(/^ev\.[a-z0-9-]+\.[a-z0-9-]+$/, 'ev.<종 또는 common>.<이름> 형식'),
+    id: EventId,
     species: z.array(SpeciesId).min(1),
     /** 단계 이벤트(기본) 또는 시기 시작의 환경 카드 */
     draw: z.enum(['step', 'periodStart']).default('step'),

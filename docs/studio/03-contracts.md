@@ -182,7 +182,7 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 ## 4. 데이터 계약 — `@wb/schema` (값은 예시)
 
 - 검증: `npm run validate:data` — CI에서도 돈다. 실패하면 **파일 · 파일 안의 위치 · 이유**를 알려 준다.
-- 스키마가 담은 형식: 4.1 · 4.2 · 4.3 · 4.3.1 · 4.3.2 · 4.3.3 · 4.4 장소·포식자. 4.4의 도감과 `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
+- 스키마가 담은 형식: 4.1 · 4.2 · 4.3 · 4.3.1 · 4.3.2 · 4.3.3 · 4.4 장소·포식자·도감. `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
 - 모든 객체는 **모르는 필드를 거부**한다(오타를 잡기 위해). 필드를 더하려면 8장 절차로 스키마를 함께 고친다.
 
 ### 4.1 종: 생태 사실(content)과 밸런스(design)의 분리
@@ -342,7 +342,10 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 - 포식자(`data/predators/<id>.json`, 스키마 `Predator`, #128): `id`(소문자-하이픈 — 사망 원인 `predation:<id>`), `nameKo`, `targets`(`adult` | `nest` — 둥지는 알·새끼), `basis`(출처 · `factCheck` · `note`). 사냥 방식·활동 계절은 쓰는 곳(도감·이벤트 조건)이 생길 때 필드로 더한다. 대응 상성은 이벤트 선택지가 구현한다(01-formulas).
 - 이벤트 `deathRisk.predator`는 `data/predators/`의 id여야 한다(포식자 파일이 있을 때 검사).
 - `GameData.predators`: 포식자 id → 포식자.
-- 도감(`data/codex/`): `id`, 분류(종·포식자·장소·현상), 본문, 해금 조건, 출처.
+- 도감(`data/codex/<kind>.<이름>.json`, 스키마 `CodexEntry`, #155): 파일 하나에 항목 하나. `id` = `cx.` + 파일 이름(예: `cx.predator.rat-snake`), `kind`(`species` | `predator` | `node` | `phenomenon`), `target`(종·포식자·장소의 id — `id`의 끝과 같다. 현상은 없다), `nameKo`, `scientificName`(종만, 반드시), `body`(본문), `unlock`, `basis`(출처 · `factCheck` · `note`).
+- `unlock.on` 잠정(#155 — 해금 조건은 design 몫): `run-start`+`species` · `predator-met`+`predator` · `node-visited`+`node` · `event-seen`+`events`(1개 이상, 그중 하나를 보면).
+- `target`과 `unlock`의 id는 실제 데이터(`data/species/` 생태 · `data/predators/` · `data/nodes/` · `data/events/`)에 있어야 한다(교차 검증).
+- `GameData.codex`: 도감 id → 항목. `RawGameData.codex`는 선택(화면이 도감을 읽기 전에는 빈 묶음).
 
 ---
 
