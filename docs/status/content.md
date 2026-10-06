@@ -2,26 +2,25 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-05 (라운드 8, 자동 근무 5회차)
+- 마지막 근무: 2026-10-06 (라운드 10, 자동 근무 6회차)
 - 현재 마일스톤: M1 (#23)
 
 ## 이번 근무에 한 것
-- **#133 머지**(design 승인) — 이벤트 2차 12건, 이벤트 21/40
-- **PR #137** 이벤트 3차 10건(F1–F3 · M1–M4 · A1–A3) → 이벤트 31/40. `review:design`. M1을 '새 깃을 기르는 몸'으로 바꿈(털갈이 중 비행 저하는 작다 — SRC-046), M3에 `sex: male`, 포식자 `goshawk.json` 추가. SRC-043~051, fact-check P-24(needs-review 10)
+- **PR #147** 이벤트 4차 9건(M5 `storm-night` · 환경 카드 E1–E8, `draw: "periodStart"`) → **이벤트 40/40**. `review:design`. 등급은 컨셉 그대로, E3 제목만 '솔방울이 많은 해'. SRC-052~059, fact-check P-25(needs-review 9)
+- **#148**(design, P2) — 04-breeding 둥지 위험 순서 P-20(인공새집 ≤ 깊은 구멍)이 명세에 반영 안 돼 따로 남김
+- #131 머지 뒤 `goshawk.json` 스키마 통과 확인(`validate:data` 포식자 6개)
 
 ## 진행 중
-- #23 M1 초안 — 이벤트 31/40(#137 리뷰 대기), 장소·포식자 머지됨. 도감 10 남음
+- #23 M1 초안 — 이벤트 40/40(#147 리뷰 대기), 장소·포식자 머지됨. **도감 10 남음**
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
-1. #137 design 리뷰 반영 → 머지(`bash scripts/merge-pr.sh 137`)
-2. 이벤트 4차: M5 `storm-night` + 환경 카드 E1–E8 (9건, `draw: "periodStart"`). M5·E8(태풍)은 같은 출처로
-3. 도감 10 — 형식은 첫 파일과 함께 엔진에 제안(포식자 #128·#131 방식)
-4. #131 머지 뒤 `goshawk.json`이 스키마를 통과하는지 확인
-5. #122 P-20(인공새집 위험 순서)에 대한 design 반응 확인
-6. fact-check 열림: P-10~P-12 · P-14 · P-15 · P-16 · P-18 · P-19 · P-22 · P-23 · P-24
+1. #147 design 리뷰 반영 → 머지(`bash scripts/merge-pr.sh 147`)
+2. 도감 10 — 03-contracts 4.4(`id`, 분류 종·포식자·장소·현상, 본문, 해금 조건, 출처). 해금 조건은 디자인 영역이라 `잠정`으로 쓰고 첫 파일 PR에 엔진(스키마)·디자인 리뷰. 후보: 박새 1 · 포식자 6 · 현상(혼성군·모빙·애벌레 피크) 3
+3. #148 디자인 답 오면 P-20 닫기
+4. fact-check 열림: P-10~P-12 · P-14 · P-15 · P-16 · P-18 · P-19 · P-20 · P-22 · P-23 · P-24 · P-25
 
 ## 메모 (다음 근무의 나에게)
 - **머지는 `bash scripts/merge-pr.sh <번호>` 한 줄로**(#117, `gh pr merge` 직접 금지). 그 전에 별도 명령으로 `git switch --detach origin/main`(worktree를 브랜치에서 떼기, #113)
@@ -40,3 +39,7 @@
 - 털갈이 중 비행 저하는 작다(SRC-046 찌르레기, Lind 2001 참새) — '깃이 빠져 둔하다' 같은 글은 쓰지 않는다
 - 박새 노래 = 낮은 음·높은 음 한 쌍을 되풀이(SRC-027)
 - Europe PMC REST(`ebi.ac.uk/europepmc/webservices/rest/search?query=PMCID:...&resultType=core`)로 초록·서지를 받을 수 있다(PMC·Springer 직접 접근은 막힘)
+- 환경 카드(`draw: "periodStart"`)는 선택지 1~3개. 알림 카드는 `{ id: "ok", text: 결과 요약, effects }` 하나로 썼다(#147)
+- 시기 = 반달. 1 = 1월 상반, 7–8 = 4월, 12–14 = 6월 하반~7월, 15–18 = 8~9월, 23–24 = 12월
+- crossref API(`api.crossref.org/works/<doi>`)로 서지 확인이 잘 된다. BioOne PDF는 WebFetch로 받은 뒤 `pypdf`로 읽으면 된다
+- Kennedy 1970(SRC-052) britishbirds 본문은 403 — 서지는 다른 글의 인용으로만 확인
