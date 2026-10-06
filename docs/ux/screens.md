@@ -119,7 +119,7 @@ S-01 ─▶ S-02 ─▶ S-03 ─┐
 
 ## 4.1 중충실도 와이어프레임 (M1, #25)
 
-`wireframes/mid/`에 HTML 6장 + 공통 `wf.css`. **디자인 토큰(`packages/tokens`)과 아이콘 v0(`assets/icon`)을 실제로 쓴다** — 클라이언트가 색·간격·글자 크기를 그대로 옮길 수 있다. 브라우저로 열면 되고(주석 켜기·끄기 있음), headless Chrome으로 렌더해 겹침·넘침을 확인했다.
+`wireframes/mid/`에 HTML 7장 + 공통 `wf.css`. **디자인 토큰(`packages/tokens`)과 아이콘 v0(`assets/icon`)을 실제로 쓴다** — 클라이언트가 색·간격·글자 크기를 그대로 옮길 수 있다. 브라우저로 열면 되고(주석 켜기·끄기 있음), headless Chrome으로 렌더해 겹침·넘침을 확인했다.
 
 | 파일 | 화면 | 틀 |
 |---|---|---|
@@ -129,6 +129,7 @@ S-01 ─▶ S-02 ─▶ S-03 ─┐
 | [03-breeding.html](wireframes/mid/03-breeding.html) | S-20~S-23 · 관문 | 번식기 S-10 둥지 띠 / 짝 지시 ♀·♂(도움) / 육아 방침 설정·조정 / 산란수 관문 / 짝 후보 / 둥지 자리 관문 — `04-breeding` v0에 맞춤(#129) |
 | [04-inherit.html](wireframes/mid/04-inherit.html) | S-24 | 계승·잔류 / 계승 확인 / 2차 번식 — `05-inheritance` v0 5~7장에 맞춤(#140) |
 | [05-game-over.html](wireframes/mid/05-game-over.html) | S-30 | 게임 오버 |
+| [06-routine.html](wireframes/mid/06-routine.html) | S-10 · S-12 루틴 | 루틴 확인(기본값) / 칸 고치기·옮기기 / 칸별 결과 자동 재생 / 이벤트 뒤 남은 칸 고치기 — `00-core-loop` 3.5 잠정(#175, #187). 01은 "행동 1개" 기준으로 남겨 둔다(엔진이 3.5를 넣으면 06으로 대체) |
 
 **저충실도에서 바뀐 것**
 - **결정 영역 = 높이 550**(클라이언트 #53): 상태 바부터 결정 버튼까지 550 안. 그 아래(이야기 피드·설명)만 스크롤. 그림은 ≤550에서 120, 그 이상 172.
