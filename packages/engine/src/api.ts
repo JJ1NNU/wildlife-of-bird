@@ -1,6 +1,6 @@
 import type { GameData, StatName } from '@wb/schema';
 import { advance, phaseAt, yearCalendar } from './calendar.ts';
-import { clutchCards, clutchChoices, clutchOptions } from './clutch.ts';
+import { clutchCards, clutchChoices, clutchOptions, hatchIfDue } from './clutch.ts';
 import { agedStats, fatCap } from './formulas.ts';
 import { isPhaseStart, makeCandidates, mateCards, mateChoices } from './mate.ts';
 import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
@@ -20,7 +20,7 @@ import type {
  * 엔진 API — 일곱 개의 순수 함수 (엔진 원칙 1, 03-contracts 3장).
  *
  * M1 진행 중(#21): 단계표·장소·행동·옮기기와 판정 1·2·3(에너지 → 스탯 → 위험), 아사·포식 사망은
- * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)가 있다. 번식·계승·이벤트는 아직 없다.
+ * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)가 있고, 부화를 굴린다. 번식·계승·이벤트는 아직 없다.
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
@@ -145,7 +145,10 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
     };
   }
 
-  const survived: RunState = { ...moved, rng: rolled.state };
+  // 부화: `incubation` 마지막 단계의 판정 3 다음 (04-breeding 5장)
+  const hatched = hatchIfDue({ ...moved, rng: rolled.state }, data);
+  const survived = hatched.state;
+  log.push(...hatched.log);
 
   // 흐름의 마지막: 관문 (00-core-loop 4.6). 열리면 이 단계에 머문다
   if (isPhaseStart(state.calendar, state.at, 'pairing')) {
