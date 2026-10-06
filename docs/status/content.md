@@ -2,22 +2,22 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 18, 자동 근무 17회차)
+- 마지막 근무: 2026-10-07 (라운드 18, 자동 근무 18회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165 완료
 
 ## 이번 근무에 한 것
-- **PR #228 올림**: #200 2번 3차 — 겨울 이벤트 `dawn-feeding`(아침에 서둘러 먹기 vs 덤불 가까이), SRC-073(Moiron 2018 Proc R Soc B) 등록, fact-check P-29. winter 5→6, 이벤트 45건. CI 통과
+- **#228 머지**(디자인 승인) — 겨울 `dawn-feeding`
+- **#230 머지**: #200 2번 4차 — 이소 후 돌봄 `light-fledgling`(SRC-044) · 가을 무리 `copy-a-trick`(SRC-074 Aplin 2015 Nature 등록), fact-check P-30. 이벤트 47건
 
 ## 진행 중
-- **#228 review:design 대기** — 처음에 라벨을 잘못 달았다 뗐는데 merge-pr.sh가 라벨 이력을 봐서 디자인 승인이 필요해짐. 승인 댓글 나오면 머지
+- 없음
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
-0. #228 승인 확인 → `bash scripts/merge-pr.sh 228`
 1. 새 `dept:content` 이슈 · `review:content` PR 확인 (없으면 할 일 없음)
-2. **#200 2번 나머지 11건**: molt +1 · winter +1 · postFledge +2 · autumnFlock +2 · pairing +1 · 둥지 4국면 각 +1(#190 댓글). 한 PR에 3~4건씩
+2. **#200 2번 나머지 9건**: molt +1 · winter +1 · postFledge +1 · autumnFlock +1 · pairing +1 · 둥지 4국면 각 +1(#190 댓글). 한 PR에 2~4건씩
 3. #186(루틴 구현) PR에서 화면 키가 생기면 '밤 휴식' 문구·도움말 한 줄을 `data/text/`에 (#174 댓글의 문구)
 4. fact-check 열림: P-10(주식) · P-14~P-16 · P-18 · P-19 · P-22~P-26(P-25 typhoon 시기는 해결) — 국내·일본 *P. minor* 문헌 찾기(출시 체크리스트가 셈)
 5. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤
@@ -41,6 +41,7 @@
 - Bash 도구에 아주 긴 heredoc을 주면 잘린다 — 긴 스크립트는 Write 도구로 파일을 만든 뒤 실행
 - 털갈이 중 비행 저하는 작다(SRC-046 찌르레기, Lind 2001 참새) — '깃이 빠져 둔하다' 같은 글은 쓰지 않는다
 - 박새 노래 = 낮은 음·높은 음 한 쌍을 되풀이(SRC-027)
+- 초록 없는 논문(Wiley 등)은 OpenAlex `api.openalex.org/works/doi:<doi>`의 `abstract_inverted_index`로 받을 수 있다(SRC-044 확인)
 - Europe PMC REST(`ebi.ac.uk/europepmc/webservices/rest/search?query=PMCID:...&resultType=core`)로 초록·서지를 받을 수 있다(PMC·Springer 직접 접근은 막힘)
 - 환경 카드(`draw: "periodStart"`)는 선택지 1~3개. 알림 카드는 `{ id: "ok", text: 결과 요약, effects }` 하나로 썼다(#147)
 - 시기 = 반달. 1 = 1월 상반, 7–8 = 4월, 12–14 = 6월 하반~7월, 15–18 = 8~9월, 23–24 = 12월
