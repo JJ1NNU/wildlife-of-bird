@@ -1,30 +1,59 @@
 import {
   act,
   type CalendarAt,
+  type Choice,
   formatEnergyDelta,
   formatRisk,
+  formatStatGain,
   getChoices,
   getView,
   type LogEntry,
   newRun,
   preview,
   type RunState,
+  roundHalfUp,
 } from '@wb/engine';
-import type { GameData } from '@wb/schema';
+import type { GameData, Season, StatName } from '@wb/schema';
 import { useState } from 'react';
 import { birdUrl } from './art.ts';
+import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
 import { clearRun, loadRun, saveRun } from './save.ts';
 
 /**
  * M1 화면(#24): S-01 타이틀·이어하기 · S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
  * 배치는 아트 중충실도 와이어프레임(`docs/ux/wireframes/mid/01`, #123)과 #53(결정 영역 550)을 따른다.
- * 엔진이 아직 자리표시 선택만 내므로(#21) 이벤트 · 번식 · 계승 · 옮기기 펼침은 엔진이 선택을 내면 붙인다.
+ * 훈련 ▾ · 옮기기 ▾는 펼쳐서 고른다(와이어프레임 B, D-016) — 펼침은 화면만의 상태라 저장하지 않는다.
+ * 개발용 빨리 감기(QA 평균 봇)는 피드 위에 둔다 — 결정 영역 배치를 건드리지 않고, 출시 빌드에서는 숨긴다.
+ * 이벤트 · 번식 · 계승은 엔진이 그 선택을 내면 붙인다(#21).
  * 잠정(#24): 화면 문구는 data/text/(콘텐츠)가 생기면 옮긴다.
  */
 
 const SPECIES = 'parus-minor';
 const RISK_WORD = { low: '낮음', mid: '보통', high: '높음' } as const;
+const FOOD_WORD = {
+  scarce: '아주 적음',
+  low: '적음',
+  medium: '보통',
+  high: '많음',
+  rich: '아주 많음',
+};
+const COMPETITION_WORD = { none: '없음', low: '낮음', medium: '보통', high: '높음' };
+const STAT_WORD: Record<StatName, string> = {
+  flight: '비행',
+  foraging: '채식',
+  vigilance: '경계',
+  stamina: '체력',
+  display: '과시',
+  social: '사회',
+  navigation: '항법',
+};
+/** 펼쳐 고르는 묶음: 선택 id 앞부분 → 묶음 줄 */
+const GROUPS = [
+  { key: 'train', prefix: 'action.train.', label: '훈련', icon: 'icon.action.train' },
+  { key: 'move', prefix: 'move.', label: '옮기기', icon: 'icon.action.move' },
+] as const;
+type GroupKey = (typeof GROUPS)[number]['key'];
 const SEASON = [
   'winter',
   'winter',
@@ -64,6 +93,7 @@ export function Game({ data }: { data: GameData }) {
   const [state, setState] = useState<RunState | undefined>(boot.state);
   const [onTitle, setOnTitle] = useState(true);
   const [picked, setPicked] = useState<string>();
+  const [open, setOpen] = useState<GroupKey>();
 
   if (onTitle || !state) {
     const saved = state && !state.gameOver ? state : undefined;
@@ -105,6 +135,11 @@ export function Game({ data }: { data: GameData }) {
   const choices = getChoices(state, data);
   const when = periodLabel(view.at);
   const pickedChoice = choices.find((c) => c.id === picked);
+  // 장소 등급은 종의 계절 구분(밸런스)을 따른다 — 엔진의 seasonOf와 같은 규칙
+  const seasonPeriods = data.balance.get(view.speciesId)?.seasons;
+  const season =
+    seasonPeriods &&
+    (Object.keys(seasonPeriods) as Season[]).find((k) => seasonPeriods[k].includes(view.at.period));
 
   function go() {
     if (!picked || !state) return;
@@ -112,12 +147,73 @@ export function Game({ data }: { data: GameData }) {
     saveRun(next);
     setState(next);
     setPicked(undefined);
+    setOpen(undefined);
   }
 
   function restart() {
     clearRun();
     setState(startRun(data));
     setPicked(undefined);
+  }
+
+  /** 선택 한 줄: 이름 · 예상 성장(아래) · 에너지 변화 · 위험%(오른쪽) — 와이어프레임 A */
+  function row(c: Choice, group?: GroupKey) {
+    if (!state) return null;
+    const p = c.disabled ? undefined : preview(state, c.id, data);
+    const risk = p && formatRisk(data.formulas, p.deathRisk);
+    const [lo, hi] = p?.energyDelta ?? [0, 0];
+    const gains = Object.entries(p?.statGains ?? {})
+      .map(([stat, x]) => `${STAT_WORD[stat as StatName]} ${formatStatGain(x)}`)
+      .join(' · ');
+    const dest = group === 'move' ? data.nodes.get(c.id.slice('move.'.length)) : undefined;
+    const destSeason = dest && season ? dest.seasons[season] : undefined;
+    const name =
+      group === 'train'
+        ? (STAT_WORD[c.id.slice('action.train.'.length) as StatName] ?? c.label)
+        : (dest?.nameKo ?? c.label);
+    const cap = [
+      destSeason &&
+        `먹이 ${FOOD_WORD[destSeason.food]} · 경쟁 ${COMPETITION_WORD[destSeason.competition]}`,
+      gains,
+      c.disabled?.reason,
+      ...(p?.notes ?? []),
+    ]
+      .filter(Boolean)
+      .join(' · ');
+    return (
+      <li key={c.id}>
+        <button
+          type="button"
+          className={`opt${group ? ' sub' : ''}${c.id === picked ? ' sel' : ''}`}
+          aria-pressed={c.id === picked}
+          disabled={!!c.disabled}
+          onClick={() => setPicked(c.id)}
+          data-testid={`choice-${c.id}`}
+        >
+          {!group && <span className="ico" style={iconStyle(`icon.${c.id}`)} />}
+          <span className="main">
+            <span className="b">{name}</span>
+            {cap && <span className="cap">{cap}</span>}
+          </span>
+          {p && risk && (
+            <span className="vals">
+              <span>
+                에너지{' '}
+                <b>
+                  {lo === hi
+                    ? formatEnergyDelta(lo)
+                    : `${formatEnergyDelta(lo)}~${formatEnergyDelta(hi)}`}
+                </b>
+              </span>
+              <span className={`risk ${risk.band}`}>
+                <span className="ico s" style={iconStyle('icon.risk')} />
+                {risk.text} <span className="w">{RISK_WORD[risk.band]}</span>
+              </span>
+            </span>
+          )}
+        </button>
+      </li>
+    );
   }
 
   if (view.gameOver) {
@@ -160,7 +256,12 @@ export function Game({ data }: { data: GameData }) {
           <div className="row small">
             <span className="ico s" style={iconStyle('icon.res.energy')} />
             <span>
-              에너지 <b data-testid="energy">{view.player.energy}</b>
+              에너지 <b data-testid="energy">{roundHalfUp(view.player.energy)}</b>
+              <span className="muted"> / {roundHalfUp(view.energyCap)}</span>
+            </span>
+            <span className="ico s" style={iconStyle('icon.res.feather')} />
+            <span>
+              깃털 <b>{roundHalfUp(view.player.feather)}</b>
             </span>
           </div>
         </header>
@@ -169,48 +270,49 @@ export function Game({ data }: { data: GameData }) {
           <img className="art-bird" src={birdUrl(view.speciesId)} alt="" />
           <div className="plate small">
             {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
-            {view.player.sex === 'female' ? '♀' : '♂'} {view.player.age}세
+            {view.player.sex === 'female' ? '♀' : '♂'} {view.player.age}세{' · '}
+            {data.nodes.get(view.node)?.nameKo ?? view.node}
           </div>
         </div>
 
         <ul className="list" aria-label="행동">
-          {choices.map((c) => {
-            const p = c.disabled ? undefined : preview(state, c.id, data);
-            const risk = p && formatRisk(data.formulas, p.deathRisk);
-            const [lo, hi] = p?.energyDelta ?? [0, 0];
-            return (
-              <li key={c.id}>
+          {choices.filter((c) => !GROUPS.some((g) => c.id.startsWith(g.prefix))).map((c) => row(c))}
+          {GROUPS.map((g) => {
+            const members = choices.filter((c) => c.id.startsWith(g.prefix));
+            if (members.length === 0) return null;
+            const isOpen = open === g.key;
+            const pickedHere = members.find((c) => c.id === picked);
+            return [
+              <li key={g.key}>
                 <button
                   type="button"
-                  className={`opt${c.id === picked ? ' sel' : ''}`}
-                  aria-pressed={c.id === picked}
-                  disabled={!!c.disabled}
-                  onClick={() => setPicked(c.id)}
+                  className={`opt${!isOpen && pickedHere ? ' sel' : ''}`}
+                  aria-expanded={isOpen}
+                  onClick={(e) => {
+                    setOpen(isOpen ? undefined : g.key);
+                    // 펼치면 그 줄을 목록 맨 위로 — 결정 버튼은 늘 같은 자리(와이어프레임 B)
+                    const el = e.currentTarget;
+                    if (!isOpen) requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
+                  }}
+                  data-testid={`group-${g.key}`}
                 >
-                  <span className="ico" style={iconStyle(`icon.${c.id}`)} />
+                  <span className="ico" style={iconStyle(g.icon)} />
                   <span className="main">
-                    <span className="b">{c.label}</span>
-                    {c.disabled && <span className="cap">{c.disabled.reason}</span>}
-                  </span>
-                  {p && risk && (
-                    <span className="vals">
-                      <span>
-                        에너지{' '}
-                        <b>
-                          {lo === hi
-                            ? formatEnergyDelta(lo)
-                            : `${formatEnergyDelta(lo)}~${formatEnergyDelta(hi)}`}
-                        </b>
-                      </span>
-                      <span className={`risk ${risk.band}`}>
-                        <span className="ico s" style={iconStyle('icon.risk')} />
-                        {risk.text} <span className="w">{RISK_WORD[risk.band]}</span>
-                      </span>
+                    <span className="b">
+                      {g.label} {isOpen ? '▴' : '▾'}
                     </span>
-                  )}
+                    <span className="cap">
+                      {pickedHere
+                        ? pickedHere.label
+                        : g.key === 'move'
+                          ? `갈 수 있는 곳 ${members.length}`
+                          : '스탯 하나를 고른다'}
+                    </span>
+                  </span>
                 </button>
-              </li>
-            );
+              </li>,
+              ...(isOpen ? members.map((c) => row(c, g.key)) : []),
+            ];
           })}
         </ul>
 
@@ -228,6 +330,25 @@ export function Game({ data }: { data: GameData }) {
       </div>
 
       <section className="feed" aria-label="지난 일">
+        {SHOW_FAST_FORWARD && (
+          <div className="dev small">
+            <span className="muted">개발용 · 평균 봇으로</span>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => {
+                const next = fastForward(state, data);
+                saveRun(next);
+                setState(next);
+                setPicked(undefined);
+                setOpen(undefined);
+              }}
+              data-testid="fast-forward"
+            >
+              1년 빨리 감기
+            </button>
+          </div>
+        )}
         <ul className="feed-list">
           {view.recentLog
             .slice()

@@ -109,7 +109,7 @@ T1의 박새 식별 특징은 아래 문장을 썼다. **잠정(#11)** — 콘�
 
 ## 6. 테스트 이미지 결과 (배치 01, #32)
 
-생성: 대표, Gemini Pro 3.1, 2026-10-03. 원본 2048px PNG를 PM이 긴 변 1024px WebP(품질 85)로 줄여 `assets/inbox/batch-01/`에 올렸다(자르기·보정 없음). 아래 시트 3장은 아트가 그 9장으로 만든 것이다(`docs/art/style-test/`, Pillow).
+생성: 대표, Gemini Pro 3.1, 2026-10-03. 원본 2048px PNG를 PM이 긴 변 1024px WebP(품질 85)로 줄여 `assets/inbox/batch-01/`에 올렸다(자르기·보정 없음, 정리됨 — 2026-10-06 #25). 아래 시트 3장은 아트가 그 9장으로 만든 것이다(`docs/art/style-test/`, Pillow).
 
 ![9장 비교](style-test/batch-01-sheet.webp)
 

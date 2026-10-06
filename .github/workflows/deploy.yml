@@ -43,6 +43,9 @@ jobs:
       - run: npm ci
       - name: 빌드
         run: npm run build -w @wb/web
+        env:
+          # 출시 빌드(태그)에서는 개발용 빨리 감기를 숨긴다
+          VITE_RELEASE: ${{ github.ref_type == 'tag' && '1' || '' }}
 
       - name: Pages 브랜치 정하기
         id: target

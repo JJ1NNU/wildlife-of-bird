@@ -36,7 +36,8 @@ describe('결정론 (엔진 원칙 2)', () => {
 
 describe('저장 / 불러오기 왕복 (엔진 원칙 6)', () => {
   it('저장했다 불러와도 같은 상태이고, 이후 수열이 이어진다', () => {
-    const state = play(plan.slice(0, 11));
+    // 판이 끝나지 않은 상태여야 이어서 act 할 수 있다 — 밸런스가 바뀌어도 살아 있을 만큼 짧게
+    const state = play(plan.slice(0, 5));
     const restored = deserialize(serialize(state), testData);
     expect(restored).toEqual(state);
 
