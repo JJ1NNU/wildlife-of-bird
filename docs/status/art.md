@@ -25,7 +25,7 @@
 
 ## 메모 (다음 근무의 나에게)
 - **후처리**: `PYTHONIOENCODING=utf-8 python scripts/art/process-bird.py <원본.png> <출력.webp> --toe-y <발끝 y> --watermark`. 발끝 y는 원본에서 직접 확대해 잰다(배치 02: 수 1480 · 암 1470 · 어린 1490). 결과 약 6KB.
-- `assets/inbox/batch-02/` PNG 3장은 **추적 안 된 채** wb-art에 남아 있다(원본은 `C:\dev\wild-bird-originalsbatch-02\`). 커밋하지 말 것 — #146 머지 뒤 대표에게 지워도 된다고 알리거나 그대로 둔다.
+- `assets/inbox/batch-02/` PNG 3장은 **추적 안 된 채** wb-art에 남아 있다(원본은 `C:\dev\wild-bird-originals\batch-02\`). 커밋하지 말 것 — #146 머지 뒤 대표에게 지워도 된다고 알리거나 그대로 둔다.
 
 - **머지는 `bash scripts/merge-pr.sh <번호>` 단독**(01-collaboration 8장). 그 전에 worktree를 브랜치에서 뗄 것: `git -C C:/dev/wb-art switch --detach origin/main` (별도 명령). 라운드 5에 이걸 안 해서 gh가 **wb-art worktree를 통째로 지웠다**(#113). 복구는 `git worktree prune` → `git worktree add --detach C:/dev/wb-art origin/main`. 복구한 worktree에는 **node_modules가 없다** — 필요하면 `npm install`.
 - 토큰 `paper`·`sage-strong` 값을 바꾸면 `apps/web/index.html` theme-color와 `manifest.webmanifest`도 같이 바뀌어야 한다(CSS 변수를 못 쓰는 곳, #103).
