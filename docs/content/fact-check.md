@@ -39,6 +39,8 @@
 | P-15 | 이벤트 `data/events/parus-minor.json` 겨울·짝 맺기 8건 (`mixed-flock-join` 말고 전부) | 서열(`flock-rank`) · 해 질 녘 채식과 밤 포식(`long-cold-night`) · 어린 새의 어른 따라 배우기(`first-winter-follow`) · 새매 매복(`sparrowhawk-ambush`) · 영역 노래(`territory-song-duel`) · 구애 먹이(`courtship-feeding`) · 짝 지키기(`rival-near-mate`) · 꽃샘추위(`late-frost-song`) | 붙인 출처(SRC-004 · 005 · 033)는 **종·계절·장소의 배경**까지만 뒷받침한다. 상황 자체의 출처는 없다 | 박새류 겨울 무리 서열·구애 먹이 연구, 일본 *P. minor* 번식 행동 문헌, 새매 먹이 조성 연구 | 열림 — 8건 `needs-review` |
 | P-23 | 이벤트 `data/events/parus-minor.json` 둥지 자리·산란·포란·육추 12건 (#23 2차) | `verified` 4: `nest-box`(SRC-024·032·037·034) · `snake-alarm-incubating`(SRC-001) · `snake-at-nest`(SRC-023·001) · `caterpillar-shortage`(SRC-034·005). `needs-review` 8: `hole-competition`(구멍을 과시로 지키는지) · `shallow-hole`(박새가 깊이를 보고 고르는지 — SRC-036은 쇠박새) · `egg-making-hunger`(산란기 에너지 요구) · `jay-watching`(포식자 앞에서 둥지 출입을 줄이는지) · `mate-guarding`(짝 지키기 — SRC-042는 짝 밖 부성까지) · `feeding-incubating-mate` · `leave-eggs-to-feed`(SRC-040·041은 여러 종·유럽 박새) · `nest-cleaning`(SRC-038은 참새목 총설) | 박새류 산란기 짝 지키기·포란 중 급이 연구, 일본 *P. minor* 번식 행동 문헌 | 열림 — 8건 `needs-review` |
 | P-24 | 이벤트 `data/events/parus-minor.json` 이소 후·털갈이·가을 무리 10건 (#23 3차) | 모두 `needs-review`. `scattered-fledglings`·`early-independence`(SRC-043·044, 유럽 박새) · `crow-near-fledglings`(까마귀가 이소 새끼를 노리는지) · `molt-hunger`(SRC-045 다른 종 · 컨셉 M1 '깃이 빠져 둔하다'는 SRC-046과 어긋나 상황을 바꿈) · `water-bath`(물가 포식 위험) · `song-tutor`(SRC-047 유럽 박새 · 학습 시기 · 암컷 노래 드묾의 출처 — `sex: male`을 더함) · `diet-switch`(SRC-048 유럽 · 국내 전환 시기) · `flock-size`(SRC-049 일반 · 무리 안 먹이 경쟁) · `owl-mobbing`(SRC-050 유럽 박새) · `goshawk-chase`(덤불·무리 피하기 차이) | 일본 *P. minor* 이소 후 돌봄·털갈이·가을 식단 문헌, 국내 박새 혼성군 연구 | 열림 — 10건 `needs-review` |
+| P-25 | 이벤트 `data/events/parus-minor.json` 털갈이 M5 · 환경 카드 E1–E8 9건 (#23 4차) | 모두 `needs-review`. `storm-night`·`cold-rainy-spell`(SRC-052 총설 · SRC-056 사막딱새) · `cold-wave`·`heavy-snow`(SRC-053·054 유럽 박새 — 눈이 먹이를 얼마나 줄이는지는 근거 없음) · `pine-seed-year`(SRC-048 너도밤나무 — 소나무 솔씨 풍흉 근거 없음) · `early-leaf-out`(SRC-055 유럽) · `hawk-settled-nearby`(새매의 국내 체류 시기) · `logging`(SRC-059 스웨덴 · SRC-057) · `typhoon-warning`(SRC-057·058 일본 — 국내 태풍 시기, 박새가 구멍으로 피하는지) | 국내 박새 겨울 먹이·적설 연구, 기상청 태풍 통계(시기 15–18 확인), 국내 새매 월동 기록 | 열림 — 9건 `needs-review` |
+| P-26 | 도감 `data/codex/phenomenon.caterpillar-peak.json` (#23) | 번식 시기가 먹이 곤충이 가장 많은 때와 맞물리고, 산란 준비기 기온이 중요하다 | SRC-005 (D) 단독 | 국내 박새 산란일·애벌레 발생 시기 비교 연구 | 열림 — 나머지 도감 9건은 `verified` |
 
 ### 박새 — 규칙으로 닫은 것
 
@@ -90,3 +92,5 @@
 | 2026-10-05 | #122 04-breeding 가정 P-16~P-22 — SRC-035~039 등록. P-20 둥지 자리 순서 일부 다름(인공새집) |
 | 2026-10-05 | #23 이벤트 2차 12건 — P-23, SRC-040~042 등록. N3을 얕은 구멍(SRC-036)으로 바꿈 |
 | 2026-10-05 | #23 이벤트 3차 10건 — P-24, SRC-043~051 등록. M1을 털갈이 에너지(SRC-045)로 바꿈, M3에 `sex: male`, 포식자 `goshawk` 추가 |
+| 2026-10-06 | #23 이벤트 4차 9건(M5 · E1–E8) — P-25, SRC-052~059 등록. 이벤트 40/40 |
+| 2026-10-06 | #23 도감 10건(종 1 · 포식자 4 · 현상 3 · 장소 2) — P-26. 참매·족제비는 출처가 SRC-034 한 줄뿐이라 보류 |

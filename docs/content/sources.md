@@ -108,6 +108,21 @@
 | SRC-050 | Kalb, N., Anger, F. & Randler, C. (2019) "Subtle variations in mobbing calls are predator-specific in great tits (*Parus major*)", *Scientific Reports* 9:6572. doi:10.1038/s41598-019-43087-9 | [link](https://doi.org/10.1038/s41598-019-43087-9) | A | 독일 박새: 올빼미(*Strix aluco*)·새매 박제에 모빙 소리를 낸다. 올빼미는 위협이 **낮은** 쪽, 새매는 높은 쪽 → owl-mobbing | 확인(초록) |
 | SRC-051 | Brilot, B. O. & Bateson, M. (2012) "Water bathing alters threat perception in starlings", *Biology Letters* 8(3):379–381. doi:10.1098/rsbl.2011.1200 | [link](https://doi.org/10.1098/rsbl.2011.1200) | A | 대부분의 새가 물목욕을 한다. 목욕 물을 못 쓴 찌르레기는 경보음 뒤 덜 먹고 더 살폈다(깃털 관리 가설) → water-bath | 확인(초록) |
 
+### 날씨 · 환경 카드 — 이벤트 4차 (#23)
+
+> 위 표와 같은 규칙: 다른 종·지역 연구는 박새(*P. minor*)에 대해 **방향**의 근거로만 쓰고, 이벤트는 `needs-review`로 둔다.
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-052 | Kennedy, R. J. (1970) "Direct effects of rain on birds: a review", *British Birds* 63:401– (끝 쪽 미확인) | [link](https://britishbirds.co.uk/journal/article/direct-effects-rain-birds-review) | A | 총설: 비의 가장 큰 직접 영향은 **깃이 젖는 것**과 그에 따른 저체온(새끼가 더 취약). 젖은 깃은 공기층 대신 물이 차 열을 더 잃는다 → storm-night · cold-rainy-spell | 서지까지(본문 접근 막힘, 인용으로 확인) |
+| SRC-053 | Krams, I., Cirule, D., Suraka, V., Krama, T., Rantala, M. J. & Ramey, G. (2010) "Fattening strategies of wintering great tits support the optimal body mass hypothesis under conditions of extremely low ambient temperature", *Functional Ecology* 24(1):172–177. doi:10.1111/j.1365-2435.2009.01628.x | [link](https://doi.org/10.1111/j.1365-2435.2009.01628.x) | A | 라트비아 박새(*P. major*): −37 °C까지 내려간 혹한에 우위 개체는 **굶을 위험이 커지자** 지방을 더 쌓았다. 낮은 기온에서 무리 안 **먹이 다툼**이 심해져 열위 개체의 지방이 적었다 → cold-wave | 확인(초록) |
+| SRC-054 | Vel'ký, M., Kaňuch, P. & Krištín, A. (2011) "Food composition of wintering great tits (*Parus major*): habitat and seasonal aspects", *Folia Zoologica* 60(3):228–236. doi:10.25225/fozo.v60.i3.a7.2011 | [link](https://doi.org/10.25225/fozo.v60.i3.a7.2011) | A | 슬로바키아 겨울 박새(*P. major*): 먹이에서 **식물성 먹이가 가장 큰 몫**. 서론: 낮은 기온·쌓인 눈이 절지동물을 부족하게 해 씨앗·열매·눈(芽)으로 메운다(다른 연구 인용). 이 연구에서 눈 깊이와 먹이 구성의 상관은 없었다 → cold-wave · heavy-snow · pine-seed-year | 확인(원문) |
+| SRC-055 | Visser, M. E., van Noordwijk, A. J., Tinbergen, J. M. & Lessells, C. M. (1998) "Warmer springs lead to mistimed reproduction in great tits (*Parus major*)", *Proceedings of the Royal Society B* 265(1408):1867–1870. doi:10.1098/rspb.1998.0514 | [link](https://doi.org/10.1098/rspb.1998.0514) | A | 네덜란드 박새 23년: 봄이 따뜻해지며 **먹이(애벌레) 피크가 앞당겨졌지만** 산란일은 앞당겨지지 않았고 이른 산란에 대한 선택이 세졌다 → early-leaf-out | 확인(초록) |
+| SRC-056 | Öberg, M., Arlt, D., Pärt, T., Laugen, A. T., Eggers, S. & Low, M. (2015) "Rainfall during parental care reduces reproductive and survival components of fitness in a passerine bird", *Ecology and Evolution* 5(2):345–356. doi:10.1002/ece3.1345 | [link](https://doi.org/10.1002/ece3.1345) | A | 스웨덴 사막딱새: 비 오는 날 부모의 **급이 횟수가 줄고**, 비가 이어지면 더 준다. 육추기 비가 이소 성공·새끼 생존을 낮춘다 → cold-rainy-spell | 확인(초록) |
+| SRC-057 | Seki, S.-I. & Sato, T. (2002) "The effect of a typhoon on the flocking and foraging behavior of tits", *Ornithological Science* 1(1):53–61. doi:10.2326/osj.1.53 | [link](https://doi.org/10.2326/osj.1.53) | A | 일본 규슈, 1999년 9월 태풍 뒤 곤줄박이·박새류: **혼성군에 더 끼고 나무 아래쪽에서** 먹었다. 잎이 줄어 포식 위험이 커진 탓으로 해석. 개체수·무리 크기는 그대로 → typhoon-warning · logging | 서지·초록까지 |
+| SRC-058 | Seki, S.-I. (2005) "The effects of a typhoon (9918 Bart, 1999) on the bird community in a warm temperate forest, Southern Japan", *Ornithological Science* 4(2):117–128. doi:10.2326/osj.4.117 | [link](https://doi.org/10.2326/osj.4.117) | A | 같은 태풍 뒤 첫 겨울: 열매·씨앗을 먹는 새가 줄어 전체 개체수가 줄었고 둘째 겨울에 회복 → typhoon-warning | 확인(초록) |
+| SRC-059 | Carlson, A. (1994) "Cavity breeding birds and clearcuts", *Ornis Fennica* 71:120–122 | [link](https://ornisfennica.journal.fi/article/download/133402/81948/292568) | A | 스웨덴 벌채지(1989~1990): 구멍 난 나무를 남겨도 박새·푸른박새는 **숲에서 떨어진 구멍을 피했다** — 먹이를 숲에서 구하므로 → logging | 확인(원문) |
+
 ### 환경 변화 · 그 밖의 종
 
 | ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |

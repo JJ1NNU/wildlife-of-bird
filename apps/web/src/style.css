@@ -177,6 +177,10 @@ h1 {
   line-height: 18px;
   white-space: nowrap;
 }
+.opt.sub {
+  margin-left: var(--wb-space-4);
+  width: calc(100% - var(--wb-space-4));
+}
 .opt.sel {
   border: 2px solid var(--wb-color-sage-strong);
   background: var(--wb-color-paper);
@@ -256,4 +260,15 @@ h1 {
 .score {
   font-size: var(--wb-font-size-title);
   margin: 0;
+}
+
+/* 개발용 빨리 감기 — 출시 빌드에서는 없음 */
+.dev {
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-3);
+  margin-bottom: var(--wb-space-3);
+}
+.dev .btn {
+  flex: none;
 }

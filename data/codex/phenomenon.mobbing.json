@@ -1,0 +1,19 @@
+{
+  "id": "cx.phenomenon.mobbing",
+  "kind": "phenomenon",
+  "nameKo": "모빙",
+  "body": "포식자를 찾은 박새는 경보음을 내며 그 곁으로 모여들고, 다른 종의 새도 그 소리에 모여 함께 덤빈다. 이렇게 여럿이 포식자를 둘러싸고 소리를 내는 행동을 모빙이라 한다. 박새는 뱀에게는 따로 다른 경보음을 내는데, 이 소리를 들은 다른 종의 새는 다가와 땅을 살핀다. 유럽의 박새 연구에서는 포식자의 종류에 따라 모빙 소리가 조금씩 달랐다.",
+  "unlock": {
+    "on": "event-seen",
+    "events": [
+      "ev.parus-minor.owl-mobbing",
+      "ev.parus-minor.crow-near-fledglings",
+      "ev.parus-minor.jay-watching"
+    ]
+  },
+  "basis": {
+    "sources": ["SRC-002", "SRC-001", "SRC-050"],
+    "factCheck": "verified",
+    "note": "여러 종 모빙과 뱀 경보음 해석(SRC-002, 일본) · 뱀 전용 경보음(SRC-001) · 포식자별 모빙 소리, 독일 박새(SRC-050)."
+  }
+}

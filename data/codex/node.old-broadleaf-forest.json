@@ -1,0 +1,16 @@
+{
+  "id": "cx.node.old-broadleaf-forest",
+  "kind": "node",
+  "target": "old-broadleaf-forest",
+  "nameKo": "활엽수 노숙림",
+  "body": "오래된 활엽수가 자라는 숲이다. 국내 인공새집 조사에서 박새는 침엽수림보다 활엽수림에서 번식하는 쌍이 많았고, 한배 새끼 수와 번식 성공률도 높았다. 같은 조사에서 진박새는 반대로 침엽수림에서 번식 성공률이 높았다. 겨울에는 박새가 이런 숲보다 침엽수림의 무리에서 더 자주 보인다.",
+  "unlock": {
+    "on": "node-visited",
+    "node": "old-broadleaf-forest"
+  },
+  "basis": {
+    "sources": ["SRC-032", "SRC-033"],
+    "factCheck": "verified",
+    "note": "번식 대비(SRC-032, 국내 2006~2007) · 겨울 대비(SRC-033). 장소 파일의 basis와 같은 출처."
+  }
+}

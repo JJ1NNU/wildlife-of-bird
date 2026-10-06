@@ -1,0 +1,17 @@
+{
+  "id": "cx.species.parus-minor",
+  "kind": "species",
+  "target": "parus-minor",
+  "nameKo": "박새",
+  "scientificName": "Parus minor",
+  "body": "머리와 멱이 검고, 흰 뺨이 그 검정에 둘러싸여 있다. 멱의 검정은 배 가운데를 따라 내려가는데, 수컷은 이 줄이 굵고 다리 사이에서 넓게 퍼진다. 번식기는 4~7월이고, 나무구멍이나 사람이 단 새집에 둥지를 튼다. 새끼는 나방 애벌레를 주로 먹고 자란다. 겨울에는 진박새 같은 다른 박새류와 섞인 무리로 숲을 돈다. 일본의 가락지 조사에는 7년 11개월을 산 기록이 있다.",
+  "unlock": {
+    "on": "run-start",
+    "species": "parus-minor"
+  },
+  "basis": {
+    "sources": ["SRC-027", "SRC-034", "SRC-001", "SRC-024", "SRC-032", "SRC-033", "SRC-025"],
+    "factCheck": "verified",
+    "note": "무늬·수컷 세로줄(SRC-027) · 번식기·새끼 먹이(SRC-034) · 나무구멍(SRC-001) · 인공새집(SRC-024·032) · 겨울 혼성군(SRC-033) · 최장 기록(SRC-025, 평균 수명이 아니다). 서식지·주식처럼 SRC-004(E) 단독인 사실(P-10~P-12)은 넣지 않았다."
+  }
+}
