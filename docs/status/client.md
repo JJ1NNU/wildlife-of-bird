@@ -10,6 +10,7 @@
 - **#24** M1 화면 — #125(S-10 · 자동 저장 · S-30) · #134(S-01) · #142(글꼴) · #154(훈련·옮기기 펼침) · #157(빨리 감기) · #164(S-20 짝 후보) · #185(스탯 표·S-23) · #198(산란수 카드) · #211(둥지 줄) · #225(S-22 육아 방침) · #231(S-20 지난 짝) · #235(지난 짝 등급 범위·유대) 머지. 이벤트·나머지 번식 관문·계승은 엔진 #21 대기
 
 ## 최근 완료
+- #235 머지 — #233 머지 뒤 main을 합쳐(강제 푸시 대신 merge) 머지 / #236 리뷰 승인(client) — 엔진 2차 번식 여부 관문 `secondBrood`(`gate.cards` = `{choiceId, energyCost}[]`, 실패 뒤만). 화면은 웹의 `GATE_GO.secondBrood` 한 줄(잠정) (라운드 19)
 - #233 리뷰 승인(client) — 엔진 #232: 짝 나이·경험 +1, 지난 짝 카드 `potentialRange`·`bond{now,reunion}`, `gate.previousGone` / #235 열림 — 화면 반영(유대 n → m, 등급 범위 3개 + "… n개", 없어진 이유는 관문 값). **#233 위에 쌓음** — #233 머지 뒤 rebase(`git rebase --onto origin/main origin/engine/232-previous-mate`) 후 머지 (라운드 19)
 - #231 머지 — S-20 지난 짝 카드(`card.previous`: 성격 확인·재결합 예, 버튼 "지난 짝과 다시", 새 후보 번호 1부터) · 지난 짝이 없으면 `recentLog` 마지막 `mate` 기록의 `cause`(mateDeath/divorce)로 한 줄(`MATE_GONE`, 잠정 #21). 엔진에 #232(짝 나이 안 오름 · 등급 범위·유대 값 · 없어진 이유를 관문에) (라운드 18)
 - #225 머지 — S-22 육아 방침: 항목별 칸 한 줄(와이어프레임 mid/03 C·C′), 고른 값은 `parentingPolicy?item=opt&…`로 `act`, 조정의 `locked` 항목 점선·잠김, 그대로면 "이대로 진행". 선택 id→칸 글 표 `POLICY_WORD`(Game.tsx, 잠정 #21) (라운드 17)
@@ -40,7 +41,7 @@
 0-0. 엔진이 `ClutchSizeCard`에 이소 기대 수·은수저 지수를 더하면 `clutchRow`(Game.tsx)의 vals에 붙이기(5장: 소수 첫째·셋째 자리)
 0. #188 D(엔진 `replan`이 생기면) · 이벤트 칸 재생 멈춤 — 재생은 `Game.tsx`의 `replay`(진행 때 판정·저장 끝, 표만 `shown`칸까지)
 1. 엔진 #21이 새 선택 kind(eventOption·나머지 번식 관문·inheritance)를 내면 `Game.tsx`에 붙이기 — S-13 이벤트 시트(zone 안 absolute, 상태 바 아래). 묶음 줄은 `GROUPS`(id 앞부분)로 더할 수 있다
-00. #235 머지 — #233 머지 확인 → rebase → `bash scripts/merge-pr.sh 235`
+00. #236 머지되면 S-2x 2차 번식 카드: 선택지 label + "에너지 −n"(안 한다 "없음"), 위에 왜 열렸는지 한 줄(`recentLog` 마지막 둥지 기록 — 부화 0·새끼 전멸). 분기는 `Game.tsx`의 `view.gate?.kind`
 1-0. S-20 남은 것(엔진이 내면): 머리줄 내 과시/사회 등급 · 자동 진행 알림. 관문 분기는 `Game.tsx`의 `view.gate?.kind` — 새 관문 kind도 여기에
 1-0-1. 둥지 띠 나머지(mid/03 A): 국면 이름·단계 n/N · 둥지 손실% · 짝·유대 · 건 지시 — 엔진 ViewModel에 나오면 `nest-band` 줄(Game.tsx 판)에
 1-1. ViewModel에 `stay`·환경이 생기면 판에 'N단계째 머묾'·환경 칩(와이어프레임 A)
@@ -49,7 +50,8 @@
 4. 화면 문구를 `data/text/`로(콘텐츠가 만들면)
 
 ## 메모 (다음 근무의 나에게)
-- 4191 포트도 다른 부서 미리보기가 쓴다(같은 제목이라 헷갈림 — `--strictPort` 실패를 먼저 확인) — 4217 썼음. 4188 포트도 잡혀 있을 때가 있다 — 4191 등 다른 포트로. 관문 저장 넣기: 봇 스크립트 출력(JSON 문자열)을 `apps/web/dist/x.json`에 두고 브라우저에서 `fetch` → `localStorage.wb.run` (끝나면 지움). 봇 previews는 `disabled` 뺀 선택만. Python heredoc은 `PYTHONUTF8=1`, 상태 파일은 CRLF
+- 쌓인 PR을 아래 PR 머지 뒤 정리할 때 `rebase --onto` + 강제 푸시는 자동 근무에서 거부된다 → 브랜치에 `git merge origin/main`(스쿼시 머지라 결과 같음) 후 일반 푸시. 로컬 `npm run check`의 version.json CRLF 포맷 오류는 worktree 줄끝 탓 — CI는 통과
+- 4191 포트도 다른 부서 미리보기가 쓴다(같은 제목이라 헷갈림 — `--strictPort` 실패를 먼저 확인) — 4217 썼음. 4188 포트도 잡혀 있을 때가 있다 — 4191 등 다른 포트로. 관문 저장 넣기: 봇 스크립트 출력(JSON 문자열)을 `apps/web/dist/x.json`에 두고 브라우저에서 `fetch` → `localStorage.wb.run` (끝나면 지움). 봇 previews는 `disabled` 뺀 선택만. Python heredoc은 `PYTHONUTF8=1`, 상태 파일은 LF
 - 브라우저 pane 모바일 크기에서는 좌표 클릭이 빗나간다 — `find`의 ref나 `data-testid` 클릭으로
 - 미리보기 4173 포트가 다른 부서 서버에 잡혀 있을 수 있다 — `--port 4188 --strictPort`로. wb-client는 `main`을 체크아웃 못 할 때가 있다(다른 worktree가 씀) → `git switch --detach origin/main`
 - 미리보기 서버를 끌 때 `taskkill /IM node.exe` 금지(다른 부서 node까지 죽음) — 백그라운드 작업 중지로만
