@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S-10 · S-12 루틴 — 중충실도</title>
+<link rel="stylesheet" href="wf.css">
+<style>
+/* 루틴 전용 — 화면 안은 토큰만 (#187) */
+.slots { flex: none; padding: var(--wb-space-2) var(--wb-space-4) 0; }
+.slots .cells { display: flex; gap: 4px; }
+.cell { flex: 1; min-width: 0; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  background: var(--wb-color-card); border: 1px solid var(--wb-color-line); border-radius: var(--wb-radius-m); font-size: var(--wb-font-size-caption); }
+.cell .n { color: var(--wb-color-ink-muted); line-height: 12px; }
+.cell .ico { color: var(--wb-color-slate-strong); }
+.cell .e { line-height: 14px; font-weight: var(--wb-font-weight-bold); }
+.cell.cur { border: 2px solid var(--wb-color-sage-strong); background: #e8efe6; }
+.cell.done { background: var(--wb-color-paper); border-style: dashed; color: var(--wb-color-ink-muted); }
+.cell.done .ico { color: var(--wb-color-ink-muted); }
+.cell.empty { border-style: dashed; background: var(--wb-color-paper); }
+.cell .pl { font-size: 10px; line-height: 11px; color: var(--wb-color-slate-strong); white-space: nowrap; }
+.sum { display: flex; align-items: center; gap: var(--wb-space-2); padding: 4px 0 0; font-size: var(--wb-font-size-small); }
+.slotlist { flex: 1; min-height: 0; overflow: hidden; padding: var(--wb-space-2) var(--wb-space-4) 0; }
+.kv td.on, .kv tr.on td { background: #e8efe6; }
+.kv tr.wait td { color: var(--wb-color-ink-muted); }
+.kv tr.now td { font-weight: var(--wb-font-weight-bold); }
+.mini { margin-top: 10px; font-size: 12px; color: #4a4a46; }
+.mini .phone-strip { width: 360px; background: var(--wb-color-paper); outline: 1px solid #9a9a94; padding: 6px 0; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="page-head">
+  <h1>06 · S-10 루틴 · S-12 칸별 결과 — 중충실도 (360 폭)</h1>
+  <p>기준: 디자인 <code>specs/00-core-loop.md</code> 3.5 · 5.4 (#175 잠정, D-022) · #38 결정 A · 클라이언트 #53(결정 영역 550). <a href="01-main-turn.html">01</a>의 "행동 1개" 화면을 <b>칸 N개 루틴</b>으로 바꾼 것. 숫자·문구는 자리를 보여 주는 예시다(칸 단위 수치는 #174).</p>
+  <p class="legend"><label><input type="checkbox" id="ann" checked> 주석 보기</label>
+    <span class="k p"></span>확률·예상치 자리 <span class="k t"></span>터치 영역 44px 이상 <span class="k f"></span>550 — 결정 영역 끝</p>
+</div>
+
+<div class="frames">
+
+<!-- ───────── A. 루틴 확인 (기본값) ───────── -->
+<section class="frame">
+<h2>A. 루틴 확인 — 전 단계 루틴이 채워진 채 시작</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status">
+      <div class="row small"><span class="ico s i-winter"></span><span class="b">1월 하반</span><span class="muted">· 겨울 혼성군 · 2 / 24</span><span class="sp"></span><span>총 번식 <b>3</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:60%"></i></div><span class="b">40</span><span class="muted">/ 67</span>
+        <span style="width:8px"></span><span class="ico s i-feather"></span><span>깃털 <b>72</b></span></div>
+    </div>
+    <div class="art">
+      <img class="bird" src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt="">
+      <div class="chip t" style="left:0"><span>박새 ♀ 2세 ▸</span></div>
+      <div class="chip t" style="right:0"><span class="p">한파 · 먹이 −20% ▸</span></div>
+      <div class="plate"><div class="row"><span class="b small">소나무숲</span><span class="sp"></span><span class="small p">먹이 많음 · 경쟁 보통</span></div></div>
+    </div>
+    <div class="slots">
+      <div class="cells">
+        <div class="cell t"><span class="n">1</span><span class="ico s i-forage"></span><span class="e p">46</span></div>
+        <div class="cell t"><span class="n">2</span><span class="ico s i-forage"></span><span class="e p">51</span></div>
+        <div class="cell t"><span class="n">3</span><span class="ico s i-rest"></span><span class="e p">52</span></div>
+        <div class="cell t"><span class="n">4</span><span class="ico s i-forage"></span><span class="e p">56</span></div>
+        <div class="cell t"><span class="n">5</span><span class="ico s i-explore"></span><span class="e p">55</span></div>
+        <div class="cell t"><span class="n">6</span><span class="ico s i-forage"></span><span class="e p">59</span></div>
+      </div>
+      <div class="sum"><span class="ico s i-energy"></span><span class="p">40 → <b>59</b></span><span class="sp"></span><span class="risk mid p"><span class="ico s i-risk"></span>6칸 합 3.7% <span class="w">보통</span></span></div>
+    </div>
+    <div class="slotlist">
+      <table class="kv">
+        <thead><tr><th>칸</th><th>예상 에너지</th><th>위험</th><th>성장</th></tr></thead>
+        <tbody>
+          <tr class="t"><td>1 채식</td><td class="p">+6 → 46</td><td class="p">0.6%</td><td class="p">채식 +0.4</td></tr>
+          <tr class="t"><td>2 채식</td><td class="p">+5 → 51</td><td class="p">0.6%</td><td class="p">채식 +0.4</td></tr>
+          <tr class="t"><td>3 휴식</td><td class="p">+1 → 52</td><td class="p">0.4%</td><td class="p">깃털 +2</td></tr>
+          <tr class="t"><td>4 채식</td><td class="p">+4 → 56</td><td class="p">0.7%</td><td class="p">채식 +0.4</td></tr>
+          <tr class="t"><td>5 탐색</td><td class="p">−1 → 55</td><td class="p">0.8%</td><td class="p">경계 +0.4</td></tr>
+          <tr class="t"><td>6 채식</td><td class="p">+4 → 59</td><td class="p">0.7%</td><td class="p">채식 +0.4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="actions"><div class="btn prim t">이 루틴으로 진행</div></div>
+  </div>
+  <div class="feed"><p>지난 단계(1월 상반): 채식 4 · 휴식 1 · 탐색 1 — 에너지 +17. 혼성군에 쇠박새 둘이 붙었다.</p></div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li><b>칸 줄</b> = 칸마다 번호 · 행동 아이콘 · <b>그 칸 뒤의 에너지</b>. 칸은 44 × 52 이상(360 폭에 6칸 + 간격 4).</li>
+  <li><b>칸별 미리보기 = 아래 표</b>. 칸 k의 예상은 <b>1~k−1칸을 다 한 뒤의 상태</b>로 계산한다(쌓임) — 채식이 이어지면 같은 장소 고갈로 +6 → +5 → +4가 보인다. 에너지는 "변화 → 결과" 둘 다(0 = 확정 사망, B-1).</li>
+  <li>위험은 칸마다 숫자, 위 요약 줄에 <b>6칸 합</b>(정확히는 1 − Π(1 − pₖ)). 띠·색은 칸 하나 기준 <code>display.riskBands</code> 그대로, 합에는 따로 띠를 정해야 한다 — <b>잠정(#187)</b>: 합도 같은 띠 × 칸 수.</li>
+  <li>기본값 = 전 단계 루틴(3.5). 바꿀 것이 없으면 <b>진행 1번</b>. 칸 줄의 칸이나 표의 줄을 누르면 B(고치기).</li>
+  <li>높이: 상태 56 + 그림 120 + 칸 줄 84 + 표 ~230 + 버튼 60 = 550. 장소 판은 1줄로 줄였다("N단계째 머묾"은 칸 단위 고갈이 표에 보이므로 뺐다).</li>
+</ul>
+<div class="mini">번식기 — 같은 줄, 칸만 넓게 (시기 6칸 ÷ 단계 수, 3.5)
+  <div class="phone-strip"><div class="slots" style="padding-top:0"><div class="cells">
+    <div class="cell t"><span class="n">1</span><span class="ico s i-forage"></span><span class="e">48</span></div>
+    <div class="cell t"><span class="n">2</span><span class="ico s i-forage"></span><span class="e">52</span></div>
+    <div class="cell t"><span class="n">3</span><span class="ico s i-rest"></span><span class="e">53</span></div></div></div></div>
+  <div class="phone-strip"><div class="slots" style="padding-top:0"><div class="cells">
+    <div class="cell t"><span class="n">1</span><span class="ico s i-forage"></span><span class="e">48</span></div>
+    <div class="cell t"><span class="n">2</span><span class="ico s i-forage"></span><span class="e">52</span></div></div></div></div>
+</div>
+</section>
+
+<!-- ───────── B. 칸 고치기 (옮기기 펼침) ───────── -->
+<section class="frame">
+<h2>B. 칸 고치기 — 4칸을 옮기기로</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status">
+      <div class="row small"><span class="ico s i-winter"></span><span class="b">1월 하반</span><span class="muted">· 겨울 혼성군 · 2 / 24</span><span class="sp"></span><span>총 번식 <b>3</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:60%"></i></div><span class="b">40</span><span class="muted">/ 67</span>
+        <span style="width:8px"></span><span class="ico s i-feather"></span><span>깃털 <b>72</b></span></div>
+    </div>
+    <div class="art">
+      <img class="bird" src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt="">
+      <div class="chip t" style="left:0"><span>박새 ♀ 2세 ▸</span></div>
+      <div class="chip t" style="right:0"><span>한파 · 먹이 −20% ▸</span></div>
+      <div class="plate"><div class="row"><span class="b small">소나무숲</span><span class="sp"></span><span class="small">먹이 많음 · 경쟁 보통</span></div></div>
+    </div>
+    <div class="slots">
+      <div class="cells">
+        <div class="cell t"><span class="n">1</span><span class="ico s i-forage"></span><span class="e">46</span></div>
+        <div class="cell t"><span class="n">2</span><span class="ico s i-forage"></span><span class="e">51</span></div>
+        <div class="cell t"><span class="n">3</span><span class="ico s i-rest"></span><span class="e">52</span></div>
+        <div class="cell t cur"><span class="n">4</span><span class="ico s i-move"></span><span class="e p">47</span></div>
+        <div class="cell t"><span class="pl">마을</span><span class="ico s i-explore"></span><span class="e p">46</span></div>
+        <div class="cell t"><span class="pl">마을</span><span class="ico s i-forage"></span><span class="e p">52</span></div>
+      </div>
+      <div class="sum"><span class="b">4칸</span><span class="muted">— 3칸 뒤 에너지 52에서</span><span class="sp"></span><span class="cap">◂ ▸ 칸 넘기기</span></div>
+    </div>
+    <div class="list">
+      <div class="cap">↑ 채식·휴식·훈련·사회·탐색은 목록 안에서 스크롤됨</div>
+      <div class="opt t open"><span class="ico i-move"></span><div class="main"><div class="b">옮기기 ▴</div><div class="cap p">비행 +0.4 (어디로 가든)</div></div>
+        <div class="vals cap">접기</div></div>
+      <div class="opt t sub sel"><div class="main"><div class="b">마을</div><div class="cap p">먹이 보통 · 경쟁 낮음</div></div>
+        <div class="vals"><div class="p">에너지 <b>−5</b></div><div class="risk lo p"><span class="ico s i-risk"></span>0.4% <span class="w">낮음</span></div></div></div>
+      <div class="opt t sub"><div class="main"><div class="b">숲 가장자리</div><div class="cap p">먹이 보통 · 경쟁 보통</div></div>
+        <div class="vals"><div class="p">에너지 <b>−4</b></div><div class="risk mid p"><span class="ico s i-risk"></span>0.7% <span class="w">보통</span></div></div></div>
+    </div>
+    <div class="actions"><div class="btn t" style="flex:none;width:96px">되돌리기</div><div class="btn prim t">루틴 보기</div></div>
+  </div>
+  <div class="feed"><p>지난 단계(1월 상반): 채식 4 · 휴식 1 · 탐색 1 — 에너지 +17.</p></div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>고르는 칸은 테두리. 아래 목록은 <b>그 칸의 선택지</b>(01-A·B와 같은 줄)이고 값은 앞 칸까지 한 뒤의 상태로 계산한다.</li>
+  <li>행동을 누르면 그 칸에 들어가고 <b>다음 칸으로 넘어간다</b> — 탭 6번이면 루틴을 새로 짠다. 칸 줄을 직접 눌러 아무 칸이나 고를 수 있다.</li>
+  <li>옮기기 칸(#38 그대로 펼침): <b>다음 칸부터 새 장소</b>. 뒤 칸 위에 장소 이름을 달고(5·6 "마을"), 뒤 칸의 예상도 새 장소로 다시 계산된다. 한 루틴에 옮기기 여러 번 가능 — 목적지 목록은 <b>그 칸에 있는 장소</b> 기준.</li>
+  <li>앞 칸을 바꿔 뒤 칸 행동이 그 장소에서 불가능해지면(예: 공원 둥지 상자 행동) 그 칸을 비우고 진행 버튼을 막는다 — 박새 M1엔 그런 행동이 없어 그리지 않았다.</li>
+  <li>되돌리기 = 이번 단계에 고친 것을 버리고 기본값으로. 루틴 보기 = A로. 고치는 탭은 결정으로 세지 않는다(5.4).</li>
+</ul>
+</section>
+
+<!-- ───────── C. S-12 칸별 결과 — 이어서 자동 재생 ───────── -->
+<section class="frame">
+<h2>C. S-12 칸별 결과 — 이어서 자동 재생</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status">
+      <div class="row small"><span class="ico s i-winter"></span><span class="b">1월 하반</span><span class="muted">· 겨울 혼성군 · 2 / 24</span><span class="sp"></span><span>총 번식 <b>3</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:76%"></i></div><span class="b">51</span><span class="muted">/ 67</span>
+        <span style="width:8px"></span><span class="ico s i-feather"></span><span>깃털 <b>72</b></span></div>
+    </div>
+    <div class="art"><img class="bird" src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt=""></div>
+  </div>
+  <div class="dim" style="top:56px"></div>
+  <div class="sheet" style="bottom:90px">
+    <div class="hd"><div class="t1">1월 하반 — 3 / 6칸</div><div class="small muted">솔방울 틈에서 씨앗을 찾았다.</div></div>
+    <div style="padding:0 var(--wb-space-4)">
+      <table class="kv">
+        <thead><tr><th>칸</th><th>에너지 예상</th><th>실제</th><th>위험</th></tr></thead>
+        <tbody>
+          <tr><td>1 채식</td><td class="p">+6</td><td class="p b">+7</td><td class="good">✓</td></tr>
+          <tr><td>2 채식</td><td class="p">+5</td><td class="p b">+4</td><td class="good">✓</td></tr>
+          <tr class="now on"><td>3 휴식</td><td class="p">+1</td><td class="p b">+0</td><td class="good">✓</td></tr>
+          <tr class="wait"><td>4 채식</td><td>+4</td><td>…</td><td>…</td></tr>
+          <tr class="wait"><td>5 탐색</td><td>−1</td><td>…</td><td>…</td></tr>
+          <tr class="wait"><td>6 채식</td><td>+4</td><td>…</td><td>…</td></tr>
+        </tbody>
+      </table>
+      <div class="stepper" style="margin-top:var(--wb-space-2)">
+        <div class="st done"><i></i></div><div class="st done"><i></i></div><div class="st now"><i></i></div><div class="st"><i></i></div><div class="st"><i></i></div><div class="st"><i></i></div>
+      </div>
+    </div>
+    <div class="actions"><div class="btn t">멈춤</div><div class="btn t">끝까지 ▸▸</div></div>
+  </div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li><b>결정: 이어서 자동 재생</b>(한 장씩 넘기기 아님). 칸 하나에 약 0.6초 — 줄이 채워지고 상태 바 에너지가 같이 움직인다. 6칸이 끝나면 버튼이 <code>확인</code>(요약 = 이 표 그대로 + 성장 합 한 줄, 01-C의 짝 지시 줄).</li>
+  <li>왜: 144칸 × 확인 탭은 같은 손짓의 반복이다. 표가 위에서 아래로 차면 "예상 대비 실제"를 칸마다 보면서도 탭은 루틴당 1번.</li>
+  <li>끝까지 ▸▸ = 남은 칸을 바로 채움(판정은 같다). 멈춤 = 그 자리에서 정지(다시 누르면 계속). 둘 다 결정이 아니다.</li>
+  <li>위험은 확률을 다시 보이지 않고 ✓만(01-C 그대로). 칸 3에서 죽으면 그 줄이 <b class="danger">✕</b>로 멈추고 4~6은 회색 그대로 → S-30.</li>
+  <li><b>이벤트가 당첨된 칸</b>에서 재생이 멈추고 S-13이 그 위에 뜬다 → 끝나면 D. 루틴당 이벤트 상한 1(3.5).</li>
+  <li>설정에 "칸 결과 한 장씩"을 두지 않는다(지금 필요 없음). 재생 속도도 고정.</li>
+</ul>
+</section>
+
+<!-- ───────── D. 이벤트 뒤 남은 칸 고치기 ───────── -->
+<section class="frame">
+<h2>D. 이벤트 뒤 — 남은 칸 고치기</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="status">
+      <div class="row small"><span class="ico s i-winter"></span><span class="b">1월 하반</span><span class="muted">· 겨울 혼성군 · 2 / 24</span><span class="sp"></span><span>총 번식 <b>3</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:67%"></i></div><span class="b">45</span><span class="muted">/ 67</span>
+        <span style="width:8px"></span><span class="ico s i-feather"></span><span>깃털 <b>72</b></span></div>
+    </div>
+    <div class="banner">새매가 맴돈다 — 남은 3칸을 고칠 수 있다</div>
+    <div class="slots">
+      <div class="cells">
+        <div class="cell done"><span class="n">1 ✓</span><span class="ico s i-forage"></span><span class="e">47</span></div>
+        <div class="cell done"><span class="n">2 ✓</span><span class="ico s i-forage"></span><span class="e">51</span></div>
+        <div class="cell done"><span class="n">3 ✓</span><span class="ico s i-rest"></span><span class="e">45</span></div>
+        <div class="cell t"><span class="n">4</span><span class="ico s i-forage"></span><span class="e p">49</span></div>
+        <div class="cell t"><span class="n">5</span><span class="ico s i-explore"></span><span class="e p">48</span></div>
+        <div class="cell t"><span class="n">6</span><span class="ico s i-forage"></span><span class="e p">52</span></div>
+      </div>
+      <div class="sum"><span class="ico s i-energy"></span><span class="p">45 → <b>52</b></span><span class="sp"></span><span class="risk hi p"><span class="ico s i-risk"></span>남은 3칸 4.5% <span class="w">높음</span></span></div>
+    </div>
+    <div class="slotlist">
+      <div class="card small" style="padding:8px 10px;margin-bottom:var(--wb-space-2)">이벤트 결과: <b>몸을 숨겼다</b> — 에너지 −6. 이 장소 위험 ↑ (이번 단계 끝까지)</div>
+      <table class="kv">
+        <thead><tr><th>남은 칸</th><th>예상 에너지</th><th>위험</th></tr></thead>
+        <tbody>
+          <tr class="t"><td>4 채식</td><td class="p">+4 → 49</td><td class="p danger">1.6%</td></tr>
+          <tr class="t"><td>5 탐색</td><td class="p">−1 → 48</td><td class="p danger">1.8%</td></tr>
+          <tr class="t"><td>6 채식</td><td class="p">+4 → 52</td><td class="p danger">1.6%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="actions"><div class="btn t">남은 칸 고치기</div><div class="btn prim t">그대로 진행</div></div>
+  </div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li>S-13(이벤트 카드)이 닫히면 이 화면. 그림 영역 자리에 <b>이유 배너</b>(이벤트 이름) — 왜 멈췄는지가 먼저 보인다.</li>
+  <li>끝난 칸은 점선 · ✓ · 잠김(누를 수 없음). 남은 칸은 A·B와 똑같이 고친다 — 칸을 누르면 B의 목록이 뜬다. 예상은 <b>이벤트 효과를 반영한 지금 상태</b>에서 다시 계산.</li>
+  <li>기본 버튼은 <b>그대로 진행</b>(고치지 않으면 그대로 — 3.5). 고쳐도 결정으로 세지 않는다. 진행하면 C의 재생이 4칸부터 이어진다(이 루틴엔 이벤트 추첨 없음).</li>
+  <li>이벤트가 마지막 칸에서 당첨되면 이 화면을 건너뛰고 C의 확인으로.</li>
+</ul>
+</section>
+
+</div>
+</body>
+</html>
