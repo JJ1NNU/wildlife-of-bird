@@ -26,9 +26,15 @@ export function nestLocked(state: RunState): boolean {
   return state.nest !== undefined && NEST_PHASES.includes(phaseAt(state.calendar, state.at));
 }
 
-/** 둥지 국면을 벗어났으면 둥지를 거둔다 — 다음 단계로 간 뒤 부른다 */
+/**
+ * 둥지 국면을 벗어났으면 둥지를 거둔다 — 다음 단계로 간 뒤 부른다.
+ * 새끼가 살아 있으면 `postFledge` 동안은 남긴다(급이·새끼 사망이 이어진다, 01-formulas 2.4·3.3). 옮기기는 풀린다.
+ * 잠정(#21): 독립(점수·계승)은 그 조각에서 — 지금은 `postFledge`가 끝나면 그냥 거둔다.
+ */
 export function releaseNest(state: RunState): RunState {
   if (!state.nest || nestLocked(state)) return state;
+  const phase = phaseAt(state.calendar, state.at);
+  if (phase === 'postFledge' && (state.nest.chicks ?? 0) > 0) return state;
   const { nest: _n, ...rest } = state;
   return rest;
 }

@@ -149,11 +149,12 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
       phase,
       action,
       flight: stat('flight'),
-      // 잠정(#21): 둥지·새끼는 번식 조각에서 — 그 전에는 포란·급이 비용이 없다
-      incubating: false,
-      feeding: false,
+      // 박새는 암컷만 포란한다 (01-formulas 2.4)
+      incubating: p.sex === 'female' && phase === 'incubation' && state.nest?.eggs !== undefined,
+      feeding: (state.nest?.chicks ?? 0) > 0,
+      // 잠정(#21): 급이 강도는 육아 방침 조각에서 — 그 전에는 `mid`
       feedIntensity: 'mid',
-      chicks: 0,
+      chicks: state.nest?.chicks ?? 0,
     }) + layingCost(data, state);
   // 9.4: 에너지 변화 전체(잠 회복 포함)와 깃털 변화는 ÷ 칸 수
   const recover = species.sleepRecoverPerStep[season];

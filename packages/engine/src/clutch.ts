@@ -1,5 +1,6 @@
 import type { GameData } from '@wb/schema';
 import { advance, phaseAt } from './calendar.ts';
+import { chickDeath } from './formulas.ts';
 import { nextChance } from './rng.ts';
 import type { Choice, ClutchSizeCard, LogEntry, RunState } from './types.ts';
 
@@ -77,5 +78,43 @@ export function hatchIfDue(state: RunState, data: GameData): { state: RunState; 
   return {
     state: { ...state, rng, nest: { ...nest, chicks } },
     log: [{ at: state.at, type: 'nest', text: `새끼 ${chicks}마리가 깨어났다` }],
+  };
+}
+
+/**
+ * 새끼 개별 사망 — `nestling` `postFledge` 단계마다 새끼 1마리씩 굴린다(01-formulas 3.3).
+ * 루틴의 판정 뒤 단계당 1번 굴린다: 확률이 칸의 행동과 무관해 칸마다 `1 − (1 − p)^(1/n)`로 n번 굴리는 것(9.4)과 분포가 같다.
+ * 모두 죽으면 B-5: 그 번식은 실패하고 둥지를 거둔다.
+ * 잠정(#21): 급이 강도는 `mid` — 육아 방침·짝 지시의 배율(04-breeding 6.3)은 그 조각에서.
+ */
+export function chicksSurvive(
+  state: RunState,
+  data: GameData,
+): { state: RunState; log: LogEntry[] } {
+  const nest = state.nest;
+  const chicks = nest?.chicks ?? 0;
+  const phase = phaseAt(state.calendar, state.at);
+  if (!nest || chicks === 0 || (phase !== 'nestling' && phase !== 'postFledge')) {
+    return { state, log: [] };
+  }
+  const p = chickDeath(data.formulas, 'mid');
+  let rng = state.rng;
+  let alive = 0;
+  for (let i = 0; i < chicks; i++) {
+    const r = nextChance(rng, p);
+    rng = r.state;
+    if (!r.value) alive++;
+  }
+  if (alive === 0) {
+    const { nest: _n, ...rest } = state;
+    return {
+      state: { ...rest, rng },
+      log: [{ at: state.at, type: 'brood', text: '새끼를 모두 잃었다', cause: 'chickDeath' }],
+    };
+  }
+  const lost = chicks - alive;
+  return {
+    state: { ...state, rng, nest: { ...nest, chicks: alive } },
+    log: lost > 0 ? [{ at: state.at, type: 'nest', text: `새끼 ${lost}마리를 잃었다` }] : [],
   };
 }

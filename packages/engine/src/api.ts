@@ -1,6 +1,6 @@
 import type { GameData, StatName } from '@wb/schema';
 import { advance, phaseAt, yearCalendar } from './calendar.ts';
-import { clutchCards, clutchChoices, clutchOptions, hatchIfDue } from './clutch.ts';
+import { chicksSurvive, clutchCards, clutchChoices, clutchOptions, hatchIfDue } from './clutch.ts';
 import { agedStats, fatCap } from './formulas.ts';
 import { isPhaseStart, makeCandidates, mateCards, mateChoices } from './mate.ts';
 import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
@@ -137,8 +137,11 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
 
   // 부화: `incubation` 마지막 단계의 판정 3 다음 (04-breeding 5장)
   const hatched = hatchIfDue(moved, data);
-  const survived = hatched.state;
   log.push(...hatched.log);
+  // 새끼 개별 사망: 급이 국면의 판정 3 다음 (01-formulas 3.3)
+  const raised = chicksSurvive(hatched.state, data);
+  const survived = raised.state;
+  log.push(...raised.log);
 
   // 흐름의 마지막: 관문 (00-core-loop 4.6). 열리면 이 단계에 머문다
   if (isPhaseStart(state.calendar, state.at, 'pairing')) {
