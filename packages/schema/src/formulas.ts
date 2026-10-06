@@ -149,6 +149,10 @@ export const Formulas = z
         mutationSd: nonneg,
         potentialMin: num,
         potentialMax: num,
+        /** 부화한 새끼가 암컷일 확률 (05-inheritance 3장) */
+        femaleShare: probability,
+        /** 잠재력 등급 범위의 반폭 — 화면에 `등급(p − w) ~ 등급(p + w)` (05-inheritance 4장) */
+        rangeWithin: nonneg,
       })
       .strict(),
     silverSpoon: z

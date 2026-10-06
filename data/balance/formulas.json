@@ -223,7 +223,9 @@
     },
     "mutationSd": 8,
     "potentialMin": 5,
-    "potentialMax": 100
+    "potentialMax": 100,
+    "femaleShare": 0.5,
+    "rangeWithin": 5
   },
   "silverSpoon": {
     "chickNeedPerStep": 0.5,
