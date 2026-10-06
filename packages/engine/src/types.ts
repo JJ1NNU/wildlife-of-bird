@@ -85,6 +85,47 @@ export interface Bird {
   expYears: number;
 }
 
+/** 플레이어의 짝 (04-breeding 2장). 짝 지시·번식은 이 값을 쓴다 */
+export interface Mate {
+  sex: 'female' | 'male';
+  age: number;
+  expYears: number;
+  potential: Partial<Record<StatName, number>>;
+  stats: Partial<Record<StatName, number>>;
+  /** 실제 성격. 수락률은 늘 이것으로 계산한다(2.5) */
+  personality: 'bold' | 'shy';
+  /** 성격이 '확인'됐나. 아니면 화면은 힌트만 보여 준다 */
+  personalityKnown: boolean;
+  bond: number;
+}
+
+/** 짝 후보 카드 하나 — 만들 때 신호까지 한 번 정해 고정한다 (04-breeding 2.2·2.3) */
+export interface MateCandidate extends Mate {
+  /** 잠재력 평균. 화면에 숫자로 나오지 않는다 */
+  quality: number;
+  /** 2.4 상호 선택 — 아니면 고를 수 없다 */
+  accepts: boolean;
+  /** 깃 선명도 오차 `정규(0, mate.signalSd)` */
+  plumageNoise: number;
+  /** 성격 힌트(`mate.hintAccuracy` 확률로 맞는 쪽) */
+  hint: 'bold' | 'shy';
+}
+
+/** 열려 있는 관문. 열려 있으면 `getChoices`는 관문의 선택지만 준다 (03-contracts 3장) */
+export type Gate = { kind: 'mateCandidate'; candidates: MateCandidate[] };
+
+/** 화면 S-20 카드 — 신호만, 실제 값은 없다 (04-breeding 2.3) */
+export interface MateCandidateCard {
+  choiceId: string;
+  /** 깃 선명도 등급 = 품질 + 오차 */
+  plumage: string;
+  /** 노래 등급 = 과시 현재값 */
+  song: string;
+  age: number;
+  hint: 'bold' | 'shy';
+  accepts: boolean;
+}
+
 /**
  * 런의 전체 상태. 저장 파일의 `state`가 이것이다.
  *
@@ -102,6 +143,9 @@ export interface RunState {
   /** 지금 장소에 도착한 뒤 지난 단계 수. 도착한 단계가 0 (01-formulas 2.3 고갈) */
   stay: number;
   player: Bird;
+  mate?: Mate;
+  /** 열려 있는 관문. 관문이 열린 단계에 머물러 있다 — 관문을 고르면 다음 단계로 간다 */
+  gate?: Gate;
   /** 점수 = 총 번식 수 (gdd 11.1장 [확정]) */
   totalBreeding: number;
   gameOver: boolean;
@@ -122,6 +166,8 @@ export interface ViewModel {
   energyCap: number;
   totalBreeding: number;
   gameOver: boolean;
+  /** 열려 있는 관문의 카드. 지금은 짝 후보(S-20)만 */
+  gate?: { kind: 'mateCandidate'; cards: MateCandidateCard[] };
   /** 최근 판정 기록 — 이야기 피드 */
   recentLog: LogEntry[];
 }

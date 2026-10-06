@@ -44,3 +44,15 @@ export function nextChance(state: RngState, p: number): { state: RngState; value
   const rolled = nextFloat(state);
   return { state: rolled.state, value: rolled.value < p };
 }
+
+/**
+ * 표준정규분포 표본 하나 (Box–Muller, 균등 난수 2개를 당긴다).
+ * 짝 후보 잠재력·신호 오차(04-breeding 2.2·2.3)와 유전(01-formulas 5장)에 쓴다.
+ * `1 − u`로 0을 피한다(`nextFloat`는 0 이상 1 미만).
+ */
+export function nextNormal(state: RngState): { state: RngState; value: number } {
+  const a = nextFloat(state);
+  const b = nextFloat(a.state);
+  const value = Math.sqrt(-2 * Math.log(1 - a.value)) * Math.cos(2 * Math.PI * b.value);
+  return { state: b.state, value };
+}
