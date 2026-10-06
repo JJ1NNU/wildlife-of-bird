@@ -8,6 +8,7 @@ import {
   getChoices,
   getView,
   type LogEntry,
+  type MateCandidateCard,
   newRun,
   preview,
   type RunState,
@@ -25,7 +26,8 @@ import { clearRun, loadRun, saveRun } from './save.ts';
  * 배치는 아트 중충실도 와이어프레임(`docs/ux/wireframes/mid/01`, #123)과 #53(결정 영역 550)을 따른다.
  * 훈련 ▾ · 옮기기 ▾는 펼쳐서 고른다(와이어프레임 B, D-016) — 펼침은 화면만의 상태라 저장하지 않는다.
  * 개발용 빨리 감기(QA 평균 봇)는 피드 위에 둔다 — 결정 영역 배치를 건드리지 않고, 출시 빌드에서는 숨긴다.
- * 이벤트 · 번식 · 계승은 엔진이 그 선택을 내면 붙인다(#21).
+ * 짝 후보 관문(S-20)은 결정 영역을 통째로 쓴다(와이어프레임 mid/03 E) — 지난 짝 카드는 엔진이 내면(#21).
+ * 이벤트 · 나머지 번식 관문 · 계승은 엔진이 그 선택을 내면 붙인다(#21).
  * 잠정(#24): 화면 문구는 data/text/(콘텐츠)가 생기면 옮긴다.
  */
 
@@ -54,6 +56,7 @@ const GROUPS = [
   { key: 'move', prefix: 'move.', label: '옮기기', icon: 'icon.action.move' },
 ] as const;
 type GroupKey = (typeof GROUPS)[number]['key'];
+const HINT_WORD = { bold: '대담해 보인다', shy: '조심스러워 보인다' } as const;
 const SEASON = [
   'winter',
   'winter',
@@ -216,6 +219,40 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
+  /** S-20 후보 카드: 신호 4개(깃·노래·나이·성격 힌트) + 나를 받아들이는지 — 04-breeding 2.3~2.4 */
+  function mateRow(card: MateCandidateCard, n: number) {
+    const c = choices.find((x) => x.id === card.choiceId);
+    const sex = view.player.sex === 'female' ? '♂' : '♀';
+    return (
+      <li key={card.choiceId}>
+        <button
+          type="button"
+          className={`opt${card.choiceId === picked ? ' sel' : ''}`}
+          aria-pressed={card.choiceId === picked}
+          disabled={!!c?.disabled}
+          onClick={() => setPicked(card.choiceId)}
+          data-testid={`choice-${card.choiceId}`}
+        >
+          <span className="main">
+            <span className="b">
+              {sex} 후보 {n} <span className="muted small">{card.age <= 1 ? '1년생' : '성조'}</span>
+            </span>
+            <span className="cap">
+              깃 선명도 <b>{card.plumage}</b> · 노래 <b>{card.song}</b>
+            </span>
+            <span className="cap">
+              {[HINT_WORD[card.hint], c?.disabled?.reason].filter(Boolean).join(' · ')}
+            </span>
+          </span>
+          <span className="vals">
+            <span>나를 받아들임</span>
+            <b>{card.accepts ? '예' : '아니오'}</b>
+          </span>
+        </button>
+      </li>
+    );
+  }
+
   if (view.gameOver) {
     return (
       <main className="game" data-testid="game-over">
@@ -266,55 +303,67 @@ export function Game({ data }: { data: GameData }) {
           </div>
         </header>
 
-        <div className="art">
-          <img className="art-bird" src={birdUrl(view.speciesId)} alt="" />
-          <div className="plate small">
-            {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
-            {view.player.sex === 'female' ? '♀' : '♂'} {view.player.age}세{' · '}
-            {data.nodes.get(view.node)?.nameKo ?? view.node}
-          </div>
-        </div>
+        {view.gate?.kind === 'mateCandidate' ? (
+          <ul className="list" aria-label="짝 후보" data-testid="gate-mateCandidate">
+            <li className="gate-title b">짝 후보 — 한 마리를 고른다</li>
+            {view.gate.cards.map((card, i) => mateRow(card, i + 1))}
+          </ul>
+        ) : (
+          <>
+            <div className="art">
+              <img className="art-bird" src={birdUrl(view.speciesId)} alt="" />
+              <div className="plate small">
+                {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
+                {view.player.sex === 'female' ? '♀' : '♂'} {view.player.age}세{' · '}
+                {data.nodes.get(view.node)?.nameKo ?? view.node}
+              </div>
+            </div>
 
-        <ul className="list" aria-label="행동">
-          {choices.filter((c) => !GROUPS.some((g) => c.id.startsWith(g.prefix))).map((c) => row(c))}
-          {GROUPS.map((g) => {
-            const members = choices.filter((c) => c.id.startsWith(g.prefix));
-            if (members.length === 0) return null;
-            const isOpen = open === g.key;
-            const pickedHere = members.find((c) => c.id === picked);
-            return [
-              <li key={g.key}>
-                <button
-                  type="button"
-                  className={`opt${!isOpen && pickedHere ? ' sel' : ''}`}
-                  aria-expanded={isOpen}
-                  onClick={(e) => {
-                    setOpen(isOpen ? undefined : g.key);
-                    // 펼치면 그 줄을 목록 맨 위로 — 결정 버튼은 늘 같은 자리(와이어프레임 B)
-                    const el = e.currentTarget;
-                    if (!isOpen) requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
-                  }}
-                  data-testid={`group-${g.key}`}
-                >
-                  <span className="ico" style={iconStyle(g.icon)} />
-                  <span className="main">
-                    <span className="b">
-                      {g.label} {isOpen ? '▴' : '▾'}
-                    </span>
-                    <span className="cap">
-                      {pickedHere
-                        ? pickedHere.label
-                        : g.key === 'move'
-                          ? `갈 수 있는 곳 ${members.length}`
-                          : '스탯 하나를 고른다'}
-                    </span>
-                  </span>
-                </button>
-              </li>,
-              ...(isOpen ? members.map((c) => row(c, g.key)) : []),
-            ];
-          })}
-        </ul>
+            <ul className="list" aria-label="행동">
+              {choices
+                .filter((c) => !GROUPS.some((g) => c.id.startsWith(g.prefix)))
+                .map((c) => row(c))}
+              {GROUPS.map((g) => {
+                const members = choices.filter((c) => c.id.startsWith(g.prefix));
+                if (members.length === 0) return null;
+                const isOpen = open === g.key;
+                const pickedHere = members.find((c) => c.id === picked);
+                return [
+                  <li key={g.key}>
+                    <button
+                      type="button"
+                      className={`opt${!isOpen && pickedHere ? ' sel' : ''}`}
+                      aria-expanded={isOpen}
+                      onClick={(e) => {
+                        setOpen(isOpen ? undefined : g.key);
+                        // 펼치면 그 줄을 목록 맨 위로 — 결정 버튼은 늘 같은 자리(와이어프레임 B)
+                        const el = e.currentTarget;
+                        if (!isOpen)
+                          requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
+                      }}
+                      data-testid={`group-${g.key}`}
+                    >
+                      <span className="ico" style={iconStyle(g.icon)} />
+                      <span className="main">
+                        <span className="b">
+                          {g.label} {isOpen ? '▴' : '▾'}
+                        </span>
+                        <span className="cap">
+                          {pickedHere
+                            ? pickedHere.label
+                            : g.key === 'move'
+                              ? `갈 수 있는 곳 ${members.length}`
+                              : '스탯 하나를 고른다'}
+                        </span>
+                      </span>
+                    </button>
+                  </li>,
+                  ...(isOpen ? members.map((c) => row(c, g.key)) : []),
+                ];
+              })}
+            </ul>
+          </>
+        )}
 
         <div className="actions">
           <button
@@ -324,7 +373,13 @@ export function Game({ data }: { data: GameData }) {
             onClick={go}
             data-testid="go"
           >
-            {pickedChoice ? `${pickedChoice.label} 진행` : '행동을 고르세요'}
+            {view.gate
+              ? pickedChoice
+                ? `짝 맺기 · ${pickedChoice.label}`
+                : '짝을 고르세요'
+              : pickedChoice
+                ? `${pickedChoice.label} 진행`
+                : '행동을 고르세요'}
           </button>
         </div>
       </div>

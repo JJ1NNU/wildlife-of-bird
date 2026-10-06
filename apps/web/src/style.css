@@ -272,3 +272,7 @@ h1 {
 .dev .btn {
   flex: none;
 }
+.gate-title {
+  list-style: none;
+  padding: 0 var(--wb-space-1);
+}
