@@ -1,3 +1,4 @@
+import type { GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
 import type { RunState } from '../src/index.ts';
 import { act, contestChance, getChoices, getView, nestHoles, newRun } from '../src/index.ts';
@@ -77,5 +78,77 @@ describe('둥지 자리 관문 (04-breeding 1·4장)', () => {
   it('짝이 없으면 열리지 않는다', () => {
     const { mate: _m, ...single } = nestStart;
     expect(act(single, 'action.rest', testData).state.gate).toBeUndefined();
+  });
+});
+
+describe('산란수 관문 (04-breeding 5장)', () => {
+  /** `laying` 첫 단계(`period 8`), 둥지 있음 */
+  const layingStart: RunState = {
+    ...start,
+    at: { year: 1, period: 8, step: 1 },
+    node: 'village-farmland',
+    nest: { site: 'nestBox', node: 'village-farmland' },
+    player: { ...start.player, energy: 60 },
+  };
+
+  it('첫 단계 흐름의 마지막에 열리고, 고른 뒤 laying 단계마다 암컷이 알 수 × 0.4를 더 쓴다', () => {
+    const opened = act(layingStart, 'action.rest', testData).state;
+    expect(opened.at).toEqual(layingStart.at);
+    expect(getChoices(opened, testData).map((c) => c.id)).toEqual([
+      'clutchSize.6',
+      'clutchSize.8',
+      'clutchSize.10',
+    ]);
+    const card = getView(opened, testData).gate?.cards[0];
+    expect(card).toMatchObject({ eggs: 6, layingCost: expect.closeTo(2.4) });
+
+    const laid = act(opened, 'clutchSize.8', testData).state;
+    expect(laid.nest?.eggs).toBe(8);
+    expect(laid.at).toEqual({ year: 1, period: 8, step: 2 });
+    const without = { ...laid, nest: { site: 'nestBox', node: 'village-farmland' } };
+    const spent = (s: RunState) =>
+      s.player.energy - act(s, 'action.rest', testData).state.player.energy;
+    expect(spent(laid) - spent(without)).toBeCloseTo(3.2);
+    const male = (s: RunState): RunState => ({ ...s, player: { ...s.player, sex: 'male' } });
+    expect(spent(male(laid))).toBeCloseTo(spent(male(without)));
+  });
+
+  it('둥지가 없으면 열리지 않는다', () => {
+    const { nest: _n, ...noNest } = layingStart;
+    expect(act(noNest, 'action.rest', testData).state.gate).toBeUndefined();
+  });
+});
+
+describe('부화 (04-breeding 5장)', () => {
+  /** `incubation` 마지막 단계(`period 9` 단계 3), 알 8개 */
+  const lastIncubation: RunState = {
+    ...start,
+    at: { year: 1, period: 9, step: 3 },
+    node: 'village-farmland',
+    nest: { site: 'nestBox', node: 'village-farmland', eggs: 8 },
+    player: { ...start.player, energy: 60 },
+  };
+  const withHatchRate = (hatchRate: number): GameData => {
+    const s = testData.breeding.species['parus-minor'];
+    if (!s) throw new Error('fixture에 박새 번식 데이터가 없다');
+    return {
+      ...testData,
+      breeding: {
+        ...testData.breeding,
+        species: { ...testData.breeding.species, 'parus-minor': { ...s, hatchRate } },
+      },
+    };
+  };
+
+  it('incubation 마지막 단계에서만 알마다 굴려 새끼 수를 정한다', () => {
+    const early = { ...lastIncubation, at: { year: 1, period: 9, step: 2 } };
+    expect(act(early, 'action.rest', testData).state.nest?.chicks).toBeUndefined();
+    expect(act(lastIncubation, 'action.rest', withHatchRate(1)).state.nest?.chicks).toBe(8);
+  });
+
+  it('하나도 안 깨면 번식 실패(B-5) — 둥지를 거둔다', () => {
+    const r = act(lastIncubation, 'action.rest', withHatchRate(0));
+    expect(r.state.nest).toBeUndefined();
+    expect(r.log.some((l) => l.cause === 'hatchFailure')).toBe(true);
   });
 });
