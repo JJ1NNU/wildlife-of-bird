@@ -123,11 +123,11 @@ S-01 ─▶ S-02 ─▶ S-03 ─┐
 
 | 파일 | 화면 | 틀 |
 |---|---|---|
-| [00-run-start.html](wireframes/mid/00-run-start.html) | S-03 | 첫 개체 — 성별 고르기 · 스탯 6개 지금/잠재력 — `05-inheritance` v0 2장(#140, 잠정 #138) |
+| [00-run-start.html](wireframes/mid/00-run-start.html) | S-03 | 첫 개체 — 성별 고르기 · 스탯 6개 지금/잠재력 — `05-inheritance` v0 2장(#140) |
 | [01-main-turn.html](wireframes/mid/01-main-turn.html) | S-10 · S-12 | 기본 / 옮기기 펼침 / 판정 결과 겹침 / 굶주림 경고 + 큰 화면 |
 | [02-event.html](wireframes/mid/02-event.html) | S-13 | 고정 효과 + 판정형 / `fledgeEarly` |
 | [03-breeding.html](wireframes/mid/03-breeding.html) | S-20~S-23 · 관문 | 번식기 S-10 둥지 띠 / 짝 지시 ♀·♂(도움) / 육아 방침 설정·조정 / 산란수 관문 / 짝 후보 / 둥지 자리 관문 — `04-breeding` v0에 맞춤(#129) |
-| [04-inherit.html](wireframes/mid/04-inherit.html) | S-24 | 계승·잔류 / 계승 확인 / 2차 번식 — `05-inheritance` v0 5~7장에 맞춤(#140, 잠정 #138) |
+| [04-inherit.html](wireframes/mid/04-inherit.html) | S-24 | 계승·잔류 / 계승 확인 / 2차 번식 — `05-inheritance` v0 5~7장에 맞춤(#140) |
 | [05-game-over.html](wireframes/mid/05-game-over.html) | S-30 | 게임 오버 |
 
 **저충실도에서 바뀐 것**
