@@ -10,6 +10,7 @@ import {
   getView,
   type LogEntry,
   type MateCandidateCard,
+  type MateOrderCard,
   type NestSiteCard,
   newRun,
   type Preview,
@@ -72,6 +73,7 @@ const GATE_GO = {
   clutchSize: { done: (label: string) => `${label} 낳기`, none: '알 수를 고르세요' },
   mateOrder: { done: (label: string) => `짝에게 · ${label}`, none: '짝에게 맡길 일을 고르세요' },
 } as const;
+const GRADE_WORD = { high: '높음', mid: '보통', low: '낮음' } as const;
 const HINT_WORD = { bold: '대담해 보인다', shy: '조심스러워 보인다' } as const;
 const SEASON = [
   'winter',
@@ -146,9 +148,10 @@ function deltaText(deltas: Record<string, number> = {}, perSlot = false): string
       const n = roundHalfUp(x, 1);
       const name = STAT_WORD[k.slice('stat.'.length) as StatName] ?? k;
       if (n !== 0) stats.push(`${name} ${n > 0 ? '+' : '−'}${Math.abs(n).toFixed(1)}`);
-    } else {
+    } else if (k in RES_WORD) {
+      // 그 밖의 키(짝 지시 `acceptance`·`effect` 등)는 로그 글에 이미 있다
       const t = perSlot ? energy1(x) : formatEnergyDelta(x);
-      if (t !== '0') res.push(`${RES_WORD[k] ?? k} ${t}`);
+      if (t !== '0') res.push(`${RES_WORD[k]} ${t}`);
     }
   }
   return [...stats, ...res].join(' · ');
@@ -445,6 +448,41 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
+  /** 짝 지시 한 줄: 지시 · 수락률 등급(숫자 없음, 01-formulas 7.4) — 불가면 이유, 도움은 "내가 한다" */
+  function orderRow(card: MateOrderCard) {
+    const c = choices.find((x) => x.id === card.choiceId);
+    const val = c?.disabled
+      ? '불가'
+      : card.acceptance
+        ? GRADE_WORD[card.acceptance]
+        : card.choiceId.startsWith('help.')
+          ? '내가 한다'
+          : undefined;
+    return (
+      <li key={card.choiceId}>
+        <button
+          type="button"
+          className={`opt${card.choiceId === picked ? ' sel' : ''}`}
+          aria-pressed={card.choiceId === picked}
+          disabled={!!c?.disabled}
+          onClick={() => setPicked(card.choiceId)}
+          data-testid={`choice-${card.choiceId}`}
+        >
+          <span className="main">
+            <span className="b">{c?.label ?? card.choiceId}</span>
+            {c?.disabled && <span className="cap">{c.disabled.reason}</span>}
+          </span>
+          {val && (
+            <span className="vals">
+              <span>{card.acceptance ? '받아들일 가능성' : ''}</span>
+              <b>{val}</b>
+            </span>
+          )}
+        </button>
+      </li>
+    );
+  }
+
   if (view.gameOver) {
     const death = view.recentLog
       .slice()
@@ -524,6 +562,14 @@ export function Game({ data }: { data: GameData }) {
             <li className="gate-title muted small">
               둥지를 지으면 새끼가 떠날 때까지 이 장소를 옮길 수 없다. 깊은 구멍을 못 차지하면 얕은
               구멍에 짓는다.
+            </li>
+          </ul>
+        ) : view.gate?.kind === 'mateOrder' ? (
+          <ul className="list" aria-label="짝 지시" data-testid="gate-mateOrder">
+            <li className="gate-title b">짝에게 맡길 일 — 하나를 고른다</li>
+            {view.gate.cards.map((card) => orderRow(card))}
+            <li className="gate-title muted small">
+              고른 지시는 이 국면이 끝날 때까지. 거절하면 짝은 다른 일을 한다 — 원래 효과의 일부만.
             </li>
           </ul>
         ) : view.gate?.kind === 'clutchSize' ? (
