@@ -2,7 +2,7 @@ import type { GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
 import type { RunState } from '../src/index.ts';
 import { act, contestChance, getChoices, getView, nestHoles, newRun } from '../src/index.ts';
-import { testData } from './fixture.ts';
+import { actStep, testData } from './fixture.ts';
 
 const start = newRun({ speciesId: 'parus-minor', seed: 'nest', mode: 'free' }, testData);
 const withDisplay = (node: string, display: number): RunState => ({
@@ -26,7 +26,7 @@ describe('둥지 자리 관문 (04-breeding 1·4장)', () => {
     expect(nestHoles(testData, 'village-farmland')).toContain('nestBox');
   });
 
-  const paired = act(
+  const paired = actStep(
     {
       ...start,
       at: { year: 1, period: 5, step: 1 },
@@ -49,7 +49,7 @@ describe('둥지 자리 관문 (04-breeding 1·4장)', () => {
 
   it('짝이 있으면 첫 단계 흐름의 마지막에 열리고, 고르면 둥지 국면 동안 옮길 수 없다', () => {
     expect(paired.mate).toBeDefined();
-    const opened = act(nestStart, 'action.rest', testData).state;
+    const opened = actStep(nestStart, 'action.rest', testData).state;
     expect(opened.gameOver).toBe(false);
     expect(opened.at).toEqual(nestStart.at);
     expect(getChoices(opened, testData).map((c) => c.id)).toEqual([
@@ -68,7 +68,11 @@ describe('둥지 자리 관문 (04-breeding 1·4장)', () => {
     expect(moves.every((c) => c.disabled?.reason === '둥지를 떠날 수 없다')).toBe(true);
 
     // postFledge(`period 11`)로 넘어가면 둥지를 거두고 다시 옮길 수 있다
-    const late = act({ ...built, at: { year: 1, period: 10, step: 3 } }, 'action.rest', testData);
+    const late = actStep(
+      { ...built, at: { year: 1, period: 10, step: 3 } },
+      'action.rest',
+      testData,
+    );
     expect(late.state.nest).toBeUndefined();
     expect(getChoices(late.state, testData).some((c) => c.kind === 'node' && !c.disabled)).toBe(
       true,
@@ -77,7 +81,7 @@ describe('둥지 자리 관문 (04-breeding 1·4장)', () => {
 
   it('짝이 없으면 열리지 않는다', () => {
     const { mate: _m, ...single } = nestStart;
-    expect(act(single, 'action.rest', testData).state.gate).toBeUndefined();
+    expect(actStep(single, 'action.rest', testData).state.gate).toBeUndefined();
   });
 });
 
@@ -92,7 +96,7 @@ describe('산란수 관문 (04-breeding 5장)', () => {
   };
 
   it('첫 단계 흐름의 마지막에 열리고, 고른 뒤 laying 단계마다 암컷이 알 수 × 0.4를 더 쓴다', () => {
-    const opened = act(layingStart, 'action.rest', testData).state;
+    const opened = actStep(layingStart, 'action.rest', testData).state;
     expect(opened.at).toEqual(layingStart.at);
     expect(getChoices(opened, testData).map((c) => c.id)).toEqual([
       'clutchSize.6',
@@ -107,7 +111,7 @@ describe('산란수 관문 (04-breeding 5장)', () => {
     expect(laid.at).toEqual({ year: 1, period: 8, step: 2 });
     const without = { ...laid, nest: { site: 'nestBox', node: 'village-farmland' } };
     const spent = (s: RunState) =>
-      s.player.energy - act(s, 'action.rest', testData).state.player.energy;
+      s.player.energy - actStep(s, 'action.rest', testData).state.player.energy;
     expect(spent(laid) - spent(without)).toBeCloseTo(3.2);
     const male = (s: RunState): RunState => ({ ...s, player: { ...s.player, sex: 'male' } });
     expect(spent(male(laid))).toBeCloseTo(spent(male(without)));
@@ -115,7 +119,7 @@ describe('산란수 관문 (04-breeding 5장)', () => {
 
   it('둥지가 없으면 열리지 않는다', () => {
     const { nest: _n, ...noNest } = layingStart;
-    expect(act(noNest, 'action.rest', testData).state.gate).toBeUndefined();
+    expect(actStep(noNest, 'action.rest', testData).state.gate).toBeUndefined();
   });
 });
 
@@ -142,12 +146,12 @@ describe('부화 (04-breeding 5장)', () => {
 
   it('incubation 마지막 단계에서만 알마다 굴려 새끼 수를 정한다', () => {
     const early = { ...lastIncubation, at: { year: 1, period: 9, step: 2 } };
-    expect(act(early, 'action.rest', testData).state.nest?.chicks).toBeUndefined();
-    expect(act(lastIncubation, 'action.rest', withHatchRate(1)).state.nest?.chicks).toBe(8);
+    expect(actStep(early, 'action.rest', testData).state.nest?.chicks).toBeUndefined();
+    expect(actStep(lastIncubation, 'action.rest', withHatchRate(1)).state.nest?.chicks).toBe(8);
   });
 
   it('하나도 안 깨면 번식 실패(B-5) — 둥지를 거둔다', () => {
-    const r = act(lastIncubation, 'action.rest', withHatchRate(0));
+    const r = actStep(lastIncubation, 'action.rest', withHatchRate(0));
     expect(r.state.nest).toBeUndefined();
     expect(r.log.some((l) => l.cause === 'hatchFailure')).toBe(true);
   });

@@ -4,8 +4,9 @@ import { clutchCards, clutchChoices, clutchOptions, hatchIfDue } from './clutch.
 import { agedStats, fatCap } from './formulas.ts';
 import { isPhaseStart, makeCandidates, mateCards, mateChoices } from './mate.ts';
 import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
-import { nextChance, seedFromString } from './rng.ts';
-import { judgeStep, mapNode, speciesBalance, stepChoices } from './step.ts';
+import { seedFromString } from './rng.ts';
+import { projected, runRoutine, suggestions } from './routine.ts';
+import { judgeStep, mapNode, slotCount, speciesBalance, stepChoices } from './step.ts';
 import type {
   ActResult,
   Choice,
@@ -24,7 +25,7 @@ import type {
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 /** 새 런을 시작한다. 같은 설정이면 언제나 같은 초기 상태. */
 export function newRun(config: RunConfig, data: GameData): RunState {
@@ -78,7 +79,8 @@ export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gate?.kind === 'mateCandidate') return mateChoices(state.gate.candidates);
   if (state.gate?.kind === 'nestSite') return nestChoices(state.gate.holes);
   if (state.gate?.kind === 'clutchSize') return clutchChoices(state.gate.options);
-  return stepChoices(state, data);
+  // 루틴의 다음 빈 칸 — 앞 칸에 옮기기를 넣었으면 그 장소 기준 (03-contracts 3장 '행동 루틴')
+  return stepChoices(projected(state, data), data);
 }
 
 /** 고를 수 있는 선택을 찾는다. 목록에 없거나 `disabled`면 던진다 (03-contracts 3장, #47) */
@@ -89,16 +91,20 @@ function findChoice(state: RunState, choiceId: string, data: GameData): Choice {
   return choice;
 }
 
-/** 선택의 예상 결과. 난수를 쓰지 않으므로 몇 번 불러도 같은 값이다 (엔진 원칙 2). */
+/**
+ * 선택의 예상 결과. 난수를 쓰지 않으므로 몇 번 불러도 같은 값이다 (엔진 원칙 2).
+ * 칸 선택이면 앞에 채운 칸들을 위험 없이 적용한 예상 상태에서 그 칸 하나의 결과다.
+ */
 export function preview(state: RunState, choiceId: string, data: GameData): Preview {
   findChoice(state, choiceId, data);
   // 관문 고르기는 판정이 없다 — 위험·에너지 변화 없음
   if (state.gate) return { deathRisk: 0, energyDelta: [0, 0], notes: [] };
-  const out = judgeStep(state, choiceId, data);
-  const delta = out.energy - state.player.energy;
+  const from = projected(state, data);
+  const out = judgeStep(from, choiceId, data);
+  const delta = out.energy - from.player.energy;
   const statGains: Partial<Record<StatName, number>> = {};
   for (const [stat, value] of Object.entries(out.stats)) {
-    const gain = value - (state.player.stats[stat as StatName] ?? 0);
+    const gain = value - (from.player.stats[stat as StatName] ?? 0);
     if (gain > 0) statGains[stat as StatName] = gain;
   }
   return {
@@ -109,44 +115,28 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
   };
 }
 
-/** 선택을 실행하고 한 단계 진행한다. 모든 판정은 `LogEntry`를 남긴다 (엔진 원칙 5). */
+/**
+ * 선택을 실행한다. 칸 선택은 루틴에 적어 두기만 하고, 마지막 칸을 채우면 루틴을 실행해 한 단계 진행한다.
+ * 모든 판정은 `LogEntry`를 남긴다 (엔진 원칙 5).
+ */
 export function act(state: RunState, choiceId: string, data: GameData): ActResult {
   if (state.gameOver) throw new Error('이미 끝난 런이다');
-  const choice = findChoice(state, choiceId, data);
+  findChoice(state, choiceId, data);
   if (state.gate?.kind === 'mateCandidate') return pickMate(state, choiceId, data);
   if (state.gate?.kind === 'nestSite') return pickNest(state, choiceId, data);
   if (state.gate?.kind === 'clutchSize') return pickClutch(state, choiceId, data);
-  const out = judgeStep(state, choiceId, data);
-  const p = state.player;
+  const filled = [...(state.routine ?? []), choiceId];
+  // 칸 채우기: 판정·난수 없음
+  if (filled.length < slotCount(state)) return { state: { ...state, routine: filled }, log: [] };
 
-  const deltas: Record<string, number> = {
-    energy: out.energy - p.energy,
-    feather: out.feather - p.feather,
-  };
-  for (const [stat, value] of Object.entries(out.stats)) {
-    const gain = value - (p.stats[stat as StatName] ?? 0);
-    if (gain !== 0) deltas[`stat.${stat}`] = gain;
-  }
-  const log: LogEntry[] = [{ at: state.at, type: 'decision', text: choice.label, deltas }];
-  const player = { ...p, energy: out.energy, feather: out.feather, stats: out.stats };
-  const moved = { ...state, node: out.node, stay: out.stay, player };
-
-  // B-1 아사: 판정 1 직후 확정 사망. 스탯·위험은 건너뛴다 — 난수도 당기지 않는다
-  if (out.starved) {
-    log.push({ at: state.at, type: 'death', text: '굶어 죽었다', cause: 'starvation' });
-    return { state: { ...moved, gameOver: true, log: [...state.log, ...log] }, log };
-  }
-  const rolled = nextChance(state.rng, out.risk);
-  if (rolled.value) {
-    log.push({ at: state.at, type: 'death', text: '포식자에게 잡혔다', cause: 'predation' });
-    return {
-      state: { ...moved, rng: rolled.state, gameOver: true, log: [...state.log, ...log] },
-      log,
-    };
-  }
+  const { routine: _r, ...planned } = state;
+  const ran = runRoutine(planned, filled, data);
+  const log = ran.log;
+  if (ran.state.gameOver) return { state: { ...ran.state, log: [...state.log, ...log] }, log };
+  const moved = ran.state;
 
   // 부화: `incubation` 마지막 단계의 판정 3 다음 (04-breeding 5장)
-  const hatched = hatchIfDue({ ...moved, rng: rolled.state }, data);
+  const hatched = hatchIfDue(moved, data);
   const survived = hatched.state;
   log.push(...hatched.log);
 
@@ -269,6 +259,16 @@ export function getView(state: RunState, data: GameData): ViewModel {
       ? { gate: { kind: state.gate.kind, cards: clutchCards(data, state, state.gate.options) } }
       : {}),
     ...(state.nest ? { nest: state.nest } : {}),
+    ...(state.gate || state.gameOver
+      ? {}
+      : {
+          routine: {
+            slots: slotCount(state),
+            filled: state.routine ?? [],
+            suggested: suggestions(state, data),
+            replan: false,
+          },
+        }),
     recentLog: state.log.slice(-20),
   });
 }

@@ -17,10 +17,19 @@ import { nestLocked } from './nest.ts';
 import type { Choice, RunState } from './types.ts';
 
 /**
- * 한 단계의 행동 판정 — `00-core-loop` 3장. 판정 1(에너지) → 2(스탯) → 3(위험) 순서는 고정이다(3.1).
+ * 칸 하나의 행동 판정 — `00-core-loop` 3장·3.5. 판정 1(에너지) → 2(스탯) → 3(위험) 순서는 고정이다(3.1).
+ * 단계 공식을 계산한 뒤 칸 수로 나눈다(`01-formulas` 9.4).
  * 난수를 쓰지 않는다: 위험은 확률만 내고, 굴리는 것은 `act`다. 그래서 `preview`와 `act`가
  * 같은 계산을 공유한다.
  */
+
+/** 한 시기의 칸 수 (00-core-loop 3.5) */
+const SLOTS_PER_PERIOD = 6;
+
+/** 이 단계의 칸 수 = 6 ÷ 그 시기의 단계 수 */
+export function slotCount(state: RunState): number {
+  return SLOTS_PER_PERIOD / (state.calendar[state.at.period - 1]?.length ?? 1);
+}
 
 /** `action.<행동>`으로 고르는 행동. `move`·`train`은 `move.<장소>`·`action.train.<스탯>`으로 (03-contracts 3장) */
 const ACTIONS = ['forage', 'rest', 'social', 'explore'] as const;
@@ -85,7 +94,7 @@ interface StepAction {
   action: ActionId;
   /** `train`이 올리는 스탯 */
   trained?: StatName;
-  /** 이 단계의 장소와 그 장소에서의 체류 (옮기면 새 장소, 0) */
+  /** 이 칸의 장소와 그 장소에서의 체류 칸 수 (옮기면 새 장소, 0) */
   node: string;
   stay: number;
 }
@@ -111,7 +120,7 @@ export interface StepOutcome {
   risk: number;
 }
 
-/** 판정 1·2·3을 계산한다. 난수 없음 */
+/** 칸 하나의 판정 1·2·3을 계산한다. 난수 없음 */
 export function judgeStep(state: RunState, choiceId: string, data: GameData): StepOutcome {
   const f = data.formulas;
   const species = speciesBalance(data, state.config.speciesId);
@@ -121,6 +130,7 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
   const season = seasonOf(species, state.at.period);
   const tiers = mapNode(data, node).seasons[season];
   const stat = (s: StatName) => p.stats[s] ?? 0;
+  const n = slotCount(state);
 
   // 판정 1 — 에너지 수지 (01-formulas 2장)
   const cap = fatCap(f, stat('stamina'));
@@ -130,7 +140,8 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
     foodModFactor: 1,
     efficiency: forageEfficiency(f, stat('foraging'), p.expYears),
     action,
-    stay,
+    // 9.4: 고갈은 연속 체류 ÷ 칸 수 — 같은 시간 머물면 단계 때와 같은 만큼 준다
+    stay: stay / n,
   });
   const spent =
     expenditure(f, species, {
@@ -144,8 +155,10 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
       feedIntensity: 'mid',
       chicks: 0,
     }) + layingCost(data, state);
-  const { energy, starved } = nextEnergy(cap, p.energy, gained, spent);
-  const feather = nextFeather(f, p.feather, phase, action);
+  // 9.4: 에너지 변화 전체(잠 회복 포함)와 깃털 변화는 ÷ 칸 수
+  const recover = species.sleepRecoverPerStep[season];
+  const { energy, starved } = nextEnergy(cap, p.energy, gained / n, (spent - recover) / n);
+  const feather = p.feather + (nextFeather(f, p.feather, phase, action) - p.feather) / n;
   if (starved) return { phase, node, stay, energy, starved, feather, stats: p.stats, risk: 0 };
 
   // 판정 2 — 스탯 상승 (01-formulas 1.3)
@@ -161,7 +174,7 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
   }
 
   // 판정 3 — 위험 (01-formulas 3.1). 같은 단계에 오른 경계가 바로 쓰인다
-  const risk = deathRisk(f, species, {
+  const stepRisk = deathRisk(f, species, {
     nodeRisk: tiers.risk,
     phase,
     season,
@@ -175,5 +188,7 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
     silverSpoon: 0,
     injured: false,
   });
+  // 9.4: 칸 위험 = 1 − (1 − 단계 위험)^(1/n) — 모든 칸이 같은 행동이면 단계 위험과 같다
+  const risk = 1 - (1 - stepRisk) ** (1 / n);
   return { phase, node, stay, energy, starved, feather, stats, risk };
 }
