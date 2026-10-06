@@ -57,17 +57,17 @@ describe('2. 에너지', () => {
       efficiency: 1.18,
       action: 'forage',
     } as const;
-    expect(intake(f, { ...base, stay: 2 })).toBeCloseTo(8.496, 9);
-    // 연속 체류 6 이상이면 고갈 0.5에서 멈춘다
-    expect(intake(f, { ...base, stay: 6 }) / intake(f, { ...base, stay: 0 })).toBeCloseTo(0.5, 9);
+    expect(intake(f, { ...base, stay: 2 })).toBeCloseTo(10.089, 9);
+    // 연속 체류 4 이상이면 고갈 0.8에서 멈춘다
+    expect(intake(f, { ...base, stay: 6 }) / intake(f, { ...base, stay: 0 })).toBeCloseTo(0.8, 9);
     expect(intake(f, { ...base, stay: 20 })).toBeCloseTo(intake(f, { ...base, stay: 6 }), 9);
     expect(intake(f, { ...base, action: 'move', stay: 0 })).toBe(0);
   });
 
   it('2.4 소비', () => {
     const base = { flight: 46, incubating: false, feedIntensity: 'mid', chicks: 0 } as const;
-    expect(expenditure(f, tit, { ...base, period: 2, phase: 'winter', action: 'forage' })).toBe(10);
-    expect(actionCost(f, 'move', 46)).toBeCloseTo(4.096, 9);
+    expect(expenditure(f, tit, { ...base, period: 2, phase: 'winter', action: 'forage' })).toBe(9);
+    expect(actionCost(f, 'move', 46)).toBeCloseTo(2.048, 9);
     const feeding = {
       ...base,
       period: 10,
@@ -76,11 +76,11 @@ describe('2. 에너지', () => {
       feedIntensity: 'high',
       chicks: 8,
     } as const;
-    expect(expenditure(f, tit, feeding)).toBeCloseTo(16.4, 9);
+    expect(expenditure(f, tit, feeding)).toBeCloseTo(15.4, 9);
   });
 
   it('2.5 갱신과 아사', () => {
-    expect(nextEnergy(67, 40, 8.496, 10).energy).toBeCloseTo(38.496, 9);
+    expect(nextEnergy(67, 40, 10.089, 9).energy).toBeCloseTo(41.089, 9);
     expect(nextEnergy(67, 65, 12, 8)).toEqual({ energy: 67, starved: false });
     expect(nextEnergy(67, 5, 3, 9)).toEqual({ energy: 0, starved: true });
   });
