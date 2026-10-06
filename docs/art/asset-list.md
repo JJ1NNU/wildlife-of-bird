@@ -28,10 +28,10 @@
 
 | ID | 용도 | 우선 | 비고 |
 |---|---|---|---|
-| `bird.parus-minor.adult-m.breeding.perch` | 메인 화면 주인공 | P0 | 배치 01에서 식별 특징 실패(`style-options.md` 6.3) → field-marks로 재작성, **배치 02**(`prompts/batch-02-parus-minor.md`) |
-| `bird.parus-minor.adult-f.breeding.perch` | 짝 | P0 | 배치 02. 암컷 = 세로줄 가늘게(field-marks 1장) |
+| `bird.parus-minor.adult-m.breeding.perch` | 메인 화면 주인공 | P0 | **검수중** — 배치 02(`prompts/batch-02-parus-minor.md`), 출처는 2.1. 배치 01은 식별 특징 실패(`style-options.md` 6.3) |
+| `bird.parus-minor.adult-f.breeding.perch` | 짝 | P0 | **검수중** — 배치 02. 암컷 = 세로줄 가늘게(field-marks 1장) |
 | `bird.parus-minor.chick.nest` | 둥지 단계 | P0 | 식별 특징 출처 없음(field-marks 1장) → 콘텐츠 #95 답 뒤 배치 03 |
-| `bird.parus-minor.juv.perch` | 독립·계승 | P0 | 배치 02. 노르스름한 배는 어린 새만 |
+| `bird.parus-minor.juv.perch` | 독립·계승 | P0 | **검수중** — 배치 02, 어린 새 깃(이소 후~첫 털갈이). 노르스름한 배는 어린 새만 |
 | `bird.parus-minor.egg` | 산란·포란 | P1 | |
 | `bird.parus-minor.adult.nonbreeding.perch` | 겨울 | P2 | **생략** — 계절 깃 차이 출처 없음, 같은 깃으로 그린다(field-marks 1장) |
 | `bg.forest.spring.day` · `.summer.day` · `.autumn.day` · `.winter.day` | 메인 배경 | P0 | M2 배경 배치. 계절 4장, 시간대 변화는 색 필터로 |
@@ -40,6 +40,18 @@
 | `pred.<그 밖>` | 둥지·성조 포식자 | P1 | 상성 묶음(매복·급강하·밤·뱀·지상)당 1장으로 시작 |
 | `scene.parus-minor.snake-alarm` | 핵심 장면 | P1 | 배치 01 T3의 정식판 |
 | `scene.parus-minor.fledging` | 이소 | P2 | |
+
+### 2.1 출처 — 배치 02 (2026-10-06)
+
+| 항목 | 내용 |
+|---|---|
+| 에셋 | `assets/bird/bird.parus-minor.{adult-m.breeding,adult-f.breeding,juv}.perch.webp` |
+| 도구 | Gemini(대표 생성. 모델 버전은 #111에 적히지 않음 — 배치 01은 Gemini Pro 3.1). 오른쪽 아래 반짝이 표시로 확인 |
+| 생성 날짜 | 2026-10-05~06 (#111) |
+| 프롬프트 | `docs/art/prompts/batch-02-parus-minor.md` |
+| 원본 | 2048px PNG, 후보 1장씩(대표가 고름). 저장소 밖 `C:\dev\wild-bird-originals\batch-02\` |
+| 후처리 | `scripts/art/process-bird.py`(Pillow) — 표시 지우기 · 종이색 맞춤 · 몸길이 0.35 · 발끝 92% · 768px WebP q80(약 6KB) |
+| 생태 검토 | **대기** — `review:content`(#95 거부 기준 6개) |
 
 ## 3. 두루미 — M4
 
@@ -65,3 +77,4 @@
 |---|---|
 | 2026-10-03 | v0 — 자리표시 4종 완료, 1.0 목록 초안 (#15) |
 | 2026-10-04 | 아이콘 v0 18개 완료 (#25) |
+| 2026-10-06 | 박새 배치 02 3장 후처리 → 검수중 (#25, #95) |
