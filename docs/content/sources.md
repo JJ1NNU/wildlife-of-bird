@@ -123,6 +123,18 @@
 | SRC-058 | Seki, S.-I. (2005) "The effects of a typhoon (9918 Bart, 1999) on the bird community in a warm temperate forest, Southern Japan", *Ornithological Science* 4(2):117–128. doi:10.2326/osj.4.117 | [link](https://doi.org/10.2326/osj.4.117) | A | 같은 태풍 뒤 첫 겨울: 열매·씨앗을 먹는 새가 줄어 전체 개체수가 줄었고 둘째 겨울에 회복 → typhoon-warning | 확인(초록) |
 | SRC-059 | Carlson, A. (1994) "Cavity breeding birds and clearcuts", *Ornis Fennica* 71:120–122 | [link](https://ornisfennica.journal.fi/article/download/133402/81948/292568) | A | 스웨덴 벌채지(1989~1990): 구멍 난 나무를 남겨도 박새·푸른박새는 **숲에서 떨어진 구멍을 피했다** — 먹이를 숲에서 구하므로 → logging | 확인(원문) |
 
+### 박새 둥지 안 새끼 — 식별 특징 (#167)
+
+> `field-marks.md` 1장 '둥지 안 새끼' 행과 배치 03 거부 기준의 근거. 유럽 *P. major* 연구는 **방향**의 근거로만 쓴다.
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-060 | Hwang, H.-S., Son, S.-H. & Rhim, S.-J.(황현수·손승훈·임신재) (2015) "Bill color characteristics and body mass of the great tit (*Parus major*) nestling", *Forest Science and Technology* 11(4):223–227. doi:10.1080/21580103.2014.990061 | [link](https://doi.org/10.1080/21580103.2014.990061) | A | 국내 인공새집 박새 새끼(논문 표기 *P. major* = 한국 개체 *P. minor*): **부리가 노란** 새끼가 부화 2·8일째 더 무거웠다. 부리 색이 새끼의 상태를 알린다(카로티노이드) → 둥지 안 새끼 부리·입가 노란빛 | 확인(초록) |
+| SRC-061 | Wesołowski, T. & Wierzcholska, S. (2018) "Tits as bryologists: patterns of bryophyte use in nests of three species cohabiting a primeval forest", *Journal of Ornithology* 159:733–745. doi:10.1007/s10336-018-1535-2 | [link](https://doi.org/10.1007/s10336-018-1535-2) | A | 폴란드 비아워비에자 나무 구멍의 쇠박새·푸른박새·박새(*P. major*) 둥지: 이끼를 골라 쓰고, 박새는 **더 억센 이끼**로 무거운 새끼를 받친다. 새끼가 앉는 산좌는 주로 **털 같은 부드러운 동물성 재료**(본문, 다른 연구 인용) → 둥지 그림 | 확인(원문) |
+| SRC-062 | 中村雅和 (2024-06-23) 「巣箱をもっとも利用する野鳥・シジュウカラの子育て」, 『サライ.jp』 | [link](https://serai.jp/hobby/1189856) | D | 도쿄 나가이케 공원 새집 *P. minor*: 부화 4일째 새끼 7마리가 **거의 맨살**, 약 2주 뒤 **깃이 거의 다 남**. 생활사 수치 근거로는 쓰지 않는다 → 깃 단계 그림의 대략 | 확인 |
+| SRC-063 | 「シジュウカラ：黒いネクタイ模様」, 『野鳥写真図鑑』, 캐논 버드 브랜치 프로젝트 | [link](https://global.canon/ja/bird-branch/photo-gallery/shijukara/index.html) | E | 일본 *P. minor*: 둥지 재료로 **이끼를 많이 쓴다**(도시에선 화단·화분의 이끼도) → SRC-061의 보조 | 확인 |
+| SRC-064 | Heeb, P., Schwander, T. & Faoro, S. (2003) "Nestling detectability affects parental feeding preferences in a cavity-nesting bird", *Animal Behaviour* 66(4):637–642. doi:10.1006/anbe.2003.2238 | [link](https://doi.org/10.1006/anbe.2003.2238) | A | 스위스 박새(*P. major*): 새끼 입 안·입가 색을 바꾸면 **어두운 둥지**에서 붉은 입의 새끼가 덜 컸다 — 조르는 새끼의 입 색을 부모가 보고 먹인다. 자연 상태의 입 안 색은 초록에서 확인 못 함 | 서지·요지까지 |
+
 ### 환경 변화 · 그 밖의 종
 
 | ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
