@@ -1,6 +1,7 @@
 import type { GameData, StatName } from '@wb/schema';
 import { advance, phaseAt, yearCalendar } from './calendar.ts';
 import { agedStats, fatCap } from './formulas.ts';
+import { isPhaseStart, makeCandidates, mateCards, mateChoices } from './mate.ts';
 import { nextChance, seedFromString } from './rng.ts';
 import { judgeStep, mapNode, speciesBalance, stepChoices } from './step.ts';
 import type {
@@ -17,7 +18,7 @@ import type {
  * 엔진 API — 일곱 개의 순수 함수 (엔진 원칙 1, 03-contracts 3장).
  *
  * M1 진행 중(#21): 단계표·장소·행동·옮기기와 판정 1·2·3(에너지 → 스탯 → 위험), 아사·포식 사망은
- * 실제 규칙이다. 관문·번식·계승·이벤트는 아직 없다.
+ * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)만 있다. 번식·계승·이벤트는 아직 없다.
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
@@ -72,6 +73,7 @@ export function newRun(config: RunConfig, data: GameData): RunState {
 /** 지금 고를 수 있는 모든 선택. */
 export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gameOver) return [];
+  if (state.gate) return mateChoices(state.gate.candidates);
   return stepChoices(state, data);
 }
 
@@ -86,6 +88,8 @@ function findChoice(state: RunState, choiceId: string, data: GameData): Choice {
 /** 선택의 예상 결과. 난수를 쓰지 않으므로 몇 번 불러도 같은 값이다 (엔진 원칙 2). */
 export function preview(state: RunState, choiceId: string, data: GameData): Preview {
   findChoice(state, choiceId, data);
+  // 짝 후보 고르기는 판정이 없다 — 위험·에너지 변화 없음
+  if (state.gate) return { deathRisk: 0, energyDelta: [0, 0], notes: [] };
   const out = judgeStep(state, choiceId, data);
   const delta = out.energy - state.player.energy;
   const statGains: Partial<Record<StatName, number>> = {};
@@ -105,6 +109,7 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
 export function act(state: RunState, choiceId: string, data: GameData): ActResult {
   if (state.gameOver) throw new Error('이미 끝난 런이다');
   const choice = findChoice(state, choiceId, data);
+  if (state.gate) return pickMate(state, choiceId, data);
   const out = judgeStep(state, choiceId, data);
   const p = state.player;
 
@@ -134,8 +139,43 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
     };
   }
 
-  const next: RunState = { ...moved, rng: rolled.state, at: advance(state.at, state.calendar) };
-  return { state: { ...yearStart(next, data), log: [...state.log, ...log] }, log };
+  const survived: RunState = { ...moved, rng: rolled.state };
+
+  // 흐름의 마지막: 관문 (00-core-loop 4.6). 열리면 이 단계에 머문다
+  if (isPhaseStart(state.calendar, state.at, 'pairing')) {
+    const { rng, candidates } = makeCandidates(survived, data);
+    const opened: RunState = {
+      ...survived,
+      rng,
+      gate: { kind: 'mateCandidate', candidates },
+      log: [...state.log, ...log],
+    };
+    // 받아들이는 카드가 1장뿐이면 자동 진행 — 결정으로 세지 않는다(04-breeding 2.2)
+    const accepted = candidates.flatMap((c, i) => (c.accepts ? [i] : []));
+    if (accepted.length === 1) {
+      const picked = pickMate(opened, `mateCandidate.${(accepted[0] ?? 0) + 1}`, data);
+      return { state: picked.state, log: [...log, ...picked.log] };
+    }
+    return { state: opened, log };
+  }
+
+  return { state: { ...nextStep(survived, data), log: [...state.log, ...log] }, log };
+}
+
+/** 다음 단계로 (`period 1`이면 해 바뀜 처리까지) */
+function nextStep(state: RunState, data: GameData): RunState {
+  return yearStart({ ...state, at: advance(state.at, state.calendar) }, data);
+}
+
+/** 짝 후보 관문을 닫고 다음 단계로 간다 (04-breeding 2.2) */
+function pickMate(state: RunState, choiceId: string, data: GameData): ActResult {
+  const index = Number(choiceId.split('.')[1]) - 1;
+  const c = state.gate?.candidates[index];
+  if (!c) throw new Error(`없는 짝 후보다: ${choiceId}`);
+  const { quality: _q, accepts: _a, plumageNoise: _n, hint: _h, ...mate } = c;
+  const log: LogEntry[] = [{ at: state.at, type: 'mate', text: '짝을 맺었다' }];
+  const { gate: _g, ...closed } = state;
+  return { state: { ...nextStep({ ...closed, mate }, data), log: [...state.log, ...log] }, log };
 }
 
 /** `period 1` 진입: 나이 +1 · 경험 +1 · 노화 · 단계표 초기화 (00-core-loop 2.1 `YearStart`) */
@@ -169,6 +209,9 @@ export function getView(state: RunState, data: GameData): ViewModel {
     energyCap: fatCap(data.formulas, state.player.stats.stamina ?? 0),
     totalBreeding: state.totalBreeding,
     gameOver: state.gameOver,
+    ...(state.gate
+      ? { gate: { kind: state.gate.kind, cards: mateCards(data, state.gate.candidates) } }
+      : {}),
     recentLog: state.log.slice(-20),
   });
 }

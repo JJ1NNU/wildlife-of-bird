@@ -10,6 +10,10 @@ function play(choiceIds: string[]): RunState {
   let state = newRun(config, testData);
   for (const id of choiceIds) {
     if (state.gameOver) break;
+    // 관문이 열리면 고를 수 있는 첫 카드
+    const gate = state.gate && getChoices(state, testData).find((c) => !c.disabled);
+    if (gate) state = act(state, gate.id, testData).state;
+    if (state.gameOver) break;
     state = act(state, id, testData).state;
   }
   return state;
