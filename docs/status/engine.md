@@ -2,13 +2,17 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 06시 (라운드 16, 자동 근무)
+- 마지막 근무: 2026-10-07 (라운드 17, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
-- #21 M1 — **PR #219** 육아 방침 관문 — design 승인, **review:client 대기**. 승인되면 `bash scripts/merge-pr.sh 219`
-- #121 — **PR #220** 2.1 지난 짝 생존·이혼·재결합 — review:design 대기. #219와 `api.ts` 겹칠 수 있음(나중 쪽을 맞춘다). 남은 것 = `secondBrood`(7장)·나머지 관문 흐름
+- #21 M1 — 남은 관문 조각 계속(#219 육아 방침 머지됨)
+- #121 — **PR #220** 2.1 지난 짝 생존·이혼·재결합 — main(#219) 합침 완료, review:design 대기. 승인되면 `bash scripts/merge-pr.sh 220`. 남은 것 = `secondBrood`(7장)·나머지 관문 흐름
 - #139 — 새 키 #153 머지. 남은 것: 부화·관문 `inheritance`·계승·getView(관문 조각 뒤)
+
+## 최근 완료 (라운드 17)
+- **#219 머지**(client·design 승인)
+- **#220에 main 합침**: `api.ts` `nextStep` 충돌 해결(해 바뀜 로그 반환 + 육아 방침 관문). check 통과(테스트 69), 시뮬 random·avg 200판씩 오류 0, 리플레이 다름 0
 
 ## 최근 완료 (라운드 16, 06시)
 - **#220 열음**(#121): period 1 짝 생존(`mateDeath`) · pairing 관문 직전 이혼(`RunState.broodFledged`로 afterSuccess/Failure, `divorce`) · 지난 짝 카드 맨 앞(`previous`, 늘 받아들임) · 재결합 유대+10 상한 100·성격 확인 · `nextStep`·`yearStart`가 로그 반환 · SAVE_VERSION 그대로(선택 필드). 시뮬 avg·random 400판 오류 0, 리플레이 다름 0
