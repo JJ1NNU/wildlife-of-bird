@@ -98,6 +98,13 @@ const POLICY_WORD: Record<string, string> = {
 };
 const GRADE_WORD = { high: '높음', mid: '보통', low: '낮음' } as const;
 const HINT_WORD = { bold: '대담해 보인다', shy: '조심스러워 보인다' } as const;
+/** 지난 짝 카드의 성격(이미 확인) — 04-breeding 2.2 */
+const PERSONALITY_WORD = { bold: '대담', shy: '조심스러움' } as const;
+/** 짝 후보 관문 위 한 줄: 지난 짝이 없어진 이유(`LogEntry.cause`, 2.1). 잠정(#21): 문구는 `data/text/`가 생기면 옮긴다 */
+const MATE_GONE: Record<string, string> = {
+  mateDeath: '지난 짝은 겨울을 넘기지 못했어요',
+  divorce: '지난 짝이 떠났어요',
+};
 const SEASON = [
   'winter',
   'winter',
@@ -277,6 +284,13 @@ export function Game({ data }: { data: GameData }) {
   const choices = getChoices(state, data);
   const when = periodLabel(view.at);
   const pickedChoice = choices.find((c) => c.id === picked);
+  // S-20: 지난 짝 카드(맨 앞)가 없으면 그 이유 한 줄 — 올해 마지막 짝 기록의 `cause` (04-breeding 2.1)
+  const mateCards = view.gate?.kind === 'mateCandidate' ? view.gate.cards : undefined;
+  const pickedPrevious = !!mateCards?.find((c) => c.choiceId === picked)?.previous;
+  const mateGone =
+    mateCards && !mateCards[0]?.previous
+      ? MATE_GONE[view.recentLog.findLast((l) => l.type === 'mate')?.cause ?? '']
+      : undefined;
   // S-22: 항목별 값은 선택 id 뒤(`parentingPolicy?item=opt&…`)에 담는다 — 안 고른 항목은 지금 걸린 값
   const policyCards = view.gate?.kind === 'parentingPolicy' ? view.gate.cards : undefined;
   const policyQuery = new URLSearchParams(picked?.split('?')[1] ?? '');
@@ -449,10 +463,38 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
-  /** S-20 후보 카드: 신호 4개(깃·노래·나이·성격 힌트) + 나를 받아들이는지 — 04-breeding 2.3~2.4 */
+  /**
+   * S-20 후보 카드: 신호 4개(깃·노래·나이·성격 힌트) + 나를 받아들이는지 — 04-breeding 2.3~2.4.
+   * 지난 짝 카드(맨 앞 1장)는 신호 대신 성격(확인) · 재결합 예 (2.2)
+   */
   function mateRow(card: MateCandidateCard, n: number) {
     const c = choices.find((x) => x.id === card.choiceId);
     const sex = view.player.sex === 'female' ? '♂' : '♀';
+    const age = <span className="muted small">{card.age <= 1 ? '1년생' : '성조'}</span>;
+    if (card.previous) {
+      return (
+        <li key={card.choiceId}>
+          <button
+            type="button"
+            className={`opt${card.choiceId === picked ? ' sel' : ''}`}
+            aria-pressed={card.choiceId === picked}
+            onClick={() => setPicked(card.choiceId)}
+            data-testid={`choice-${card.choiceId}`}
+          >
+            <span className="main">
+              <span className="b">
+                {sex} 지난 짝 {age}
+              </span>
+              <span className="cap">성격: {PERSONALITY_WORD[card.hint]} (확인)</span>
+            </span>
+            <span className="vals">
+              <span>재결합</span>
+              <b>예</b>
+            </span>
+          </button>
+        </li>
+      );
+    }
     return (
       <li key={card.choiceId}>
         <button
@@ -465,7 +507,7 @@ export function Game({ data }: { data: GameData }) {
         >
           <span className="main">
             <span className="b">
-              {sex} 후보 {n} <span className="muted small">{card.age <= 1 ? '1년생' : '성조'}</span>
+              {sex} 후보 {n} {age}
             </span>
             <span className="cap">
               깃 선명도 <b>{card.plumage}</b> · 노래 <b>{card.song}</b>
@@ -651,7 +693,8 @@ export function Game({ data }: { data: GameData }) {
         {view.gate?.kind === 'mateCandidate' ? (
           <ul className="list" aria-label="짝 후보" data-testid="gate-mateCandidate">
             <li className="gate-title b">짝 후보 — 한 마리를 고른다</li>
-            {view.gate.cards.map((card, i) => mateRow(card, i + 1))}
+            {mateGone && <li className="gate-title muted small">{mateGone}</li>}
+            {view.gate.cards.map((card, i) => mateRow(card, mateCards?.[0]?.previous ? i : i + 1))}
           </ul>
         ) : view.gate?.kind === 'nestSite' ? (
           <ul className="list" aria-label="둥지 자리" data-testid="gate-nestSite">
@@ -943,9 +986,11 @@ export function Game({ data }: { data: GameData }) {
                 ? policyChanged || !policyAdjust
                   ? GATE_GO.parentingPolicy.done()
                   : GATE_GO.parentingPolicy.none
-                : pickedChoice
-                  ? GATE_GO[view.gate.kind].done(pickedChoice.label)
-                  : GATE_GO[view.gate.kind].none}
+                : pickedPrevious
+                  ? '지난 짝과 다시'
+                  : pickedChoice
+                    ? GATE_GO[view.gate.kind].done(pickedChoice.label)
+                    : GATE_GO[view.gate.kind].none}
             </button>
           ) : replay ? (
             replayDone ? (
