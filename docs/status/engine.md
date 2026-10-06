@@ -2,13 +2,20 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 18, 자동 근무)
+- 마지막 근무: 2026-10-07 (라운드 18 뒤, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
 - #21 M1 — 남은 관문 조각 계속(#219 육아 방침 머지됨)
-- #121 — 2.1 지난 짝·이혼·재결합 머지(#220). 남은 것 = `secondBrood`(04-breeding 7장)·나머지 관문 흐름 ← 다음 근무 첫 일
+- #121 — 2.1 머지(#220). **#236 열음**(실패 뒤 `secondBrood`). 남은 것 = 1차 성공 뒤 2차 번식(계승 #139 뒤) · 짝 없이 `nestSite` 분할 해제
 - #139 — 새 키 #153 머지. 남은 것: 부화·관문 `inheritance`·계승·getView(관문 조각 뒤)
+
+## 최근 완료 (라운드 18 뒤, 2번째)
+- **#233 머지**(client 승인) → #232 닫힘
+- **#236 열음**(#121): `brood.ts` — B-5 단계 끝 `secondBrood` 관문(4.4 조건 1~3, `RunState.yearNests`) · '한다' 에너지 손실 + `rebrood` 덮어쓰기 + 뒤 둥지 국면 미리 분할 해제 · '안 한다'/안 열림 → 4.5 분할 해제 · view 카드 `{choiceId, energyCost}` · web GATE_GO 한 줄 · 03-contracts. check 통과(테스트 75), 시뮬 400판 오류 0, 리플레이 다름 0. 시뮬에서 B-5가 0번(둥지 손실 미구현). review:design·client 대기
+
+## 최근 완료 (라운드 18 뒤)
+- **#233 열음**(#232 client 요청): 짝 살면 나이·경험 +1 · `RunState.mateGone` → `gate.previousGone` · 지난 짝 카드 `potentialRange`·`bond {now, reunion}` · 03-contracts 갱신. check 통과, 시뮬 avg·random 200판 오류 0, 리플레이 다름 0. review:client 대기
 
 ## 최근 완료 (라운드 18)
 - **#227 머지**(qa 승인) → #224 닫힘. random 조합 봇 반영은 QA #26
@@ -75,6 +82,7 @@
 - 없음
 
 ## 다음 근무에서 할 일
+0. #233 승인되면 머지
 1. **#21 나머지** — 관문 kind를 늘릴 때마다 web `GATE_GO`에 한 줄 같이 넣을 것(`check`는 통과해도 `deploy` 빌드가 깨짐) · 육아 방침 남은 효과: 둥지 손실 배율(clean·early)·은수저(compete·quality·early)·학습 보너스(`parenting.ts` `policy()`로 읽기) · 둥지 손실(3.2, guardNest `orderValue('mateOrder.guardNest', 1, mult)`) · 은수저(feedHigh). 짝 없이 `nestSite`에 들어가면 4.5 분할 해제(지금은 관문만 안 열림). 둥지 손실 조각 때 S-23 카드에 구멍별 위험% 더하기. 관문 틀은 `api.ts` act 끝(`isPhaseStart`) + `mate.ts` — 관문이 늘면 `gate.kind`별로 나눈다. 계절 방침은 보정치 명세(04-breeding 11장 '별도')가 나온 뒤
 2. 둥지 손실(3.2)은 칸 행동과 무관하면 단계당 1번(새끼 사망처럼). 독립(postFledge 끝 → 점수·계승)
 3. 그다음: #139 나머지 · 번식(둥지 손실·새끼 사망·은수저·유전 — `nextNormal` 있음) · 독립 → 점수 · 계승 · 재번식/분할 해제 · 이벤트 해석기

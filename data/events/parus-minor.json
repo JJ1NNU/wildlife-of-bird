@@ -513,6 +513,55 @@
     "factCheck": "needs-review"
   },
   {
+    "id": "ev.parus-minor.mate-in-flock",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["pairing"],
+      "sex": "male",
+      "hasMate": true
+    },
+    "weight": "common",
+    "title": "무리 속의 짝",
+    "body": "겨울 무리가 아직 다 흩어지지 않았다. 짝은 무리 끝 가지에서 먹이를 찾고, 다른 새들은 먹이가 많은 덤불 쪽으로 몰려간다.",
+    "options": [
+      {
+        "id": "with-mate",
+        "text": "짝 곁에 붙어 함께 먹이를 찾는다",
+        "effects": [
+          {
+            "type": "foodMod",
+            "tier": "small",
+            "sign": "loss"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "gain"
+          }
+        ]
+      },
+      {
+        "id": "with-flock",
+        "text": "무리를 따라 덤불로 간다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "bond",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "박새류는 겨울 무리 안에서 짝을 맺는다. 영국 옥스퍼드 박새 연구에서 겨울에 어울린 암컷이 적은 수컷, 그리고 짝이 겨울에 어울린 암컷들 가운데 순위가 낮았던 수컷은 번식 뒤 갈라서는 일이 더 많았다. 첫 번식인 새도 더 많이 갈라섰다. 암컷 쪽의 겨울 관계로는 이혼을 예측하지 못했다. 유럽 박새 연구다. 곁에 붙어 다니는 선택이 유대를 높인다는 것은 게임의 선택이다.",
+    "sources": ["SRC-080"],
+    "factCheck": "needs-review"
+  },
+  {
     "id": "ev.parus-minor.hole-competition",
     "species": ["parus-minor"],
     "when": {
@@ -810,6 +859,44 @@
     "factCheck": "needs-review"
   },
   {
+    "id": "ev.parus-minor.cover-eggs",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["laying"],
+      "sex": "female",
+      "hasBrood": true
+    },
+    "weight": "common",
+    "title": "알을 덮고 나가기",
+    "body": "아직 품기 전의 알 몇 개가 둥지 바닥에 드러나 있다. 먹이를 찾으러 나갈 때가 됐다.",
+    "options": [
+      {
+        "id": "cover",
+        "text": "털과 이끼를 물어 와 알을 덮고 나간다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "go-now",
+        "text": "알을 그대로 두고 바로 먹이를 찾으러 간다",
+        "effects": [
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "박새는 알을 낳는 동안 둥지를 비울 때 알을 털 같은 둥지 재료로 덮는다. 포란을 시작하면 덮지 않는다. 핀란드 실험에서 둥지 자리를 엿보는 알락딱새가 가까이 있다고 느끼게 하자 털을 더 물어 와 알을 더 꼼꼼히 덮었다. 원래 기능은 추위에서 알을 지키는 것으로 추정된다. 덮지 않은 둥지가 더 많이 잃는지는 확인하지 못했다(게임의 선택). 유럽 박새 연구다.",
+    "sources": ["SRC-075"],
+    "factCheck": "needs-review"
+  },
+  {
     "id": "ev.parus-minor.snake-alarm-incubating",
     "species": ["parus-minor"],
     "when": {
@@ -959,6 +1046,63 @@
     ],
     "ecologyBasis": "포란 중인 박새 암컷은 품기와 잠깐씩의 외출을 되풀이하며 먹이를 먹는다(유럽 박새 연구). 수컷이 먹이를 자주 가져올수록 암컷이 둥지를 덜 비운다. 외출이 알에 얼마나 위험한지의 박새 수치는 없다.",
     "sources": ["SRC-041", "SRC-040"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.hiss-at-entrance",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["incubation"],
+      "sex": "female",
+      "hasBrood": true
+    },
+    "weight": "uncommon",
+    "title": "입구의 그림자",
+    "body": "알을 품고 있는데 둥지 구멍 입구가 어두워진다. 무언가가 머리를 들이밀고 안을 들여다본다.",
+    "options": [
+      {
+        "id": "hiss",
+        "text": "입구를 향해 몸을 치켜세우고 쉭 소리를 낸다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ]
+      },
+      {
+        "id": "crouch",
+        "text": "소리 없이 알 위에 납작 엎드린다",
+        "check": {
+          "stat": "vigilance",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "deathRisk",
+            "tier": "medium",
+            "cause": "predation"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "high"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "포란 중인 박새류 암컷은 둥지 구멍에 포식자가 다가오면 쉭 하는 소리를 낸다. 실험에서 박제 딱따구리를 둥지 상자에 넣자 암컷의 약 73%가 이 소리를 냈고, 소리를 내는지 여부는 새마다 해가 바뀌어도 대체로 같았다. 실제 포식자가 덮친 횟수는 같았지만 소리를 낸 암컷이 더 많이 살아남았고, 소리를 들려주자 고양이가 둥지 상자 공격을 멈췄다. 유럽 박새 연구다. 쉭 소리에 드는 기운과 알이 지켜지는 정도는 게임의 선택이다.",
+    "sources": ["SRC-078", "SRC-079"],
     "factCheck": "needs-review"
   },
   {
@@ -1115,6 +1259,45 @@
     ],
     "ecologyBasis": "참새목 새는 새끼의 배설물 주머니와 둥지 속 기생충을 치운다. 위생을 지키고 포식자를 끌어들이는 흔적을 줄이는 기능이 제시된다. 박새의 청소 빈도는 확인하지 못했다.",
     "sources": ["SRC-038", "SRC-037"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.flea-nest",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["nestling"],
+      "sex": "male",
+      "hasMate": true,
+      "hasBrood": true
+    },
+    "weight": "uncommon",
+    "title": "벼룩이 많은 둥지",
+    "body": "둥지 바닥에 벼룩이 들끓는다. 새끼들이 여느 때보다 훨씬 자주, 크게 먹이를 조른다.",
+    "options": [
+      {
+        "id": "feed-more",
+        "text": "먹이 나르는 횟수를 크게 늘린다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "usual-pace",
+        "text": "하던 만큼만 나른다",
+        "effects": [
+          {
+            "type": "chickLoss",
+            "tier": "small"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "스위스 박새 둥지에 닭벼룩을 넣은 실험에서 새끼는 몸무게와 몸집이 작아졌고, 이소 전에 죽는 새끼가 늘어 이소 성공이 83%에서 53%로 떨어졌다. 벼룩이 있는 둥지의 새끼는 조르기를 두 배 넘게 했고, 수컷은 먹이 나르는 횟수를 50% 넘게 늘렸지만 암컷은 늘리지 않았다. 유럽 박새 연구다.",
+    "sources": ["SRC-076", "SRC-077"],
     "factCheck": "needs-review"
   },
   {

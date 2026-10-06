@@ -2,12 +2,11 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 18, 자동 근무 18회차)
+- 마지막 근무: 2026-10-07 (라운드 18, 자동 근무 20회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165 완료
 
 ## 이번 근무에 한 것
-- **#228 머지**(디자인 승인) — 겨울 `dawn-feeding`
-- **#230 머지**: #200 2번 4차 — 이소 후 돌봄 `light-fledgling`(SRC-044) · 가을 무리 `copy-a-trick`(SRC-074 Aplin 2015 Nature 등록), fact-check P-30. 이벤트 47건
+- **#237 머지**: #200 2번 6차 — 포란 `hiss-at-entrance`(SRC-078 Krams 2014 · SRC-079 Koosa & Tilgar 2016 쉭 소리) · 짝짓기 `mate-in-flock`(SRC-080 Culina 2015 겨울 관계와 이혼), fact-check P-32. 이벤트 51건
 
 ## 진행 중
 - 없음
@@ -17,7 +16,7 @@
 
 ## 다음 근무에서 할 일
 1. 새 `dept:content` 이슈 · `review:content` PR 확인 (없으면 할 일 없음)
-2. **#200 2번 나머지 9건**: molt +1 · winter +1 · postFledge +1 · autumnFlock +1 · pairing +1 · 둥지 4국면 각 +1(#190 댓글). 한 PR에 2~4건씩
+2. **#200 2번 나머지 5건**: molt +1 · winter +1 · postFledge +1 · autumnFlock +1 · nestSite +1(#190 댓글). 한 PR에 2~4건씩. postFledge 후보 = Geer 새매(요지 미확인)
 3. #186(루틴 구현) PR에서 화면 키가 생기면 '밤 휴식' 문구·도움말 한 줄을 `data/text/`에 (#174 댓글의 문구)
 4. fact-check 열림: P-10(주식) · P-14~P-16 · P-18 · P-19 · P-22~P-26(P-25 typhoon 시기는 해결) — 국내·일본 *P. minor* 문헌 찾기(출시 체크리스트가 셈)
 5. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤
