@@ -1,6 +1,7 @@
 import type { GameData } from '@wb/schema';
-import { phaseAt } from './calendar.ts';
-import type { Choice, ClutchSizeCard, RunState } from './types.ts';
+import { advance, phaseAt } from './calendar.ts';
+import { nextChance } from './rng.ts';
+import type { Choice, ClutchSizeCard, LogEntry, RunState } from './types.ts';
 
 /**
  * 산란수 관문 `clutchSize` — 04-breeding 5장. `laying` 첫 단계, 흐름의 마지막에 열린다(둥지가 있을 때만).
@@ -42,4 +43,39 @@ export function clutchCards(data: GameData, state: RunState, options: number[]):
     eggs,
     layingCost: costFor(data, state, eggs),
   }));
+}
+
+/**
+ * 부화 — `incubation` 마지막 단계의 판정 3 다음에 알마다 `hatchRate`로 굴린다(5장). 부화한 수가 새끼 수.
+ * 0이면 B-5 새끼 전멸: 그 번식은 실패하고 둥지를 거둔다.
+ * 잠정(#21): B-5의 2차 번식 관문은 재번식 조각에서.
+ */
+export function hatchIfDue(state: RunState, data: GameData): { state: RunState; log: LogEntry[] } {
+  const nest = state.nest;
+  if (nest?.eggs === undefined || nest.chicks !== undefined) return { state, log: [] };
+  if (phaseAt(state.calendar, state.at) !== 'incubation') return { state, log: [] };
+  if (phaseAt(state.calendar, advance(state.at, state.calendar)) === 'incubation') {
+    return { state, log: [] };
+  }
+  const rate = breedingSpecies(data, state.config.speciesId).hatchRate;
+  let rng = state.rng;
+  let chicks = 0;
+  for (let i = 0; i < nest.eggs; i++) {
+    const r = nextChance(rng, rate);
+    rng = r.state;
+    if (r.value) chicks++;
+  }
+  if (chicks === 0) {
+    const { nest: _n, ...rest } = state;
+    return {
+      state: { ...rest, rng },
+      log: [
+        { at: state.at, type: 'brood', text: '알이 하나도 깨지 않았다', cause: 'hatchFailure' },
+      ],
+    };
+  }
+  return {
+    state: { ...state, rng, nest: { ...nest, chicks } },
+    log: [{ at: state.at, type: 'nest', text: `새끼 ${chicks}마리가 깨어났다` }],
+  };
 }
