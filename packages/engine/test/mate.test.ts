@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { RunState } from '../src/index.ts';
 import { act, getChoices, getView, mateAccepts, newRun, preview } from '../src/index.ts';
-import { testData } from './fixture.ts';
+import { actStep, testData } from './fixture.ts';
 
 describe('상호 선택 (04-breeding 2.4 예시)', () => {
   it('매력 54, 품질 52 · 58 · 66 → 예 · 예 · 아니오', () => {
@@ -26,7 +26,7 @@ describe('짝 후보 관문 (04-breeding 2.2, 00-core-loop 4.6)', () => {
     },
   };
   // 포식으로 끝나지 않는 행동을 고른다 — 결정론이라 이 시드에서 늘 같다
-  const opened = act(pairing, 'action.rest', testData).state;
+  const opened = actStep(pairing, 'action.rest', testData).state;
 
   it('흐름의 마지막에 열리고, 그 단계에 머물며, 관문 선택지만 준다', () => {
     expect(opened.gameOver).toBe(false);
@@ -46,7 +46,7 @@ describe('짝 후보 관문 (04-breeding 2.2, 00-core-loop 4.6)', () => {
     expect(paired.mate?.sex).toBe('male');
     expect(paired.mate?.bond).toBe(testData.breeding.mate.bondStart);
     expect(paired.at).toEqual({ year: 1, period: 5, step: 2 });
-    expect(act(paired, 'action.rest', testData).state.gate).toBeUndefined();
+    expect(actStep(paired, 'action.rest', testData).state.gate).toBeUndefined();
   });
 
   it('받아들이는 카드가 1장뿐이면 자동 진행한다', () => {
@@ -54,7 +54,7 @@ describe('짝 후보 관문 (04-breeding 2.2, 00-core-loop 4.6)', () => {
       ...pairing,
       player: { ...pairing.player, stats: { ...pairing.player.stats, display: 0, social: 0 } },
     };
-    const next = act(lonely, 'action.rest', testData).state;
+    const next = actStep(lonely, 'action.rest', testData).state;
     expect(next.gate).toBeUndefined();
     expect(next.mate).toBeDefined();
     expect(next.at.step).toBe(2);

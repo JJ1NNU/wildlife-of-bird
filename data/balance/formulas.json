@@ -56,7 +56,7 @@
       "cost": 2,
       "riskMult": 1.0,
       "gain": {
-        "foraging": 1
+        "foraging": 0.3
       }
     },
     "rest": {

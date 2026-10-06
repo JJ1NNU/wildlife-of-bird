@@ -63,6 +63,8 @@ export interface LogEntry {
   deltas?: Record<string, number>;
   /** 사망·실패 원인 (QA 분석용) */
   cause?: string;
+  /** 칸 판정 로그면 그 단계의 몇째 칸 (1부터) */
+  slot?: number;
 }
 
 /**
@@ -170,8 +172,12 @@ export interface RunState {
   calendar: Phase[][];
   /** 지금 장소 id (`data/nodes/`) */
   node: string;
-  /** 지금 장소에 도착한 뒤 지난 단계 수. 도착한 단계가 0 (01-formulas 2.3 고갈) */
+  /** 지금 장소에 도착한 뒤 지난 칸 수. 도착한 칸이 0 (01-formulas 2.3 고갈, 9.4) */
   stay: number;
+  /** 짜는 중인 루틴 — 이 단계에 채운 칸의 선택 id (00-core-loop 3.5, 03-contracts 3장) */
+  routine?: string[];
+  /** 바로 전 단계에 실행한 루틴 — 다음 루틴의 제안값 */
+  lastRoutine?: string[];
   player: Bird;
   mate?: Mate;
   /** 지은 둥지. 둥지 국면을 벗어나면 없어진다 */
@@ -204,6 +210,17 @@ export interface ViewModel {
     | { kind: 'nestSite'; cards: NestSiteCard[] }
     | { kind: 'clutchSize'; cards: ClutchSizeCard[] };
   nest?: Nest;
+  /** 루틴을 짜는 중일 때만 (관문 중에는 없음, 03-contracts 3장 '행동 루틴') */
+  routine?: {
+    /** 이 단계의 칸 수 */
+    slots: number;
+    /** 이미 채운 칸의 선택 id */
+    filled: string[];
+    /** 남은 빈 칸마다 제안 id. null = 제안 없음 */
+    suggested: (string | null)[];
+    /** 이벤트 뒤 남은 칸 다시 채우기 — 이벤트가 생기기 전에는 늘 false */
+    replan: boolean;
+  };
   /** 최근 판정 기록 — 이야기 피드 */
   recentLog: LogEntry[];
 }

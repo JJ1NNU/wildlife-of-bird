@@ -185,6 +185,8 @@ export const SpeciesBalance = z
       }
     }),
     basalPerStep: z.record(Season, positive),
+    /** 잠 회복 — 판정 1에서 행동과 상관없이 단계당 더한다 (01-formulas 9.4, #174) */
+    sleepRecoverPerStep: z.record(Season, z.number().nonnegative()),
     /** 국면 이름 → 포식자 활동 배수. 없는 국면은 1 */
     predatorActivity: z.partialRecord(Phase, positive),
     /** 무리 생활을 하는 국면 */
