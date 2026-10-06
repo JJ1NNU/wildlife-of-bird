@@ -30,7 +30,7 @@
 |---|---|---|---|
 | `bird.parus-minor.adult-m.breeding.perch` | 메인 화면 주인공 | P0 | **완료** — 배치 02, 콘텐츠 승인(#146)(`prompts/batch-02-parus-minor.md`), 출처는 2.1. 배치 01은 식별 특징 실패(`style-options.md` 6.3) |
 | `bird.parus-minor.adult-f.breeding.perch` | 짝 | P0 | **완료** — 배치 02, 콘텐츠 승인(#146). 암컷 = 세로줄 가늘게(field-marks 1장) |
-| `bird.parus-minor.chick.nest` | 둥지 단계 | P0 | 식별 특징 출처 없음(field-marks 1장) → 콘텐츠 #95 답 뒤 배치 03 |
+| `bird.parus-minor.chick.nest` | 둥지 단계 | P0 | 배치 03 프롬프트 준비(`prompts/batch-03-parus-minor-chick.md`) — field-marks 1장 둥지 안 새끼·N1~N3(#167). 구멍 단면에 5~8마리, `bird` 단독 규칙의 예외 |
 | `bird.parus-minor.juv.perch` | 독립·계승 | P0 | **완료** — 배치 02, 콘텐츠 승인(#146), 어린 새 깃(이소 후~첫 털갈이). 노르스름한 배는 어린 새만 |
 | `bird.parus-minor.egg` | 산란·포란 | P1 | |
 | `bird.parus-minor.adult.nonbreeding.perch` | 겨울 | P2 | **생략** — 계절 깃 차이 출처 없음, 같은 깃으로 그린다(field-marks 1장) |
