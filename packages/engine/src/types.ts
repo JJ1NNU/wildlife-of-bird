@@ -146,6 +146,8 @@ export interface MateCandidate extends Mate {
   plumageNoise: number;
   /** 성격 힌트(`mate.hintAccuracy` 확률로 맞는 쪽) */
   hint: 'bold' | 'shy';
+  /** 지난 짝 — 고르면 재결합 (2.2) */
+  previous?: boolean;
 }
 
 /** 열려 있는 관문. 열려 있으면 `getChoices`는 관문의 선택지만 준다 (03-contracts 3장) */
@@ -193,6 +195,8 @@ export interface MateCandidateCard {
   age: number;
   hint: 'bold' | 'shy';
   accepts: boolean;
+  /** 지난 짝 카드 — 맨 앞에 1장, 늘 받아들인다 (2.2) */
+  previous?: boolean;
 }
 
 /**
@@ -219,6 +223,8 @@ export interface RunState {
   mate?: Mate;
   /** 지은 둥지. 둥지 국면을 벗어나면 없어진다 */
   nest?: Nest;
+  /** 마지막으로 거둔 둥지에 새끼가 남아 있었나 — 다음 `pairing`의 이혼 확률 (04-breeding 2.1). 그때 지운다 */
+  broodFledged?: boolean;
   /**
    * 열려 있는 관문. 짝 지시는 단계 시작에 열려 고르면 같은 단계의 칸으로,
    * 나머지는 단계 끝에 열려 고르면 다음 단계로 간다

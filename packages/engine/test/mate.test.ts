@@ -1,5 +1,6 @@
+import type { GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
-import type { RunState } from '../src/index.ts';
+import type { Mate, RunState } from '../src/index.ts';
 import { act, getChoices, getView, mateAccepts, newRun, preview } from '../src/index.ts';
 import { actStep, testData } from './fixture.ts';
 
@@ -59,5 +60,63 @@ describe('짝 후보 관문 (04-breeding 2.2, 00-core-loop 4.6)', () => {
     expect(next.gate).toBeUndefined();
     expect(next.mate).toBeDefined();
     expect(next.at.step).toBe(2);
+  });
+});
+
+describe('지난 짝 — 생존 · 이혼 · 재결합 (04-breeding 2.1 · 2.2)', () => {
+  const start = newRun({ speciesId: 'parus-minor', seed: 'mate', mode: 'free' }, testData);
+  const mate: Mate = {
+    sex: 'male',
+    age: 2,
+    expYears: 2,
+    potential: { foraging: 60, display: 60 },
+    stats: { foraging: 50, display: 50 },
+    personality: 'bold',
+    personalityKnown: false,
+    bond: 95,
+  };
+  const paired: RunState = { ...start, mate, player: { ...start.player, energy: 60 } };
+  /** 종 번식 키만 바꾼 데이터 — 난수 결과를 0·1 확률로 고정한다 */
+  const withSpecies = (patch: object): GameData => {
+    const s = testData.breeding.species['parus-minor'];
+    if (!s) throw new Error('박새 번식 데이터가 없다');
+    return {
+      ...testData,
+      breeding: { ...testData.breeding, species: { 'parus-minor': { ...s, ...patch } } },
+    };
+  };
+
+  it('period 1 진입에서 u ≥ mateYearSurvival이면 짝이 죽는다', () => {
+    const last = start.calendar[23]?.length ?? 1;
+    const eve: RunState = { ...paired, at: { year: 1, period: 24, step: last } };
+    const dead = actStep(eve, 'action.rest', withSpecies({ mateYearSurvival: 0 }));
+    expect(dead.state.at).toMatchObject({ period: 1, step: 1 });
+    expect(dead.state.mate).toBeUndefined();
+    expect(dead.log.some((l) => l.cause === 'mateDeath')).toBe(true);
+    const alive = actStep(eve, 'action.rest', withSpecies({ mateYearSurvival: 1 }));
+    expect(alive.state.mate).toEqual(mate);
+  });
+
+  const pairing: RunState = { ...paired, at: { year: 2, period: 5, step: 1 } };
+
+  it('이혼 확률은 지난해 독립 성공이면 afterSuccess, 아니면 afterFailure', () => {
+    const data = withSpecies({ divorce: { afterSuccess: 1, afterFailure: 0 } });
+    const success = actStep({ ...pairing, broodFledged: true }, 'action.rest', data);
+    expect(success.log.some((l) => l.cause === 'divorce')).toBe(true);
+    expect(getView(success.state, data).gate?.cards.some((c) => 'previous' in c)).toBe(false);
+    const failure = actStep({ ...pairing, broodFledged: false }, 'action.rest', data);
+    expect(failure.log.some((l) => l.cause === 'divorce')).toBe(false);
+    expect(failure.state.broodFledged).toBeUndefined();
+  });
+
+  it('남은 지난 짝은 맨 앞 카드 · 늘 받아들임 · 재결합하면 유대 상한 100, 성격 확인 (BR-7)', () => {
+    const data = withSpecies({ divorce: { afterSuccess: 0, afterFailure: 0 } });
+    const opened = actStep(pairing, 'action.rest', data).state;
+    const cards = getView(opened, data).gate?.cards ?? [];
+    expect(cards).toHaveLength(data.breeding.mate.candidates + 1);
+    expect(cards[0]).toMatchObject({ choiceId: 'mateCandidate.1', accepts: true, previous: true });
+    const reunited = act(opened, 'mateCandidate.1', data).state;
+    expect(reunited.mate?.bond).toBe(100);
+    expect(reunited.mate?.personalityKnown).toBe(true);
   });
 });
