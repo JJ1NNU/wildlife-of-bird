@@ -79,3 +79,41 @@ describe('둥지 자리 관문 (04-breeding 1·4장)', () => {
     expect(act(single, 'action.rest', testData).state.gate).toBeUndefined();
   });
 });
+
+describe('산란수 관문 (04-breeding 5장)', () => {
+  /** `laying` 첫 단계(`period 8`), 둥지 있음 */
+  const layingStart: RunState = {
+    ...start,
+    at: { year: 1, period: 8, step: 1 },
+    node: 'village-farmland',
+    nest: { site: 'nestBox', node: 'village-farmland' },
+    player: { ...start.player, energy: 60 },
+  };
+
+  it('첫 단계 흐름의 마지막에 열리고, 고른 뒤 laying 단계마다 암컷이 알 수 × 0.4를 더 쓴다', () => {
+    const opened = act(layingStart, 'action.rest', testData).state;
+    expect(opened.at).toEqual(layingStart.at);
+    expect(getChoices(opened, testData).map((c) => c.id)).toEqual([
+      'clutchSize.6',
+      'clutchSize.8',
+      'clutchSize.10',
+    ]);
+    const card = getView(opened, testData).gate?.cards[0];
+    expect(card).toMatchObject({ eggs: 6, layingCost: expect.closeTo(2.4) });
+
+    const laid = act(opened, 'clutchSize.8', testData).state;
+    expect(laid.nest?.eggs).toBe(8);
+    expect(laid.at).toEqual({ year: 1, period: 8, step: 2 });
+    const without = { ...laid, nest: { site: 'nestBox', node: 'village-farmland' } };
+    const spent = (s: RunState) =>
+      s.player.energy - act(s, 'action.rest', testData).state.player.energy;
+    expect(spent(laid) - spent(without)).toBeCloseTo(3.2);
+    const male = (s: RunState): RunState => ({ ...s, player: { ...s.player, sex: 'male' } });
+    expect(spent(male(laid))).toBeCloseTo(spent(male(without)));
+  });
+
+  it('둥지가 없으면 열리지 않는다', () => {
+    const { nest: _n, ...noNest } = layingStart;
+    expect(act(noNest, 'action.rest', testData).state.gate).toBeUndefined();
+  });
+});

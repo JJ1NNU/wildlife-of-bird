@@ -114,13 +114,24 @@ export interface MateCandidate extends Mate {
 /** 열려 있는 관문. 열려 있으면 `getChoices`는 관문의 선택지만 준다 (03-contracts 3장) */
 export type Gate =
   | { kind: 'mateCandidate'; candidates: MateCandidate[] }
-  | { kind: 'nestSite'; holes: string[] };
+  | { kind: 'nestSite'; holes: string[] }
+  | { kind: 'clutchSize'; options: number[] };
 
 /** 지은 둥지 (04-breeding 4장). 둥지 국면 동안 이 장소에 묶인다 */
 export interface Nest {
   /** 구멍 id (`breeding.nestSite.holes`) — 경쟁에 지면 `shallow` */
   site: string;
   node: string;
+  /** 산란수 관문에서 낳은 알 수 (04-breeding 5장) */
+  eggs?: number;
+}
+
+/** 산란수 관문 카드 (04-breeding 5장) */
+export interface ClutchSizeCard {
+  choiceId: string;
+  eggs: number;
+  /** 관문 뒤 `laying` 단계마다 더 드는 소비 — 수컷이면 0 */
+  layingCost: number;
 }
 
 /** 화면 S-23 둥지 자리 카드 */
@@ -185,10 +196,11 @@ export interface ViewModel {
   energyCap: number;
   totalBreeding: number;
   gameOver: boolean;
-  /** 열려 있는 관문의 카드 — 짝 후보(S-20) · 둥지 자리(S-23) */
+  /** 열려 있는 관문의 카드 — 짝 후보(S-20) · 둥지 자리(S-23) · 산란수 */
   gate?:
     | { kind: 'mateCandidate'; cards: MateCandidateCard[] }
-    | { kind: 'nestSite'; cards: NestSiteCard[] };
+    | { kind: 'nestSite'; cards: NestSiteCard[] }
+    | { kind: 'clutchSize'; cards: ClutchSizeCard[] };
   nest?: Nest;
   /** 최근 판정 기록 — 이야기 피드 */
   recentLog: LogEntry[];

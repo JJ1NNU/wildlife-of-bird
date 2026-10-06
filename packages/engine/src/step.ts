@@ -1,5 +1,6 @@
 import type { GameData, MapNode, Phase, SpeciesBalance, StatName } from '@wb/schema';
 import { phaseAt } from './calendar.ts';
+import { layingCost } from './clutch.ts';
 import type { ActionId } from './formulas.ts';
 import {
   deathRisk,
@@ -131,17 +132,18 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
     action,
     stay,
   });
-  const spent = expenditure(f, species, {
-    period: state.at.period,
-    phase,
-    action,
-    flight: stat('flight'),
-    // 잠정(#21): 둥지·새끼는 번식 조각에서 — 그 전에는 포란·급이 비용이 없다
-    incubating: false,
-    feeding: false,
-    feedIntensity: 'mid',
-    chicks: 0,
-  });
+  const spent =
+    expenditure(f, species, {
+      period: state.at.period,
+      phase,
+      action,
+      flight: stat('flight'),
+      // 잠정(#21): 둥지·새끼는 번식 조각에서 — 그 전에는 포란·급이 비용이 없다
+      incubating: false,
+      feeding: false,
+      feedIntensity: 'mid',
+      chicks: 0,
+    }) + layingCost(data, state);
   const { energy, starved } = nextEnergy(cap, p.energy, gained, spent);
   const feather = nextFeather(f, p.feather, phase, action);
   if (starved) return { phase, node, stay, energy, starved, feather, stats: p.stats, risk: 0 };
