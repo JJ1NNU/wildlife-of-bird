@@ -187,6 +187,7 @@ export function deathRisk(
     action: ActionId;
     riskModFactor: number;
     vigilance: number;
+    flight: number;
     expYears: number;
     /** 판정 1 직후의 `에너지 / 지방 상한` */
     r: number;
@@ -212,6 +213,7 @@ export function deathRisk(
     f.actions[input.action].riskMult *
     input.riskModFactor *
     (1 - k.vigilancePerStat * input.vigilance) *
+    (1 - k.flightPerStat * (input.flight - k.flightRef)) *
     (1 - Math.min(k.expCap, k.expPerYear * input.expYears)) *
     flock *
     fat *

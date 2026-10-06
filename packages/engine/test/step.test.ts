@@ -33,7 +33,7 @@ const example: RunState = {
     feather: 60,
     age: 1,
     expYears: 1,
-    stats: { ...start.player.stats, stamina: 34, foraging: 70, vigilance: 70 },
+    stats: { ...start.player.stats, stamina: 34, foraging: 70, vigilance: 70, flight: 40 },
   },
 };
 
