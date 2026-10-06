@@ -99,6 +99,27 @@ export interface Mate {
   /** 성격이 '확인'됐나. 아니면 화면은 힌트만 보여 준다 */
   personalityKnown: boolean;
   bond: number;
+  /** 지금까지 건 지시 수(수락·거절 모두) — `mate.revealAfterOrders`면 성격 확인 (2.5) */
+  orders?: number;
+}
+
+/** 지금 걸린 짝 지시·도움 (04-breeding 3장). 그 국면이 끝나면 없어진다 */
+export interface MateOrder {
+  /** 고른 선택 id — `mateOrder.<id>` 또는 `help.<id>` */
+  id: string;
+  phase: Phase;
+  accepted: boolean;
+  /** 효과 비율 — 수락 1, 거절이면 f (3.5) */
+  effect: number;
+  /** 짝 r에 더하는 값 (2.6) — 거절이면 0 */
+  mateR: number;
+}
+
+/** 짝 지시 관문 카드 — 수락률은 등급만 (2.5, 01-formulas 7.4) */
+export interface MateOrderCard {
+  choiceId: string;
+  /** 수락 판정이 있는 지시만. 성격 확인 전에는 `neutral`로 계산 */
+  acceptance?: 'high' | 'mid' | 'low';
 }
 
 /** 짝 후보 카드 하나 — 만들 때 신호까지 한 번 정해 고정한다 (04-breeding 2.2·2.3) */
@@ -116,6 +137,7 @@ export interface MateCandidate extends Mate {
 /** 열려 있는 관문. 열려 있으면 `getChoices`는 관문의 선택지만 준다 (03-contracts 3장) */
 export type Gate =
   | { kind: 'mateCandidate'; candidates: MateCandidate[] }
+  | { kind: 'mateOrder'; options: string[] }
   | { kind: 'nestSite'; holes: string[] }
   | { kind: 'clutchSize'; options: number[] };
 
@@ -182,8 +204,15 @@ export interface RunState {
   mate?: Mate;
   /** 지은 둥지. 둥지 국면을 벗어나면 없어진다 */
   nest?: Nest;
-  /** 열려 있는 관문. 관문이 열린 단계에 머물러 있다 — 관문을 고르면 다음 단계로 간다 */
+  /**
+   * 열려 있는 관문. 짝 지시는 단계 시작에 열려 고르면 같은 단계의 칸으로,
+   * 나머지는 단계 끝에 열려 고르면 다음 단계로 간다
+   */
   gate?: Gate;
+  /** 지금 걸린 짝 지시·도움 */
+  order?: MateOrder;
+  /** 최근 `mate.reciprocityWindowSteps` 단계가 도움 단계였나 (04-breeding 3.3 상호성) */
+  recentHelp?: boolean[];
   /** 점수 = 총 번식 수 (gdd 11.1장 [확정]) */
   totalBreeding: number;
   gameOver: boolean;
@@ -204,9 +233,10 @@ export interface ViewModel {
   energyCap: number;
   totalBreeding: number;
   gameOver: boolean;
-  /** 열려 있는 관문의 카드 — 짝 후보(S-20) · 둥지 자리(S-23) · 산란수 */
+  /** 열려 있는 관문의 카드 — 짝 후보(S-20) · 짝 지시 · 둥지 자리(S-23) · 산란수 */
   gate?:
     | { kind: 'mateCandidate'; cards: MateCandidateCard[] }
+    | { kind: 'mateOrder'; cards: MateOrderCard[] }
     | { kind: 'nestSite'; cards: NestSiteCard[] }
     | { kind: 'clutchSize'; cards: ClutchSizeCard[] };
   nest?: Nest;

@@ -70,6 +70,7 @@ const GATE_GO = {
   mateCandidate: { done: (label: string) => `짝 맺기 · ${label}`, none: '짝을 고르세요' },
   nestSite: { done: (label: string) => `${label}에 짓기`, none: '둥지 자리를 고르세요' },
   clutchSize: { done: (label: string) => `${label} 낳기`, none: '알 수를 고르세요' },
+  mateOrder: { done: (label: string) => `짝에게 · ${label}`, none: '짝에게 맡길 일을 고르세요' },
 } as const;
 const HINT_WORD = { bold: '대담해 보인다', shy: '조심스러워 보인다' } as const;
 const SEASON = [
