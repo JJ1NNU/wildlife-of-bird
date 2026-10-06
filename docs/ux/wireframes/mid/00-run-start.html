@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S-03 런 시작 — 중충실도</title>
+<link rel="stylesheet" href="wf.css">
+<style>
+  .who { flex: none; display: flex; align-items: center; gap: var(--wb-space-3); padding: var(--wb-space-3) var(--wb-space-4) 0; }
+  .who .thumb { width: 64px; height: 64px; flex: none; border-radius: var(--wb-radius-m); background: var(--wb-color-paper); border: 1px solid var(--wb-color-line); display: flex; align-items: center; justify-content: center; }
+  .who .thumb img { width: 56px; }
+  .sex { display: grid; grid-template-columns: 1fr 1fr; gap: var(--wb-space-2); padding: var(--wb-space-2) var(--wb-space-4) 0; }
+  .sex .opt { flex-direction: column; align-items: flex-start; padding: 8px 10px; }
+  .sexsym { font-size: var(--wb-font-size-title); font-weight: var(--wb-font-weight-bold); }
+  .grade { display: inline-block; min-width: 18px; padding: 0 3px; border: 1px solid var(--wb-color-slate); border-radius: var(--wb-radius-s); text-align: center; font-weight: var(--wb-font-weight-bold); color: var(--wb-color-ink); }
+  .tbl { padding: var(--wb-space-2) var(--wb-space-4) 0; }
+  .tbl .kv td, .tbl .kv th { padding: 4px 0; }
+  .sec { font-size: var(--wb-font-size-small); font-weight: var(--wb-font-weight-bold); color: var(--wb-color-ink-muted); padding: var(--wb-space-3) var(--wb-space-4) 0; }
+</style>
+</head>
+<body>
+<div class="page-head">
+  <h1>00 · S-03 런 시작 — 첫 개체 — 중충실도 (360 폭)</h1>
+  <p>기준: <code>specs/screens.md</code> S-03 · <code>specs/05-inheritance.md</code> v0 2장(성별을 고른다, 출발 스탯 = 종 평균) · 4장(잠재력 등급 범위). 숫자는 05 2장의 박새 예시. <b>잠정(#138)</b> — 05가 머지 전. 성별 설명 문구는 콘텐츠.</p>
+  <p class="legend"><label><input type="checkbox" id="ann" checked> 주석 보기</label>
+    <span class="k p"></span>확률·예상치 자리 <span class="k t"></span>터치 영역 44px 이상 <span class="k f"></span>550 — 결정 영역 끝</p>
+</div>
+
+<div class="frames">
+<section class="frame">
+<h2>A. 첫 개체 — 성별 고르기</h2>
+<div class="phone">
+  <div class="zone">
+    <div class="who"><div class="thumb"><img src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt=""></div>
+      <div><div class="b" style="font-size:var(--wb-font-size-title)">박새 · 1세</div>
+        <div class="small muted">첫 번식기를 앞둔 젊은 성조 · 숲 가장자리</div></div></div>
+    <div class="sec">성별</div>
+    <div class="sex">
+      <div class="opt t sel"><span class="sexsym">♀ 암컷</span><span class="cap">(콘텐츠 문구) 알을 낳고 품는다</span></div>
+      <div class="opt t"><span class="sexsym">♂ 수컷</span><span class="cap">(콘텐츠 문구) 둥지 자리를 지키고 짝을 먹인다</span></div>
+    </div>
+    <div class="sec">스탯 — 지금 / 잠재력</div>
+    <div class="tbl">
+      <table class="kv">
+        <tbody>
+          <tr><td><span class="ico s i-flight"></span> 비행</td><td><span class="grade p">E</span> / <span class="grade p">D</span>~<span class="grade p">C</span></td></tr>
+          <tr><td>채식</td><td><span class="grade p">C</span> / <span class="grade p">B</span>~<span class="grade p">A</span></td></tr>
+          <tr><td><span class="ico s i-vigilance"></span> 경계</td><td><span class="grade p">C</span> / <span class="grade p">B</span>~<span class="grade p">A</span></td></tr>
+          <tr><td><span class="ico s i-stamina"></span> 체력</td><td><span class="grade p">F</span> / <span class="grade p">F</span>~<span class="grade p">E</span></td></tr>
+          <tr><td><span class="ico s i-display"></span> 과시</td><td><span class="grade p">D</span> / <span class="grade p">C</span>~<span class="grade p">B</span></td></tr>
+          <tr><td>사회</td><td><span class="grade p">C</span> / <span class="grade p">B</span>~<span class="grade p">A</span></td></tr>
+        </tbody>
+      </table>
+      <div class="row small" style="margin-top:6px;gap:12px"><span class="ico s i-energy"></span><span>에너지 <b>45</b> <span class="muted">/ 64</span></span><span class="ico s i-feather"></span><span>깃털 <b>80</b></span></div>
+    </div>
+    <div class="actions"><div class="btn prim t">♀로 시작</div></div>
+  </div>
+  <div class="feed"><p class="cap">↓ 접힘 아래: 스탯 이름을 누르면 한 줄 설명(S-12와 같은 글).</p></div>
+  <div class="fold"><span>550</span></div>
+</div>
+<ul class="note">
+  <li><b>성별이 이 화면의 유일한 선택</b>(05 2장). 두 칸을 같은 무게로 나란히, 고른 쪽이 시작 버튼 이름이 된다. 결정 예산에 안 센다.</li>
+  <li>성별마다 한 줄 설명 — 암수의 일이 다르다는 것만(05 2장: 암컷 산란·포란 / 수컷 <code>patrol</code>·<code>feedMate</code>). 위 문장은 자리 글, 문구는 콘텐츠.</li>
+  <li>스탯 6개: <b>지금 등급 하나 / 잠재력 연속 2등급</b>(05 4장). 출발값은 종 평균이라 성별을 바꿔도 같은 숫자 — 표는 성별과 함께 바뀌지 않는다.</li>
+  <li>아이콘은 v0 4개(비행·경계·체력·과시)만 있다. 채식·사회 아이콘은 아이콘 추가 때(asset-list 5장) — 그 전엔 글자만.</li>
+  <li>난수 없음 · 같은 시드 같은 출발(리더보드 공정, 05 2장) — 화면에 "다시 뽑기"를 두지 않는다.</li>
+</ul>
+</section>
+</div>
+</body>
+</html>

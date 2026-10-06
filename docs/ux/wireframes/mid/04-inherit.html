@@ -11,13 +11,15 @@
   .kid .thumb { width: 40px; height: 40px; flex: none; border-radius: var(--wb-radius-m); background: var(--wb-color-paper); border: 1px solid var(--wb-color-line); display: flex; align-items: center; justify-content: center; }
   .kid .thumb img { width: 34px; }
   .facts { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: var(--wb-font-size-small); margin-top: 2px; }
+  .pot { display: grid; grid-template-columns: repeat(3, auto); gap: 2px 10px; justify-content: start; font-size: var(--wb-font-size-caption); margin-top: 4px; }
+  .grade { display: inline-block; min-width: 18px; padding: 0 3px; border: 1px solid var(--wb-color-slate); border-radius: var(--wb-radius-s); text-align: center; font-weight: var(--wb-font-weight-bold); color: var(--wb-color-ink); }
   .sec { font-size: var(--wb-font-size-small); font-weight: var(--wb-font-weight-bold); color: var(--wb-color-ink-muted); }
 </style>
 </head>
 <body>
 <div class="page-head">
   <h1>04 · S-24 독립 · 계승 결정 — 중충실도 (360 폭)</h1>
-  <p>기준: <code>specs/screens.md</code> v1 S-24 · <code>docs/ux/screens.md</code> 3장(되돌릴 수 없는 선택은 확인 한 번 더) · #53. 잠재력 범위 폭·넘어가는 것은 <code>05-inheritance</code>(M1) 전 — <b>잠정(#22)</b>: 실제 등급을 포함하는 연속 2등급.</p>
+  <p>기준: <code>specs/screens.md</code> v1 S-24 · <code>docs/ux/screens.md</code> 3장(되돌릴 수 없는 선택은 확인 한 번 더) · #53. <code>specs/05-inheritance.md</code> v0 — 4장 잠재력 범위(연속 2등급) · 5장 화면 정보 · 6장 1년 생존 예상 · 7장 넘어가는 것(#140). 숫자는 05의 예시 값. <b>잠정(#138)</b> — 05가 머지 전.</p>
   <p class="legend"><label><input type="checkbox" id="ann" checked> 주석 보기</label>
     <span class="k p"></span>확률·예상치 자리 <span class="k t"></span>터치 영역 44px 이상 <span class="k f"></span>550 — 결정 영역 끝</p>
 </div>
@@ -32,20 +34,21 @@
     <div class="banner">새끼 4마리 독립 — 총 번식 3 → <span style="font-size:20px">4</span> 확정</div>
     <div class="small muted" style="padding:4px var(--wb-space-4) 0">계승하든 남든 이미 확정이다.</div>
     <div class="card me">
-      <div class="row"><span class="b">지금 개체 · 박새 ♀ 2세</span><span class="sp"></span><span class="cap">남으면</span></div>
-      <div class="facts"><span>노화 위험 <b class="p">×1.0</b> <span class="cap">(3세부터 오름)</span></span><span>짝 유대 <b>72</b></span></div>
-      <div class="row small" style="margin-top:2px"><span>다음 1년 생존 예상</span><span class="sp"></span><span class="b p" style="font-size:var(--wb-font-size-title)">68%</span></div>
+      <div class="row"><span class="b">지금 개체 · 박새 ♀ 3세</span><span class="sp"></span><span class="cap">남으면</span></div>
+      <div class="facts"><span>노화 위험 <b class="p caution">×1.25</b></span><span>짝 유대 <b>72</b></span></div>
+      <div class="row small" style="margin-top:2px"><span>1년 생존 예상 <span class="cap">사건 제외</span></span><span class="sp"></span><span class="b p" style="font-size:var(--wb-font-size-title)">77%</span></div>
     </div>
     <div class="list" style="padding-top:10px">
       <div class="sec">새끼 — 계승하면 하나를 고른다</div>
       <div class="opt t kid sel"><div class="thumb"><img src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt=""></div>
-        <div class="main"><div class="b">첫째 ♂</div>
-          <div class="facts"><span>잠재력 <b class="p">B~A</b></span><span>은수저 <b class="p">0.78</b></span></div>
-          <div class="facts"><span>첫 겨울 위험 <b class="p caution">×1.3</b></span></div></div></div>
+        <div class="main"><div class="row"><span class="b">첫째 ♂</span><span class="sp"></span><span class="small">1년 생존 <b class="p" style="font-size:var(--wb-font-size-title)">78%</b></span></div>
+          <div class="facts"><span>은수저 <b class="p">0.55</b></span><span>첫 겨울 위험 <b class="p danger">×1.47</b></span></div>
+          <div class="pot"><span>비행 <span class="grade p">D</span>~<span class="grade p">C</span></span><span>채식 <span class="grade p">A</span>~<span class="grade p">S</span></span><span>경계 <span class="grade p">B</span>~<span class="grade p">A</span></span><span>체력 <span class="grade p">F</span>~<span class="grade p">E</span></span><span>과시 <span class="grade p">C</span>~<span class="grade p">B</span></span><span>사회 <span class="grade p">B</span>~<span class="grade p">A</span></span></div>
+          <div class="cap" style="margin-top:2px">잠재력 6개 · 접기 ▴</div></div></div>
       <div class="opt t kid"><div class="thumb"><img src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt=""></div>
-        <div class="main"><div class="b">둘째 ♀</div>
-          <div class="facts"><span>잠재력 <b class="p">C~B</b></span><span>은수저 <b class="p">0.52</b></span></div>
-          <div class="facts"><span>첫 겨울 위험 <b class="p danger">×1.6</b></span></div></div></div>
+        <div class="main"><div class="row"><span class="b">둘째 ♀</span><span class="sp"></span><span class="small">1년 생존 <b class="p" style="font-size:var(--wb-font-size-title)">79%</b></span></div>
+          <div class="facts"><span>은수저 <b class="p">1.00</b></span><span>첫 겨울 위험 <b class="p caution">×1.20</b></span></div>
+          <div class="cap t" style="margin-top:2px;min-height:auto">잠재력 6개 펼치기 ▾ <span class="muted">· 채식 A~S · 경계 B~A …</span></div></div></div>
       <div class="cap">… 셋째·넷째 (이 목록만 스크롤)</div>
     </div>
     <div class="actions"><div class="btn t">이 개체로 1년 더</div><div class="btn prim t">첫째로 계승</div></div>
@@ -55,10 +58,11 @@
 </div>
 <ul class="note">
   <li><b>맨 위가 "총 번식 +1 확정"</b>(<code>00-core-loop</code> 6.1) — 고르기 전에 안심시킨다. 강조색 띠, 숫자를 크게.</li>
-  <li>새끼 카드: 성별 · 잠재력 <b>등급 범위</b> · 은수저 지수 · 첫 겨울 위험 보정(<code>01-formulas</code> 6.3). 숨은 값은 범위로만.</li>
-  <li>지금 개체: 나이 · 노화 배율 · 짝 유대 · <b>잔류 시 1년 생존 예상</b>(엔진 값, 계산법 <code>05-inheritance</code>).</li>
+  <li>새끼 카드(05 5장): 성별 · <b>1년 생존 예상</b> · 은수저 지수(소수 둘째) · 첫 겨울 위험 배율(소수 둘째) · 잠재력 <b>등급 범위 6개</b>. 6개는 카드에 다 안 들어가서 <b>펼침</b> — 고른 카드는 펼쳐 두고, 나머지는 강한 두 개만 미리 보인다. 정보는 빼지 않는다.</li>
+  <li><b>1년 생존 예상은 지금 개체와 새끼에 같은 숫자</b>(05 6장, 정수 %) — 같은 자리·같은 크기로 두어 바로 비교한다. "사건 제외"를 붙인다(실제는 더 낮다).</li>
+  <li>지금 개체: 나이 · 노화 위험 배율 · 짝 유대 · 1년 생존 예상. 예시는 05 6장의 잔류 나이 3(77%).</li>
   <li>두 버튼은 같은 무게(주 버튼 색은 고른 쪽 이름이 붙은 계승). 새끼를 안 고르면 계승 버튼 비활성 <code>새끼를 고르세요</code>.</li>
-  <li>새끼 그림은 <code>bird.parus-minor.juvenile</code> — 지금은 자리표시.</li>
+  <li>새끼 그림은 <code>bird.parus-minor.juv.perch</code>(#146, 생태 검토 중) — 지금은 자리표시.</li>
 </ul>
 </section>
 
@@ -76,14 +80,15 @@
       <table class="kv">
         <thead><tr><th>　</th><th>지금 개체</th><th>첫째 ♂</th></tr></thead>
         <tbody>
-          <tr><td>나이</td><td>2세</td><td>0세</td></tr>
-          <tr><td>잠재력</td><td>—</td><td class="p">B~A</td></tr>
-          <tr><td>경험</td><td>B</td><td class="danger">처음부터</td></tr>
-          <tr><td>짝·영역</td><td>있음</td><td class="danger">없음</td></tr>
-          <tr><td>다음 1년</td><td class="p">생존 68%</td><td class="p">첫 겨울 위험 ×1.3</td></tr>
+          <tr><td>나이 · 경험</td><td>3세 · 3</td><td class="danger">0세 · 처음부터</td></tr>
+          <tr><td>스탯</td><td>지금 값</td><td class="danger">낮게 시작 <span class="cap">(은수저만큼 빨리 자람)</span></td></tr>
+          <tr><td>잠재력</td><td>지금 그대로</td><td class="p">새끼의 것</td></tr>
+          <tr><td>짝 · 유대</td><td>있음 · 72</td><td class="danger">없음 <span class="cap">(내년 새 후보)</span></td></tr>
+          <tr><td>깃털 · 부상</td><td>44 · —</td><td>새 깃 80 · 없음</td></tr>
+          <tr><td>1년 생존 예상</td><td class="p">77%</td><td class="p">78% <span class="cap">첫 겨울 ×1.47</span></td></tr>
         </tbody>
       </table>
-      <p class="cap" style="margin-top:6px">넘어가는 것·처음부터인 것은 <code>05-inheritance</code>에서 확정 — 잠정(#22).</p>
+      <p class="cap" style="margin-top:6px">그대로: 총 번식 수 · 장소 · 시간 · 이번 시기 날씨 · 도감</p>
     </div>
     <div class="actions"><div class="btn t">다시 고르기</div><div class="btn prim t">계승한다</div></div>
   </div>
@@ -91,7 +96,8 @@
 </div>
 <ul class="note">
   <li>런에서 <b>유일하게 되돌릴 수 없는 선택</b> — 여기서만 확인을 한 번 더(<code>docs/ux/screens.md</code> 3장).</li>
-  <li>확인은 비교표: 무엇을 얻고 무엇을 잃는지 한눈에. 잃는 칸은 위험색 + 낱말.</li>
+  <li>확인은 비교표: 무엇을 얻고 무엇을 잃는지 한눈에. 잃는 칸은 위험색 + 낱말. 행은 05 7장 표에서 고른 6줄 — 플레이어가 실제로 잃고 얻는 것만. 에너지(새끼 지방 상한 × 시작 비율)는 표에서 뺐다 — 계승 직후 상태 바에 보인다.</li>
+  <li>"그대로" 한 줄: 05 7장의 바뀌지 않는 것(총 번식 수 · 장소 · 시간 · <code>riskMod</code>·<code>foodMod</code> · 계절 방침 · 도감). 방침은 M1 화면이 없어 뺐다.</li>
   <li>"계승한다"를 위험색으로 칠하지 않는다 — 나쁜 선택이 아니다. 실수 방지는 시트 한 번으로 충분. 바깥 누르기·뒤로 = 다시 고르기.</li>
 </ul>
 </section>
