@@ -1,6 +1,8 @@
-import type { GameData } from '@wb/schema';
-import { advance } from './calendar.ts';
+import type { GameData, StatName } from '@wb/schema';
+import { advance, phaseAt, yearCalendar } from './calendar.ts';
+import { agedStats, fatCap } from './formulas.ts';
 import { nextChance, seedFromString } from './rng.ts';
+import { judgeStep, mapNode, speciesBalance, stepChoices } from './step.ts';
 import type {
   ActResult,
   Choice,
@@ -14,33 +16,52 @@ import type {
 /**
  * 엔진 API — 일곱 개의 순수 함수 (엔진 원칙 1, 03-contracts 3장).
  *
- * M0에서는 **형이 확정**이고 속은 최소다. 행동·판정·에너지·위험·이벤트·번식 같은
- * 실제 규칙은 디자인 명세가 나오는 M1에 채운다(#21). 지금 돌려주는 선택과 수치는
- * 자리표시이며, 결정론과 저장/불러오기 왕복만 진짜로 보장한다.
+ * M1 진행 중(#21): 단계표·장소·행동·옮기기와 판정 1·2·3(에너지 → 스탯 → 위험), 아사·포식 사망은
+ * 실제 규칙이다. 관문·번식·계승·이벤트는 아직 없다.
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 /** 새 런을 시작한다. 같은 설정이면 언제나 같은 초기 상태. */
 export function newRun(config: RunConfig, data: GameData): RunState {
-  const ecology = data.ecology.get(config.speciesId);
-  if (!ecology) {
+  if (!data.ecology.has(config.speciesId)) {
     throw new Error(
       `생태 데이터가 없는 종이다: ${config.speciesId} (data/species/${config.speciesId}.ecology.json)`,
     );
   }
+  const f = data.formulas;
+  const species = speciesBalance(data, config.speciesId);
+  const node = species.runStart.node;
+  if (!node) throw new Error(`런 시작 장소가 없다: ${config.speciesId}의 runStart.node`);
+  mapNode(data, node);
+
+  // 런 시작 개체(05-inheritance 2장): 잠재력 = 종 평균(난수 없음), 현재값 = 보통 짝 후보와 같은 비율
+  const potential: Partial<Record<StatName, number>> = {};
+  const stats: Partial<Record<StatName, number>> = {};
+  for (const [stat, grade] of Object.entries(species.aptitude)) {
+    const p = f.stats.aptitudeMean[grade] ?? 0;
+    potential[stat as StatName] = p;
+    stats[stat as StatName] = p * data.breeding.mate.candidateCurrentRatio;
+  }
   return {
     config,
     rng: seedFromString(`${config.speciesId}:${config.seed}`),
-    at: { year: 1, period: 1, step: 1 },
+    at: { year: 1, period: species.runStart.period, step: 1 },
+    calendar: yearCalendar(data, config.speciesId),
+    node,
+    stay: 0,
     player: {
       speciesId: config.speciesId,
       // 런 시작 상태: 모든 종은 '첫 번식기를 앞둔 젊은 성조' (gdd 4.1장)
       sex: config.startSex ?? 'female',
-      age: 1,
-      energy: 50,
-      stats: {},
+      age: species.runStart.age,
+      energy: fatCap(f, stats.stamina ?? 0) * f.energy.runStartRatio,
+      stats,
+      potential,
+      feather: f.feather.runStart,
+      // 05-inheritance 2장: 경험 연수 = `runStart.age` (짝 후보와 같은 셈)
+      expYears: species.runStart.age,
     },
     totalBreeding: 0,
     gameOver: false,
@@ -49,13 +70,9 @@ export function newRun(config: RunConfig, data: GameData): RunState {
 }
 
 /** 지금 고를 수 있는 모든 선택. */
-export function getChoices(state: RunState, _data: GameData): Choice[] {
+export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gameOver) return [];
-  // 잠정(#5): 행동 목록의 주인은 디자인의 단계표(`data/calendar/`)다.
-  return [
-    { id: 'action.forage', kind: 'action', label: '채식' },
-    { id: 'action.rest', kind: 'action', label: '휴식' },
-  ];
+  return stepChoices(state, data);
 }
 
 /** 고를 수 있는 선택을 찾는다. 목록에 없거나 `disabled`면 던진다 (03-contracts 3장, #47) */
@@ -69,24 +86,72 @@ function findChoice(state: RunState, choiceId: string, data: GameData): Choice {
 /** 선택의 예상 결과. 난수를 쓰지 않으므로 몇 번 불러도 같은 값이다 (엔진 원칙 2). */
 export function preview(state: RunState, choiceId: string, data: GameData): Preview {
   findChoice(state, choiceId, data);
-  // 잠정(#6): 공식은 디자인의 위험·에너지 명세를 기다린다.
-  return { deathRisk: 0, energyDelta: [0, 0], notes: [] };
+  const out = judgeStep(state, choiceId, data);
+  const delta = out.energy - state.player.energy;
+  const statGains: Partial<Record<StatName, number>> = {};
+  for (const [stat, value] of Object.entries(out.stats)) {
+    const gain = value - (state.player.stats[stat as StatName] ?? 0);
+    if (gain > 0) statGains[stat as StatName] = gain;
+  }
+  return {
+    deathRisk: out.starved ? 1 : out.risk,
+    energyDelta: [delta, delta],
+    statGains,
+    notes: out.starved ? ['이대로면 굶어 죽는다'] : [],
+  };
 }
 
 /** 선택을 실행하고 한 단계 진행한다. 모든 판정은 `LogEntry`를 남긴다 (엔진 원칙 5). */
 export function act(state: RunState, choiceId: string, data: GameData): ActResult {
   if (state.gameOver) throw new Error('이미 끝난 런이다');
   const choice = findChoice(state, choiceId, data);
+  const out = judgeStep(state, choiceId, data);
+  const p = state.player;
 
-  const at = advance(state.at);
-  // 잠정(#6): 위험 판정의 공식은 디자인 명세를 기다린다. 지금은 난수를 한 번 당겨
-  // 결정론 경로만 실제로 만들어 둔다.
-  const rolled = nextChance(state.rng, 0);
-  const log: LogEntry[] = [{ at, type: 'action', text: choice.label }];
+  const deltas: Record<string, number> = {
+    energy: out.energy - p.energy,
+    feather: out.feather - p.feather,
+  };
+  for (const [stat, value] of Object.entries(out.stats)) {
+    const gain = value - (p.stats[stat as StatName] ?? 0);
+    if (gain !== 0) deltas[`stat.${stat}`] = gain;
+  }
+  const log: LogEntry[] = [{ at: state.at, type: 'decision', text: choice.label, deltas }];
+  const player = { ...p, energy: out.energy, feather: out.feather, stats: out.stats };
+  const moved = { ...state, node: out.node, stay: out.stay, player };
 
+  // B-1 아사: 판정 1 직후 확정 사망. 스탯·위험은 건너뛴다 — 난수도 당기지 않는다
+  if (out.starved) {
+    log.push({ at: state.at, type: 'death', text: '굶어 죽었다', cause: 'starvation' });
+    return { state: { ...moved, gameOver: true, log: [...state.log, ...log] }, log };
+  }
+  const rolled = nextChance(state.rng, out.risk);
+  if (rolled.value) {
+    log.push({ at: state.at, type: 'death', text: '포식자에게 잡혔다', cause: 'predation' });
+    return {
+      state: { ...moved, rng: rolled.state, gameOver: true, log: [...state.log, ...log] },
+      log,
+    };
+  }
+
+  const next: RunState = { ...moved, rng: rolled.state, at: advance(state.at, state.calendar) };
+  return { state: { ...yearStart(next, data), log: [...state.log, ...log] }, log };
+}
+
+/** `period 1` 진입: 나이 +1 · 경험 +1 · 노화 · 단계표 초기화 (00-core-loop 2.1 `YearStart`) */
+function yearStart(state: RunState, data: GameData): RunState {
+  if (state.at.period !== 1 || state.at.step !== 1) return state;
+  const species = speciesBalance(data, state.config.speciesId);
+  const age = state.player.age + 1;
   return {
-    state: { ...state, rng: rolled.state, at, gameOver: rolled.value, log: [...state.log, ...log] },
-    log,
+    ...state,
+    calendar: yearCalendar(data, state.config.speciesId),
+    player: {
+      ...state.player,
+      age,
+      expYears: state.player.expYears + 1,
+      stats: agedStats(data.formulas, species, age, state.player.stats),
+    },
   };
 }
 
@@ -94,11 +159,14 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
  * 화면이 그대로 그리는 형태. 부족하면 클라이언트가 이슈로 요청한다.
  * 복사본을 돌려준다 — 화면·봇이 고쳐도 `RunState`가 바뀌지 않게(결정론, #33).
  */
-export function getView(state: RunState, _data: GameData): ViewModel {
+export function getView(state: RunState, data: GameData): ViewModel {
   return structuredClone({
     at: state.at,
+    phase: phaseAt(state.calendar, state.at),
     speciesId: state.config.speciesId,
+    node: state.node,
     player: state.player,
+    energyCap: fatCap(data.formulas, state.player.stats.stamina ?? 0),
     totalBreeding: state.totalBreeding,
     gameOver: state.gameOver,
     recentLog: state.log.slice(-20),
