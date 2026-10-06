@@ -93,8 +93,9 @@ describe('지난 짝 — 생존 · 이혼 · 재결합 (04-breeding 2.1 · 2.2)'
     expect(dead.state.at).toMatchObject({ period: 1, step: 1 });
     expect(dead.state.mate).toBeUndefined();
     expect(dead.log.some((l) => l.cause === 'mateDeath')).toBe(true);
+    expect(dead.state.mateGone).toBe('mateDeath');
     const alive = actStep(eve, 'action.rest', withSpecies({ mateYearSurvival: 1 }));
-    expect(alive.state.mate).toEqual(mate);
+    expect(alive.state.mate).toEqual({ ...mate, age: 3, expYears: 3 });
   });
 
   const pairing: RunState = { ...paired, at: { year: 2, period: 5, step: 1 } };
@@ -103,7 +104,9 @@ describe('지난 짝 — 생존 · 이혼 · 재결합 (04-breeding 2.1 · 2.2)'
     const data = withSpecies({ divorce: { afterSuccess: 1, afterFailure: 0 } });
     const success = actStep({ ...pairing, broodFledged: true }, 'action.rest', data);
     expect(success.log.some((l) => l.cause === 'divorce')).toBe(true);
-    expect(getView(success.state, data).gate?.cards.some((c) => 'previous' in c)).toBe(false);
+    const gate = getView(success.state, data).gate;
+    expect(gate?.cards.some((c) => 'previous' in c)).toBe(false);
+    expect(gate?.kind === 'mateCandidate' && gate.previousGone).toBe('divorce');
     const failure = actStep({ ...pairing, broodFledged: false }, 'action.rest', data);
     expect(failure.log.some((l) => l.cause === 'divorce')).toBe(false);
     expect(failure.state.broodFledged).toBeUndefined();
@@ -114,7 +117,13 @@ describe('지난 짝 — 생존 · 이혼 · 재결합 (04-breeding 2.1 · 2.2)'
     const opened = actStep(pairing, 'action.rest', data).state;
     const cards = getView(opened, data).gate?.cards ?? [];
     expect(cards).toHaveLength(data.breeding.mate.candidates + 1);
-    expect(cards[0]).toMatchObject({ choiceId: 'mateCandidate.1', accepts: true, previous: true });
+    expect(cards[0]).toMatchObject({
+      choiceId: 'mateCandidate.1',
+      accepts: true,
+      previous: true,
+      potentialRange: { foraging: ['C', 'B'], display: ['C', 'B'] },
+      bond: { now: 95, reunion: 100 },
+    });
     const reunited = act(opened, 'mateCandidate.1', data).state;
     expect(reunited.mate?.bond).toBe(100);
     expect(reunited.mate?.personalityKnown).toBe(true);

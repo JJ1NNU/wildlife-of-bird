@@ -1,4 +1,4 @@
-import type { GameData, Phase, StatName } from '@wb/schema';
+import type { Formulas, GameData, Phase, StatName } from '@wb/schema';
 import { phaseAt } from './calendar.ts';
 import { statGrade } from './formulas.ts';
 import type { RngState } from './rng.ts';
@@ -39,15 +39,18 @@ function breedingSpecies(data: GameData, speciesId: string) {
   return s;
 }
 
-/** `period 1` 진입(나이 +1 직후): 짝의 1년 생존. `u ≥ mateYearSurvival`이면 짝 사망 (2.1) */
+/** `period 1` 진입(나이 +1 직후): 짝의 1년 생존. `u ≥ mateYearSurvival`이면 짝 사망 (2.1). 살면 나이·경험 +1 (2.2 표) */
 export function mateYear(state: RunState, data: GameData): { state: RunState; log: LogEntry[] } {
   if (!state.mate) return { state, log: [] };
   const s = breedingSpecies(data, state.config.speciesId);
   const lived = nextChance(state.rng, s.mateYearSurvival);
-  if (lived.value) return { state: { ...state, rng: lived.state }, log: [] };
+  if (lived.value) {
+    const mate = { ...state.mate, age: state.mate.age + 1, expYears: state.mate.expYears + 1 };
+    return { state: { ...state, mate, rng: lived.state }, log: [] };
+  }
   const { mate: _m, ...rest } = state;
   return {
-    state: { ...rest, rng: lived.state },
+    state: { ...rest, rng: lived.state, mateGone: 'mateDeath' },
     log: [{ at: state.at, type: 'mate', text: '짝이 겨울을 넘기지 못했다', cause: 'mateDeath' }],
   };
 }
@@ -64,7 +67,7 @@ export function divorce(state: RunState, data: GameData): { state: RunState; log
   if (!split.value) return { state: { ...cleared, rng: split.state }, log: [] };
   const { mate: _m, ...rest } = cleared;
   return {
-    state: { ...rest, rng: split.state },
+    state: { ...rest, rng: split.state, mateGone: 'divorce' },
     log: [{ at: state.at, type: 'mate', text: '지난 짝과 갈라섰다', cause: 'divorce' }],
   };
 }
@@ -169,9 +172,19 @@ export function mateChoices(candidates: MateCandidate[]): Choice[] {
   }));
 }
 
-/** 화면 S-20 카드 — 신호만 낸다 */
+/** 잠재력 등급 범위 [아래, 위] — 05-inheritance 4장 */
+export function potentialRange(f: Formulas, potential: number): [string, string] {
+  const w = f.heredity.rangeWithin;
+  return [
+    statGrade(f, Math.max(f.stats.min, potential - w)),
+    statGrade(f, Math.min(f.stats.max, potential + w)),
+  ];
+}
+
+/** 화면 S-20 카드 — 새 후보는 신호만, 지난 짝은 잠재력 등급 범위와 유대도 (05-inheritance 4장) */
 export function mateCards(data: GameData, candidates: MateCandidate[]): MateCandidateCard[] {
   const f = data.formulas;
+  const m = data.breeding.mate;
   return candidates.map((c, i) => ({
     choiceId: `mateCandidate.${i + 1}`,
     plumage: statGrade(f, c.quality + c.plumageNoise),
@@ -179,6 +192,14 @@ export function mateCards(data: GameData, candidates: MateCandidate[]): MateCand
     age: c.age,
     hint: c.hint,
     accepts: c.accepts,
-    ...(c.previous ? { previous: true } : {}),
+    ...(c.previous
+      ? {
+          previous: true,
+          potentialRange: Object.fromEntries(
+            Object.entries(c.potential).map(([stat, p]) => [stat, potentialRange(f, p ?? 0)]),
+          ),
+          bond: { now: c.bond, reunion: Math.min(m.bondMax, c.bond + m.bondReunion) },
+        }
+      : {}),
   }));
 }
