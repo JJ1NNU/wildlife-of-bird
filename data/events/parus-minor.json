@@ -251,6 +251,49 @@
     "factCheck": "needs-review"
   },
   {
+    "id": "ev.parus-minor.dawn-feeding",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["winter"]
+    },
+    "weight": "common",
+    "title": "추운 밤이 지난 아침",
+    "body": "긴 밤을 버티느라 몸이 가벼워졌다. 동이 트자 무리의 새들이 잠자리에서 나와 가지 사이를 바쁘게 뒤진다. 덤불 너머로 새매가 지나간 것을 본 새도 있다.",
+    "options": [
+      {
+        "id": "eat-first",
+        "text": "아침부터 서둘러 배를 채운다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "gain"
+          },
+          {
+            "type": "deathRisk",
+            "tier": "low",
+            "cause": "predation",
+            "predator": "sparrowhawk"
+          }
+        ]
+      },
+      {
+        "id": "eat-slowly",
+        "text": "덤불 가까이에서 조금씩 먹는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "겨울 박새는 밤마다 낮에 쌓은 지방을 쓰고, 아침에 다시 채운다. 네덜란드 박새를 저울 달린 먹이대로 잰 연구에서 박새는 하루 중 이른 시간에 많이 먹고 몸무게를 늘렸다. 굶을 위험이 잡아먹힐 위험보다 클 때 이론이 예측하는 모습이다. 무거운 몸이 포식 위험을 높인다는 것은 이론의 가정이고, 아침에 서두르면 새매에게 노출된다는 효과는 이를 게임 수치로 옮긴 것이다. 박새(*P. minor*)에서 같은 하루 패턴이 나타나는지는 확인하지 못했다.",
+    "sources": ["SRC-073", "SRC-065"],
+    "factCheck": "needs-review"
+  },
+  {
     "id": "ev.parus-minor.territory-song-duel",
     "species": ["parus-minor"],
     "when": {
