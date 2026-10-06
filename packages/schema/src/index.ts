@@ -9,6 +9,7 @@ import './locale.ts';
 
 export * from './breeding.ts';
 export * from './calendar.ts';
+export * from './codex.ts';
 export * from './effects.ts';
 export * from './events.ts';
 export * from './fact.ts';

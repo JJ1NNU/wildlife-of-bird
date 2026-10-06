@@ -2,6 +2,7 @@ import './locale.ts';
 import type { z } from 'zod';
 import { Breeding } from './breeding.ts';
 import { Calendar, calendarPhases } from './calendar.ts';
+import { CodexEntry } from './codex.ts';
 import { EffectsTable } from './effects.ts';
 import type { GameEvent } from './events.ts';
 import { GameEventFile, optionEffects } from './events.ts';
@@ -12,8 +13,6 @@ import { SpeciesBalance, SpeciesEcology } from './species.ts';
 
 /**
  * 검증된 게임 데이터 묶음. 엔진의 모든 함수가 이것을 받는다 (03-contracts 3장).
- * 도감은 그 데이터의 소유 부서가 첫 파일을 올릴 때 형식을 확정하고
- * 여기에 더한다.
  */
 export interface GameData {
   effects: EffectsTable;
@@ -29,6 +28,8 @@ export interface GameData {
   /** 포식자. id → 포식자 */
   predators: Map<string, Predator>;
   events: GameEvent[];
+  /** 도감. id → 항목 */
+  codex: Map<string, CodexEntry>;
 }
 
 /** 검증 실패 하나 — 어느 파일의 어디가 왜 틀렸는지 */
@@ -74,6 +75,8 @@ export interface RawGameData {
   nodes: RawFile[];
   predators: RawFile[];
   events: RawFile[];
+  /** 도감. 화면이 도감을 읽기 전에는 넘기지 않아도 된다 */
+  codex?: RawFile[];
 }
 
 /**
@@ -179,6 +182,8 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
     }
   }
 
+  const codex = loadCodex(raw.codex ?? [], { ecology, predators, nodes, events }, issues);
+
   const effects = raw.effects ? check(EffectsTable, raw.effects, issues) : undefined;
   const formulas = raw.formulas ? check(Formulas, raw.formulas, issues) : undefined;
   if (formulas) checkAptitudeGrades(balance, balanceFile, formulas, issues);
@@ -188,9 +193,88 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
 
   if (issues.length > 0 || !effects || !formulas || !breeding) return { issues };
   return {
-    data: { effects, formulas, breeding, ecology, balance, calendar, nodes, predators, events },
+    data: {
+      effects,
+      formulas,
+      breeding,
+      ecology,
+      balance,
+      calendar,
+      nodes,
+      predators,
+      events,
+      codex,
+    },
     issues,
   };
+}
+
+/**
+ * 도감을 읽고 파일 이름·대상·해금 조건의 id가 실제 데이터에 있는지 확인한다(#155).
+ * 파일 이름은 id에서 `cx.`을 뺀 것이다.
+ */
+function loadCodex(
+  files: RawFile[],
+  known: {
+    ecology: Map<string, SpeciesEcology>;
+    predators: Map<string, Predator>;
+    nodes: Map<string, MapNode>;
+    events: GameEvent[];
+  },
+  issues: DataIssue[],
+): Map<string, CodexEntry> {
+  const eventIds = new Set(known.events.map((e) => e.id));
+  const exists = {
+    species: (id: string) => known.ecology.has(id),
+    predator: (id: string) => known.predators.has(id),
+    node: (id: string) => known.nodes.has(id),
+  };
+  const where = { species: 'data/species/', predator: 'data/predators/', node: 'data/nodes/' };
+  const codex = new Map<string, CodexEntry>();
+  for (const file of files) {
+    const entry = check(CodexEntry, file, issues);
+    if (!entry) continue;
+    const name = file.file
+      .split('/')
+      .pop()
+      ?.replace(/.json$/, '');
+    if (`cx.${name}` !== entry.id) {
+      issues.push({
+        file: file.file,
+        at: 'id',
+        reason: `파일 이름은 ${entry.id.slice(3)}.json이어야 한다`,
+      });
+    }
+    if (codex.has(entry.id)) {
+      issues.push({ file: file.file, at: 'id', reason: `도감 id가 겹친다: ${entry.id}` });
+      continue;
+    }
+    codex.set(entry.id, entry);
+    const refs: [at: string, kind: keyof typeof exists, id: string][] = [];
+    if (entry.kind !== 'phenomenon' && entry.target)
+      refs.push(['target', entry.kind, entry.target]);
+    const u = entry.unlock;
+    if (u.on === 'run-start') refs.push(['unlock.species', 'species', u.species]);
+    if (u.on === 'predator-met') refs.push(['unlock.predator', 'predator', u.predator]);
+    if (u.on === 'node-visited') refs.push(['unlock.node', 'node', u.node]);
+    for (const [at, kind, id] of refs) {
+      if (!exists[kind](id)) {
+        issues.push({ file: file.file, at, reason: `없는 id다: ${id} (${where[kind]})` });
+      }
+    }
+    if (u.on === 'event-seen') {
+      for (const [i, id] of u.events.entries()) {
+        if (!eventIds.has(id)) {
+          issues.push({
+            file: file.file,
+            at: `unlock.events[${i}]`,
+            reason: `없는 이벤트다: ${id}`,
+          });
+        }
+      }
+    }
+  }
+  return codex;
 }
 
 /** 장소를 읽고 종·연결을 확인한다. 연결은 양방향이어야 한다(`00-core-loop` 3.4) */
