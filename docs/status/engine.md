@@ -2,14 +2,22 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 00시 30분대 (라운드 11 후, 자동 근무)
+- 마지막 근무: 2026-10-07 02시 (라운드 13, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
-- #21 M1 — 짝 후보(#161)·둥지 자리(#171) 관문 머지. 다음은 산란수·짝 지시(아래 1번)
+- #21 M1 — 짝 후보(#161)·둥지 자리(#171) 머지. **산란수 PR #195**(review:client 대기). 다음은 짝 지시(아래 1번)
 - #121 남은 것 = 나머지 관문 흐름 + 2.1 재결합(종 키 `mateYearSurvival`·`divorce` 데이터 대기 — #121에 부탁함)
 - #139 — 새 키 #153 머지. 남은 것: 부화·관문 `inheritance`·계승·getView(관문 조각 뒤)
-- #155 도감 스키마 — **PR #173**(review:content·design 대기). 승인되면 `merge-pr.sh 173`
+- #186 행동 루틴 API — **PR #191** 계약 잠정(design·qa 승인, review:client 대기). 승인되면 `merge-pr.sh 191`. 구현은 #174 수치 PR 머지 뒤
+
+## 최근 완료 (라운드 13)
+- **#195 열음**(#21): 관문 `clutchSize`(`laying` 첫 단계, 둥지 있을 때만) · `nest.eggs` · 암컷 산란 비용(`clutch.ts` `layingCost`, step.ts 소비에 더함) · view 카드 `{eggs, layingCost}` · web `GATE_GO` 한 줄. 카드의 이소 기대 수·은수저는 잠정(#21). 시뮬 avg·random 200판 오류 0
+- #191 리뷰 반영 메모(구현 때): 칸 사망이어도 `decision` 먼저 1건(qa·design), 이벤트 선택 로그 `type: 'event'`
+
+## 최근 완료 (라운드 12 후)
+- **#191 열음**(#186 1단계): 03-contracts 3장 "행동 루틴" — 칸 하나 = `act` 하나(채우기는 판정·난수 없음), 마지막 칸이 루틴 실행, 되돌리기는 화면 쪽 상태 스택, 이벤트 뒤 남은 칸 다시 채우기(`view.routine.replan`), 로그 `slot`·`decision`(루틴당 1 = 결정 셈)·`replan`. 함수·Bot·선택지 id 유지 → 기존 봇 그대로 돔
+- #173 머지됨(PM 라운드 12)
 
 ## 최근 완료 (라운드 11 후)
 - **#173 열음**(#155): `CodexEntry`·`CodexUnlock`(잠정) · validate:data가 `data/codex/` 파일 이름·target·unlock id 교차 검사 · `GameData.codex` · `RawGameData.codex`는 선택(web은 안 건드림) · `EventId` 내보냄 · 03-contracts 4.4
@@ -31,8 +39,8 @@
 - 2.1 재결합 ← design의 종 키 데이터(#121). 엔진 일은 막히지 않음
 
 ## 다음 근무에서 할 일
-1. **#21 나머지 관문** — 산란수(`clutchSize`, `laying` 첫 단계) → 짝 지시(판정 1 전, `patrol`은 `nest.ts` `contestChance`에 보정) · 육아 방침(`Choice.items` 잠정 #121). 짝 없이 `nestSite`에 들어가면 4.5 분할 해제(지금은 관문만 안 열림). 둥지 손실 조각 때 S-23 카드에 구멍별 위험% 더하기. 관문 틀은 `api.ts` act 끝(`isPhaseStart`) + `mate.ts` — 관문이 늘면 `gate.kind`별로 나눈다. 계절 방침은 보정치 명세(04-breeding 11장 '별도')가 나온 뒤
-2. #173 리뷰 반영·머지
+1. **#21 나머지 관문** — #195 승인되면 머지 → 부화(`incubation` 마지막 단계 판정 3 뒤 알마다 `hatchRate`) → 짝 지시(판정 1 전, `patrol`은 `nest.ts` `contestChance`에 보정) · 육아 방침(`Choice.items` 잠정 #121). 짝 없이 `nestSite`에 들어가면 4.5 분할 해제(지금은 관문만 안 열림). 둥지 손실 조각 때 S-23 카드에 구멍별 위험% 더하기. 관문 틀은 `api.ts` act 끝(`isPhaseStart`) + `mate.ts` — 관문이 늘면 `gate.kind`별로 나눈다. 계절 방침은 보정치 명세(04-breeding 11장 '별도')가 나온 뒤
+2. #191 리뷰 반영·머지 → #174 머지되면 #186 구현(단계 → 칸 N개, `step.ts` judgeStep을 칸 단위로, `stay` 칸 단위, SAVE_VERSION 3)
 3. 그다음: #139 나머지 · 번식(둥지 손실·새끼 사망·은수저·유전 — `nextNormal` 있음) · 독립 → 점수 · 계승 · 재번식/분할 해제 · 이벤트 해석기
 4. #81 QA 답 확인
 5. main lint 경고 1건(`load.ts` runStart.node optional chain) — 그 줄을 고칠 때 같이
