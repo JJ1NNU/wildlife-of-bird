@@ -1,5 +1,6 @@
 import type { GameData, StatName } from '@wb/schema';
 import { advance, phaseAt, yearCalendar } from './calendar.ts';
+import { clutchCards, clutchChoices, clutchOptions } from './clutch.ts';
 import { agedStats, fatCap } from './formulas.ts';
 import { isPhaseStart, makeCandidates, mateCards, mateChoices } from './mate.ts';
 import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
@@ -19,7 +20,7 @@ import type {
  * 엔진 API — 일곱 개의 순수 함수 (엔진 원칙 1, 03-contracts 3장).
  *
  * M1 진행 중(#21): 단계표·장소·행동·옮기기와 판정 1·2·3(에너지 → 스탯 → 위험), 아사·포식 사망은
- * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·둥지 자리(`nestSite`)가 있다. 번식·계승·이벤트는 아직 없다.
+ * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)가 있다. 번식·계승·이벤트는 아직 없다.
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
@@ -76,6 +77,7 @@ export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gameOver) return [];
   if (state.gate?.kind === 'mateCandidate') return mateChoices(state.gate.candidates);
   if (state.gate?.kind === 'nestSite') return nestChoices(state.gate.holes);
+  if (state.gate?.kind === 'clutchSize') return clutchChoices(state.gate.options);
   return stepChoices(state, data);
 }
 
@@ -113,6 +115,7 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   const choice = findChoice(state, choiceId, data);
   if (state.gate?.kind === 'mateCandidate') return pickMate(state, choiceId, data);
   if (state.gate?.kind === 'nestSite') return pickNest(state, choiceId, data);
+  if (state.gate?.kind === 'clutchSize') return pickClutch(state, choiceId, data);
   const out = judgeStep(state, choiceId, data);
   const p = state.player;
 
@@ -169,6 +172,14 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
       log,
     };
   }
+  // 산란수: 둥지가 있을 때만 (04-breeding 5장)
+  if (survived.nest && isPhaseStart(state.calendar, state.at, 'laying')) {
+    const options = clutchOptions(data, state.config.speciesId);
+    return {
+      state: { ...survived, gate: { kind: 'clutchSize', options }, log: [...state.log, ...log] },
+      log,
+    };
+  }
 
   return { state: { ...nextStep(survived, data), log: [...state.log, ...log] }, log };
 }
@@ -185,6 +196,21 @@ function pickNest(state: RunState, choiceId: string, data: GameData): ActResult 
   return {
     state: { ...nextStep(closed, data), log: [...state.log, ...built.log] },
     log: built.log,
+  };
+}
+
+/** 산란수 관문을 닫고 다음 단계로 간다 (04-breeding 5장) */
+function pickClutch(state: RunState, choiceId: string, data: GameData): ActResult {
+  const eggs = Number(choiceId.slice('clutchSize.'.length));
+  if (!state.nest) throw new Error('둥지 없이 산란수 관문이 열려 있다');
+  const log: LogEntry[] = [{ at: state.at, type: 'nest', text: `알 ${eggs}개를 낳았다` }];
+  const { gate: _g, ...closed } = state;
+  return {
+    state: {
+      ...nextStep({ ...closed, nest: { ...state.nest, eggs } }, data),
+      log: [...state.log, ...log],
+    },
+    log,
   };
 }
 
@@ -235,6 +261,9 @@ export function getView(state: RunState, data: GameData): ViewModel {
       : {}),
     ...(state.gate?.kind === 'nestSite'
       ? { gate: { kind: state.gate.kind, cards: nestCards(data, state, state.gate.holes) } }
+      : {}),
+    ...(state.gate?.kind === 'clutchSize'
+      ? { gate: { kind: state.gate.kind, cards: clutchCards(data, state, state.gate.options) } }
       : {}),
     ...(state.nest ? { nest: state.nest } : {}),
     recentLog: state.log.slice(-20),
