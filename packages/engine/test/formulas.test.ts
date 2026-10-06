@@ -112,6 +112,7 @@ describe('3. 위험', () => {
     action: 'forage',
     riskModFactor: 1,
     vigilance: 70,
+    flight: 40,
     expYears: 1,
     r: 0.575,
     feather: 60,
@@ -126,6 +127,7 @@ describe('3. 위험', () => {
     action: 'explore',
     riskModFactor: 1,
     vigilance: 10,
+    flight: 15,
     expYears: 0,
     r: 0.1,
     feather: 10,
@@ -137,7 +139,8 @@ describe('3. 위험', () => {
   it('3.1 단계 사망 위험', () => {
     expect(deathRisk(f, tit, calm)).toBeCloseTo(0.004155, 6);
     expect(deathRisk(f, tit, { ...calm, r: 0.2, feather: 40, age: 4 })).toBeCloseTo(0.010285, 6);
-    expect(deathRisk(f, tit, worst)).toBeCloseTo(0.206694, 6);
+    expect(deathRisk(f, tit, { ...calm, flight: 65 })).toBeCloseTo(0.0037395, 6);
+    expect(deathRisk(f, tit, worst)).toBeCloseTo(0.227363, 6);
     const highMod = 1 + testData.effects.riskMod.high;
     expect(deathRisk(f, tit, { ...worst, riskModFactor: highMod })).toBe(f.risk.cap);
     const quiet = {
@@ -239,7 +242,7 @@ describe('8. 짝 지시 수락률', () => {
       cost: 'medium',
       social: 70,
     });
-    expect(good).toBeCloseTo(0.792, 3);
+    expect(good).toBeCloseTo(0.7766, 4);
     expect(acceptanceBand(f, good)).toBe('high');
 
     const bad = mateAcceptance(f, {
@@ -251,8 +254,16 @@ describe('8. 짝 지시 수락률', () => {
       cost: 'large',
       social: 46,
     });
-    expect(bad).toBeCloseTo(0.145, 3);
+    expect(bad).toBeCloseTo(0.1283, 4);
     expect(acceptanceBand(f, bad)).toBe('low');
+
+    // 04-breeding 3장 예시 — patrol(수컷 → unusual 암컷) · guardNest(상한)
+    const order = { role: 'unusual', personality: 'mismatch', mateR: 0.6, bond: 20 } as const;
+    const patrol = { ...order, recentHelps: 0, cost: 'medium', social: 60 } as const;
+    expect(mateAcceptance(f, patrol)).toBeCloseTo(0.2229, 4);
+    const guard = { role: 'native', personality: 'match', mateR: 0.42, bond: 40 } as const;
+    const guardNest = { ...guard, recentHelps: 2, cost: 'small', social: 60 } as const;
+    expect(mateAcceptance(f, guardNest)).toBe(f.mate.acceptMax);
 
     const max = mateAcceptance(f, {
       role: 'native',

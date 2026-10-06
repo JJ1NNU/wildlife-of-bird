@@ -14,6 +14,7 @@ import {
   statGain,
 } from './formulas.ts';
 import { nestLocked } from './nest.ts';
+import { orderValue } from './order.ts';
 import type { Choice, RunState } from './types.ts';
 
 /**
@@ -120,6 +121,23 @@ export interface StepOutcome {
   risk: number;
 }
 
+/**
+ * 짝 지시·도움이 소비에 더하는 것 (04-breeding 6.3): `feedMate` 비용을 더하고,
+ * 짝이 날라 주는 먹이(`courtshipFeed`·`incubationFeed`)는 섭취가 아니라 소비에서 뺀다
+ */
+function orderCost(state: RunState, data: GameData): number {
+  const b = data.breeding;
+  let cost = 0;
+  for (const [id, h] of Object.entries(b.help)) {
+    cost += orderValue(state, `help.${id}`, 0, h.playerCostPerStep);
+  }
+  for (const [id, o] of Object.entries(b.orders)) {
+    if (o.playerEnergyPerStep)
+      cost -= orderValue(state, `mateOrder.${id}`, 0, o.playerEnergyPerStep);
+  }
+  return cost;
+}
+
 /** 칸 하나의 판정 1·2·3을 계산한다. 난수 없음 */
 export function judgeStep(state: RunState, choiceId: string, data: GameData): StepOutcome {
   const f = data.formulas;
@@ -155,7 +173,9 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
       // 잠정(#21): 급이 강도는 육아 방침 조각에서 — 그 전에는 `mid`
       feedIntensity: 'mid',
       chicks: state.nest?.chicks ?? 0,
-    }) + layingCost(data, state);
+    }) +
+    layingCost(data, state) +
+    orderCost(state, data);
   // 9.4: 에너지 변화 전체(잠 회복 포함)와 깃털 변화는 ÷ 칸 수
   const recover = species.sleepRecoverPerStep[season];
   const { energy, starved } = nextEnergy(cap, p.energy, gained / n, (spent - recover) / n);
@@ -182,6 +202,7 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
     action,
     riskModFactor: 1,
     vigilance: stats.vigilance ?? 0,
+    flight: stats.flight ?? 0,
     expYears: p.expYears,
     r: energy / cap,
     feather,

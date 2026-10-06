@@ -10,6 +10,7 @@ import {
   getView,
   type LogEntry,
   type MateCandidateCard,
+  type MateOrderCard,
   type NestSiteCard,
   newRun,
   type Preview,
@@ -18,7 +19,7 @@ import {
   roundHalfUp,
 } from '@wb/engine';
 import type { GameData, Season, StatName } from '@wb/schema';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { birdUrl } from './art.ts';
 import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
@@ -33,7 +34,9 @@ import { clearRun, loadRun, saveRun } from './save.ts';
  * 개발용 스탯 표 · 피드 줄마다 스탯 변화 · 게임 오버의 죽은 이유는 대표 플레이테스트용(#176).
  * 행동은 단계마다 칸 N개 루틴으로 짠다(#188, 와이어프레임 mid/06 A·B): 기본값 = 엔진 제안(전 단계 루틴), 칸 채우기는
  * 화면만의 계획이고 "진행"에서 칸마다 `act`한다(#191). 칸 k의 예상은 1~k−1칸을 채운 상태에서 `preview`.
- * 잠정(#188): S-12 칸별 자동 재생(C)·이벤트 뒤 남은 칸 고치기(D)는 다음 조각 — 지금은 피드에 칸 줄이 남는다.
+ * 진행하면 S-12 칸별 결과를 이어서 자동 재생한다(와이어프레임 mid/06 C): 칸마다 0.6초, 예상 옆에 실제, 사망 칸 ✕ → 확인 뒤 S-30.
+ * 판정은 진행 때 한 번에 끝내고 저장한다 — 재생은 보여 주기만 하므로 새로고침해도 결과가 같다.
+ * 잠정(#188): 이벤트 칸에서 멈춤·이벤트 뒤 남은 칸 고치기(D)는 엔진이 이벤트·`replan`을 내면.
  * 둥지가 있으면 판에 둥지 줄(알/새끼 수, 와이어프레임 mid/03 A의 둥지 띠 첫 조각) — 국면·둥지 손실%·짝·지시는 엔진이 내면(#21).
  * 이벤트 · 나머지 번식 관문 · 계승은 엔진이 그 선택을 내면 붙인다(#21).
  * 잠정(#24): 화면 문구는 data/text/(콘텐츠)가 생기면 옮긴다.
@@ -70,7 +73,9 @@ const GATE_GO = {
   mateCandidate: { done: (label: string) => `짝 맺기 · ${label}`, none: '짝을 고르세요' },
   nestSite: { done: (label: string) => `${label}에 짓기`, none: '둥지 자리를 고르세요' },
   clutchSize: { done: (label: string) => `${label} 낳기`, none: '알 수를 고르세요' },
+  mateOrder: { done: (label: string) => `짝에게 · ${label}`, none: '짝에게 맡길 일을 고르세요' },
 } as const;
+const GRADE_WORD = { high: '높음', mid: '보통', low: '낮음' } as const;
 const HINT_WORD = { bold: '대담해 보인다', shy: '조심스러워 보인다' } as const;
 const SEASON = [
   'winter',
@@ -145,12 +150,37 @@ function deltaText(deltas: Record<string, number> = {}, perSlot = false): string
       const n = roundHalfUp(x, 1);
       const name = STAT_WORD[k.slice('stat.'.length) as StatName] ?? k;
       if (n !== 0) stats.push(`${name} ${n > 0 ? '+' : '−'}${Math.abs(n).toFixed(1)}`);
-    } else {
+    } else if (k in RES_WORD) {
+      // 그 밖의 키(짝 지시 `acceptance`·`effect` 등)는 로그 글에 이미 있다
       const t = perSlot ? energy1(x) : formatEnergyDelta(x);
-      if (t !== '0') res.push(`${RES_WORD[k] ?? k} ${t}`);
+      if (t !== '0') res.push(`${RES_WORD[k]} ${t}`);
     }
   }
   return [...stats, ...res].join(' · ');
+}
+
+/** S-12 재생 한 줄: 칸의 예상(진행 전 `preview`)과 실제(루틴 로그의 `slot` 줄) */
+interface ReplayRow {
+  slot: number;
+  label: string;
+  expect: number | undefined;
+  actual: LogEntry | undefined;
+  dead: boolean;
+}
+
+/** S-12 칸별 결과: 판정이 끝난 상태와 칸 줄. `shown`칸까지 보인다 */
+interface Replay {
+  next: RunState;
+  rows: ReplayRow[];
+  /** 루틴 합 변화(`decision` 줄) — 끝나면 성장 합 한 줄 */
+  total: LogEntry | undefined;
+  death: LogEntry | undefined;
+}
+
+const REPLAY_MS = 600;
+
+function reducedMotion(): boolean {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
 function logLine(l: LogEntry): string {
@@ -175,6 +205,16 @@ export function Game({ data }: { data: GameData }) {
   const [edited, setEdited] = useState<(string | null)[]>();
   /** 고치는 칸(0부터, 남은 칸 기준). 없으면 루틴 보기(A) */
   const [cursor, setCursor] = useState<number>();
+  /** 진행 직후 S-12 재생. 확인을 누르면 `next`로 넘어간다 */
+  const [replay, setReplay] = useState<Replay>();
+  const [shown, setShown] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (!replay || paused || shown >= replay.rows.length) return;
+    const t = setTimeout(() => setShown((n) => n + 1), REPLAY_MS);
+    return () => clearTimeout(t);
+  }, [replay, paused, shown]);
 
   if (onTitle || !state) {
     const saved = state && !state.gameOver ? state : undefined;
@@ -237,6 +277,13 @@ export function Game({ data }: { data: GameData }) {
   });
 
   const sumBand = formatRisk(data.formulas, sumRisk);
+  // S-12 재생 중에는 상태 바 에너지가 보인 칸까지 같이 움직인다
+  const replayDone = replay ? shown >= replay.rows.length : false;
+  const shownEnergy = replay
+    ? replay.rows
+        .slice(0, shown)
+        .reduce((x, r) => x + (r.actual?.deltas?.energy ?? 0), view.player.energy)
+    : view.player.energy;
   const cursorSlot =
     cursor !== undefined && slots[cursor]?.before
       ? { k: cursor, before: slots[cursor].before }
@@ -264,6 +311,7 @@ export function Game({ data }: { data: GameData }) {
     setOpen(undefined);
     setEdited(undefined);
     setCursor(undefined);
+    setReplay(undefined);
   }
 
   function go() {
@@ -274,7 +322,31 @@ export function Game({ data }: { data: GameData }) {
     }
     // 칸마다 act — 마지막 칸을 채우면 엔진이 루틴을 실행한다
     if (!ready) return;
-    commit(slots.reduce((s, slot) => act(s, slot.id as string, data).state, state));
+    let s = state;
+    let log: LogEntry[] = [];
+    for (const slot of slots) ({ state: s, log } = act(s, slot.id as string, data));
+    // 마지막 칸의 act가 루틴을 실행한다 — 그 로그가 decision → slot… → death
+    saveRun(s);
+    const death = log.find((l) => l.type === 'death');
+    setReplay({
+      next: s,
+      death,
+      total: log.find((l) => l.type === 'decision'),
+      rows: slots.map((sl, k) => {
+        const slot = done + k + 1;
+        return {
+          slot,
+          label: labelOf(sl),
+          expect: sl.preview?.energyDelta[0],
+          actual: log.find((l) => l.type === 'slot' && l.slot === slot),
+          dead: death?.slot === slot,
+        };
+      }),
+    });
+    setShown(reducedMotion() ? slots.length : 0);
+    setPaused(false);
+    setCursor(undefined);
+    setOpen(undefined);
   }
 
   /** 고치는 칸에 선택을 넣고 다음 칸으로 — 마지막 칸이면 루틴 보기로 */
@@ -444,6 +516,41 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
+  /** 짝 지시 한 줄: 지시 · 수락률 등급(숫자 없음, 01-formulas 7.4) — 불가면 이유, 도움은 "내가 한다" */
+  function orderRow(card: MateOrderCard) {
+    const c = choices.find((x) => x.id === card.choiceId);
+    const val = c?.disabled
+      ? '불가'
+      : card.acceptance
+        ? GRADE_WORD[card.acceptance]
+        : card.choiceId.startsWith('help.')
+          ? '내가 한다'
+          : undefined;
+    return (
+      <li key={card.choiceId}>
+        <button
+          type="button"
+          className={`opt${card.choiceId === picked ? ' sel' : ''}`}
+          aria-pressed={card.choiceId === picked}
+          disabled={!!c?.disabled}
+          onClick={() => setPicked(card.choiceId)}
+          data-testid={`choice-${card.choiceId}`}
+        >
+          <span className="main">
+            <span className="b">{c?.label ?? card.choiceId}</span>
+            {c?.disabled && <span className="cap">{c.disabled.reason}</span>}
+          </span>
+          {val && (
+            <span className="vals">
+              <span>{card.acceptance ? '받아들일 가능성' : ''}</span>
+              <b>{val}</b>
+            </span>
+          )}
+        </button>
+      </li>
+    );
+  }
+
   if (view.gameOver) {
     const death = view.recentLog
       .slice()
@@ -501,7 +608,7 @@ export function Game({ data }: { data: GameData }) {
           <div className="row small">
             <span className="ico s" style={iconStyle('icon.res.energy')} />
             <span>
-              에너지 <b data-testid="energy">{roundHalfUp(view.player.energy)}</b>
+              에너지 <b data-testid="energy">{roundHalfUp(shownEnergy)}</b>
               <span className="muted"> / {roundHalfUp(view.energyCap)}</span>
             </span>
             <span className="ico s" style={iconStyle('icon.res.feather')} />
@@ -523,6 +630,14 @@ export function Game({ data }: { data: GameData }) {
             <li className="gate-title muted small">
               둥지를 지으면 새끼가 떠날 때까지 이 장소를 옮길 수 없다. 깊은 구멍을 못 차지하면 얕은
               구멍에 짓는다.
+            </li>
+          </ul>
+        ) : view.gate?.kind === 'mateOrder' ? (
+          <ul className="list" aria-label="짝 지시" data-testid="gate-mateOrder">
+            <li className="gate-title b">짝에게 맡길 일 — 하나를 고른다</li>
+            {view.gate.cards.map((card) => orderRow(card))}
+            <li className="gate-title muted small">
+              고른 지시는 이 국면이 끝날 때까지. 거절하면 짝은 다른 일을 한다 — 원래 효과의 일부만.
             </li>
           </ul>
         ) : view.gate?.kind === 'clutchSize' ? (
@@ -563,8 +678,9 @@ export function Game({ data }: { data: GameData }) {
                       // biome-ignore lint/suspicious/noArrayIndexKey: 칸은 자리로 구분한다
                       key={k}
                       type="button"
-                      className={`cell${k === cursor ? ' cur' : ''}${s.id ? '' : ' empty'}`}
+                      className={`cell${k === cursor || (replay && k === shown - 1) ? ' cur' : ''}${s.id ? '' : ' empty'}`}
                       aria-pressed={k === cursor}
+                      disabled={Boolean(replay)}
                       onClick={() => setCursor(k === cursor ? undefined : k)}
                       data-testid={`slot-${done + k + 1}`}
                     >
@@ -596,7 +712,46 @@ export function Game({ data }: { data: GameData }) {
               </div>
             </div>
 
-            {cursor === undefined ? (
+            {replay ? (
+              <div className="list" data-testid="replay">
+                <table className="slot-table small" aria-label="칸별 결과">
+                  <thead>
+                    <tr>
+                      <th>칸</th>
+                      <th>행동</th>
+                      <th>예상</th>
+                      <th>실제</th>
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {replay.rows.map((r, k) => {
+                      const seen = k < shown;
+                      return (
+                        <tr key={r.slot} className={seen ? '' : 'muted'}>
+                          <td>{r.slot}</td>
+                          <td>{r.label}</td>
+                          <td>{r.expect !== undefined && energy1(r.expect)}</td>
+                          <td>
+                            {seen ? (r.actual ? energy1(r.actual.deltas?.energy ?? 0) : '—') : '…'}
+                          </td>
+                          <td className={seen && r.dead ? 'danger' : ''}>
+                            {seen ? (r.dead ? '✕' : r.actual ? '✓' : '') : ''}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                {replayDone && (
+                  <p className="small" data-testid="replay-total">
+                    {replay.death
+                      ? `${replay.death.slot}칸에서 — ${replay.death.text}`
+                      : deltaText(replay.total?.deltas) || '변화 없음'}
+                  </p>
+                )}
+              </div>
+            ) : cursor === undefined ? (
               <div className="list">
                 <table className="slot-table small" aria-label="칸별 예상">
                   <thead>
@@ -727,6 +882,36 @@ export function Game({ data }: { data: GameData }) {
                 ? GATE_GO[view.gate.kind].done(pickedChoice.label)
                 : GATE_GO[view.gate.kind].none}
             </button>
+          ) : replay ? (
+            replayDone ? (
+              <button
+                type="button"
+                className="btn prim"
+                onClick={() => commit(replay.next)}
+                data-testid="replay-ok"
+              >
+                확인
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => setPaused(!paused)}
+                  data-testid="replay-pause"
+                >
+                  {paused ? '계속' : '멈춤'}
+                </button>
+                <button
+                  type="button"
+                  className="btn prim"
+                  onClick={() => setShown(replay.rows.length)}
+                  data-testid="replay-skip"
+                >
+                  끝까지 ▸▸
+                </button>
+              </>
+            )
           ) : cursor === undefined ? (
             <button
               type="button"
