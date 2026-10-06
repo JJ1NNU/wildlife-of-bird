@@ -156,3 +156,42 @@ describe('부화 (04-breeding 5장)', () => {
     expect(r.log.some((l) => l.cause === 'hatchFailure')).toBe(true);
   });
 });
+
+describe('새끼 급이·개별 사망 (01-formulas 2.4·3.3)', () => {
+  /** `nestling` 첫 단계(`period 10` 단계 1), 새끼 6 */
+  const nestling: RunState = {
+    ...start,
+    at: { year: 1, period: 10, step: 1 },
+    node: 'village-farmland',
+    nest: { site: 'nestBox', node: 'village-farmland', eggs: 8, chicks: 6 },
+    player: { ...start.player, energy: 60 },
+  };
+  const withChickDeath = (chickDeathPerStep: number): GameData => ({
+    ...testData,
+    formulas: { ...testData.formulas, brood: { ...testData.formulas.brood, chickDeathPerStep } },
+  });
+
+  it('새끼가 있으면 급이 비용(mid + 새끼당)을 낸다', () => {
+    const data = withChickDeath(0);
+    const spent = (s: RunState) =>
+      s.player.energy - actStep(s, 'action.rest', data).state.player.energy;
+    const { nest: _n, ...noNest } = nestling;
+    const e = testData.formulas.energy;
+    expect(spent(nestling) - spent(noNest)).toBeCloseTo(
+      e.feedCostByIntensity.mid + e.feedCostPerChick * 6,
+    );
+  });
+
+  it('새끼가 모두 죽으면 번식 실패(B-5) — 둥지를 거둔다', () => {
+    const r = actStep(nestling, 'action.rest', withChickDeath(1));
+    expect(r.state.nest).toBeUndefined();
+    expect(r.log.some((l) => l.cause === 'chickDeath')).toBe(true);
+  });
+
+  it('postFledge 동안 새끼와 함께 남고, 옮길 수 있다', () => {
+    const fledged = { ...nestling, at: { year: 1, period: 11, step: 1 } };
+    const r = actStep(fledged, 'action.rest', withChickDeath(0));
+    expect(r.state.nest?.chicks).toBe(6);
+    expect(getChoices(r.state, testData).some((c) => c.kind === 'node' && !c.disabled)).toBe(true);
+  });
+});

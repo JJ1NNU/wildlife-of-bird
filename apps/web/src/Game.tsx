@@ -34,6 +34,7 @@ import { clearRun, loadRun, saveRun } from './save.ts';
  * 행동은 단계마다 칸 N개 루틴으로 짠다(#188, 와이어프레임 mid/06 A·B): 기본값 = 엔진 제안(전 단계 루틴), 칸 채우기는
  * 화면만의 계획이고 "진행"에서 칸마다 `act`한다(#191). 칸 k의 예상은 1~k−1칸을 채운 상태에서 `preview`.
  * 잠정(#188): S-12 칸별 자동 재생(C)·이벤트 뒤 남은 칸 고치기(D)는 다음 조각 — 지금은 피드에 칸 줄이 남는다.
+ * 둥지가 있으면 판에 둥지 줄(알/새끼 수, 와이어프레임 mid/03 A의 둥지 띠 첫 조각) — 국면·둥지 손실%·짝·지시는 엔진이 내면(#21).
  * 이벤트 · 나머지 번식 관문 · 계승은 엔진이 그 선택을 내면 붙인다(#21).
  * 잠정(#24): 화면 문구는 data/text/(콘텐츠)가 생기면 옮긴다.
  */
@@ -540,6 +541,16 @@ export function Game({ data }: { data: GameData }) {
                 {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
                 {view.player.sex === 'female' ? '♀' : '♂'} {view.player.age}세{' · '}
                 {data.nodes.get(view.node)?.nameKo ?? view.node}
+                {view.nest && (
+                  <div className="b" data-testid="nest-band">
+                    둥지 ·{' '}
+                    {view.nest.chicks !== undefined
+                      ? `새끼 ${view.nest.chicks}마리`
+                      : view.nest.eggs !== undefined
+                        ? `알 ${view.nest.eggs}개`
+                        : '알 낳기 전'}
+                  </div>
+                )}
               </div>
             </div>
 
