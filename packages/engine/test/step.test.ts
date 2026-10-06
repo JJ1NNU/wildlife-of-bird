@@ -34,6 +34,19 @@ const example: RunState = {
   },
 };
 
+describe('런 시작 개체 (05-inheritance 2장)', () => {
+  it('잠재력은 종 평균, 현재값은 × 0.85, 에너지·깃털·경험은 시작값', () => {
+    const p = start.player;
+    expect(p.potential.foraging).toBe(70);
+    expect(p.stats.flight).toBeCloseTo(39.1, 9);
+    expect(p.stats.foraging).toBeCloseTo(59.5, 9);
+    expect(p.stats.stamina).toBeCloseTo(28.9, 9);
+    expect(p.energy).toBeCloseTo(45.115, 9);
+    expect(p.feather).toBe(80);
+    expect(p.expYears).toBe(1);
+  });
+});
+
 describe('한 단계의 판정 (00-core-loop 3.1)', () => {
   it('채식: 에너지 → 스탯 → 위험 순서로 예시 값이 나온다', () => {
     const p = preview(example, 'action.forage', data);
