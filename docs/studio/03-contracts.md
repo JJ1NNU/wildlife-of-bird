@@ -136,6 +136,7 @@ interface MateCandidateCard {    // 신호만 — 실제 잠재력·성격은 �
   age: number
   hint: 'bold' | 'shy'           // 성격 힌트 (hintAccuracy 확률로 맞음)
   accepts: boolean               // 아니면 그 선택지는 disabled
+  previous?: true                // 지난 짝(맨 앞 1장, 늘 받아들임, hint는 실제 성격) — 고르면 재결합 (2.1·2.2)
 }
 ```
 

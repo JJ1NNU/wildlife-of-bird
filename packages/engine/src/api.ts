@@ -2,7 +2,7 @@ import type { GameData, StatName } from '@wb/schema';
 import { advance, phaseAt, yearCalendar } from './calendar.ts';
 import { chicksSurvive, clutchCards, clutchChoices, clutchOptions, hatchIfDue } from './clutch.ts';
 import { agedStats, fatCap } from './formulas.ts';
-import { isPhaseStart, makeCandidates, mateCards, mateChoices } from './mate.ts';
+import { divorce, isPhaseStart, makeCandidates, mateCards, mateChoices, mateYear } from './mate.ts';
 import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
 import {
   carryOrder,
@@ -170,9 +170,12 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
 
   // 흐름의 마지막: 관문 (00-core-loop 4.6). 열리면 이 단계에 머문다
   if (isPhaseStart(state.calendar, state.at, 'pairing')) {
-    const { rng, candidates } = makeCandidates(survived, data);
+    // 관문 직전: 지난 짝과의 이혼 (04-breeding 2.1)
+    const parted = divorce(survived, data);
+    log.push(...parted.log);
+    const { rng, candidates } = makeCandidates(parted.state, data);
     const opened: RunState = {
-      ...survived,
+      ...parted.state,
       rng,
       gate: { kind: 'mateCandidate', candidates },
       log: [...state.log, ...log],
@@ -202,21 +205,30 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
     };
   }
 
-  return { state: { ...nextStep(survived, data), log: [...state.log, ...log] }, log };
+  const next = nextStep(survived, data);
+  log.push(...next.log);
+  return { state: { ...next.state, log: [...state.log, ...log] }, log };
 }
 
 /**
  * 다음 단계로 (`period 1`이면 해 바뀜 처리까지). 둥지 국면을 벗어나면 둥지와 육아 방침을, 국면이 바뀌면 지시를 거둔다.
  * 단계 시작 관문은 첫 칸보다 먼저 연다 — 짝 지시(04-breeding 3.1), 그다음 육아 방침(6.2)
  */
-function nextStep(state: RunState, data: GameData): RunState {
-  const moved = releaseNest(yearStart({ ...state, at: advance(state.at, state.calendar) }, data));
+function nextStep(state: RunState, data: GameData): ActResult {
+  const year = yearStart({ ...state, at: advance(state.at, state.calendar) }, data);
+  const moved = releaseNest(year.state);
   const { parenting, ...carried } = carryOrder(state, moved, data);
   const next: RunState = carried.nest && parenting ? { ...carried, parenting } : carried;
   if (orderDue(next)) {
-    return { ...next, gate: { kind: 'mateOrder', options: orderOptions(next, data) } };
+    return {
+      state: { ...next, gate: { kind: 'mateOrder', options: orderOptions(next, data) } },
+      log: year.log,
+    };
   }
-  return parentingDue(next) ? { ...next, gate: { kind: 'parentingPolicy' } } : next;
+  return {
+    state: parentingDue(next) ? { ...next, gate: { kind: 'parentingPolicy' } } : next,
+    log: year.log,
+  };
 }
 
 /** 짝 지시 관문을 닫는다 — 육아 방침 관문이 남았으면 열고, 아니면 같은 단계에서 이어 칸을 고른다 */
@@ -240,25 +252,22 @@ function pickPolicy(state: RunState, choiceId: string, data: GameData): ActResul
 function pickNest(state: RunState, choiceId: string, data: GameData): ActResult {
   const built = buildNest(state, choiceId, data);
   const { gate: _g, ...closed } = built.state;
-  return {
-    state: { ...nextStep(closed, data), log: [...state.log, ...built.log] },
-    log: built.log,
-  };
+  const next = nextStep(closed, data);
+  const log = [...built.log, ...next.log];
+  return { state: { ...next.state, log: [...state.log, ...log] }, log };
 }
 
 /** 산란수 관문을 닫고 다음 단계로 간다 (04-breeding 5장) */
 function pickClutch(state: RunState, choiceId: string, data: GameData): ActResult {
   const eggs = Number(choiceId.slice('clutchSize.'.length));
   if (!state.nest) throw new Error('둥지 없이 산란수 관문이 열려 있다');
-  const log: LogEntry[] = [{ at: state.at, type: 'nest', text: `알 ${eggs}개를 낳았다` }];
   const { gate: _g, ...closed } = state;
-  return {
-    state: {
-      ...nextStep({ ...closed, nest: { ...state.nest, eggs } }, data),
-      log: [...state.log, ...log],
-    },
-    log,
-  };
+  const next = nextStep({ ...closed, nest: { ...state.nest, eggs } }, data);
+  const log: LogEntry[] = [
+    { at: state.at, type: 'nest', text: `알 ${eggs}개를 낳았다` },
+    ...next.log,
+  ];
+  return { state: { ...next.state, log: [...state.log, ...log] }, log };
 }
 
 /** 짝 후보 관문을 닫고 다음 단계로 간다 (04-breeding 2.2) */
@@ -266,25 +275,38 @@ function pickMate(state: RunState, choiceId: string, data: GameData): ActResult 
   const index = Number(choiceId.split('.')[1]) - 1;
   const c = state.gate?.kind === 'mateCandidate' ? state.gate.candidates[index] : undefined;
   if (!c) throw new Error(`없는 짝 후보다: ${choiceId}`);
-  const { quality: _q, accepts: _a, plumageNoise: _n, hint: _h, ...mate } = c;
-  const log: LogEntry[] = [{ at: state.at, type: 'mate', text: '짝을 맺었다' }];
+  const { quality: _q, accepts: _a, plumageNoise: _n, hint: _h, previous, ...picked } = c;
+  const m = data.breeding.mate;
+  // 재결합: 유대 + bondReunion(상한 bondMax), 성격은 이미 확인 (2.2)
+  const mate = previous
+    ? { ...picked, bond: Math.min(m.bondMax, picked.bond + m.bondReunion), personalityKnown: true }
+    : picked;
   const { gate: _g, ...closed } = state;
-  return { state: { ...nextStep({ ...closed, mate }, data), log: [...state.log, ...log] }, log };
+  const next = nextStep({ ...closed, mate }, data);
+  const log: LogEntry[] = [
+    { at: state.at, type: 'mate', text: previous ? '지난 짝과 다시 맺었다' : '짝을 맺었다' },
+    ...next.log,
+  ];
+  return { state: { ...next.state, log: [...state.log, ...log] }, log };
 }
 
 /** `period 1` 진입: 나이 +1 · 경험 +1 · 노화 · 단계표 초기화 (00-core-loop 2.1 `YearStart`) */
-function yearStart(state: RunState, data: GameData): RunState {
-  if (state.at.period !== 1 || state.at.step !== 1) return state;
+function yearStart(state: RunState, data: GameData): ActResult {
+  if (state.at.period !== 1 || state.at.step !== 1) return { state, log: [] };
   const species = speciesBalance(data, state.config.speciesId);
   const age = state.player.age + 1;
+  const mate = mateYear(state, data);
   return {
-    ...state,
-    calendar: yearCalendar(data, state.config.speciesId),
-    player: {
-      ...state.player,
-      age,
-      expYears: state.player.expYears + 1,
-      stats: agedStats(data.formulas, species, age, state.player.stats),
+    log: mate.log,
+    state: {
+      ...mate.state,
+      calendar: yearCalendar(data, state.config.speciesId),
+      player: {
+        ...state.player,
+        age,
+        expYears: state.player.expYears + 1,
+        stats: agedStats(data.formulas, species, age, state.player.stats),
+      },
     },
   };
 }
