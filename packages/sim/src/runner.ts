@@ -57,7 +57,8 @@ export function runOne(config: RunConfig, data: GameData, bot: Bot): RunRecord {
         available.filter((c) => !c.disabled).map((c) => [c.id, preview(state, c.id, data)]),
       );
       const choiceId = bot.choose({ view: getView(state, data), choices: available, previews });
-      if (!previews.has(choiceId)) {
+      // 조합 id(`parentingPolicy?intensity=high` 등)는 `?` 앞 id로 확인한다 — 잘못된 조합은 `act`가 던진다 (#224)
+      if (!previews.has(choiceId.split('?')[0] as string)) {
         throw new Error(`봇 ${bot.id}이 고를 수 없는 선택을 돌려줬다: ${choiceId}`);
       }
       state = act(state, choiceId, data).state;

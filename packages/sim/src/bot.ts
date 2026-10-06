@@ -14,6 +14,7 @@ export interface Bot {
   /**
    * 고를 선택의 id. `previews`에는 `disabled`가 아닌 선택만 있다.
    * `choices`에 없거나 `disabled`인 id를 돌려주면 그 판은 오류로 끝난다.
+   * 조합 id(`parentingPolicy?intensity=high` — `?` 앞이 선택 id)도 돌려줄 수 있다. 잘못된 조합도 그 판 오류다 (#224).
    */
   choose(input: { view: ViewModel; choices: Choice[]; previews: Map<string, Preview> }): string;
 }

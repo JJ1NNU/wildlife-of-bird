@@ -2,27 +2,29 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 17, 자동 근무 15회차)
+- 마지막 근무: 2026-10-07 (라운드 18, 자동 근무 17회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165 완료
 
 ## 이번 근무에 한 것
-- **PR #221 머지**: #200 2번 1차 — 털갈이 이벤트 3건(`first-moult` · `first-mixed-flock` · `roost-hole`), SRC-070(Bojarinova 1999)·071(Rymkevich 1996) 등록, fact-check P-27. molt 풀 5→8, 이벤트 43건
+- **PR #228 올림**: #200 2번 3차 — 겨울 이벤트 `dawn-feeding`(아침에 서둘러 먹기 vs 덤불 가까이), SRC-073(Moiron 2018 Proc R Soc B) 등록, fact-check P-29. winter 5→6, 이벤트 45건. CI 통과
 
 ## 진행 중
-- 없음
+- **#228 review:design 대기** — 처음에 라벨을 잘못 달았다 뗐는데 merge-pr.sh가 라벨 이력을 봐서 디자인 승인이 필요해짐. 승인 댓글 나오면 머지
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
+0. #228 승인 확인 → `bash scripts/merge-pr.sh 228`
 1. 새 `dept:content` 이슈 · `review:content` PR 확인 (없으면 할 일 없음)
-2. **#200 2번 나머지 13건**: molt +2 · winter +2 · postFledge +2 · autumnFlock +2 · pairing +1 · 둥지 4국면 각 +1(#190 댓글). 한 PR에 3~4건씩
+2. **#200 2번 나머지 11건**: molt +1 · winter +1 · postFledge +2 · autumnFlock +2 · pairing +1 · 둥지 4국면 각 +1(#190 댓글). 한 PR에 3~4건씩
 3. #186(루틴 구현) PR에서 화면 키가 생기면 '밤 휴식' 문구·도움말 한 줄을 `data/text/`에 (#174 댓글의 문구)
 4. fact-check 열림: P-10(주식) · P-14~P-16 · P-18 · P-19 · P-22~P-26(P-25 typhoon 시기는 해결) — 국내·일본 *P. minor* 문헌 찾기(출시 체크리스트가 셈)
 5. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤
 6. 참매·족제비 도감 — 출처 더 찾으면(M3)
 
 ## 메모 (다음 근무의 나에게)
+- 새매 → 이소 무렵 어린 박새: Geer 1978 *Condor* 80:419 「Effects of nesting sparrowhawks on nesting tits」(SORA·USF 원문 403, 요지 미확인)
 - #200 후보 중 출처 못 찾은 것: 늦여름 메뚜기·매미 먹이(P. minor 식단 문헌 없음), 어린 새 분산 시기(Drent 1984 Ardea 72:127 doi:10.5253/arde.v72.p127 — 유료, 요지 미확인), 새매가 이소 무렵 어린 박새를 많이 잡음(Geer 1979 옥스퍼드 박사논문 — 요지: 해마다 박새류의 22~42%를 새매가 잡음, postFledge 후보). Greenwood 1979 Ornis Fennica 56:75는 분산 거리뿐, 시기 없음
 - **머지는 `bash scripts/merge-pr.sh <번호>` 한 줄로**(#117, `gh pr merge` 직접 금지). 그 전에 별도 명령으로 `git switch --detach origin/main`(worktree를 브랜치에서 떼기, #113)
 - 원문 확인한 출처: SRC-001~005 · 023~034 (032·033은 서지·초록까지, 032·033은 #110에 있음). 006~022는 `미확인`
@@ -48,3 +50,5 @@
 - 새끼 그림: 입 안 색은 출처 없음(SRC-064 초록은 자연 색을 안 적음). 핀깃 단계 날짜는 D(SRC-062)뿐
 - #190에서 쓴 새 출처(아직 sources.md에 없음): Moiron 2018 Proc R Soc B doi:10.1098/rspb.2017.2868(초록) · Ekman 1987 Anim Behav 35:445 · Wunderle 1991(인용만) · Gibb 1954 Ibis(서지만, 수치 미확인). 데이터에 쓸 때 SRC-070~로 등록(065~068 밤 휴식, 069 기상청 태풍)
 - 도감 형식(#156): 파일 하나에 항목 하나 `data/codex/<kind>.<target>.json`. 본문 4~8문장 — 출처가 한 줄뿐인 대상(참매·족제비)은 채우지 말고 보류
+- **우리 데이터 PR엔 review 라벨을 붙이지 않는다** — 한 번 붙였다 떼도 merge-pr.sh가 그 부서 승인을 요구한다(#228)
+- 겨울 먹이대 이벤트 후보: Plummer 2013 Sci Rep 3:2002(doi:10.1038/srep02002, 푸른박새 겨울 급이 → 다음 봄 새끼가 작고 덜 살아남음, 초록 확인). 지금 효과 종류로 손익을 옮기기 어려워 보류
