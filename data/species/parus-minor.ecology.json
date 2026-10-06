@@ -4,15 +4,15 @@
   "scientificName": "Parus minor",
   "residency": {
     "value": "resident",
-    "sources": ["SRC-004"],
-    "factCheck": "needs-review",
-    "note": "텃새. 기획서 8.2와 일치한다. E등급 단독."
+    "sources": ["SRC-004", "SRC-027", "SRC-024", "SRC-033"],
+    "factCheck": "verified",
+    "note": "텃새. 기획서 8.2와 일치한다. SRC-027(C)은 종 단위로 '흔한 텃새'라 적는다(홍콩 아종은 정주성). 국내에서도 번식기(SRC-024, 인공새집 번식)와 겨울(SRC-033, 서울 근교 혼성군) 모두 기록된다."
   },
   "habitats": {
     "values": ["forest", "settlement"],
-    "sources": ["SRC-004"],
-    "factCheck": "needs-review",
-    "note": "출처의 표현은 '산림, 공원, 정원, 농촌 부근'이다. 태그는 data/nodes와 같은 어휘: 숲(forest) · 사람 곁(settlement). E등급 단독."
+    "sources": ["SRC-004", "SRC-027", "SRC-032"],
+    "factCheck": "verified",
+    "note": "SRC-004의 표현은 '산림, 공원, 정원, 농촌 부근'이다. SRC-027(C): 숲이 있는 곳 어디에나 흔하고 농경지의 작은 나무 무리에도 있다. SRC-032(A): 국내 침엽수림·활엽수림 모두에서 번식. 태그는 data/nodes와 같은 어휘: 숲(forest) · 사람 곁(settlement)."
   },
   "breeding": {
     "season": {
@@ -71,9 +71,9 @@
     },
     "nestType": {
       "value": "cavity",
-      "sources": ["SRC-004"],
-      "factCheck": "needs-review",
-      "note": "나무구멍. SRC-004는 둥지의 재료와 모양(이끼로 밥그릇 모양)만 적고 구멍 둥지라는 말은 하지 않는다. SRC-001·023의 '둥지 구멍(nest cavity)'이 간접 근거다."
+      "sources": ["SRC-004", "SRC-024", "SRC-032", "SRC-001"],
+      "factCheck": "verified",
+      "note": "나무구멍. SRC-004는 둥지의 재료와 모양(이끼로 밥그릇 모양)만 적는다. 국내 박새가 구멍형 인공새집에서 번식한다(SRC-024·032, A). SRC-001은 일본 박새의 둥지 구멍(nest cavity)을 다룬다."
     }
   },
   "diet": {
@@ -85,9 +85,9 @@
     },
     "secondary": {
       "values": ["seeds", "fruit"],
-      "sources": ["SRC-004"],
-      "factCheck": "needs-review",
-      "note": "식물성은 소나무과·화본과 종자와 장미과 열매. E등급 단독."
+      "sources": ["SRC-004", "SRC-027"],
+      "factCheck": "verified",
+      "note": "식물성은 소나무과·화본과 종자와 장미과 열매(SRC-004). SRC-027(C): 여러 종자·열매·무척추동물을 먹는다."
     },
     "nestlingFood": {
       "values": ["caterpillars"],
@@ -129,8 +129,12 @@
     "SRC-004",
     "SRC-005",
     "SRC-023",
+    "SRC-024",
     "SRC-025",
     "SRC-026",
+    "SRC-027",
+    "SRC-032",
+    "SRC-033",
     "SRC-034"
   ],
   "factCheck": "needs-review"

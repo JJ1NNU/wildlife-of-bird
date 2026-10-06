@@ -1780,7 +1780,7 @@
     "options": [
       {
         "id": "deep-hole",
-        "text": "숲 깊은 곳의 나무구멍에 들어가 지나가길 기다린다",
+        "text": "바람이 덜 드는 숲 안쪽에 머물며 지나가길 기다린다",
         "effects": [
           {
             "type": "riskMod",
