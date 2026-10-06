@@ -135,6 +135,17 @@
 | SRC-063 | 「シジュウカラ：黒いネクタイ模様」, 『野鳥写真図鑑』, 캐논 버드 브랜치 프로젝트 | [link](https://global.canon/ja/bird-branch/photo-gallery/shijukara/index.html) | E | 일본 *P. minor*: 둥지 재료로 **이끼를 많이 쓴다**(도시에선 화단·화분의 이끼도) → SRC-061의 보조 | 확인 |
 | SRC-064 | Heeb, P., Schwander, T. & Faoro, S. (2003) "Nestling detectability affects parental feeding preferences in a cavity-nesting bird", *Animal Behaviour* 66(4):637–642. doi:10.1006/anbe.2003.2238 | [link](https://doi.org/10.1006/anbe.2003.2238) | A | 스위스 박새(*P. major*): 새끼 입 안·입가 색을 바꾸면 **어두운 둥지**에서 붉은 입의 새끼가 덜 컸다 — 조르는 새끼의 입 색을 부모가 보고 먹인다. 자연 상태의 입 안 색은 초록에서 확인 못 함 | 서지·요지까지 |
 
+### 밤 휴식 · 에너지 — 잠 회복 (#199 #202)
+
+> #174 '잠 회복'의 생태 설명 근거. 북유럽 박새류(*P. major*·푸른박새) 연구는 박새(*P. minor*)에 대해 **방향**의 근거로만 쓴다.
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-065 | Haftorn, S. (1992) "The diurnal body weight cycle in titmice *Parus* spp.", *Ornis Scandinavica* 23(4):435–443. doi:10.2307/3676674 | [link](https://doi.org/10.2307/3676674) | A | 노르웨이 박새류 5종: 낮에 몸무게(지방)가 늘고 **밤마다 준다**. 저녁 몸무게가 클수록 밤 감소도 크다(밤 대사를 저녁 비축에 맞춤). 시간당 증가는 한겨울이 가을·봄의 약 2배. 잠자는 동안의 저체온 = 비축과 포식 위험의 맞바꿈 | 서지·초록까지 |
+| SRC-066 | Nord, A., Nilsson, J. F. & Nilsson, J.-Å. (2011) "Nocturnal body temperature in wintering blue tits is affected by roost-site temperature and body reserves", *Oecologia* 167(1):21–25. doi:10.1007/s00442-011-1972-6 | [link](https://doi.org/10.1007/s00442-011-1972-6) | A | 스웨덴 푸른박새 겨울: 쉬는 동안 체온을 낮춰(저체온) 에너지를 **아낀다**. 잠자리를 데우면 체온을 덜 낮췄고(추울 때만), 지방이 많은 새일수록 체온을 높게 유지 | 서지·초록까지 |
+| SRC-067 | Mainwaring, M. C. (2011) "The use of nestboxes by roosting birds during the non-breeding season: a review of the costs and benefits", *Ardea* 99(2):167–176. doi:10.5253/078.099.0206 | [link](https://doi.org/10.5253/078.099.0206) | A | 리뷰: 번식기 밖에 둥지 상자·구멍에서 자는 새는 바깥에서 자는 새보다 **보온·에너지 절약**이 크다. 단점은 외부기생충, 포식 위험은 결론 없음. 좋은 상자는 크고 우세한 종이 차지 | 서지·초록까지 |
+| SRC-068 | Andreasson, F., Nord, A. & Nilsson, J.-Å. (2020) "Age differences in night-time metabolic rate and body temperature in a small passerine", *Journal of Comparative Physiology B* 190(3):349–359. doi:10.1007/s00360-020-01266-5 | [link](https://doi.org/10.1007/s00360-020-01266-5) | A | 푸른박새 겨울밤: 기온이 약 14 °C(하한 임계 온도) 아래로 내려가면 쉬는 동안의 대사가 **늘어난다** — 추운 밤일수록 더 쓴다. 첫 겨울 새가 6% 더 씀 | 서지·초록까지 |
+
 ### 환경 변화 · 그 밖의 종
 
 | ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
