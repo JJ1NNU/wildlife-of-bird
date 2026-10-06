@@ -122,6 +122,7 @@
 | SRC-057 | Seki, S.-I. & Sato, T. (2002) "The effect of a typhoon on the flocking and foraging behavior of tits", *Ornithological Science* 1(1):53–61. doi:10.2326/osj.1.53 | [link](https://doi.org/10.2326/osj.1.53) | A | 일본 규슈, 1999년 9월 태풍 뒤 곤줄박이·박새류: **혼성군에 더 끼고 나무 아래쪽에서** 먹었다. 잎이 줄어 포식 위험이 커진 탓으로 해석. 개체수·무리 크기는 그대로 → typhoon-warning · logging | 서지·초록까지 |
 | SRC-058 | Seki, S.-I. (2005) "The effects of a typhoon (9918 Bart, 1999) on the bird community in a warm temperate forest, Southern Japan", *Ornithological Science* 4(2):117–128. doi:10.2326/osj.4.117 | [link](https://doi.org/10.2326/osj.4.117) | A | 같은 태풍 뒤 첫 겨울: 열매·씨앗을 먹는 새가 줄어 전체 개체수가 줄었고 둘째 겨울에 회복 → typhoon-warning | 확인(초록) |
 | SRC-059 | Carlson, A. (1994) "Cavity breeding birds and clearcuts", *Ornis Fennica* 71:120–122 | [link](https://ornisfennica.journal.fi/article/download/133402/81948/292568) | A | 스웨덴 벌채지(1989~1990): 구멍 난 나무를 남겨도 박새·푸른박새는 **숲에서 떨어진 구멍을 피했다** — 먹이를 숲에서 구하므로 → logging | 확인(원문) |
+| SRC-069 | 기상청 날씨누리 「태풍 통계 — 태풍발생현황」, 평년 1991–2020년 (2026-10-07 열람) | [link](https://www.weather.go.kr/plus/typ/statistic.jsp) | B | 우리나라에 영향을 준 태풍 평년 개수: 6월 0.3 · **7월 1.0 · 8월 1.2 · 9월 0.8** · 10월 0.1, 한 해 3.4개 → typhoon-warning 시기(15–18 = 8~9월)가 가장 잦은 때와 맞음. 7월도 잦다 | 확인(원문) |
 
 ### 박새 둥지 안 새끼 — 식별 특징 (#167)
 

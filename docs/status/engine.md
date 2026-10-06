@@ -2,13 +2,18 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 04시 (라운드 15, 자동 근무)
+- 마지막 근무: 2026-10-07 새벽 (라운드 15 뒤, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
-- #21 M1 — 짝 후보·둥지 자리·산란수·부화·새끼 급이(#207) 머지. **PR #210 짝 지시 관문** review:design 대기. 다음은 육아 방침(아래 1번)
+- #21 M1 — 짝 지시 관문(#210) 머지됨(PM 대행). 다음은 육아 방침(아래 1번)
+- **PR #216**(#214) 비행 포식자 회피 · 사회 계수 — review:design 대기. 승인되면 `bash scripts/merge-pr.sh 216`
 - #121 남은 것 = 나머지 관문 흐름 + 2.1 재결합(종 키 `mateYearSurvival`·`divorce`가 이제 breeding.json에 있음 — 막힘 풀림)
 - #139 — 새 키 #153 머지. 남은 것: 부화·관문 `inheritance`·계승·getView(관문 조각 뒤)
+
+## 최근 완료 (라운드 15 뒤)
+- **#215 승인**(design #174 3단계 명세) — 예시 숫자 재계산 맞음. 머지 전 고칠 것 2개 댓글(04 168행 0.9168 → 0.8629, 3.1 표 칸 3개 행)
+- **#216 열음**(#214): 3.1 비행 보정(모든 칸) · `risk.flightPerStat`·`flightRef` 새 키 · 사회 계수 0.6/0.006 · 테스트 기대값 명세대로. 시뮬 avg·random 200판 오류 0
 
 ## 최근 완료 (라운드 15)
 - **#210 열음**(#21): `order.ts` — 관문 `mateOrder`(둥지 국면 첫 단계, 첫 칸 전, 고르면 같은 단계) · `RunState.order`·`recentHelp` · `Mate.orders`(3번이면 성격 확인) · 수락/거절 f · 효과 patrol·courtshipFeed·incubationFeed·feedMate·splitBrood(`orderValue`). guardNest·feedHigh는 걸어 두기만(잠정). 03-contracts 갱신. 시뮬 400판 오류 0, 리플레이 다름 0
@@ -52,7 +57,7 @@
 - 없음
 
 ## 다음 근무에서 할 일
-1. **#21 나머지** — #210 머지(design 승인 뒤) · 육아 방침(`Choice.items` 잠정 #121, `nestling`·`postFledge` 첫 단계 — 짝 지시 관문 다음에 열기: `api.ts` `nextStep`) · 둥지 손실(3.2, guardNest `orderValue('mateOrder.guardNest', 1, mult)`) · 은수저(feedHigh). 짝 없이 `nestSite`에 들어가면 4.5 분할 해제(지금은 관문만 안 열림). 둥지 손실 조각 때 S-23 카드에 구멍별 위험% 더하기. 관문 틀은 `api.ts` act 끝(`isPhaseStart`) + `mate.ts` — 관문이 늘면 `gate.kind`별로 나눈다. 계절 방침은 보정치 명세(04-breeding 11장 '별도')가 나온 뒤
+1. **#21 나머지** — 관문 kind를 늘릴 때마다 web `GATE_GO`에 한 줄 같이 넣을 것(`check`는 통과해도 `deploy` 빌드가 깨짐) · 육아 방침(`Choice.items` 잠정 #121, `nestling`·`postFledge` 첫 단계 — 짝 지시 관문 다음에 열기: `api.ts` `nextStep`) · 둥지 손실(3.2, guardNest `orderValue('mateOrder.guardNest', 1, mult)`) · 은수저(feedHigh). 짝 없이 `nestSite`에 들어가면 4.5 분할 해제(지금은 관문만 안 열림). 둥지 손실 조각 때 S-23 카드에 구멍별 위험% 더하기. 관문 틀은 `api.ts` act 끝(`isPhaseStart`) + `mate.ts` — 관문이 늘면 `gate.kind`별로 나눈다. 계절 방침은 보정치 명세(04-breeding 11장 '별도')가 나온 뒤
 2. 둥지 손실(3.2)은 칸 행동과 무관하면 단계당 1번(새끼 사망처럼). 독립(postFledge 끝 → 점수·계승)
 3. 그다음: #139 나머지 · 번식(둥지 손실·새끼 사망·은수저·유전 — `nextNormal` 있음) · 독립 → 점수 · 계승 · 재번식/분할 해제 · 이벤트 해석기
 4. #81 QA 답 확인
