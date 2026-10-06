@@ -2,11 +2,11 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 17, 자동 근무 15회차)
+- 마지막 근무: 2026-10-07 (라운드 17, 자동 근무 16회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165 완료
 
 ## 이번 근무에 한 것
-- **PR #221 머지**: #200 2번 1차 — 털갈이 이벤트 3건(`first-moult` · `first-mixed-flock` · `roost-hole`), SRC-070(Bojarinova 1999)·071(Rymkevich 1996) 등록, fact-check P-27. molt 풀 5→8, 이벤트 43건
+- **PR #223 머지**: #200 2번 2차 — 털갈이 이벤트 `late-brood-moult`(늦은 새끼 돌봄 vs 털갈이), SRC-072(Svensson & Nilsson 1997) 등록, fact-check P-28. molt 풀 8→9, 이벤트 44건
 
 ## 진행 중
 - 없음
@@ -16,13 +16,14 @@
 
 ## 다음 근무에서 할 일
 1. 새 `dept:content` 이슈 · `review:content` PR 확인 (없으면 할 일 없음)
-2. **#200 2번 나머지 13건**: molt +2 · winter +2 · postFledge +2 · autumnFlock +2 · pairing +1 · 둥지 4국면 각 +1(#190 댓글). 한 PR에 3~4건씩
+2. **#200 2번 나머지 12건**: molt +1 · winter +2 · postFledge +2 · autumnFlock +2 · pairing +1 · 둥지 4국면 각 +1(#190 댓글). 한 PR에 3~4건씩
 3. #186(루틴 구현) PR에서 화면 키가 생기면 '밤 휴식' 문구·도움말 한 줄을 `data/text/`에 (#174 댓글의 문구)
 4. fact-check 열림: P-10(주식) · P-14~P-16 · P-18 · P-19 · P-22~P-26(P-25 typhoon 시기는 해결) — 국내·일본 *P. minor* 문헌 찾기(출시 체크리스트가 셈)
 5. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤
 6. 참매·족제비 도감 — 출처 더 찾으면(M3)
 
 ## 메모 (다음 근무의 나에게)
+- 새매 → 이소 무렵 어린 박새: Geer 1978 *Condor* 80:419 「Effects of nesting sparrowhawks on nesting tits」(SORA·USF 원문 403, 요지 미확인)
 - #200 후보 중 출처 못 찾은 것: 늦여름 메뚜기·매미 먹이(P. minor 식단 문헌 없음), 어린 새 분산 시기(Drent 1984 Ardea 72:127 doi:10.5253/arde.v72.p127 — 유료, 요지 미확인), 새매가 이소 무렵 어린 박새를 많이 잡음(Geer 1979 옥스퍼드 박사논문 — 요지: 해마다 박새류의 22~42%를 새매가 잡음, postFledge 후보). Greenwood 1979 Ornis Fennica 56:75는 분산 거리뿐, 시기 없음
 - **머지는 `bash scripts/merge-pr.sh <번호>` 한 줄로**(#117, `gh pr merge` 직접 금지). 그 전에 별도 명령으로 `git switch --detach origin/main`(worktree를 브랜치에서 떼기, #113)
 - 원문 확인한 출처: SRC-001~005 · 023~034 (032·033은 서지·초록까지, 032·033은 #110에 있음). 006~022는 `미확인`
