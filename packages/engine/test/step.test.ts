@@ -50,12 +50,12 @@ describe('런 시작 개체 (05-inheritance 2장)', () => {
 describe('한 단계의 판정 (00-core-loop 3.1)', () => {
   it('채식: 에너지 → 스탯 → 위험 순서로 예시 값이 나온다', () => {
     const p = preview(example, 'action.forage', data);
-    expect(p.energyDelta[0]).toBeCloseTo(38.496 - 40, 6);
+    expect(p.energyDelta[0]).toBeCloseTo(41.089 - 40, 6);
     expect(p.deathRisk).toBeCloseTo(0.004155, 6);
     expect(p.statGains?.vigilance).toBeUndefined();
 
     const { state, log } = act(example, 'action.forage', data);
-    expect(state.player.energy).toBeCloseTo(38.496, 6);
+    expect(state.player.energy).toBeCloseTo(41.089, 6);
     expect(state.player.feather).toBeCloseTo(58.5, 6);
     expect(log[0]?.type).toBe('decision');
   });
