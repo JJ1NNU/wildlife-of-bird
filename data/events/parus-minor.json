@@ -1524,5 +1524,288 @@
     "ecologyBasis": "참매는 박새 성조를 드물게 잡는다. 덤불로 숨거나 무리에 섞여 피하는 방법의 차이는 확인하지 못했다.",
     "sources": ["SRC-034"],
     "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.storm-night",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["molt"]
+    },
+    "weight": "uncommon",
+    "title": "비바람 치는 밤",
+    "body": "해가 지자 비가 굵어지고 바람이 가지를 흔든다. 깃 사이로 빗물이 스며든다.",
+    "options": [
+      {
+        "id": "search-hole",
+        "text": "빗속을 날며 마른 나무구멍을 찾는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "stay-in-thicket",
+        "text": "가까운 덤불 속에 웅크려 밤을 버틴다",
+        "effects": [
+          {
+            "type": "feather",
+            "tier": "medium",
+            "sign": "loss"
+          },
+          {
+            "type": "deathRisk",
+            "tier": "medium",
+            "cause": "accident"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "비가 새에게 미치는 가장 큰 직접 영향은 깃이 젖는 것이고, 젖은 깃은 몸을 덜 덥혀 체온을 잃게 한다(총설). 작은 새일수록 불리하다. 박새에서 직접 잰 자료는 찾지 못했다.",
+    "sources": ["SRC-052"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.cold-wave",
+    "species": ["parus-minor"],
+    "draw": "periodStart",
+    "when": {
+      "periodFrom": 23,
+      "periodTo": 3
+    },
+    "weight": "common",
+    "title": "한파",
+    "body": "찬 바람이 며칠째 그치지 않는다. 밤이 길고, 아침마다 가지에 서리가 하얗다.",
+    "options": [
+      {
+        "id": "ok",
+        "text": "먹이를 찾기 어려운 날이 이어진다",
+        "effects": [
+          {
+            "type": "foodMod",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "박새류는 아주 추울 때 굶을 위험이 커져 몸에 지방을 더 쌓고, 무리 안 먹이 다툼도 심해진다(유럽 박새). 겨울 박새의 먹이는 식물성 먹이(씨앗)가 큰 몫이고, 낮은 기온은 곤충을 줄인다.",
+    "sources": ["SRC-053", "SRC-054"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.heavy-snow",
+    "species": ["parus-minor"],
+    "draw": "periodStart",
+    "when": {
+      "periodFrom": 24,
+      "periodTo": 3
+    },
+    "weight": "uncommon",
+    "title": "폭설",
+    "body": "밤새 눈이 쌓여 땅도 가지도 하얗게 덮였다. 떨어진 씨앗이 눈 아래로 사라졌다.",
+    "options": [
+      {
+        "id": "ok",
+        "text": "먹이가 눈 아래에 묻혔다",
+        "effects": [
+          {
+            "type": "foodMod",
+            "tier": "large",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "겨울 박새는 씨앗 같은 식물성 먹이에 크게 기대고, 낮은 기온이나 쌓인 눈이 곤충을 찾기 어렵게 한다는 설명이 있다(유럽 박새 연구의 서론). 같은 연구에서 눈 깊이와 먹이 구성의 관계는 뚜렷하지 않았다. 눈이 먹이를 얼마나 줄이는지는 확인하지 못했다.",
+    "sources": ["SRC-054", "SRC-053"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.pine-seed-year",
+    "species": ["parus-minor"],
+    "draw": "periodStart",
+    "when": {
+      "periodFrom": 19,
+      "periodTo": 4,
+      "habitatAny": ["forest"]
+    },
+    "weight": "uncommon",
+    "title": "솔방울이 많은 해",
+    "body": "올해는 소나무마다 솔방울이 가지가 휘도록 달렸다. 바람이 불면 씨앗이 팔랑이며 떨어진다.",
+    "options": [
+      {
+        "id": "ok",
+        "text": "겨울 먹이가 넉넉하다",
+        "effects": [
+          {
+            "type": "foodMod",
+            "tier": "medium",
+            "sign": "gain"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "나무 열매가 많은 해와 적은 해가 번갈아 오고, 겨울 열매 양은 박새의 겨울 생존과 가장 강하게 관련됐다(네덜란드, 너도밤나무). 서울 근교 겨울 혼성군은 침엽수를 쓴다. 소나무 솔씨 풍흉이 한국 박새에 미치는 영향은 확인하지 못했다.",
+    "sources": ["SRC-048", "SRC-033", "SRC-054"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.early-leaf-out",
+    "species": ["parus-minor"],
+    "draw": "periodStart",
+    "when": {
+      "periodFrom": 7,
+      "periodTo": 8
+    },
+    "weight": "uncommon",
+    "title": "이른 잎, 이른 애벌레",
+    "body": "올봄은 따뜻했다. 잎이 일찍 돋았고, 잎 뒤에 애벌레가 벌써 보인다.",
+    "options": [
+      {
+        "id": "ok",
+        "text": "애벌레가 가장 많은 때가 앞당겨졌다",
+        "effects": [
+          {
+            "type": "foodMod",
+            "tier": "small",
+            "sign": "gain"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "봄이 따뜻하면 잎과 애벌레가 일찍 나와 먹이가 가장 많은 때가 앞당겨지지만, 박새의 산란일은 그만큼 따라가지 못했다(네덜란드 박새 23년). 박새의 번식은 먹이 곤충이 가장 많은 때에 맞춰지고, 산란 시작일은 지역·해마다 다르다.",
+    "sources": ["SRC-055", "SRC-005"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.cold-rainy-spell",
+    "species": ["parus-minor"],
+    "draw": "periodStart",
+    "when": {
+      "periodFrom": 12,
+      "periodTo": 14
+    },
+    "weight": "common",
+    "title": "장마",
+    "body": "며칠째 비가 그치지 않는다. 날이 서늘하고, 젖은 잎에 벌레가 보이지 않는다.",
+    "options": [
+      {
+        "id": "ok",
+        "text": "비 오는 날에는 먹이를 찾기 어렵다",
+        "effects": [
+          {
+            "type": "foodMod",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "비 오는 날이 많을수록 부모 새가 둥지에 먹이를 나르는 횟수가 줄고, 비가 이어지면 더 줄었다(유럽 사막딱새). 비에 젖은 깃은 체온을 잃게 한다. 장마가 한국 박새의 먹이에 미치는 영향은 확인하지 못했다.",
+    "sources": ["SRC-056", "SRC-052"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.hawk-settled-nearby",
+    "species": ["parus-minor"],
+    "draw": "periodStart",
+    "when": {
+      "periodFrom": 17,
+      "periodTo": 4
+    },
+    "weight": "common",
+    "title": "새매가 자리 잡았다",
+    "body": "숲 가장자리 높은 가지에 새매가 앉아 있다. 오늘만이 아니다. 이 숲에 머물 모양이다.",
+    "options": [
+      {
+        "id": "ok",
+        "text": "하늘을 더 자주 살펴야 한다",
+        "effects": [
+          {
+            "type": "riskMod",
+            "tier": "low"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "새매는 박새 성조와 이소한 새끼를 노리는 포식자이고(스위스 박새), 박새는 새매에게 위협이 높은 쪽의 모빙 소리를 낸다(독일 박새). 새매가 가을·겨울에 한국 숲에 머무는 시기는 확인하지 못했다.",
+    "sources": ["SRC-041", "SRC-050"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.logging",
+    "species": ["parus-minor"],
+    "draw": "periodStart",
+    "when": {
+      "habitatAny": ["forest"]
+    },
+    "weight": "rare",
+    "title": "숲 벌채",
+    "body": "아침부터 기계 소리가 울린다. 오래된 나무들이 한 그루씩 쓰러지고, 숲 한쪽이 훤히 뚫렸다.",
+    "options": [
+      {
+        "id": "ok",
+        "text": "숨을 곳과 먹이가 함께 줄었다",
+        "effects": [
+          {
+            "type": "riskMod",
+            "tier": "medium"
+          },
+          {
+            "type": "foodMod",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "벌채지에 구멍 난 나무를 남겨도 박새류는 숲에서 멀리 떨어진 구멍에는 둥지를 틀지 않았다 — 먹이를 숲에서 구하기 때문이다(스웨덴). 태풍으로 잎이 떨어진 숲에서 박새류가 낮은 가지에서 먹고 혼성군에 더 끼었는데, 가려 줄 잎이 줄어 포식 위험이 커졌기 때문으로 해석됐다(일본).",
+    "sources": ["SRC-059", "SRC-057"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.typhoon-warning",
+    "species": ["parus-minor"],
+    "draw": "periodStart",
+    "when": {
+      "periodFrom": 15,
+      "periodTo": 18
+    },
+    "weight": "uncommon",
+    "title": "태풍이 온다",
+    "body": "하늘이 낮고 바람이 이상하게 미지근하다. 숲의 새들이 일찍부터 조용해졌다.",
+    "options": [
+      {
+        "id": "deep-hole",
+        "text": "숲 깊은 곳의 나무구멍에 들어가 지나가길 기다린다",
+        "effects": [
+          {
+            "type": "riskMod",
+            "tier": "low"
+          },
+          {
+            "type": "foodMod",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "as-usual",
+        "text": "평소대로 먹이를 찾아다닌다",
+        "effects": [
+          {
+            "type": "riskMod",
+            "tier": "medium"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "9월 태풍이 지나간 뒤 일본 규슈 숲에서 곤줄박이·박새류는 혼성군에 더 끼고 나무 아래쪽에서 먹었다. 잎이 떨어져 몸을 가려 줄 곳이 줄어 포식 위험이 커졌기 때문으로 해석됐다. 같은 숲의 첫 겨울에는 열매·씨앗을 먹는 새가 줄었다. 태풍이 한국에 오는 시기와 박새가 태풍을 피하는 방법은 확인하지 못했다.",
+    "sources": ["SRC-057", "SRC-058"],
+    "factCheck": "needs-review"
   }
 ]

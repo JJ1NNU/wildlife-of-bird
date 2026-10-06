@@ -1,0 +1,16 @@
+{
+  "id": "cx.node.pine-forest",
+  "kind": "node",
+  "target": "pine-forest",
+  "nameKo": "소나무숲",
+  "body": "소나무가 많은 침엽수림이다. 서울 근교의 겨울 조사에서 박새는 활엽수림보다 침엽수림의 무리에서 더 자주 보였다. 진박새는 박새보다도 침엽수를 더 자주 쓴다. 번식기에는 사정이 다르다. 국내 인공새집 조사에서 박새는 침엽수림보다 활엽수림에서 더 많이, 더 잘 번식했다.",
+  "unlock": {
+    "on": "node-visited",
+    "node": "pine-forest"
+  },
+  "basis": {
+    "sources": ["SRC-033", "SRC-032"],
+    "factCheck": "verified",
+    "note": "겨울 혼성군(SRC-033) · 번식 대비(SRC-032). 장소 파일의 basis와 같은 출처."
+  }
+}
