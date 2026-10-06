@@ -1,0 +1,19 @@
+{
+  "id": "cx.phenomenon.mixed-flock",
+  "kind": "phenomenon",
+  "nameKo": "혼성군",
+  "body": "겨울 숲에서는 박새가 진박새 같은 다른 박새류와 한 무리로 다니며 먹이를 찾는다. 서울 근교의 조사에서 박새는 활엽수림보다 소나무·전나무가 있는 침엽수림의 무리에서 더 자주 보였다. 진박새는 박새보다도 침엽수를 더 자주 썼다. 무리가 클수록 한 마리가 주위를 살피는 시간이 줄어든다는 것이 여러 동물에서 확인된다. 무리 안에서는 박새가 낸 경보음을 다른 종도 알아듣는다.",
+  "unlock": {
+    "on": "event-seen",
+    "events": [
+      "ev.parus-minor.mixed-flock-join",
+      "ev.parus-minor.first-winter-follow",
+      "ev.parus-minor.flock-size"
+    ]
+  },
+  "basis": {
+    "sources": ["SRC-033", "SRC-049", "SRC-002"],
+    "factCheck": "verified",
+    "note": "서울 근교 겨울 혼성군 37무리(SRC-033, 논문 표기 P. major = 지금의 P. minor) · 무리 크기와 경계(SRC-049) · 경보음 해석(SRC-002)."
+  }
+}

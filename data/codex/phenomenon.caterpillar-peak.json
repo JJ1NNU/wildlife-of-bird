@@ -1,0 +1,15 @@
+{
+  "id": "cx.phenomenon.caterpillar-peak",
+  "kind": "phenomenon",
+  "nameKo": "애벌레 철",
+  "body": "박새 새끼는 나방 애벌레를 주로 먹고 자란다. 산란은 주로 4월 상순~하순에 시작하고, 따뜻한 해나 남부에서는 3월 말에 시작하기도 한다. 산란을 시작하는 날은 지역과 해에 따라 다르다. 번식 시기는 먹이 곤충이 가장 많은 때와 맞물리고, 그래서 산란 준비기의 기온이 중요하다고 알려져 있다.",
+  "unlock": {
+    "on": "event-seen",
+    "events": ["ev.parus-minor.caterpillar-shortage"]
+  },
+  "basis": {
+    "sources": ["SRC-034", "SRC-024", "SRC-005"],
+    "factCheck": "needs-review",
+    "note": "새끼 먹이·산란 시기(SRC-034) · 연도 차이(SRC-024) · 곤충 많은 때와 맞물림·기온(SRC-005, D등급 단독 — P-26). 미리 안다는 식으로 쓰지 않는다(writing-style 3.3)."
+  }
+}

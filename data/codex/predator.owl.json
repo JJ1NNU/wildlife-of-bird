@@ -1,0 +1,16 @@
+{
+  "id": "cx.predator.owl",
+  "kind": "predator",
+  "target": "owl",
+  "nameKo": "올빼미류",
+  "body": "올빼미류는 박새 성조를 가끔 잡는다. 박새류는 올빼미를 보면 모여들어 소리를 내며 덤빈다. 유럽의 박새 연구에서 올빼미 앞에서 내는 소리는 새매 앞에서보다 위협이 낮은 쪽의 소리였다. 박새의 경보음은 다른 종의 새까지 불러 모은다.",
+  "unlock": {
+    "on": "predator-met",
+    "predator": "owl"
+  },
+  "basis": {
+    "sources": ["SRC-034", "SRC-050", "SRC-002"],
+    "factCheck": "verified",
+    "note": "성조 포식자, 종을 나누지 않음(SRC-034) · 올빼미(Strix aluco) 모형에 대한 모빙, 독일 박새(SRC-050) · 다른 종을 부름(SRC-002)."
+  }
+}

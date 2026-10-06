@@ -1,0 +1,16 @@
+{
+  "id": "cx.predator.sparrowhawk",
+  "kind": "predator",
+  "target": "sparrowhawk",
+  "nameKo": "새매",
+  "body": "새매는 박새 성조를 주로 잡는 포식자로 꼽힌다. 박새류는 새매를 보면 모여들어 소리를 내며 덤빈다. 유럽의 박새 연구에서 새매 앞에서 내는 소리는 올빼미 앞에서보다 위협이 큰 쪽의 소리였다. 여럿이 함께 있으면 한 마리가 주위를 살피는 시간이 줄어든다는 것이 여러 동물에서 확인된다.",
+  "unlock": {
+    "on": "predator-met",
+    "predator": "sparrowhawk"
+  },
+  "basis": {
+    "sources": ["SRC-034", "SRC-050", "SRC-049"],
+    "factCheck": "verified",
+    "note": "성조 주 포식자(SRC-034) · 새매 모형에 대한 모빙 소리, 독일 박새(SRC-050, 본문에 유럽이라 밝힘) · 무리 크기와 경계(SRC-049, 메타분석). 새매의 사냥 방식은 출처가 없어 쓰지 않았다."
+  }
+}
