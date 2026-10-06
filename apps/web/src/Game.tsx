@@ -16,6 +16,7 @@ import {
 import type { GameData, Season, StatName } from '@wb/schema';
 import { useState } from 'react';
 import { birdUrl } from './art.ts';
+import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
 import { clearRun, loadRun, saveRun } from './save.ts';
 
@@ -23,6 +24,7 @@ import { clearRun, loadRun, saveRun } from './save.ts';
  * M1 화면(#24): S-01 타이틀·이어하기 · S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
  * 배치는 아트 중충실도 와이어프레임(`docs/ux/wireframes/mid/01`, #123)과 #53(결정 영역 550)을 따른다.
  * 훈련 ▾ · 옮기기 ▾는 펼쳐서 고른다(와이어프레임 B, D-016) — 펼침은 화면만의 상태라 저장하지 않는다.
+ * 개발용 빨리 감기(QA 평균 봇)는 피드 위에 둔다 — 결정 영역 배치를 건드리지 않고, 출시 빌드에서는 숨긴다.
  * 이벤트 · 번식 · 계승은 엔진이 그 선택을 내면 붙인다(#21).
  * 잠정(#24): 화면 문구는 data/text/(콘텐츠)가 생기면 옮긴다.
  */
@@ -328,6 +330,25 @@ export function Game({ data }: { data: GameData }) {
       </div>
 
       <section className="feed" aria-label="지난 일">
+        {SHOW_FAST_FORWARD && (
+          <div className="dev small">
+            <span className="muted">개발용 · 평균 봇으로</span>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => {
+                const next = fastForward(state, data);
+                saveRun(next);
+                setState(next);
+                setPicked(undefined);
+                setOpen(undefined);
+              }}
+              data-testid="fast-forward"
+            >
+              1년 빨리 감기
+            </button>
+          </div>
+        )}
         <ul className="feed-list">
           {view.recentLog
             .slice()

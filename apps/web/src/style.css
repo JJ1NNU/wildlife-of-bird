@@ -261,3 +261,14 @@ h1 {
   font-size: var(--wb-font-size-title);
   margin: 0;
 }
+
+/* 개발용 빨리 감기 — 출시 빌드에서는 없음 */
+.dev {
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-3);
+  margin-bottom: var(--wb-space-3);
+}
+.dev .btn {
+  flex: none;
+}
