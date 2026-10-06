@@ -400,3 +400,7 @@ h1 {
 .actions .btn + .btn {
   margin-left: var(--wb-space-2);
 }
+.slot-table .danger {
+  color: var(--wb-color-danger);
+  font-weight: bold;
+}
