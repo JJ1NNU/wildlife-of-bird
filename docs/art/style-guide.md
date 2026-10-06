@@ -106,6 +106,7 @@ watercolor field guide illustration, light flat washes with thin dark ink outlin
 | 크기 변환 · 자르기 · WebP 압축 · 생성 도구 표시 지우기 · 비교 시트 | **Pillow** (Python) | HPND(허용형) | 대표 PC에 이미 있다(12.3, 2026-10-03 확인). 배치 01 시트를 실제로 만들었다 |
 | SVG 렌더·검수(와이어프레임·실루엣·아이콘) | **Chrome headless** | — | 대표 PC |
 | 배경 처리 | **하지 않는다** — 아래 5.3 | | |
+| 그림 생성 (아트가 직접, #179) | **Gemini API** — `scripts/art/gen-image.py` | 생성물 이용 조건은 Google 생성형 AI 약관 | 대표 PC, 키는 환경 변수 `GEMINI_API_KEY`만. **잠정(#179)**: 무료 등급 이미지 한도가 0이라(2026-10-07 확인) 결제 승인 대기 |
 
 - 후처리는 **아트가 대표 PC에서 돌리는 오프라인 작업**이다. 결과물(WebP·SVG)만 저장소에 들어간다. 그래서 Pillow는 **저장소 의존성이 아니다**(`package.json`·CI에 넣지 않는다). 엔진 스택(Node)에 넣어야 할 이유가 생기면 그때 `sharp`(Apache-2.0)로 옮기고 `review:engine`.
 - 스크립트는 첫 실제 에셋 처리 때(M1 박새 배치) `scripts/art/`에 만든다. 그 전에는 만들지 않는다(01-collaboration 15장).
