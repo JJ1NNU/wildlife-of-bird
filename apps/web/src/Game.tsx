@@ -2,6 +2,7 @@ import {
   act,
   type CalendarAt,
   type Choice,
+  type ClutchSizeCard,
   formatEnergyDelta,
   formatRisk,
   formatStatGain,
@@ -319,6 +320,34 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
+  /** 산란수 카드: 알 수 · 산란 단계 비용(정수) — 04-breeding 5장. 이소 기대 수·은수저는 엔진이 더하면(#21) */
+  function clutchRow(card: ClutchSizeCard) {
+    const c = choices.find((x) => x.id === card.choiceId);
+    return (
+      <li key={card.choiceId}>
+        <button
+          type="button"
+          className={`opt${card.choiceId === picked ? ' sel' : ''}`}
+          aria-pressed={card.choiceId === picked}
+          disabled={!!c?.disabled}
+          onClick={() => setPicked(card.choiceId)}
+          data-testid={`choice-${card.choiceId}`}
+        >
+          <span className="main">
+            <span className="b">{c?.label ?? `알 ${card.eggs}개`}</span>
+            {c?.disabled && <span className="cap">{c.disabled.reason}</span>}
+          </span>
+          <span className="vals">
+            <span>산란 비용/단계</span>
+            <b>
+              {card.layingCost === 0 ? '없음' : `에너지 ${formatEnergyDelta(-card.layingCost)}`}
+            </b>
+          </span>
+        </button>
+      </li>
+    );
+  }
+
   if (view.gameOver) {
     const death = view.recentLog
       .slice()
@@ -398,6 +427,14 @@ export function Game({ data }: { data: GameData }) {
             <li className="gate-title muted small">
               둥지를 지으면 새끼가 떠날 때까지 이 장소를 옮길 수 없다. 깊은 구멍을 못 차지하면 얕은
               구멍에 짓는다.
+            </li>
+          </ul>
+        ) : view.gate?.kind === 'clutchSize' ? (
+          <ul className="list" aria-label="산란수" data-testid="gate-clutchSize">
+            <li className="gate-title b">알을 몇 개 낳을까</li>
+            {view.gate.cards.map((card) => clutchRow(card))}
+            <li className="gate-title muted small">
+              많이 낳으면 이소할 새끼가 늘지만, 새끼 하나하나의 몫과 첫 겨울 생존이 준다.
             </li>
           </ul>
         ) : (
