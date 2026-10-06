@@ -34,7 +34,8 @@ describe('짝 후보 관문 (04-breeding 2.2, 00-core-loop 4.6)', () => {
     const choices = getChoices(opened, testData);
     expect(choices).toHaveLength(testData.breeding.mate.candidates);
     expect(choices.every((c) => c.kind === 'mateCandidate')).toBe(true);
-    const cards = getView(opened, testData).gate?.cards ?? [];
+    const gate = getView(opened, testData).gate;
+    const cards = gate?.kind === 'mateCandidate' ? gate.cards : [];
     expect(cards.map((c) => c.choiceId)).toEqual(choices.map((c) => c.id));
     expect(preview(opened, choices[0]?.id ?? '', testData).deathRisk).toBe(0);
   });

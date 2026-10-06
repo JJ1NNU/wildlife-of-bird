@@ -39,6 +39,20 @@ export interface Choice {
   label: string;
   /** 고를 수 없는 이유. 예: 생물학적으로 불가능한 짝 지시 */
   disabled?: { reason: string };
+  /** 육아 방침 — 선택지 하나에 여러 항목 (04-breeding 6.2) */
+  items?: ParentingItemChoice[];
+}
+
+/** 육아 방침 항목 하나. 고른 값은 `parentingPolicy?<item>=<선택>&…`로 `act`에 넘긴다 */
+export interface ParentingItemChoice {
+  /** `intensity` 또는 `breeding.json` `parenting`의 키 */
+  item: string;
+  label: string;
+  options: string[];
+  /** 지금 걸린 값 — 처음에는 기본값 */
+  current: string;
+  /** `postFledge` 조정에서 못 바꾸는 항목 */
+  locked?: boolean;
 }
 
 /** 선택의 예상 결과. **난수를 쓰지 않는다** (엔진 원칙 2) */
@@ -139,7 +153,8 @@ export type Gate =
   | { kind: 'mateCandidate'; candidates: MateCandidate[] }
   | { kind: 'mateOrder'; options: string[] }
   | { kind: 'nestSite'; holes: string[] }
-  | { kind: 'clutchSize'; options: number[] };
+  | { kind: 'clutchSize'; options: number[] }
+  | { kind: 'parentingPolicy' };
 
 /** 지은 둥지 (04-breeding 4장). 둥지 국면 동안 이 장소에 묶인다 */
 export interface Nest {
@@ -211,6 +226,8 @@ export interface RunState {
   gate?: Gate;
   /** 지금 걸린 짝 지시·도움 */
   order?: MateOrder;
+  /** 지금 걸린 육아 방침 — 항목 → 선택 (04-breeding 6장). 둥지가 없어지면 없어진다 */
+  parenting?: Record<string, string>;
   /** 최근 `mate.reciprocityWindowSteps` 단계가 도움 단계였나 (04-breeding 3.3 상호성) */
   recentHelp?: boolean[];
   /** 점수 = 총 번식 수 (gdd 11.1장 [확정]) */
@@ -238,7 +255,8 @@ export interface ViewModel {
     | { kind: 'mateCandidate'; cards: MateCandidateCard[] }
     | { kind: 'mateOrder'; cards: MateOrderCard[] }
     | { kind: 'nestSite'; cards: NestSiteCard[] }
-    | { kind: 'clutchSize'; cards: ClutchSizeCard[] };
+    | { kind: 'clutchSize'; cards: ClutchSizeCard[] }
+    | { kind: 'parentingPolicy'; cards: ParentingItemChoice[] };
   nest?: Nest;
   /** 루틴을 짜는 중일 때만 (관문 중에는 없음, 03-contracts 3장 '행동 루틴') */
   routine?: {

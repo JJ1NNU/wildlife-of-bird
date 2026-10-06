@@ -13,6 +13,7 @@ import {
   orderDue,
   orderOptions,
 } from './order.ts';
+import { parentingChoices, parentingDue, setPolicy } from './parenting.ts';
 import { seedFromString } from './rng.ts';
 import { projected, runRoutine, suggestions } from './routine.ts';
 import { judgeStep, mapNode, slotCount, speciesBalance, stepChoices } from './step.ts';
@@ -30,11 +31,11 @@ import type {
  * 엔진 API — 일곱 개의 순수 함수 (엔진 원칙 1, 03-contracts 3장).
  *
  * M1 진행 중(#21): 단계표·장소·행동·옮기기와 판정 1·2·3(에너지 → 스탯 → 위험), 아사·포식 사망은
- * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·짝 지시(`mateOrder`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)가 있고, 부화를 굴린다. 번식·계승·이벤트는 아직 없다.
+ * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·짝 지시(`mateOrder`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)·육아 방침(`parentingPolicy`)이 있고, 부화를 굴린다. 번식·계승·이벤트는 아직 없다.
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 /** 새 런을 시작한다. 같은 설정이면 언제나 같은 초기 상태. */
 export function newRun(config: RunConfig, data: GameData): RunState {
@@ -89,13 +90,16 @@ export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gate?.kind === 'mateOrder') return orderChoices(state, data, state.gate.options);
   if (state.gate?.kind === 'nestSite') return nestChoices(state.gate.holes);
   if (state.gate?.kind === 'clutchSize') return clutchChoices(state.gate.options);
+  if (state.gate?.kind === 'parentingPolicy') return parentingChoices(state, data);
   // 루틴의 다음 빈 칸 — 앞 칸에 옮기기를 넣었으면 그 장소 기준 (03-contracts 3장 '행동 루틴')
   return stepChoices(projected(state, data), data);
 }
 
 /** 고를 수 있는 선택을 찾는다. 목록에 없거나 `disabled`면 던진다 (03-contracts 3장, #47) */
 function findChoice(state: RunState, choiceId: string, data: GameData): Choice {
-  const choice = getChoices(state, data).find((c) => c.id === choiceId);
+  // 육아 방침은 항목 값을 `?` 뒤에 담는다 (03-contracts 3장)
+  const id = choiceId.startsWith('parentingPolicy?') ? 'parentingPolicy' : choiceId;
+  const choice = getChoices(state, data).find((c) => c.id === id);
   if (!choice) throw new Error(`지금 고를 수 없는 선택이다: ${choiceId}`);
   if (choice.disabled) throw new Error(`막힌 선택이다: ${choiceId} — ${choice.disabled.reason}`);
   return choice;
@@ -145,6 +149,7 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   if (state.gate?.kind === 'mateOrder') return pickOrder(state, choiceId, data);
   if (state.gate?.kind === 'nestSite') return pickNest(state, choiceId, data);
   if (state.gate?.kind === 'clutchSize') return pickClutch(state, choiceId, data);
+  if (state.gate?.kind === 'parentingPolicy') return pickPolicy(state, choiceId, data);
   const filled = [...(state.routine ?? []), choiceId];
   // 칸 채우기: 판정·난수 없음
   if (filled.length < slotCount(state)) return { state: { ...state, routine: filled }, log: [] };
@@ -201,21 +206,34 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
 }
 
 /**
- * 다음 단계로 (`period 1`이면 해 바뀜 처리까지). 둥지 국면을 벗어나면 둥지를, 국면이 바뀌면 지시를 거둔다.
- * 짝이 있는 둥지 국면의 첫 단계면 첫 칸보다 먼저 짝 지시 관문을 연다 (04-breeding 3.1)
+ * 다음 단계로 (`period 1`이면 해 바뀜 처리까지). 둥지 국면을 벗어나면 둥지와 육아 방침을, 국면이 바뀌면 지시를 거둔다.
+ * 단계 시작 관문은 첫 칸보다 먼저 연다 — 짝 지시(04-breeding 3.1), 그다음 육아 방침(6.2)
  */
 function nextStep(state: RunState, data: GameData): RunState {
   const moved = releaseNest(yearStart({ ...state, at: advance(state.at, state.calendar) }, data));
-  const next = carryOrder(state, moved, data);
-  if (!orderDue(next)) return next;
-  return { ...next, gate: { kind: 'mateOrder', options: orderOptions(next, data) } };
+  const { parenting, ...carried } = carryOrder(state, moved, data);
+  const next: RunState = carried.nest && parenting ? { ...carried, parenting } : carried;
+  if (orderDue(next)) {
+    return { ...next, gate: { kind: 'mateOrder', options: orderOptions(next, data) } };
+  }
+  return parentingDue(next) ? { ...next, gate: { kind: 'parentingPolicy' } } : next;
 }
 
-/** 짝 지시 관문을 닫는다 — 같은 단계에서 이어 칸을 고른다 (03-contracts 3장) */
+/** 짝 지시 관문을 닫는다 — 육아 방침 관문이 남았으면 열고, 아니면 같은 단계에서 이어 칸을 고른다 */
 function pickOrder(state: RunState, choiceId: string, data: GameData): ActResult {
   const given = giveOrder(state, choiceId, data);
   const { gate: _g, ...closed } = given.state;
-  return { state: { ...closed, log: [...state.log, ...given.log] }, log: given.log };
+  const next: RunState = parentingDue(closed)
+    ? { ...closed, gate: { kind: 'parentingPolicy' } }
+    : closed;
+  return { state: { ...next, log: [...state.log, ...given.log] }, log: given.log };
+}
+
+/** 육아 방침 관문을 닫는다 — 같은 단계에서 이어 칸을 고른다 (04-breeding 6.2) */
+function pickPolicy(state: RunState, choiceId: string, data: GameData): ActResult {
+  const set = setPolicy(state, choiceId, data);
+  const { gate: _g, ...closed } = set.state;
+  return { state: { ...closed, log: [...state.log, ...set.log] }, log: set.log };
 }
 
 /** 둥지 자리 관문을 닫고 다음 단계로 간다 (04-breeding 4장) */
@@ -296,6 +314,9 @@ export function getView(state: RunState, data: GameData): ViewModel {
       : {}),
     ...(state.gate?.kind === 'clutchSize'
       ? { gate: { kind: state.gate.kind, cards: clutchCards(data, state, state.gate.options) } }
+      : {}),
+    ...(state.gate?.kind === 'parentingPolicy'
+      ? { gate: { kind: state.gate.kind, cards: parentingChoices(state, data)[0]?.items ?? [] } }
       : {}),
     ...(state.nest ? { nest: state.nest } : {}),
     ...(state.gate || state.gameOver

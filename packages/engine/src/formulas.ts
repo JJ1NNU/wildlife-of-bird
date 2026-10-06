@@ -123,6 +123,8 @@ export function expenditure(
     feeding: boolean;
     /** 급이 국면(`nestling` `postFledge`)의 급이 강도. 정하지 않았으면 `mid` */
     feedIntensity: Intensity;
+    /** 급이 비용 중 강도 몫의 배율 — 육아 방침 `short` (04-breeding 6.3). 없으면 1 */
+    feedCostMult?: number;
     chicks: number;
   },
 ): number {
@@ -130,7 +132,9 @@ export function expenditure(
   let brood = 0;
   if (input.incubating) brood = e.incubationCostPerStep;
   else if (input.feeding && (input.phase === 'nestling' || input.phase === 'postFledge')) {
-    brood = e.feedCostByIntensity[input.feedIntensity] + e.feedCostPerChick * input.chicks;
+    brood =
+      e.feedCostByIntensity[input.feedIntensity] * (input.feedCostMult ?? 1) +
+      e.feedCostPerChick * input.chicks;
   }
   const molt = input.phase === 'molt' ? e.moltCostPerStep : 0;
   return (
