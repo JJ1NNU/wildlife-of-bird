@@ -9,6 +9,7 @@ import {
   getView,
   type LogEntry,
   type MateCandidateCard,
+  type NestSiteCard,
   newRun,
   preview,
   type RunState,
@@ -26,7 +27,8 @@ import { clearRun, loadRun, saveRun } from './save.ts';
  * 배치는 아트 중충실도 와이어프레임(`docs/ux/wireframes/mid/01`, #123)과 #53(결정 영역 550)을 따른다.
  * 훈련 ▾ · 옮기기 ▾는 펼쳐서 고른다(와이어프레임 B, D-016) — 펼침은 화면만의 상태라 저장하지 않는다.
  * 개발용 빨리 감기(QA 평균 봇)는 피드 위에 둔다 — 결정 영역 배치를 건드리지 않고, 출시 빌드에서는 숨긴다.
- * 짝 후보 관문(S-20)은 결정 영역을 통째로 쓴다(와이어프레임 mid/03 E) — 지난 짝 카드는 엔진이 내면(#21).
+ * 짝 후보(S-20) · 둥지 자리(S-23) 관문은 결정 영역을 통째로 쓴다(와이어프레임 mid/03 E·F) — 지난 짝 카드·구멍별 둥지 손실%는 엔진이 내면(#21).
+ * 개발용 스탯 표 · 피드 줄마다 스탯 변화 · 게임 오버의 죽은 이유는 대표 플레이테스트용(#176).
  * 이벤트 · 나머지 번식 관문 · 계승은 엔진이 그 선택을 내면 붙인다(#21).
  * 잠정(#24): 화면 문구는 data/text/(콘텐츠)가 생기면 옮긴다.
  */
@@ -56,6 +58,12 @@ const GROUPS = [
   { key: 'move', prefix: 'move.', label: '옮기기', icon: 'icon.action.move' },
 ] as const;
 type GroupKey = (typeof GROUPS)[number]['key'];
+const RES_WORD: Record<string, string> = { energy: '에너지', feather: '깃털' };
+/** 관문 결정 버튼: [고른 뒤 앞말, 고르기 전] */
+const GATE_GO = {
+  mateCandidate: { done: (label: string) => `짝 맺기 · ${label}`, none: '짝을 고르세요' },
+  nestSite: { done: (label: string) => `${label}에 짓기`, none: '둥지 자리를 고르세요' },
+} as const;
 const HINT_WORD = { bold: '대담해 보인다', shy: '조심스러워 보인다' } as const;
 const SEASON = [
   'winter',
@@ -83,6 +91,28 @@ function periodLabel(at: CalendarAt): { text: string; season: string } {
 /** 한 단계에 같은 종류·같은 글의 기록은 두 번 남지 않는다 */
 function logKey(l: LogEntry): string {
   return `${l.at.year}.${l.at.period}.${l.at.step}.${l.type}.${l.text}`;
+}
+
+/** 기록 한 줄의 변화: 스탯(소수 첫째) 먼저, 에너지·깃털(정수) 뒤 — 0으로 반올림되면 뺀다 (#176) */
+function deltaText(deltas: Record<string, number> = {}): string {
+  const stats: string[] = [];
+  const res: string[] = [];
+  for (const [k, x] of Object.entries(deltas)) {
+    if (k.startsWith('stat.')) {
+      const n = roundHalfUp(x, 1);
+      const name = STAT_WORD[k.slice('stat.'.length) as StatName] ?? k;
+      if (n !== 0) stats.push(`${name} ${n > 0 ? '+' : '−'}${Math.abs(n).toFixed(1)}`);
+    } else {
+      const t = formatEnergyDelta(x);
+      if (t !== '0') res.push(`${RES_WORD[k] ?? k} ${t}`);
+    }
+  }
+  return [...stats, ...res].join(' · ');
+}
+
+function logLine(l: LogEntry): string {
+  const d = deltaText(l.deltas);
+  return `${periodLabel(l.at).text} ${l.at.step}단계 — ${l.text}${d ? ` · ${d}` : ''}`;
 }
 
 function startRun(data: GameData): RunState {
@@ -253,7 +283,50 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
+  /** S-23 둥지 자리 카드: 구멍 이름 · 차지할 확률(경쟁 구멍만, 정수 %) — 04-breeding 4장 */
+  function nestRow(card: NestSiteCard) {
+    const c = choices.find((x) => x.id === card.choiceId);
+    return (
+      <li key={card.choiceId}>
+        <button
+          type="button"
+          className={`opt${card.choiceId === picked ? ' sel' : ''}`}
+          aria-pressed={card.choiceId === picked}
+          disabled={!!c?.disabled}
+          onClick={() => setPicked(card.choiceId)}
+          data-testid={`choice-${card.choiceId}`}
+        >
+          <span className="main">
+            <span className="b">{c?.label ?? card.hole}</span>
+            <span className="cap">
+              {[
+                card.contestChance === undefined ? '다툼 없음' : '좋은 구멍은 다툰다 — 과시 판정',
+                c?.disabled?.reason,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </span>
+          </span>
+          {card.contestChance !== undefined && (
+            <span className="vals">
+              <span>차지할 확률</span>
+              <b>{roundHalfUp(card.contestChance * 100)}%</b>
+            </span>
+          )}
+        </button>
+      </li>
+    );
+  }
+
   if (view.gameOver) {
+    const death = view.recentLog
+      .slice()
+      .reverse()
+      .find((l) => l.type === 'death');
+    const last = view.recentLog
+      .slice()
+      .reverse()
+      .find((l) => l.type === 'decision');
     return (
       <main className="game" data-testid="game-over">
         <div className="over">
@@ -261,12 +334,21 @@ export function Game({ data }: { data: GameData }) {
           <p className="muted">
             {when.text} · {view.player.age}세
           </p>
+          {death && (
+            <p className="cause" data-testid="death-cause">
+              죽은 이유 <b>{death.text}</b>
+            </p>
+          )}
+          <p className="muted small">
+            {last && `마지막 행동: ${last.text} · `}남은 에너지 {roundHalfUp(view.player.energy)} /{' '}
+            {roundHalfUp(view.energyCap)}
+          </p>
           <p className="score">
             총 번식 <b>{view.totalBreeding}</b>
           </p>
           <ul className="feed-list">
             {view.recentLog.slice(-5).map((l) => (
-              <li key={logKey(l)}>{l.text}</li>
+              <li key={logKey(l)}>{logLine(l)}</li>
             ))}
           </ul>
           <button type="button" className="btn prim" onClick={restart}>
@@ -307,6 +389,15 @@ export function Game({ data }: { data: GameData }) {
           <ul className="list" aria-label="짝 후보" data-testid="gate-mateCandidate">
             <li className="gate-title b">짝 후보 — 한 마리를 고른다</li>
             {view.gate.cards.map((card, i) => mateRow(card, i + 1))}
+          </ul>
+        ) : view.gate?.kind === 'nestSite' ? (
+          <ul className="list" aria-label="둥지 자리" data-testid="gate-nestSite">
+            <li className="gate-title b">어디에 지을까 — 구멍 하나를 고른다</li>
+            {view.gate.cards.map((card) => nestRow(card))}
+            <li className="gate-title muted small">
+              둥지를 지으면 새끼가 떠날 때까지 이 장소를 옮길 수 없다. 깊은 구멍을 못 차지하면 얕은
+              구멍에 짓는다.
+            </li>
           </ul>
         ) : (
           <>
@@ -375,8 +466,8 @@ export function Game({ data }: { data: GameData }) {
           >
             {view.gate
               ? pickedChoice
-                ? `짝 맺기 · ${pickedChoice.label}`
-                : '짝을 고르세요'
+                ? GATE_GO[view.gate.kind].done(pickedChoice.label)
+                : GATE_GO[view.gate.kind].none
               : pickedChoice
                 ? `${pickedChoice.label} 진행`
                 : '행동을 고르세요'}
@@ -404,14 +495,28 @@ export function Game({ data }: { data: GameData }) {
             </button>
           </div>
         )}
+        {SHOW_FAST_FORWARD && (
+          <table className="stats small" data-testid="stats">
+            <caption className="muted">개발용 · 스탯 현재 / 잠재력</caption>
+            <tbody>
+              {(Object.keys(view.player.potential) as StatName[]).map((s) => (
+                <tr key={s}>
+                  <th>{STAT_WORD[s] ?? s}</th>
+                  <td>{roundHalfUp(view.player.stats[s] ?? 0, 1).toFixed(1)}</td>
+                  <td className="muted">
+                    / {roundHalfUp(view.player.potential[s] ?? 0, 1).toFixed(1)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
         <ul className="feed-list">
           {view.recentLog
             .slice()
             .reverse()
             .map((l) => (
-              <li key={logKey(l)}>
-                {periodLabel(l.at).text} {l.at.step}단계 — {l.text}
-              </li>
+              <li key={logKey(l)}>{logLine(l)}</li>
             ))}
         </ul>
       </section>

@@ -238,3 +238,32 @@ describe('데이터 검증 메시지 (품질 기준: 파일 · 필드 · 이유)
     ]);
   });
 });
+
+describe('도감 (#155)', () => {
+  it('파일 이름과 해금 조건의 없는 id를 잡아낸다', () => {
+    const { issues } = loadGameData({
+      ecology: [],
+      balance: [],
+      calendar: [],
+      nodes: [],
+      predators: [],
+      events: [],
+      codex: [
+        {
+          file: 'data/codex/predator.owll.json',
+          json: {
+            id: 'cx.predator.owl',
+            kind: 'predator',
+            target: 'owl',
+            nameKo: '올빼미류',
+            body: 'ㄱ',
+            unlock: { on: 'event-seen', events: ['ev.parus-minor.nothing'] },
+            basis: { sources: ['SRC-TEST'], factCheck: 'verified' },
+          },
+        },
+      ],
+    });
+
+    expect(issues.map((i) => i.at)).toEqual(['id', 'target', 'unlock.events[0]']);
+  });
+});

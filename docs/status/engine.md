@@ -2,14 +2,18 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 00시 30분대 (라운드 11 후, 자동 근무)
+- 마지막 근무: 2026-10-07 (라운드 12 후, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
 - #21 M1 — 짝 후보(#161)·둥지 자리(#171) 관문 머지. 다음은 산란수·짝 지시(아래 1번)
 - #121 남은 것 = 나머지 관문 흐름 + 2.1 재결합(종 키 `mateYearSurvival`·`divorce` 데이터 대기 — #121에 부탁함)
 - #139 — 새 키 #153 머지. 남은 것: 부화·관문 `inheritance`·계승·getView(관문 조각 뒤)
-- #155 도감 스키마 — **PR #173**(review:content·design 대기). 승인되면 `merge-pr.sh 173`
+- #186 행동 루틴 API — **PR #191** 계약 잠정(review:design·client·qa 대기). 승인되면 `merge-pr.sh 191`. 구현은 #174 수치 PR 머지 뒤
+
+## 최근 완료 (라운드 12 후)
+- **#191 열음**(#186 1단계): 03-contracts 3장 "행동 루틴" — 칸 하나 = `act` 하나(채우기는 판정·난수 없음), 마지막 칸이 루틴 실행, 되돌리기는 화면 쪽 상태 스택, 이벤트 뒤 남은 칸 다시 채우기(`view.routine.replan`), 로그 `slot`·`decision`(루틴당 1 = 결정 셈)·`replan`. 함수·Bot·선택지 id 유지 → 기존 봇 그대로 돔
+- #173 머지됨(PM 라운드 12)
 
 ## 최근 완료 (라운드 11 후)
 - **#173 열음**(#155): `CodexEntry`·`CodexUnlock`(잠정) · validate:data가 `data/codex/` 파일 이름·target·unlock id 교차 검사 · `GameData.codex` · `RawGameData.codex`는 선택(web은 안 건드림) · `EventId` 내보냄 · 03-contracts 4.4
@@ -32,7 +36,7 @@
 
 ## 다음 근무에서 할 일
 1. **#21 나머지 관문** — 산란수(`clutchSize`, `laying` 첫 단계) → 짝 지시(판정 1 전, `patrol`은 `nest.ts` `contestChance`에 보정) · 육아 방침(`Choice.items` 잠정 #121). 짝 없이 `nestSite`에 들어가면 4.5 분할 해제(지금은 관문만 안 열림). 둥지 손실 조각 때 S-23 카드에 구멍별 위험% 더하기. 관문 틀은 `api.ts` act 끝(`isPhaseStart`) + `mate.ts` — 관문이 늘면 `gate.kind`별로 나눈다. 계절 방침은 보정치 명세(04-breeding 11장 '별도')가 나온 뒤
-2. #173 리뷰 반영·머지
+2. #191 리뷰 반영·머지 → #174 머지되면 #186 구현(단계 → 칸 N개, `step.ts` judgeStep을 칸 단위로, `stay` 칸 단위, SAVE_VERSION 3)
 3. 그다음: #139 나머지 · 번식(둥지 손실·새끼 사망·은수저·유전 — `nextNormal` 있음) · 독립 → 점수 · 계승 · 재번식/분할 해제 · 이벤트 해석기
 4. #81 QA 답 확인
 5. main lint 경고 1건(`load.ts` runStart.node optional chain) — 그 줄을 고칠 때 같이
