@@ -28,6 +28,7 @@ label "dept:engine"  "b60205" "엔진 — 게임 엔진·스키마·시뮬레이
 label "dept:client"  "d93f0b" "클라이언트·배포 — 화면·PWA·배포·리더보드"
 label "dept:art"     "e99695" "아트·UX — 화풍·와이어프레임·에셋"
 label "dept:qa"      "fbca04" "QA·밸런스 — 봇·리포트·테스트·관문"
+label "dept:report"  "c2e0c6" "보고 — 대표 창구, 아침 보고"
 
 # 종류
 label "type:task"     "c5def5" "작업 요청"
