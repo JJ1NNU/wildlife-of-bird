@@ -2,13 +2,16 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 새벽 (라운드 14 후, 자동 근무)
+- 마지막 근무: 2026-10-07 04시 (라운드 15, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
-- #21 M1 — 짝 후보(#161)·둥지 자리(#171)·산란수(#195)·부화(#197) 머지. **PR #207**(새끼 급이·개별 사망·포란 비용) review:design 대기. 다음은 짝 지시(아래 1번)
+- #21 M1 — 짝 후보·둥지 자리·산란수·부화·새끼 급이(#207) 머지. **PR #210 짝 지시 관문** review:design 대기. 다음은 육아 방침(아래 1번)
 - #121 남은 것 = 나머지 관문 흐름 + 2.1 재결합(종 키 `mateYearSurvival`·`divorce`가 이제 breeding.json에 있음 — 막힘 풀림)
 - #139 — 새 키 #153 머지. 남은 것: 부화·관문 `inheritance`·계승·getView(관문 조각 뒤)
+
+## 최근 완료 (라운드 15)
+- **#210 열음**(#21): `order.ts` — 관문 `mateOrder`(둥지 국면 첫 단계, 첫 칸 전, 고르면 같은 단계) · `RunState.order`·`recentHelp` · `Mate.orders`(3번이면 성격 확인) · 수락/거절 f · 효과 patrol·courtshipFeed·incubationFeed·feedMate·splitBrood(`orderValue`). guardNest·feedHigh는 걸어 두기만(잠정). 03-contracts 갱신. 시뮬 400판 오류 0, 리플레이 다름 0
 
 ## 최근 완료 (라운드 14 후)
 - **#203 머지**(design 승인) → #186 닫힘. `replan`은 이벤트 해석기 때
@@ -49,8 +52,8 @@
 - 없음
 
 ## 다음 근무에서 할 일
-1. **#21 나머지** — 짝 지시(판정 1 전, `patrol`은 `nest.ts` `contestChance`에 보정) · 육아 방침(`Choice.items` 잠정 #121) · 새끼 사망·급이(`step.ts` `feeding`을 `nest.chicks`로 켜기). 짝 없이 `nestSite`에 들어가면 4.5 분할 해제(지금은 관문만 안 열림). 둥지 손실 조각 때 S-23 카드에 구멍별 위험% 더하기. 관문 틀은 `api.ts` act 끝(`isPhaseStart`) + `mate.ts` — 관문이 늘면 `gate.kind`별로 나눈다. 계절 방침은 보정치 명세(04-breeding 11장 '별도')가 나온 뒤
-2. #207 머지(design 승인 뒤). 둥지 손실(3.2)은 칸 행동과 무관하면 단계당 1번(새끼 사망처럼). 독립(postFledge 끝 → 점수·계승)
+1. **#21 나머지** — #210 머지(design 승인 뒤) · 육아 방침(`Choice.items` 잠정 #121, `nestling`·`postFledge` 첫 단계 — 짝 지시 관문 다음에 열기: `api.ts` `nextStep`) · 둥지 손실(3.2, guardNest `orderValue('mateOrder.guardNest', 1, mult)`) · 은수저(feedHigh). 짝 없이 `nestSite`에 들어가면 4.5 분할 해제(지금은 관문만 안 열림). 둥지 손실 조각 때 S-23 카드에 구멍별 위험% 더하기. 관문 틀은 `api.ts` act 끝(`isPhaseStart`) + `mate.ts` — 관문이 늘면 `gate.kind`별로 나눈다. 계절 방침은 보정치 명세(04-breeding 11장 '별도')가 나온 뒤
+2. 둥지 손실(3.2)은 칸 행동과 무관하면 단계당 1번(새끼 사망처럼). 독립(postFledge 끝 → 점수·계승)
 3. 그다음: #139 나머지 · 번식(둥지 손실·새끼 사망·은수저·유전 — `nextNormal` 있음) · 독립 → 점수 · 계승 · 재번식/분할 해제 · 이벤트 해석기
 4. #81 QA 답 확인
 5. main lint 경고 1건(`load.ts` runStart.node optional chain) — 그 줄을 고칠 때 같이
