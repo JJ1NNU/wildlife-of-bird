@@ -202,6 +202,7 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
     action,
     riskModFactor: 1,
     vigilance: stats.vigilance ?? 0,
+    flight: stats.flight ?? 0,
     expYears: p.expYears,
     r: energy / cap,
     feather,

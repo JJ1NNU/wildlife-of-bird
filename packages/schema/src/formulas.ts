@@ -102,6 +102,8 @@ export const Formulas = z
         floor: probability,
         cap: probability,
         vigilancePerStat: nonneg,
+        flightPerStat: nonneg,
+        flightRef: nonneg,
         expPerYear: nonneg,
         expCap: probability,
         flockMult: nonneg,

@@ -53,7 +53,7 @@ describe('짝 지시 관문 (04-breeding 3장)', () => {
     ]);
   });
 
-  it('수락률 예시 1 — 암컷 → courtshipFeed, r 0.6, 유대 20, 도움 0, 사회 60 → 0.6767', () => {
+  it('수락률 예시 1 — 암컷 → courtshipFeed, r 0.6, 유대 20, 도움 0, 사회 60 → 0.6369', () => {
     const layingStart: RunState = {
       ...lastPairing,
       at: { year: 1, period: 8, step: 1 },
@@ -63,7 +63,7 @@ describe('짝 지시 관문 (04-breeding 3장)', () => {
       gate: { kind: 'mateOrder', options: ['mateOrder.none', 'mateOrder.courtshipFeed'] },
     };
     const p = act(layingStart, 'mateOrder.courtshipFeed', testData).log[0]?.deltas?.acceptance;
-    expect(p).toBeCloseTo(0.6767, 4);
+    expect(p).toBeCloseTo(0.6369, 4);
   });
 
   it('patrol 수락이면 경쟁 확률 1, 거절 f 0.8이면 p + 0.8 × (1 − p) (4장 예시)', () => {
