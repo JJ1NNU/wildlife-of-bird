@@ -1,6 +1,7 @@
 import type { GameData } from '@wb/schema';
 import { advance, phaseAt } from './calendar.ts';
 import { chickDeath } from './formulas.ts';
+import { orderValue } from './order.ts';
 import { nextChance } from './rng.ts';
 import type { Choice, ClutchSizeCard, LogEntry, RunState } from './types.ts';
 
@@ -85,7 +86,7 @@ export function hatchIfDue(state: RunState, data: GameData): { state: RunState; 
  * 새끼 개별 사망 — `nestling` `postFledge` 단계마다 새끼 1마리씩 굴린다(01-formulas 3.3).
  * 루틴의 판정 뒤 단계당 1번 굴린다: 확률이 칸의 행동과 무관해 칸마다 `1 − (1 − p)^(1/n)`로 n번 굴리는 것(9.4)과 분포가 같다.
  * 모두 죽으면 B-5: 그 번식은 실패하고 둥지를 거둔다.
- * 잠정(#21): 급이 강도는 `mid` — 육아 방침·짝 지시의 배율(04-breeding 6.3)은 그 조각에서.
+ * 짝 지시 `splitBrood`의 배율을 건다. 잠정(#21): 급이 강도는 `mid` — 육아 방침의 배율(04-breeding 6.3)은 그 조각에서.
  */
 export function chicksSurvive(
   state: RunState,
@@ -97,7 +98,8 @@ export function chicksSurvive(
   if (!nest || chicks === 0 || (phase !== 'nestling' && phase !== 'postFledge')) {
     return { state, log: [] };
   }
-  const p = chickDeath(data.formulas, 'mid');
+  const split = data.breeding.orders.splitBrood?.chickDeathMult ?? 1;
+  const p = chickDeath(data.formulas, 'mid') * orderValue(state, 'mateOrder.splitBrood', 1, split);
   let rng = state.rng;
   let alive = 0;
   for (let i = 0; i < chicks; i++) {

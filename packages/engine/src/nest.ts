@@ -1,5 +1,6 @@
 import type { GameData, Phase } from '@wb/schema';
 import { phaseAt } from './calendar.ts';
+import { orderValue } from './order.ts';
 import { nextChance } from './rng.ts';
 import { mapNode } from './step.ts';
 import type { Choice, LogEntry, Nest, NestSiteCard, RunState } from './types.ts';
@@ -7,7 +8,7 @@ import type { Choice, LogEntry, Nest, NestSiteCard, RunState } from './types.ts'
 /**
  * 둥지 자리 관문 `nestSite` — 04-breeding 4장. `nestSite` 첫 단계, 흐름의 마지막에 열린다.
  * 둥지는 지금 장소에 짓고, 둥지 국면 동안 옮길 수 없다(1장).
- * 잠정(#21): 짝 지시 `patrol`(경쟁 확률 보정)과 구멍별 둥지 손실 위험%(3.2)는 짝 지시·둥지 손실 조각에서.
+ * 잠정(#21): 구멍별 둥지 손실 위험%(3.2)는 둥지 손실 조각에서.
  * 짝 없이 `nestSite`에 들어가면 관문을 열지 않는다 — 4.5 분할 해제는 그 조각에서.
  */
 
@@ -47,7 +48,7 @@ export function nestHoles(data: GameData, nodeId: string): string[] {
     .map(([id]) => id);
 }
 
-/** 경쟁 구멍을 차지할 확률 — 봄 경쟁 등급 `none`이면 1, 아니면 이벤트 판정과 같은 식 (4장) */
+/** 경쟁 구멍을 차지할 확률 — 봄 경쟁 등급 `none`이면 1, 아니면 이벤트 판정과 같은 식 (4장). `patrol` 수락이면 1 (3.5) */
 export function contestChance(data: GameData, state: RunState): number {
   const tier = mapNode(data, state.node).seasons.spring.competition;
   if (tier === 'none') return 1;
@@ -55,10 +56,11 @@ export function contestChance(data: GameData, state: RunState): number {
   const e = data.formulas.events;
   const difficulty = data.effects.checkDifficulty[ns.contestDifficulty[tier]];
   const stat = state.player.stats[ns.contestStat] ?? 0;
-  return Math.min(
+  const p = Math.min(
     e.checkMax,
     Math.max(e.checkMin, e.checkBase + e.checkPerPoint * (stat - difficulty)),
   );
+  return orderValue(state, 'mateOrder.patrol', p, 1);
 }
 
 export function nestChoices(holes: string[]): Choice[] {

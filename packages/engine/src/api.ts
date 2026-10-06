@@ -4,6 +4,15 @@ import { chicksSurvive, clutchCards, clutchChoices, clutchOptions, hatchIfDue } 
 import { agedStats, fatCap } from './formulas.ts';
 import { isPhaseStart, makeCandidates, mateCards, mateChoices } from './mate.ts';
 import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
+import {
+  carryOrder,
+  giveOrder,
+  orderAcceptance,
+  orderCards,
+  orderChoices,
+  orderDue,
+  orderOptions,
+} from './order.ts';
 import { seedFromString } from './rng.ts';
 import { projected, runRoutine, suggestions } from './routine.ts';
 import { judgeStep, mapNode, slotCount, speciesBalance, stepChoices } from './step.ts';
@@ -21,7 +30,7 @@ import type {
  * 엔진 API — 일곱 개의 순수 함수 (엔진 원칙 1, 03-contracts 3장).
  *
  * M1 진행 중(#21): 단계표·장소·행동·옮기기와 판정 1·2·3(에너지 → 스탯 → 위험), 아사·포식 사망은
- * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)가 있고, 부화를 굴린다. 번식·계승·이벤트는 아직 없다.
+ * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·짝 지시(`mateOrder`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)가 있고, 부화를 굴린다. 번식·계승·이벤트는 아직 없다.
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
@@ -77,6 +86,7 @@ export function newRun(config: RunConfig, data: GameData): RunState {
 export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gameOver) return [];
   if (state.gate?.kind === 'mateCandidate') return mateChoices(state.gate.candidates);
+  if (state.gate?.kind === 'mateOrder') return orderChoices(state, data, state.gate.options);
   if (state.gate?.kind === 'nestSite') return nestChoices(state.gate.holes);
   if (state.gate?.kind === 'clutchSize') return clutchChoices(state.gate.options);
   // 루틴의 다음 빈 칸 — 앞 칸에 옮기기를 넣었으면 그 장소 기준 (03-contracts 3장 '행동 루틴')
@@ -97,8 +107,17 @@ function findChoice(state: RunState, choiceId: string, data: GameData): Choice {
  */
 export function preview(state: RunState, choiceId: string, data: GameData): Preview {
   findChoice(state, choiceId, data);
-  // 관문 고르기는 판정이 없다 — 위험·에너지 변화 없음
-  if (state.gate) return { deathRisk: 0, energyDelta: [0, 0], notes: [] };
+  // 관문 고르기는 판정이 없다 — 위험·에너지 변화 없음. 짝 지시는 화면용 수락률(2.5)
+  if (state.gate) {
+    const p =
+      state.gate.kind === 'mateOrder' ? orderAcceptance(state, data, choiceId, true) : undefined;
+    return {
+      deathRisk: 0,
+      energyDelta: [0, 0],
+      ...(p === undefined ? {} : { mateAcceptance: p }),
+      notes: [],
+    };
+  }
   const from = projected(state, data);
   const out = judgeStep(from, choiceId, data);
   const delta = out.energy - from.player.energy;
@@ -123,6 +142,7 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   if (state.gameOver) throw new Error('이미 끝난 런이다');
   findChoice(state, choiceId, data);
   if (state.gate?.kind === 'mateCandidate') return pickMate(state, choiceId, data);
+  if (state.gate?.kind === 'mateOrder') return pickOrder(state, choiceId, data);
   if (state.gate?.kind === 'nestSite') return pickNest(state, choiceId, data);
   if (state.gate?.kind === 'clutchSize') return pickClutch(state, choiceId, data);
   const filled = [...(state.routine ?? []), choiceId];
@@ -180,9 +200,22 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   return { state: { ...nextStep(survived, data), log: [...state.log, ...log] }, log };
 }
 
-/** 다음 단계로 (`period 1`이면 해 바뀜 처리까지). 둥지 국면을 벗어나면 둥지를 거둔다 */
+/**
+ * 다음 단계로 (`period 1`이면 해 바뀜 처리까지). 둥지 국면을 벗어나면 둥지를, 국면이 바뀌면 지시를 거둔다.
+ * 짝이 있는 둥지 국면의 첫 단계면 첫 칸보다 먼저 짝 지시 관문을 연다 (04-breeding 3.1)
+ */
 function nextStep(state: RunState, data: GameData): RunState {
-  return releaseNest(yearStart({ ...state, at: advance(state.at, state.calendar) }, data));
+  const moved = releaseNest(yearStart({ ...state, at: advance(state.at, state.calendar) }, data));
+  const next = carryOrder(state, moved, data);
+  if (!orderDue(next)) return next;
+  return { ...next, gate: { kind: 'mateOrder', options: orderOptions(next, data) } };
+}
+
+/** 짝 지시 관문을 닫는다 — 같은 단계에서 이어 칸을 고른다 (03-contracts 3장) */
+function pickOrder(state: RunState, choiceId: string, data: GameData): ActResult {
+  const given = giveOrder(state, choiceId, data);
+  const { gate: _g, ...closed } = given.state;
+  return { state: { ...closed, log: [...state.log, ...given.log] }, log: given.log };
 }
 
 /** 둥지 자리 관문을 닫고 다음 단계로 간다 (04-breeding 4장) */
@@ -254,6 +287,9 @@ export function getView(state: RunState, data: GameData): ViewModel {
     gameOver: state.gameOver,
     ...(state.gate?.kind === 'mateCandidate'
       ? { gate: { kind: state.gate.kind, cards: mateCards(data, state.gate.candidates) } }
+      : {}),
+    ...(state.gate?.kind === 'mateOrder'
+      ? { gate: { kind: state.gate.kind, cards: orderCards(state, data, state.gate.options) } }
       : {}),
     ...(state.gate?.kind === 'nestSite'
       ? { gate: { kind: state.gate.kind, cards: nestCards(data, state, state.gate.holes) } }

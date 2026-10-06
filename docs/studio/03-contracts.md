@@ -123,7 +123,8 @@ interface ViewModel {
   energyCap: number              // 에너지 상한(지방 상한, 01-formulas 2.1)
   totalBreeding: number          // 점수
   gameOver: boolean
-  gate?: { kind: 'mateCandidate', cards: MateCandidateCard[] }  // 열린 관문 — 지금은 짝 후보(S-20)만
+  gate?: { kind: 'mateCandidate', cards: MateCandidateCard[] }  // 열린 관문 — 짝 후보(S-20)
+       | { kind: 'mateOrder', cards: { choiceId, acceptance?: 'high' | 'mid' | 'low' }[] }  // 짝 지시 — 수락률은 등급만
   recentLog: LogEntry[]          // 최근 20건 — 이야기 피드
 }
 
@@ -143,6 +144,7 @@ interface MateCandidateCard {    // 신호만 — 실제 잠재력·성격은 �
 - 행동 `action.<행동>`(`forage` `rest` `social` `explore`), 훈련은 스탯마다 `action.train.<스탯>`(종 `aptitude`의 스탯마다 — 맨 `action.train`은 없다, #124), 이동 `move.<장소>`.
 - 짝 후보 관문의 선택지 id는 `mateCandidate.<n>`(카드 순서, 1부터). 관문은 그 단계의 흐름 끝에 열리고 **달력은 그 단계에 머문다** — 관문을 고르면 다음 단계로 간다. 고르기는 판정이 없어 `preview`는 위험 0·에너지 0이다.
 - 번식 관문(`04-breeding` 1장)의 `kind`: `mateCandidate` `mateOrder` `nestSite` `clutchSize` `parentingPolicy` `secondBrood`. **관문이 열려 있으면 `getChoices`는 관문의 선택지만** 준다. 짝 지시·육아 방침은 판정 1 전에 받고 같은 단계에서 이어 행동을 고른다. 나머지 관문은 단계 흐름의 끝에 열린다.
+- 짝 지시 관문의 선택지 id는 `mateOrder.none` · `mateOrder.<지시>` · `help.<도움>`(`breeding.json` `orders`·`help`의 키, 그 국면·성별에 맞는 것만). 짝이 있는 둥지 국면의 첫 단계에 **첫 칸보다 먼저** 열리고, 고르면 같은 단계의 칸으로 간다(달력 그대로). 불가능한 지시(`role: impossible`)는 `disabled`. `preview`의 `mateAcceptance`와 카드 등급은 성격 확인 전이면 `neutral`로 계산한 화면용 값. 로그 `order`(`deltas.acceptance`·`effect`, 거절이면 `cause: 'refused'`). `RunState.order`가 그 국면 동안 걸린다.
 - 둥지 국면 동안(둥지 자리 관문 뒤 ~ `nestling` 끝) `move.*`는 `disabled`("둥지를 떠날 수 없다").
 - **육아 방침은 선택지 하나에 여러 항목**을 담는다 — 잠정(#121), 관문 구현 때 확정: `Choice`에 `items: { item, options, current, locked? }[]`(`locked` = `postFledge` 조정에서 못 바꾸는 항목), `act(state, 'parentingPolicy?intensity=high&allocation=compete')` — 빠진 항목은 현재값(처음에는 기본값). 항목 이름은 `intensity` + `breeding.json` `parenting`의 키.
 
@@ -208,7 +210,8 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 ### 구현 상태 (M1 진행 중, #21)
 - 실제 규칙: 단계표(시기별 단계 수·국면) · 행동·훈련·옮기기 선택지 · 판정 1·2·3(에너지 → 스탯 → 위험, `00-core-loop` 3.1) · 아사(`starvation`)·포식(`predation`) 사망 · `period 1` 진입(나이·경험 +1, 노화, 단계표 초기화). 로그 `decision` · `death`. **짝 후보 관문**(`pairing` 첫 단계, 04-breeding 2.2~2.4 — 후보 생성·신호·상호 선택·1장이면 자동 진행), `RunState.mate`·`gate`, 로그 `mate`. 정규분포 표본은 `nextNormal`(Box–Muller, 균등 2개).
 - 잠정(#21): 지난 짝의 생존·이혼·재결합 카드(04-breeding 2.1)는 종 키(`mateYearSurvival`·`divorce`)가 생기면 — 그 전에는 해마다 새 후보만 나오고 고르면 짝이 바뀐다.
-- 아직 없음: 나머지 관문 · 짝 지시 · 번식 · 계승 · 점수 · 이벤트 · 환경 카드 · 계절 방침.
+- **짝 지시 관문**(04-breeding 3장 — 수락·거절 f·유대·성격 확인·짝 r·상호성은 `feedMate` 단계만). 효과: `patrol`(경쟁 확률) · `courtshipFeed`·`incubationFeed`(소비에서 뺌) · `feedMate`(소비 +) · `splitBrood`(새끼 사망). 잠정(#21): `guardNest`·`feedHigh`는 걸어 두기만 — 둥지 손실·은수저 조각에서.
+- 아직 없음: 육아 방침·2차 번식 관문 · 둥지 손실 · 은수저 · 계승 · 점수 · 이벤트 · 환경 카드 · 계절 방침.
 - 런 시작 개체의 잠재력 = 종 평균(`stats.aptitudeMean`), 현재값 = 잠재력 × `mate.candidateCurrentRatio`, 경험 연수 = `runStart.age`(05-inheritance 2장, #152). 잠정(#21): 런 시작 개체의 성장 배율 1.
 
 ---
