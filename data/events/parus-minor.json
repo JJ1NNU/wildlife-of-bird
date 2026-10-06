@@ -810,6 +810,44 @@
     "factCheck": "needs-review"
   },
   {
+    "id": "ev.parus-minor.cover-eggs",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["laying"],
+      "sex": "female",
+      "hasBrood": true
+    },
+    "weight": "common",
+    "title": "알을 덮고 나가기",
+    "body": "아직 품기 전의 알 몇 개가 둥지 바닥에 드러나 있다. 먹이를 찾으러 나갈 때가 됐다.",
+    "options": [
+      {
+        "id": "cover",
+        "text": "털과 이끼를 물어 와 알을 덮고 나간다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "go-now",
+        "text": "알을 그대로 두고 바로 먹이를 찾으러 간다",
+        "effects": [
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "박새는 알을 낳는 동안 둥지를 비울 때 알을 털 같은 둥지 재료로 덮는다. 포란을 시작하면 덮지 않는다. 핀란드 실험에서 둥지 자리를 엿보는 알락딱새가 가까이 있다고 느끼게 하자 털을 더 물어 와 알을 더 꼼꼼히 덮었다. 원래 기능은 추위에서 알을 지키는 것으로 추정된다. 덮지 않은 둥지가 더 많이 잃는지는 확인하지 못했다(게임의 선택). 유럽 박새 연구다.",
+    "sources": ["SRC-075"],
+    "factCheck": "needs-review"
+  },
+  {
     "id": "ev.parus-minor.snake-alarm-incubating",
     "species": ["parus-minor"],
     "when": {
@@ -1115,6 +1153,45 @@
     ],
     "ecologyBasis": "참새목 새는 새끼의 배설물 주머니와 둥지 속 기생충을 치운다. 위생을 지키고 포식자를 끌어들이는 흔적을 줄이는 기능이 제시된다. 박새의 청소 빈도는 확인하지 못했다.",
     "sources": ["SRC-038", "SRC-037"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.flea-nest",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["nestling"],
+      "sex": "male",
+      "hasMate": true,
+      "hasBrood": true
+    },
+    "weight": "uncommon",
+    "title": "벼룩이 많은 둥지",
+    "body": "둥지 바닥에 벼룩이 들끓는다. 새끼들이 여느 때보다 훨씬 자주, 크게 먹이를 조른다.",
+    "options": [
+      {
+        "id": "feed-more",
+        "text": "먹이 나르는 횟수를 크게 늘린다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      },
+      {
+        "id": "usual-pace",
+        "text": "하던 만큼만 나른다",
+        "effects": [
+          {
+            "type": "chickLoss",
+            "tier": "small"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "스위스 박새 둥지에 닭벼룩을 넣은 실험에서 새끼는 몸무게와 몸집이 작아졌고, 이소 전에 죽는 새끼가 늘어 이소 성공이 83%에서 53%로 떨어졌다. 벼룩이 있는 둥지의 새끼는 조르기를 두 배 넘게 했고, 수컷은 먹이 나르는 횟수를 50% 넘게 늘렸지만 암컷은 늘리지 않았다. 유럽 박새 연구다.",
+    "sources": ["SRC-076", "SRC-077"],
     "factCheck": "needs-review"
   },
   {
