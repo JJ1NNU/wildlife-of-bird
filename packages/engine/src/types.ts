@@ -337,8 +337,10 @@ export interface ViewModel {
   nest?: Nest;
   /** 루틴을 짜는 중일 때만 (관문 중에는 없음, 03-contracts 3장 '행동 루틴') */
   routine?: {
-    /** 이 단계의 칸 수 */
+    /** 이 단계의 칸 수 (평시는 스탯 합 문턱으로 7·8, 01-formulas 9.6) */
     slots: number;
+    /** 평시에 다음 칸까지 남은 스탯 합. 번식기·문턱을 모두 넘었으면 없음 */
+    nextSlotIn?: number;
     /** 이미 채운 칸의 선택 id */
     filled: string[];
     /** 남은 빈 칸마다 제안 id. null = 제안 없음 */

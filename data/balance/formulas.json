@@ -257,6 +257,10 @@
       "high": 0.015
     }
   },
+  "routine": {
+    "slotsBase": 6,
+    "extraSlotRatios": [0.9, 1.0]
+  },
   "events": {
     "chancePerStep": 0.4,
     "cooldownSteps": 12,
