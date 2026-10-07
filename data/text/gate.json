@@ -78,5 +78,7 @@
   "gate.parentingPolicy.label": "육아 방침",
   "gate.inheritance.label": "계승",
   "gate.secondBrood.label": "2차 번식",
+  "gate.event.label": "이벤트",
+  "gate.event.check": "{stat} 판정 {n}%",
   "gate.clutchSize.label": "산란수"
 }

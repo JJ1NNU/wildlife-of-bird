@@ -3,6 +3,7 @@ import {
   type CalendarAt,
   type Choice,
   type ClutchSizeCard,
+  type EventOptionCard,
   formatEnergyDelta,
   formatRisk,
   formatStatGain,
@@ -40,7 +41,8 @@ import { t } from './text.ts';
  * 화면만의 계획이고 "진행"에서 칸마다 `act`한다(#191). 칸 k의 예상은 1~k−1칸을 채운 상태에서 `preview`.
  * 진행하면 S-12 칸별 결과를 이어서 자동 재생한다(와이어프레임 mid/06 C): 칸마다 0.6초, 예상 옆에 실제, 사망 칸 ✕ → 확인 뒤 S-30.
  * 판정은 진행 때 한 번에 끝내고 저장한다 — 재생은 보여 주기만 하므로 새로고침해도 결과가 같다.
- * 이벤트가 나온 칸에서 재생 표가 끝나고, 고른 뒤 남은 칸을 다시 채운다(`view.routine.replan`). 잠정(#188): S-13 이벤트 시트.
+ * 이벤트가 나온 칸에서 재생 표가 끝나고, 고른 뒤 남은 칸을 다시 채운다(`view.routine.replan`).
+ * S-13 이벤트 카드(와이어프레임 mid/02 A): 제목·본문·선택지, 판정형은 "<스탯> 판정 N%". 효과 숫자·그림·시트 겹침은 잠정(#188).
  * 둥지가 있으면 판에 둥지 줄(알/새끼 수, 와이어프레임 mid/03 A의 둥지 띠 첫 조각) — 국면·둥지 손실%·짝·지시는 엔진이 내면(#21).
  * 이벤트 · 나머지 번식 관문 · 계승은 엔진이 그 선택을 내면 붙인다(#21).
  * 화면 문구는 data/text/*.json(콘텐츠)에서 `t()`로 읽는다. 개발용(빨리 감기·스탯 표)만 코드에 둔다.
@@ -326,6 +328,9 @@ export function Game({ data }: { data: GameData }) {
   const inheritChick = inherit?.cards[inheritIndex];
   const chickName = (i: number, card: InheritanceChickCard) =>
     `${ORDINAL[i] ?? `${i + 1}째`} ${SEX_MARK[card.sex]}`;
+  // S-13: 지금 이벤트의 글(제목·본문·선택지)은 data/events
+  const gateEvent =
+    view.gate?.kind === 'event' ? data.events.find((e) => e.id === view.gate?.id) : undefined;
   const gateId = policyCards ? (picked ?? 'parentingPolicy') : pickedChoice?.id;
   // 장소 등급은 종의 계절 구분(밸런스)을 따른다 — 엔진의 seasonOf와 같은 규칙
   const seasonPeriods = data.balance.get(view.speciesId)?.seasons;
@@ -725,6 +730,36 @@ export function Game({ data }: { data: GameData }) {
   }
 
   /** 2차 번식 카드 (와이어프레임 mid/04-inherit C): 한다 = 에너지 −n → 남는 값 · 대가 한 줄, 안 한다 = 털갈이 */
+  /** S-13 선택지 한 줄 — 판정형이면 스탯 판정 확률(정수 %, 와이어프레임 mid/02 A) */
+  function eventRow(card: EventOptionCard) {
+    const c = choices.find((x) => x.id === card.choiceId);
+    const option = gateEvent?.options.find((o) => `event.${o.id}` === card.choiceId);
+    return (
+      <li key={card.choiceId}>
+        <button
+          type="button"
+          className={`opt${card.choiceId === picked ? ' sel' : ''}`}
+          aria-pressed={card.choiceId === picked}
+          disabled={!!c?.disabled}
+          onClick={() => setPicked(card.choiceId)}
+          data-testid={`choice-${card.choiceId}`}
+        >
+          <span className="main">
+            <span className="b">{option?.text ?? c?.label ?? card.choiceId}</span>
+            {option?.check && card.chance !== undefined && (
+              <span className="cap">
+                {t('gate.event.check', {
+                  stat: STAT_WORD[option.check.stat],
+                  n: Math.round(card.chance * 100),
+                })}
+              </span>
+            )}
+          </span>
+        </button>
+      </li>
+    );
+  }
+
   function broodRow(card: SecondBroodCard) {
     const c = choices.find((x) => x.id === card.choiceId);
     const yes = card.energyCost > 0;
@@ -1043,6 +1078,12 @@ export function Game({ data }: { data: GameData }) {
             <li className="gate-title b">{t('gate.secondBrood.title')}</li>
             {broodWhy && <li className="gate-title muted small">{broodWhy}</li>}
             {view.gate.cards.map((card) => broodRow(card))}
+          </ul>
+        ) : view.gate?.kind === 'event' ? (
+          <ul className="list" aria-label={t('gate.event.label')} data-testid="gate-event">
+            <li className="gate-title b">{gateEvent?.title ?? view.gate.id}</li>
+            {gateEvent && <li className="gate-title muted small">{gateEvent.body}</li>}
+            {view.gate.cards.map((card) => eventRow(card))}
           </ul>
         ) : view.gate?.kind === 'clutchSize' ? (
           <ul
