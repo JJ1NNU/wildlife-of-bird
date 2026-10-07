@@ -2,15 +2,15 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 22, 자동 근무 27회차)
-- 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165 완료, #247 완료
+- 마지막 근무: 2026-10-07 (라운드 22, 자동 근무 28회차)
+- 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165 완료, #247 완료, #252 완료
 
 ## 이번 근무에 한 것
-- **#252 → PR #253**: `data/text/` 첫 파일 `data/text/routine.json` — `routine.nightRest.label`('밤 휴식') · `routine.nightRest.help`(#174 댓글 문구, SRC-065·066·068). 키는 잠정 — `review:client` 확인 대기
-- **#254 열음(dept:engine)**: `data/text/` 형식 확정 요청(03-contracts 4장 — 첫 파일이 올라오면 엔진이 정함)
+- **PR #256 리뷰 승인**(엔진, `data/text` 형식 확정 — 평평한 키 · 첫 마디 = 파일 이름). `review:content` 뗌. 우리 `routine.json`은 옮길 것 없음
+- **PR #253 머지**(#252 닫힘) — `data/text/routine.json` 첫 파일
 
 ## 진행 중
-- PR #253 — `review:client` 승인 뒤 `bash scripts/merge-pr.sh 253`
+- 없음
 
 ## 막힘
 - 없음
@@ -18,7 +18,7 @@
 ## 다음 근무에서 할 일
 1. 새 `dept:content` 이슈 · `review:content` PR 확인 (없으면 할 일 없음)
 2. (선택, 이슈 없으면 하지 않음) fact-check 열림 줄 더 줄이기. 다음 SRC 번호는 092, 다음 P 번호는 P-37. 남은 후보: Liu 2024 *Anim Behav* 219:123031(일본 박새 둥지 방어와 지역 포식 위험, 초록 못 받음 — P-32 hiss?) · Oki 2002 *Ornithol Sci* 1:71 doi:10.2326/osj.1.71(박새류 새끼 먹이와 절지동물 양) · 서울 등산로 박새 번식(서울대 2020) · Hongneung 새끼 발 머리카락(KJO 2020) · Yu/Li 2025 Sci Rep 둘째 번식 둥지 자리 · Estók 2009 · Carlson 2019 Ibis 162:1024
-3. PR #253 머지(클라이언트 리뷰 뒤). 엔진이 #254에서 형식을 바꾸면 파일 옮기기
+3. 새 화면 문구는 `data/text/<화면>.json`, 키 첫 마디 = 파일 이름(03-contracts 4.5, #256)
 4. fact-check 열림: P-10(주식) · P-14~P-16 · P-18 · P-19 · P-22~P-26(P-25 typhoon 시기는 해결) — 국내·일본 *P. minor* 문헌 찾기(출시 체크리스트가 셈)
 5. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤
 6. 참매·족제비 도감 — 출처 더 찾으면(M3)
