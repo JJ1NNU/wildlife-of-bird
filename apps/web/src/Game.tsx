@@ -43,36 +43,28 @@ import { t } from './text.ts';
  * 잠정(#188): 이벤트 칸에서 멈춤·이벤트 뒤 남은 칸 고치기(D)는 엔진이 이벤트·`replan`을 내면.
  * 둥지가 있으면 판에 둥지 줄(알/새끼 수, 와이어프레임 mid/03 A의 둥지 띠 첫 조각) — 국면·둥지 손실%·짝·지시는 엔진이 내면(#21).
  * 이벤트 · 나머지 번식 관문 · 계승은 엔진이 그 선택을 내면 붙인다(#21).
- * 잠정(#24): 화면 문구는 data/text/(콘텐츠)가 생기면 옮긴다.
+ * 화면 문구는 data/text/*.json(콘텐츠)에서 `t()`로 읽는다. 개발용(빨리 감기·스탯 표)만 코드에 둔다.
  */
 
 const SPECIES = 'parus-minor';
-const RISK_WORD = { low: '낮음', mid: '보통', high: '높음' } as const;
-const FOOD_WORD = {
-  scarce: '아주 적음',
-  low: '적음',
-  medium: '보통',
-  high: '많음',
-  rich: '아주 많음',
-};
-const COMPETITION_WORD = { none: '없음', low: '낮음', medium: '보통', high: '높음' };
-const STAT_WORD: Record<StatName, string> = {
-  flight: '비행',
-  foraging: '채식',
-  vigilance: '경계',
-  stamina: '체력',
-  display: '과시',
-  social: '사회',
-  navigation: '항법',
-};
+/** 스탯 이름 — 문구 data/text/word.json */
+const STAT_WORD = Object.fromEntries(
+  (['flight', 'foraging', 'vigilance', 'stamina', 'display', 'social', 'navigation'] as const).map(
+    (k) => [k, t(`word.stat.${k}`)],
+  ),
+) as Record<StatName, string>;
 /** 펼쳐 고르는 묶음: 선택 id 앞부분 → 묶음 줄 */
 const GROUPS = [
-  { key: 'train', prefix: 'action.train.', label: '훈련', icon: 'icon.action.train' },
-  { key: 'move', prefix: 'move.', label: '옮기기', icon: 'icon.action.move' },
+  {
+    key: 'train',
+    prefix: 'action.train.',
+    label: t('routine.group.train'),
+    icon: 'icon.action.train',
+  },
+  { key: 'move', prefix: 'move.', label: t('routine.group.move'), icon: 'icon.action.move' },
 ] as const;
 type GroupKey = (typeof GROUPS)[number]['key'];
-const RES_WORD: Record<string, string> = { energy: '에너지', feather: '깃털' };
-/** 관문 결정 버튼: [고른 뒤 앞말, 고르기 전] */
+const RES_WORD: Record<string, string> = { energy: t('main.energy'), feather: t('main.feather') };
 /** 관문 결정 버튼 글 — 문구 data/text/gate.json. 2차 번식·계승은 고른 선택지 글 그대로 */
 function gateGo(kind: string, label?: string): string {
   if (label === undefined)
@@ -111,7 +103,10 @@ const SEASON = [
 function periodLabel(at: CalendarAt): { text: string; season: string } {
   const month = Math.ceil(at.period / 2);
   return {
-    text: `${at.year}년차 ${month}월 ${at.period % 2 ? '상반' : '하반'}`,
+    text: t(at.period % 2 ? 'main.period.firstHalf' : 'main.period.secondHalf', {
+      year: at.year,
+      month,
+    }),
     season: SEASON[month - 1] ?? 'spring',
   };
 }
@@ -201,16 +196,30 @@ function reducedMotion(): boolean {
 
 function logLine(l: LogEntry): string {
   const d = deltaText(l.deltas, l.slot !== undefined);
-  const where = `${periodLabel(l.at).text} ${l.at.step}단계${l.slot ? ` ${l.slot}칸` : ''}`;
+  const where = `${periodLabel(l.at).text} ${t('main.step', { n: l.at.step })}${l.slot ? ` ${t('routine.slot', { n: l.slot })}` : ''}`;
   return `${where} — ${l.text}${d ? ` · ${d}` : ''}`;
 }
 
-/** S-30 가계도 한 줄 (05-inheritance 8장). 문구는 잠정(#24) — 콘텐츠가 data/text에 내면 따른다 */
+/** S-30 가계도 한 줄 (05-inheritance 8장) — 문구 data/text/gameOver.json */
 function lifeLine(r: LifeRecord, cause?: string): string {
-  const sex = r.sex === 'female' ? '암컷' : '수컷';
-  const span = `${periodLabel(r.start.at).text} ${r.start.age}세 ~ ${periodLabel(r.end.at).text} ${r.end.age}세`;
-  const end = r.reason === 'inherit' ? '계승' : `사망${cause ? `(${cause})` : ''}`;
-  return `${r.generation}세대 · ${sex} · ${span} · ${end} · 번식 ${r.breeding} · 독립 ${r.fledged}`;
+  return t('gameOver.life', {
+    generation: r.generation,
+    sex: t(`gameOver.life.${r.sex}`),
+    span: t('gameOver.life.span', {
+      start: periodLabel(r.start.at).text,
+      startAge: r.start.age,
+      end: periodLabel(r.end.at).text,
+      endAge: r.end.age,
+    }),
+    end:
+      r.reason === 'inherit'
+        ? t('gameOver.life.inherit')
+        : cause
+          ? t('gameOver.life.deathCause', { cause })
+          : t('gameOver.life.death'),
+    breeding: r.breeding,
+    fledged: r.fledged,
+  });
 }
 
 function startRun(data: GameData): RunState {
@@ -249,9 +258,9 @@ export function Game({ data }: { data: GameData }) {
     return (
       <main className="game" data-testid="title">
         <div className="over">
-          <h1>야생조류 키우기</h1>
+          <h1>{t('title.name')}</h1>
           {boot.problem && (
-            <p className="notice small">저장된 판을 불러오지 못했다 — {boot.problem}</p>
+            <p className="notice small">{t('title.loadFail', { problem: boot.problem })}</p>
           )}
           {saved && (
             <button
@@ -260,7 +269,7 @@ export function Game({ data }: { data: GameData }) {
               onClick={() => setOnTitle(false)}
               data-testid="continue"
             >
-              이어하기 · {periodLabel(saved.at).text}
+              {t('title.continue', { when: periodLabel(saved.at).text })}
             </button>
           )}
           <button
@@ -273,7 +282,7 @@ export function Game({ data }: { data: GameData }) {
             }}
             data-testid="new-run"
           >
-            새 판 시작
+            {t('title.new')}
           </button>
         </div>
       </main>
@@ -447,7 +456,7 @@ export function Game({ data }: { data: GameData }) {
         : (dest?.nameKo ?? c.label);
     const cap = [
       destSeason &&
-        `먹이 ${FOOD_WORD[destSeason.food]} · 경쟁 ${COMPETITION_WORD[destSeason.competition]}`,
+        `먹이 ${t(`word.food.${destSeason.food}`)} · 경쟁 ${t(`word.competition.${destSeason.competition}`)}`,
       gains,
       c.disabled?.reason,
       ...(p?.notes ?? []),
@@ -472,7 +481,8 @@ export function Game({ data }: { data: GameData }) {
           {p && risk && (
             <span className="vals">
               <span>
-                에너지 <b>{lo === hi ? energy1(lo) : `${energy1(lo)}~${energy1(hi)}`}</b>
+                {t('main.energy')}{' '}
+                <b>{lo === hi ? energy1(lo) : `${energy1(lo)}~${energy1(hi)}`}</b>
               </span>
               <span className="risk">
                 <span className="ico s" style={iconStyle('icon.risk')} />
@@ -492,7 +502,11 @@ export function Game({ data }: { data: GameData }) {
   function mateRow(card: MateCandidateCard, n: number) {
     const c = choices.find((x) => x.id === card.choiceId);
     const sex = view.player.sex === 'female' ? '♂' : '♀';
-    const age = <span className="muted small">{card.age <= 1 ? '1년생' : '성조'}</span>;
+    const age = (
+      <span className="muted small">
+        {t(card.age <= 1 ? 'gate.age.yearling' : 'gate.age.adult')}
+      </span>
+    );
     if (card.previous) {
       // 등급 범위는 3개까지, 넘치면 "… n개"로 접는다 (와이어프레임 mid/03 짝 후보)
       const ranges = Object.entries(card.potentialRange ?? {});
@@ -507,7 +521,7 @@ export function Game({ data }: { data: GameData }) {
           >
             <span className="main">
               <span className="b">
-                {sex} 지난 짝 {age}
+                {sex} {t('gate.mateCandidate.previous')} {age}
                 {card.bond && (
                   <span className="muted small">
                     {' '}
@@ -528,8 +542,8 @@ export function Game({ data }: { data: GameData }) {
               <span className="cap">성격: {t(`gate.personality.${card.hint}`)} (확인)</span>
             </span>
             <span className="vals">
-              <span>재결합</span>
-              <b>예</b>
+              <span>{t('gate.mateCandidate.reunion')}</span>
+              <b>{t('gate.yes')}</b>
             </span>
           </button>
         </li>
@@ -547,18 +561,19 @@ export function Game({ data }: { data: GameData }) {
         >
           <span className="main">
             <span className="b">
-              {sex} 후보 {n} {age}
+              {sex} {t('gate.mateCandidate.candidate', { n })} {age}
             </span>
             <span className="cap">
-              깃 선명도 <b>{card.plumage}</b> · 노래 <b>{card.song}</b>
+              {t('gate.mateCandidate.plumage')} <b>{card.plumage}</b> ·{' '}
+              {t('gate.mateCandidate.song')} <b>{card.song}</b>
             </span>
             <span className="cap">
               {[t(`gate.mateHint.${card.hint}`), c?.disabled?.reason].filter(Boolean).join(' · ')}
             </span>
           </span>
           <span className="vals">
-            <span>나를 받아들임</span>
-            <b>{card.accepts ? '예' : '아니오'}</b>
+            <span>{t('gate.mateCandidate.accepts')}</span>
+            <b>{t(card.accepts ? 'gate.yes' : 'gate.no')}</b>
           </span>
         </button>
       </li>
@@ -630,7 +645,11 @@ export function Game({ data }: { data: GameData }) {
             <span className="b">{c?.label ?? card.hole}</span>
             <span className="cap">
               {[
-                card.contestChance === undefined ? '다툼 없음' : '좋은 구멍은 다툰다 — 과시 판정',
+                t(
+                  card.contestChance === undefined
+                    ? 'gate.nestSite.noContest'
+                    : 'gate.nestSite.contest',
+                ),
                 c?.disabled?.reason,
               ]
                 .filter(Boolean)
@@ -639,7 +658,7 @@ export function Game({ data }: { data: GameData }) {
           </span>
           {card.contestChance !== undefined && (
             <span className="vals">
-              <span>차지할 확률</span>
+              <span>{t('gate.nestSite.chance')}</span>
               <b>{roundHalfUp(card.contestChance * 100)}%</b>
             </span>
           )}
@@ -662,13 +681,15 @@ export function Game({ data }: { data: GameData }) {
           data-testid={`choice-${card.choiceId}`}
         >
           <span className="main">
-            <span className="b">{c?.label ?? `알 ${card.eggs}개`}</span>
+            <span className="b">{c?.label ?? t('gate.clutchSize.eggs', { n: card.eggs })}</span>
             {c?.disabled && <span className="cap">{c.disabled.reason}</span>}
           </span>
           <span className="vals">
-            <span>산란 비용/단계</span>
+            <span>{t('gate.clutchSize.layingCost')}</span>
             <b>
-              {card.layingCost === 0 ? '없음' : `에너지 ${formatEnergyDelta(-card.layingCost)}`}
+              {card.layingCost === 0
+                ? t('gate.none')
+                : `${t('main.energy')} ${formatEnergyDelta(-card.layingCost)}`}
             </b>
           </span>
         </button>
@@ -693,19 +714,17 @@ export function Game({ data }: { data: GameData }) {
           <span className="main">
             <span className="b">{c?.label ?? card.choiceId}</span>
             {yes ? (
-              <span className="cap caution b">
-                털갈이 시기가 번식으로 바뀐다 — 겨울에 깃털이 모자랄 수 있다.
-              </span>
+              <span className="cap caution b">{t('gate.secondBrood.yesCost')}</span>
             ) : (
-              <span className="cap">털갈이로 넘어가 깃털을 회복한다.</span>
+              <span className="cap">{t('gate.secondBrood.noGain')}</span>
             )}
           </span>
           <span className="vals">
-            <span>에너지</span>
+            <span>{t('main.energy')}</span>
             <b>
               {yes
                 ? `${formatEnergyDelta(-card.energyCost)} → ${Math.max(0, roundHalfUp(view.player.energy - card.energyCost))}`
-                : '없음'}
+                : t('gate.none')}
             </b>
           </span>
         </button>
@@ -717,11 +736,11 @@ export function Game({ data }: { data: GameData }) {
   function orderRow(card: MateOrderCard) {
     const c = choices.find((x) => x.id === card.choiceId);
     const val = c?.disabled
-      ? '불가'
+      ? t('gate.mateOrder.unavailable')
       : card.acceptance
         ? t(`gate.grade.${card.acceptance}`)
         : card.choiceId.startsWith('help.')
-          ? '내가 한다'
+          ? t('gate.mateOrder.self')
           : undefined;
     return (
       <li key={card.choiceId}>
@@ -739,7 +758,7 @@ export function Game({ data }: { data: GameData }) {
           </span>
           {val && (
             <span className="vals">
-              <span>{card.acceptance ? '받아들일 가능성' : ''}</span>
+              <span>{card.acceptance ? t('gate.mateOrder.acceptance') : ''}</span>
               <b>{val}</b>
             </span>
           )}
@@ -760,23 +779,24 @@ export function Game({ data }: { data: GameData }) {
     return (
       <main className="game" data-testid="game-over">
         <div className="over">
-          <h1>여기까지</h1>
+          <h1>{t('gameOver.title')}</h1>
           <p className="muted">
             {when.text} · {view.player.age}세
           </p>
           {death && (
             <p className="cause" data-testid="death-cause">
-              죽은 이유 <b>{death.text}</b>
+              {t('gameOver.cause')} <b>{death.text}</b>
             </p>
           )}
           <p className="muted small">
-            {last && `마지막 행동: ${last.text} · `}남은 에너지 {roundHalfUp(view.player.energy)} /{' '}
+            {last && `${t('gameOver.lastAction', { text: last.text })} · `}
+            {t('gameOver.energyLeft')} {roundHalfUp(view.player.energy)} /{' '}
             {roundHalfUp(view.energyCap)}
           </p>
           <p className="score">
-            총 번식 <b>{view.totalBreeding}</b>
+            {t('main.totalBreeding')} <b>{view.totalBreeding}</b>
           </p>
-          <h2 className="small">가계도</h2>
+          <h2 className="small">{t('gameOver.familyTree')}</h2>
           <ol className="feed-list" data-testid="lineage">
             {state.log.flatMap((l) =>
               l.life
@@ -794,7 +814,7 @@ export function Game({ data }: { data: GameData }) {
             ))}
           </ul>
           <button type="button" className="btn prim" onClick={restart}>
-            새 판 시작
+            {t('title.new')}
           </button>
         </div>
       </main>
@@ -808,56 +828,55 @@ export function Game({ data }: { data: GameData }) {
           <div className="row small">
             <span className="ico s" style={iconStyle(`icon.season.${when.season}`)} />
             <span className="b">{when.text}</span>
-            <span className="muted">· {view.at.step}단계</span>
+            <span className="muted">· {t('main.step', { n: view.at.step })}</span>
             <span className="sp" />
             <span>
-              총 번식 <b>{view.totalBreeding}</b>
+              {t('main.totalBreeding')} <b>{view.totalBreeding}</b>
             </span>
           </div>
           <div className="row small">
             <span className="ico s" style={iconStyle('icon.res.energy')} />
             <span>
-              에너지 <b data-testid="energy">{roundHalfUp(shownEnergy)}</b>
+              {t('main.energy')} <b data-testid="energy">{roundHalfUp(shownEnergy)}</b>
               <span className="muted"> / {roundHalfUp(view.energyCap)}</span>
             </span>
             <span className="ico s" style={iconStyle('icon.res.feather')} />
             <span>
-              깃털 <b>{roundHalfUp(view.player.feather)}</b>
+              {t('main.feather')} <b>{roundHalfUp(view.player.feather)}</b>
             </span>
           </div>
         </header>
 
         {view.gate?.kind === 'mateCandidate' ? (
           <ul className="list" aria-label="짝 후보" data-testid="gate-mateCandidate">
-            <li className="gate-title b">짝 후보 — 한 마리를 고른다</li>
+            <li className="gate-title b">{t('gate.mateCandidate.title')}</li>
             {mateGone && <li className="gate-title muted small">{mateGone}</li>}
             {view.gate.cards.map((card, i) => mateRow(card, mateCards?.[0]?.previous ? i : i + 1))}
           </ul>
         ) : view.gate?.kind === 'nestSite' ? (
           <ul className="list" aria-label="둥지 자리" data-testid="gate-nestSite">
-            <li className="gate-title b">어디에 지을까 — 구멍 하나를 고른다</li>
+            <li className="gate-title b">{t('gate.nestSite.title')}</li>
             {view.gate.cards.map((card) => nestRow(card))}
-            <li className="gate-title muted small">
-              둥지를 지으면 새끼가 떠날 때까지 이 장소를 옮길 수 없다. 깊은 구멍을 못 차지하면 얕은
-              구멍에 짓는다.
-            </li>
+            <li className="gate-title muted small">{t('gate.nestSite.help')}</li>
           </ul>
         ) : view.gate?.kind === 'mateOrder' ? (
           <ul className="list" aria-label="짝 지시" data-testid="gate-mateOrder">
-            <li className="gate-title b">짝에게 맡길 일 — 하나를 고른다</li>
+            <li className="gate-title b">{t('gate.mateOrder.title')}</li>
             {view.gate.cards.map((card) => orderRow(card))}
-            <li className="gate-title muted small">
-              고른 지시는 이 국면이 끝날 때까지. 거절하면 짝은 다른 일을 한다 — 원래 효과의 일부만.
-            </li>
+            <li className="gate-title muted small">{t('gate.mateOrder.help')}</li>
           </ul>
         ) : view.gate?.kind === 'parentingPolicy' ? (
           <ul className="list" aria-label="육아 방침" data-testid="gate-parentingPolicy">
-            <li className="gate-title b">{policyAdjust ? '육아 방침 조정' : '육아 방침 정하기'}</li>
+            <li className="gate-title b">
+              {t(policyAdjust ? 'gate.parentingPolicy.adjustTitle' : 'gate.parentingPolicy.title')}
+            </li>
             {view.gate.cards.map((it, i) => (
               <li key={it.item} className={`pol${it.locked ? ' lock' : ''}`}>
                 <span className="lab small b">
                   {i + 1} {it.label}
-                  {it.locked && <span className="muted"> · 잠김</span>}
+                  {it.locked && (
+                    <span className="muted"> · {t('gate.parentingPolicy.locked')}</span>
+                  )}
                 </span>
                 <fieldset className="seg" aria-label={it.label}>
                   {it.options.map((o) => (
@@ -924,8 +943,8 @@ export function Game({ data }: { data: GameData }) {
                   <th>{t('inheritance.confirm.rowSurvival')}</th>
                   <td>{Math.round(inherit.stay.yearSurvival * 100)}%</td>
                   <td>
-                    {Math.round(inheritChick.yearSurvival * 100)}% · 첫 겨울 ×
-                    {inheritChick.firstWinter.toFixed(2)}
+                    {Math.round(inheritChick.yearSurvival * 100)}% ·{' '}
+                    {t('inheritance.chick.firstWinter')} ×{inheritChick.firstWinter.toFixed(2)}
                   </td>
                 </tr>
               </tbody>
@@ -978,17 +997,15 @@ export function Game({ data }: { data: GameData }) {
           </ul>
         ) : view.gate?.kind === 'secondBrood' ? (
           <ul className="list" aria-label="2차 번식" data-testid="gate-secondBrood">
-            <li className="gate-title b">한 번 더 둥지를 틀까?</li>
+            <li className="gate-title b">{t('gate.secondBrood.title')}</li>
             {broodWhy && <li className="gate-title muted small">{broodWhy}</li>}
             {view.gate.cards.map((card) => broodRow(card))}
           </ul>
         ) : view.gate?.kind === 'clutchSize' ? (
           <ul className="list" aria-label="산란수" data-testid="gate-clutchSize">
-            <li className="gate-title b">알을 몇 개 낳을까</li>
+            <li className="gate-title b">{t('gate.clutchSize.title')}</li>
             {view.gate.cards.map((card) => clutchRow(card))}
-            <li className="gate-title muted small">
-              많이 낳으면 이소할 새끼가 늘지만, 새끼 하나하나의 몫과 첫 겨울 생존이 준다.
-            </li>
+            <li className="gate-title muted small">{t('gate.clutchSize.help')}</li>
           </ul>
         ) : (
           <>
@@ -1000,12 +1017,12 @@ export function Game({ data }: { data: GameData }) {
                 {data.nodes.get(view.node)?.nameKo ?? view.node}
                 {view.nest && (
                   <div className="b" data-testid="nest-band">
-                    둥지 ·{' '}
+                    {t('main.nest')} ·{' '}
                     {view.nest.chicks !== undefined
-                      ? `새끼 ${view.nest.chicks}마리`
+                      ? t('main.nest.chicks', { n: view.nest.chicks })
                       : view.nest.eggs !== undefined
-                        ? `알 ${view.nest.eggs}개`
-                        : '알 낳기 전'}
+                        ? t('main.nest.eggs', { n: view.nest.eggs })
+                        : t('main.nest.beforeLaying')}
                   </div>
                 )}
               </div>
@@ -1058,18 +1075,18 @@ export function Game({ data }: { data: GameData }) {
               </div>
               <div className="sum">
                 <span>
-                  에너지 {roundHalfUp(view.player.energy)} →{' '}
+                  {t('main.energy')} {roundHalfUp(view.player.energy)} →{' '}
                   <b>{ready ? roundHalfUp(energyAfter.at(-1) ?? 0) : '—'}</b>
                 </span>
                 <span className="sp" />
-                <span>{slots.length}칸 합</span>
+                <span>{t('routine.sum', { n: slots.length })}</span>
                 {ready ? (
                   <span className={`risk ${sumBand.band}`} data-testid="routine-risk">
                     <span className="ico s" style={iconStyle('icon.risk')} />
-                    {sumBand.text} <span className="w">{RISK_WORD[sumBand.band]}</span>
+                    {sumBand.text} <span className="w">{t(`word.risk.${sumBand.band}`)}</span>
                   </span>
                 ) : (
-                  <span className="muted">빈 칸이 있다</span>
+                  <span className="muted">{t('routine.hasEmpty')}</span>
                 )}
               </div>
             </div>
@@ -1079,10 +1096,10 @@ export function Game({ data }: { data: GameData }) {
                 <table className="slot-table small" aria-label="칸별 결과">
                   <thead>
                     <tr>
-                      <th>칸</th>
-                      <th>행동</th>
-                      <th>예상</th>
-                      <th>실제</th>
+                      <th>{t('routine.table.slot')}</th>
+                      <th>{t('routine.table.action')}</th>
+                      <th>{t('routine.table.expected')}</th>
+                      <th>{t('routine.table.actual')}</th>
                       <th />
                     </tr>
                   </thead>
@@ -1108,8 +1125,11 @@ export function Game({ data }: { data: GameData }) {
                 {replayDone && (
                   <p className="small" data-testid="replay-total">
                     {replay.death
-                      ? `${replay.death.slot}칸에서 — ${replay.death.text}`
-                      : deltaText(replay.total?.deltas) || '변화 없음'}
+                      ? t('routine.replay.deathAt', {
+                          n: replay.death.slot ?? '',
+                          text: replay.death.text,
+                        })
+                      : deltaText(replay.total?.deltas) || t('routine.replay.noChange')}
                   </p>
                 )}
               </div>
@@ -1118,11 +1138,11 @@ export function Game({ data }: { data: GameData }) {
                 <table className="slot-table small" aria-label="칸별 예상">
                   <thead>
                     <tr>
-                      <th>칸</th>
-                      <th>행동</th>
-                      <th>에너지</th>
-                      <th>위험</th>
-                      <th>성장</th>
+                      <th>{t('routine.table.slot')}</th>
+                      <th>{t('routine.table.action')}</th>
+                      <th>{t('routine.table.energy')}</th>
+                      <th>{t('routine.table.risk')}</th>
+                      <th>{t('routine.table.growth')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1130,7 +1150,9 @@ export function Game({ data }: { data: GameData }) {
                       // biome-ignore lint/suspicious/noArrayIndexKey: 칸은 자리로 구분한다
                       <tr key={k}>
                         <td>{done + k + 1}</td>
-                        <td>{s.id ? labelOf(s) : <span className="muted">비었다</span>}</td>
+                        <td>
+                          {s.id ? labelOf(s) : <span className="muted">{t('routine.empty')}</span>}
+                        </td>
                         <td>
                           {s.preview &&
                             `${energy1(s.preview.energyDelta[0])} → ${roundHalfUp(energyAfter[k] ?? 0, 1).toFixed(1)}`}
@@ -1145,14 +1167,12 @@ export function Game({ data }: { data: GameData }) {
                     ))}
                   </tbody>
                 </table>
-                <p className="muted small">
-                  칸을 누르면 그 칸을 고친다. 고치는 탭은 결정이 아니다.
-                </p>
+                <p className="muted small">{t('routine.editHelp')}</p>
               </div>
             ) : (
               <ul className="list" aria-label={`${done + cursor + 1}칸 행동`}>
                 <li className="gate-title row small">
-                  <span className="b">{done + cursor + 1}칸</span>
+                  <span className="b">{t('routine.slot', { n: done + cursor + 1 })}</span>
                   {cursor > 0 && (
                     <span className="muted">
                       — {done + cursor}칸 뒤 에너지{' '}
@@ -1180,7 +1200,7 @@ export function Game({ data }: { data: GameData }) {
                   </button>
                 </li>
                 {!cursorSlot ? (
-                  <li className="gate-title muted small">앞의 빈 칸을 먼저 채운다.</li>
+                  <li className="gate-title muted small">{t('routine.fillPrevFirst')}</li>
                 ) : (
                   <>
                     {cursorChoices
@@ -1215,8 +1235,8 @@ export function Game({ data }: { data: GameData }) {
                                 {pickedHere
                                   ? pickedHere.label
                                   : g.key === 'move'
-                                    ? `갈 수 있는 곳 ${members.length}`
-                                    : '스탯 하나를 고른다'}
+                                    ? t('routine.group.moveHint', { n: members.length })
+                                    : t('routine.group.trainHint')}
                               </span>
                             </span>
                           </button>
@@ -1259,7 +1279,7 @@ export function Game({ data }: { data: GameData }) {
                   ? gateGo('parentingPolicy', '')
                   : gateGo('parentingPolicy')
                 : pickedPrevious
-                  ? '지난 짝과 다시'
+                  ? t('gate.mateCandidate.previousGo')
                   : inheritChick
                     ? t('inheritance.go.chick', { name: chickName(inheritIndex, inheritChick) })
                     : pickedChoice
@@ -1274,7 +1294,7 @@ export function Game({ data }: { data: GameData }) {
                 onClick={() => commit(replay.next)}
                 data-testid="replay-ok"
               >
-                확인
+                {t('routine.replay.ok')}
               </button>
             ) : (
               <>
@@ -1284,7 +1304,7 @@ export function Game({ data }: { data: GameData }) {
                   onClick={() => setPaused(!paused)}
                   data-testid="replay-pause"
                 >
-                  {paused ? '계속' : '멈춤'}
+                  {t(paused ? 'routine.replay.resume' : 'routine.replay.pause')}
                 </button>
                 <button
                   type="button"
@@ -1292,7 +1312,7 @@ export function Game({ data }: { data: GameData }) {
                   onClick={() => setShown(replay.rows.length)}
                   data-testid="replay-skip"
                 >
-                  끝까지 ▸▸
+                  {t('routine.replay.skip')}
                 </button>
               </>
             )
@@ -1303,7 +1323,7 @@ export function Game({ data }: { data: GameData }) {
               onClick={() => (ready ? go() : setCursor(slots.findIndex((s) => !s.id)))}
               data-testid="go"
             >
-              {ready ? '이 루틴으로 진행' : '빈 칸 채우기'}
+              {t(ready ? 'routine.go' : 'routine.fillEmpty')}
             </button>
           ) : (
             <>
@@ -1317,7 +1337,7 @@ export function Game({ data }: { data: GameData }) {
                 }}
                 data-testid="routine-reset"
               >
-                되돌리기
+                {t('routine.undo')}
               </button>
               <button
                 type="button"
@@ -1328,14 +1348,14 @@ export function Game({ data }: { data: GameData }) {
                 }}
                 data-testid="routine-view"
               >
-                루틴 보기
+                {t('routine.view')}
               </button>
             </>
           )}
         </div>
       </div>
 
-      <section className="feed" aria-label="지난 일">
+      <section className="feed" aria-label={t('main.feed')}>
         {SHOW_FAST_FORWARD && (
           <div className="dev small">
             <span className="muted">개발용 · 평균 봇으로</span>
