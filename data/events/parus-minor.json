@@ -2472,5 +2472,53 @@
     "ecologyBasis": "핀란드 북부와 스웨덴 남부의 박새는 몸깃 구조가 달랐다. 두 곳의 새를 같은 곳에서 먹이를 넉넉히 주며 털갈이시키자 차이가 사라졌고, 함께 털갈이한 어른 새도 같은 깃을 길렀다. 깃이 자라는 동안의 먹이 사정이 깃 구조를 정한다고 해석됐다. 트인 곳에서 위험이 오른다는 것은 게임의 선택이다. 핀란드·스웨덴 박새(P. major) 연구다.",
     "sources": ["SRC-085"],
     "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.hawk-over-fledglings",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["postFledge"],
+      "hasBrood": true
+    },
+    "weight": "uncommon",
+    "title": "숲 가장자리의 새매",
+    "body": "새매 한 마리가 숲 가장자리를 낮게 돌고 있다. 새끼들은 배가 고파 쉬지 않고 조르고, 먹이를 물고 오갈 때마다 새끼들이 있는 가지가 드러난다.",
+    "options": [
+      {
+        "id": "keep-feeding",
+        "text": "주위를 살피며 하던 대로 먹이를 나른다",
+        "check": {
+          "stat": "vigilance",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "statGain",
+            "stat": "vigilance",
+            "tier": "small"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "chickLoss",
+            "tier": "small"
+          }
+        ]
+      },
+      {
+        "id": "lead-into-forest",
+        "text": "새끼들을 숲 안쪽 빽빽한 가지로 이끈다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "스웨덴 숲의 박새에서 새매는 늦게 이소한 새끼를 일찍 이소한 새끼보다 더 많이 잡았고, 새끼가 7~12마리인 둥지에서 2~6마리인 둥지보다 더 많이 잡았다. 새매는 주로 숲 밖 트인 곳에서 사냥했다. 저자는 배고파 조르는 소리와 잦은 먹이 나르기가 새끼가 있는 곳을 새매에게 드러낼 수 있다고 보았다(추정). 숲 안쪽으로 옮기면 덜 잡히는지는 확인하지 못했다(게임의 선택). 유럽 박새 연구다.",
+    "sources": ["SRC-086"],
+    "factCheck": "needs-review"
   }
 ]
