@@ -194,7 +194,9 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
     return { state: { ...state, routine: filled }, log: [] };
 
   const { routine: _r, ...planned } = state;
-  const ran = runRoutine(planned, filled, data);
+  const routed = runRoutine(planned, filled, data);
+  // 부상은 판정 3을 받은 단계가 끝날 때 1 준다 — 이 단계 판정 뒤에 걸린 부상은 다음 단계부터 센다 (03-events 6.1 `injury`)
+  const ran = { ...routed, state: heal(routed.state) };
   const log = ran.log;
   if (ran.state.gameOver) return { state: { ...ran.state, log: [...state.log, ...log] }, log };
   // 둥지 손실: 둥지에 알·새끼가 있는 단계의 판정 3 다음 (01-formulas 3.2)
@@ -273,18 +275,22 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   return { state: { ...next.state, log: [...state.log, ...log] }, log };
 }
 
+/** 부상 1 감소, 0이면 지운다 (03-events 6.1 `injury`) */
+function heal(state: RunState): RunState {
+  const { injury, ...rest } = state;
+  return injury && injury > 1 ? { ...rest, injury: injury - 1 } : rest;
+}
+
 /**
- * 다음 단계로 (`period 1`이면 해 바뀜 처리까지). 시기가 바뀌면 시기 효과를 거두고, 부상은 1단계 준다. 둥지 국면을 벗어나면 둥지와 육아 방침을, 국면이 바뀌면 지시를 거둔다.
+ * 다음 단계로 (`period 1`이면 해 바뀜 처리까지). 시기가 바뀌면 시기 효과를 거둔다. 둥지 국면을 벗어나면 둥지와 육아 방침을, 국면이 바뀌면 지시를 거둔다.
  * 단계 시작 관문은 첫 칸보다 먼저 연다 — 짝 지시(04-breeding 3.1), 그다음 육아 방침(6.2)
  */
 function nextStep(state: RunState, data: GameData): ActResult {
   const at = advance(state.at, state.calendar);
   // `riskMod`·`foodMod`는 그 시기가 끝날 때 사라진다 (03-events 6.1)
-  const { periodMods, injury, ...rest } = state;
+  const { periodMods, ...rest } = state;
   const kept = at.period === state.at.period && periodMods ? { ...rest, periodMods } : rest;
-  // 부상은 단계마다 1 준다 (03-events 6.1 `injury`)
-  const healed = injury && injury > 1 ? { ...kept, injury: injury - 1 } : kept;
-  const year = yearStart({ ...healed, at }, data);
+  const year = yearStart({ ...kept, at }, data);
   const moved = releaseNest(year.state);
   const { parenting, ...carried } = carryOrder(state, moved, data);
   const next: RunState = carried.nest && parenting ? { ...carried, parenting } : carried;

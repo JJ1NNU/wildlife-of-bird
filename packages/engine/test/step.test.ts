@@ -153,13 +153,26 @@ describe('시기 효과 riskMod·foodMod (03-events 6.1, 01-formulas 2.3·3.1)',
 describe('부상 injury (03-events 6.1, 01-formulas 3.1)', () => {
   const slot = { ...example, stay: 11 };
 
-  it('부상 중이면 단계 위험 × injuryMult, 단계마다 1 줄어 0이면 사라진다', () => {
+  it('부상 중이면 단계 위험 × injuryMult', () => {
     const hit = preview({ ...slot, injury: 2 }, 'action.forage', data);
     expect(hit.deathRisk).toBeCloseTo(1 - (1 - 0.004155 * 1.3) ** (1 / 6), 6);
-    const molt = { ...example, at: { year: 1, period: 13, step: 1 }, injury: 2 };
-    const one = actStep(molt, 'action.forage', data).state;
-    expect(one.injury).toBe(1);
-    expect(actStep(one, 'action.forage', data).state.injury).toBeUndefined();
+  });
+
+  it('단계 k 판정 뒤 injury small(2) → k+1·k+2 판정에 배율, k+3부터 정상', () => {
+    const hurt = (s: RunState) => {
+      const { injury: _i, ...plain } = s;
+      return (
+        preview(s, 'action.forage', data).deathRisk >
+        preview(plain, 'action.forage', data).deathRisk
+      );
+    };
+    // `period 13` = molt (관문 없음). 단계 k에서 걸린 부상을 안고 k+1로 들어온 상태
+    const k1 = { ...example, at: { year: 1, period: 13, step: 1 }, injury: 2 };
+    expect(hurt(k1)).toBe(true);
+    const k2 = actStep(k1, 'action.forage', data).state;
+    expect(hurt(k2)).toBe(true);
+    const k3 = actStep(k2, 'action.forage', data).state;
+    expect(k3.injury).toBeUndefined();
   });
 });
 
