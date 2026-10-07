@@ -9,7 +9,7 @@ import type { Choice, LogEntry, Nest, NestSiteCard, RunState } from './types.ts'
  * 둥지 자리 관문 `nestSite` — 04-breeding 4장. `nestSite` 첫 단계, 흐름의 마지막에 열린다.
  * 둥지는 지금 장소에 짓고, 둥지 국면 동안 옮길 수 없다(1장).
  * 잠정(#21): 구멍별 둥지 손실 위험%(3.2)는 둥지 손실 조각에서.
- * 짝 없이 `nestSite`에 들어가면 관문을 열지 않는다 — 4.5 분할 해제는 그 조각에서.
+ * 짝 없이 `nestSite`에 들어가면 관문을 열지 않고 4.5대로 분할 해제한다(api.ts).
  */
 
 /** 둥지가 있는 동안 옮길 수 없는 국면 (1장 — `postFledge`부터 풀린다) */
