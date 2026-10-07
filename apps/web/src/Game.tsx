@@ -40,7 +40,7 @@ import { t } from './text.ts';
  * 화면만의 계획이고 "진행"에서 칸마다 `act`한다(#191). 칸 k의 예상은 1~k−1칸을 채운 상태에서 `preview`.
  * 진행하면 S-12 칸별 결과를 이어서 자동 재생한다(와이어프레임 mid/06 C): 칸마다 0.6초, 예상 옆에 실제, 사망 칸 ✕ → 확인 뒤 S-30.
  * 판정은 진행 때 한 번에 끝내고 저장한다 — 재생은 보여 주기만 하므로 새로고침해도 결과가 같다.
- * 잠정(#188): 이벤트 칸에서 멈춤·이벤트 뒤 남은 칸 고치기(D)는 엔진이 이벤트·`replan`을 내면.
+ * 이벤트가 나온 칸에서 재생 표가 끝나고, 고른 뒤 남은 칸을 다시 채운다(`view.routine.replan`). 잠정(#188): S-13 이벤트 시트.
  * 둥지가 있으면 판에 둥지 줄(알/새끼 수, 와이어프레임 mid/03 A의 둥지 띠 첫 조각) — 국면·둥지 손실%·짝·지시는 엔진이 내면(#21).
  * 이벤트 · 나머지 번식 관문 · 계승은 엔진이 그 선택을 내면 붙인다(#21).
  * 화면 문구는 data/text/*.json(콘텐츠)에서 `t()`로 읽는다. 개발용(빨리 감기·스탯 표)만 코드에 둔다.
@@ -179,13 +179,15 @@ interface ReplayRow {
   expect: number | undefined;
   actual: LogEntry | undefined;
   dead: boolean;
+  /** 이 칸 뒤 당첨된 단계 이벤트(`event` 줄) — 루틴이 여기서 멈춘다 */
+  event: LogEntry | undefined;
 }
 
 /** S-12 칸별 결과: 판정이 끝난 상태와 칸 줄. `shown`칸까지 보인다 */
 interface Replay {
   next: RunState;
   rows: ReplayRow[];
-  /** 루틴 합 변화(`decision` 줄) — 끝나면 성장 합 한 줄 */
+  /** 루틴 합 변화(`decision`, 다시 채우기면 `replan` 줄) — 끝나면 성장 합 한 줄 */
   total: LogEntry | undefined;
   death: LogEntry | undefined;
 }
@@ -334,7 +336,8 @@ export function Game({ data }: { data: GameData }) {
   // 루틴(관문·게임 오버가 아닐 때): 남은 칸의 계획과 칸마다 예상
   const plan = view.routine ? (edited ?? view.routine.suggested) : [];
   const slots = view.routine ? planSlots(state, plan, data) : [];
-  const done = view.routine?.filled.length ?? 0;
+  // 칸 번호는 단계 안의 절대값 — 이벤트 뒤 다시 채우기면 이미 한 칸(`paused.done`)부터 (03-contracts 3장)
+  const done = (state.paused?.done ?? 0) + (view.routine?.filled.length ?? 0);
   const ready = slots.length > 0 && slots.every((s) => s.id);
   // 요약 줄: 루틴 합 위험 1 − Π(1 − pₖ) — 띠는 합에만(#206)
   const sumRisk = 1 - slots.reduce((q, s) => q * (1 - (s.preview?.deathRisk ?? 0)), 1);
@@ -375,7 +378,8 @@ export function Game({ data }: { data: GameData }) {
 
   function commit(next: RunState) {
     // 칸 수 알림: 평시(6칸 이상)끼리 바뀔 때만 — 번식기 칸 나누기는 알리지 않는다
-    const from = state && getView(state, data).routine?.slots;
+    // 다시 채우기 중 `routine.slots`는 남은 칸 수라 멈춘 루틴의 칸 수와 비교한다
+    const from = state && (state.paused?.slots ?? getView(state, data).routine?.slots);
     const to = getView(next, data).routine?.slots;
     setSlotNote(from && to && from >= 6 && to >= 6 && from !== to ? { from, to } : undefined);
     saveRun(next);
@@ -402,14 +406,13 @@ export function Game({ data }: { data: GameData }) {
     let s = state;
     let log: LogEntry[] = [];
     for (const slot of slots) ({ state: s, log } = act(s, slot.id as string, data));
-    // 마지막 칸의 act가 루틴을 실행한다 — 그 로그가 decision → slot… → death
+    // 마지막 칸의 act가 루틴을 실행한다 — 그 로그가 decision(replan) → slot… → event | death
     saveRun(s);
     const death = log.find((l) => l.type === 'death');
-    setReplay({
-      next: s,
-      death,
-      total: log.find((l) => l.type === 'decision'),
-      rows: slots.map((sl, k) => {
+    const event = log.find((l) => l.type === 'event');
+    // 이벤트로 멈추면 그 칸까지만 — 남은 칸은 고른 뒤 다시 채운다
+    const rows = slots
+      .map((sl, k) => {
         const slot = done + k + 1;
         return {
           slot,
@@ -417,10 +420,17 @@ export function Game({ data }: { data: GameData }) {
           expect: sl.preview?.energyDelta[0],
           actual: log.find((l) => l.type === 'slot' && l.slot === slot),
           dead: death?.slot === slot,
+          event: event?.slot === slot ? event : undefined,
         };
-      }),
+      })
+      .filter((r) => !event?.slot || r.slot <= event.slot);
+    setReplay({
+      next: s,
+      death,
+      total: log.find((l) => l.type === 'decision' || l.type === 'replan'),
+      rows,
     });
-    setShown(reducedMotion() ? slots.length : 0);
+    setShown(reducedMotion() ? rows.length : 0);
     setPaused(false);
     setCursor(undefined);
     setOpen(undefined);
@@ -1147,13 +1157,16 @@ export function Game({ data }: { data: GameData }) {
                       return (
                         <tr key={r.slot} className={seen ? '' : 'muted'}>
                           <td>{r.slot}</td>
-                          <td>{r.label}</td>
+                          <td>
+                            {r.label}
+                            {seen && r.event && ` · ${r.event.text}`}
+                          </td>
                           <td>{r.expect !== undefined && energy1(r.expect)}</td>
                           <td>
                             {seen ? (r.actual ? energy1(r.actual.deltas?.energy ?? 0) : '—') : '…'}
                           </td>
                           <td className={seen && r.dead ? 'danger' : ''}>
-                            {seen ? (r.dead ? '✕' : r.actual ? '✓' : '') : ''}
+                            {seen ? (r.dead ? '✕' : r.event ? '!' : r.actual ? '✓' : '') : ''}
                           </td>
                         </tr>
                       );
