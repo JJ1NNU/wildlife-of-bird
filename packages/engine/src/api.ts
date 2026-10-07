@@ -274,11 +274,15 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
 }
 
 /**
- * 다음 단계로 (`period 1`이면 해 바뀜 처리까지). 둥지 국면을 벗어나면 둥지와 육아 방침을, 국면이 바뀌면 지시를 거둔다.
+ * 다음 단계로 (`period 1`이면 해 바뀜 처리까지). 시기가 바뀌면 시기 효과를 거둔다. 둥지 국면을 벗어나면 둥지와 육아 방침을, 국면이 바뀌면 지시를 거둔다.
  * 단계 시작 관문은 첫 칸보다 먼저 연다 — 짝 지시(04-breeding 3.1), 그다음 육아 방침(6.2)
  */
 function nextStep(state: RunState, data: GameData): ActResult {
-  const year = yearStart({ ...state, at: advance(state.at, state.calendar) }, data);
+  const at = advance(state.at, state.calendar);
+  // `riskMod`·`foodMod`는 그 시기가 끝날 때 사라진다 (03-events 6.1)
+  const { periodMods, ...rest } = state;
+  const kept = at.period === state.at.period && periodMods ? { ...rest, periodMods } : rest;
+  const year = yearStart({ ...kept, at }, data);
   const moved = releaseNest(year.state);
   const { parenting, ...carried } = carryOrder(state, moved, data);
   const next: RunState = carried.nest && parenting ? { ...carried, parenting } : carried;

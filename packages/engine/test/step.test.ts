@@ -116,6 +116,40 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
   });
 });
 
+describe('시기 효과 riskMod·foodMod (03-events 6.1, 01-formulas 2.3·3.1)', () => {
+  const mods: RunState['periodMods'] = {
+    risk: ['high'],
+    food: [
+      { tier: 'medium', sign: 'loss' },
+      { tier: 'medium', sign: 'loss' },
+    ],
+  };
+  const slot = { ...example, stay: 11 };
+
+  it('riskMod high는 단계 위험 × 2, foodMod medium loss 두 번은 섭취 × 0.49', () => {
+    const energy = (m?: RunState['periodMods']) =>
+      preview({ ...slot, ...(m ? { periodMods: m } : {}) }, 'action.forage', data);
+    const plain = energy();
+    const hit = energy(mods);
+    expect(hit.deathRisk).toBeCloseTo(1 - (1 - 0.004155 * 2) ** (1 / 6), 6);
+    // 소비는 같고 섭취만 준다: 줄어든 에너지의 비 = (1 − 0.49) : (1 − 0.5)
+    const half = energy({ risk: [], food: [{ tier: 'large', sign: 'loss' }] });
+    const lost = (p: typeof plain) => (plain.energyDelta[0] ?? 0) - (p.energyDelta[0] ?? 0);
+    expect(lost(hit) / lost(half)).toBeCloseTo(0.51 / 0.5, 6);
+  });
+
+  it('같은 시기 안에서는 남고, 시기가 바뀌면 사라진다', () => {
+    // `period 13` = molt 2단계 (관문 없음)
+    const molt = { ...example, at: { year: 1, period: 13, step: 1 }, periodMods: mods };
+    const same = actStep(molt, 'action.forage', data).state;
+    expect(same.at).toMatchObject({ period: 13, step: 2 });
+    expect(same.periodMods).toEqual(mods);
+    const next = actStep(same, 'action.forage', data).state;
+    expect(next.at.period).toBe(14);
+    expect(next.periodMods).toBeUndefined();
+  });
+});
+
 describe('칸 수 스탯 (01-formulas 9.6)', () => {
   /** 박새 스탯을 모두 종 평균 잠재력 × r 로 — 스탯 합 ÷ 348 = r */
   const at = (r: number, period: number) => {

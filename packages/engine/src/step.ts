@@ -6,11 +6,13 @@ import {
   deathRisk,
   expenditure,
   fatCap,
+  foodModFactor,
   forageEfficiency,
   growthMult,
   intake,
   nextEnergy,
   nextFeather,
+  riskModFactor,
   seasonOf,
   statGain,
 } from './formulas.ts';
@@ -167,6 +169,11 @@ function orderCost(state: RunState, data: GameData): number {
   return cost;
 }
 
+/** 그 시기에 걸린 `riskMod`의 곱 (01-formulas 3.1 · 3.2 위험 보정). 없으면 1 */
+export function periodRiskFactor(state: RunState, data: GameData): number {
+  return riskModFactor(data.effects.riskMod, state.periodMods?.risk ?? []);
+}
+
 /** 칸 하나의 판정 1·2·3을 계산한다. 난수 없음 */
 export function judgeStep(
   state: RunState,
@@ -188,7 +195,7 @@ export function judgeStep(
   const gained = intake(f, {
     food: tiers.food,
     competition: tiers.competition,
-    foodModFactor: 1,
+    foodModFactor: foodModFactor(data.effects.foodMod, state.periodMods?.food ?? []),
     efficiency: forageEfficiency(f, stat('foraging'), p.expYears),
     action,
     // 9.4: 고갈은 연속 체류 ÷ 칸 수 — 같은 시간 머물면 단계 때와 같은 만큼 준다
@@ -238,8 +245,8 @@ export function judgeStep(
     phase,
     season,
     action,
-    // 잠정(#21): 이벤트·환경의 `riskMod`는 그 조각에서 — 지금은 육아 방침 `quality`만
-    riskModFactor: playerRiskMult(state, data),
+    // 위험 보정 = 그 시기의 이벤트·환경 `riskMod` × 육아 방침 `quality`
+    riskModFactor: periodRiskFactor(state, data) * playerRiskMult(state, data),
     vigilance: stats.vigilance ?? 0,
     flight: stats.flight ?? 0,
     expYears: p.expYears,
