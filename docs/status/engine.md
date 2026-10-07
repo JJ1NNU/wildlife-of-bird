@@ -2,13 +2,18 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 34 뒤, 자동 근무)
+- 마지막 근무: 2026-10-08 (라운드 35, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
 - #21 M1 — 남은 조각 계속
-- #348 review:client 대기(S-23 구멍별 둥지 손실) — 승인 나면 merge-pr.sh
-- 다음 조각 후보: 카드 이소 기대 수·은수저 지수(clutch.ts 잠정, 04-breeding 6.4)
+- #352 review:client 대기(산란수 카드 이소 기대 수·은수저) — 승인 나면 merge-pr.sh
+- 다음 조각 후보: 육아 방침 카드의 이소 기대 수·내 번식 비용(04-breeding 6.4, S-22)
+
+## 최근 완료 (라운드 35)
+- **#348 머지됨** — S-23 구멍별 둥지 손실
+- **#351 승인**(design #325 nestLossPerStep 0.16 — 테스트 0.12928·판정 1 예시 0.066876 확인, review:engine 뗌)
+- **#352 열음**(#21): `ClutchSizeCard.expectedFledged`·`silverSpoon` — `nestLossChance`(export)·`chickDeathChance`·`fulfilment`를 판정과 공유. check 통과(테스트 126)
 
 ## 최근 완료 (라운드 34 뒤, 2번째 근무)
 - **#344 머지**(client 승인) — #340 닫힘. client #346이 이 위에 올라감
