@@ -183,7 +183,7 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
       log,
     };
   }
-  const survived = failed ? endBreeding(raised.state) : raised.state;
+  let survived = failed ? endBreeding(raised.state) : raised.state;
 
   // 흐름의 마지막: 관문 (00-core-loop 4.6). 열리면 이 단계에 머문다
   if (isPhaseStart(state.calendar, state.at, 'pairing')) {
@@ -204,6 +204,11 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
       return { state: picked.state, log: [...log, ...picked.log] };
     }
     return { state: opened, log };
+  }
+  // 짝 없이 `nestSite`에 들어오면 그 해의 번식은 없다 — 분할 해제 (00-core-loop 4.6 · 4.5)
+  if (!survived.mate && isPhaseStart(state.calendar, state.at, 'nestSite')) {
+    survived = endBreeding(survived);
+    log.push({ at: state.at, type: 'brood', text: '짝이 없어 올해는 번식하지 않는다' });
   }
   // 둥지 자리: 짝이 있을 때만 (04-breeding 4장)
   if (survived.mate && isPhaseStart(state.calendar, state.at, 'nestSite')) {
