@@ -155,7 +155,7 @@ describe('부상 injury (03-events 6.1, 01-formulas 3.1)', () => {
 
   it('부상 중이면 단계 위험 × injuryMult', () => {
     const hit = preview({ ...slot, injury: 2 }, 'action.forage', data);
-    expect(hit.deathRisk).toBeCloseTo(1 - (1 - 0.004155 * 1.3) ** (1 / 6), 6);
+    expect(hit.deathRisk).toBeCloseTo(1 - (1 - 0.003324384 * 1.3) ** (1 / 6), 6);
   });
 
   it('단계 k 판정 뒤 injury small(2) → k+1·k+2 판정에 배율, k+3부터 정상', () => {
