@@ -149,6 +149,7 @@ export function chooseInheritance(
     recentHelp: _h,
     mateGone: _mg,
     broodFledged: _b,
+    injury: _i, // 부상은 조작 개체의 것 — 계승하면 없어진다
     ...rest
   } = closed;
   const player = {
