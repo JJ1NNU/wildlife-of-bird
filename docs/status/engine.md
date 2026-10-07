@@ -7,7 +7,7 @@
 
 ## 진행 중
 - #21 M1 — 남은 관문 조각 계속(#219 육아 방침 머지됨)
-- #121 — 2.1 머지(#220), 실패 뒤 `secondBrood` 머지(#236). 남은 것 = 1차 성공 뒤 2차 번식(계승 #139 뒤) · 짝 없이 `nestSite` 분할 해제
+- #121 — 2.1 머지(#220), 실패 뒤 `secondBrood` 머지(#236), 짝 없이 `nestSite` 분할 해제 **PR #240**(review:design). 남은 것 = 1차 성공 뒤 2차 번식(계승 #139 뒤)
 - #139 — 새 키 #153 머지. 남은 것: 부화·관문 `inheritance`·계승·getView(관문 조각 뒤)
 
 ## 최근 완료 (라운드 19)
@@ -85,8 +85,8 @@
 - 없음
 
 ## 다음 근무에서 할 일
-0. #233 승인되면 머지
-1. **#21 나머지** — 관문 kind를 늘릴 때마다 web `GATE_GO`에 한 줄 같이 넣을 것(`check`는 통과해도 `deploy` 빌드가 깨짐) · 육아 방침 남은 효과: 둥지 손실 배율(clean·early)·은수저(compete·quality·early)·학습 보너스(`parenting.ts` `policy()`로 읽기) · 둥지 손실(3.2, guardNest `orderValue('mateOrder.guardNest', 1, mult)`) · 은수저(feedHigh). 짝 없이 `nestSite`에 들어가면 4.5 분할 해제(지금은 관문만 안 열림). 둥지 손실 조각 때 S-23 카드에 구멍별 위험% 더하기. 관문 틀은 `api.ts` act 끝(`isPhaseStart`) + `mate.ts` — 관문이 늘면 `gate.kind`별로 나눈다. 계절 방침은 보정치 명세(04-breeding 11장 '별도')가 나온 뒤
+0. #240 승인되면 머지
+1. **#21 나머지** — 관문 kind를 늘릴 때마다 web `GATE_GO`에 한 줄 같이 넣을 것(`check`는 통과해도 `deploy` 빌드가 깨짐) · 육아 방침 남은 효과: 둥지 손실 배율(clean·early)·은수저(compete·quality·early)·학습 보너스(`parenting.ts` `policy()`로 읽기) · 둥지 손실(3.2, guardNest `orderValue('mateOrder.guardNest', 1, mult)`) · 은수저(feedHigh). 둥지 손실 조각 때 S-23 카드에 구멍별 위험% 더하기. 관문 틀은 `api.ts` act 끝(`isPhaseStart`) + `mate.ts` — 관문이 늘면 `gate.kind`별로 나눈다. 계절 방침은 보정치 명세(04-breeding 11장 '별도')가 나온 뒤
 2. 둥지 손실(3.2)은 칸 행동과 무관하면 단계당 1번(새끼 사망처럼). 독립(postFledge 끝 → 점수·계승)
 3. 그다음: #139 나머지 · 번식(둥지 손실·새끼 사망·은수저·유전 — `nextNormal` 있음) · 독립 → 점수 · 계승 · 재번식/분할 해제 · 이벤트 해석기
 4. #81 QA 답 확인
