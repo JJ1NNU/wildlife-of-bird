@@ -10,7 +10,6 @@ import type { Choice, LogEntry, Nest, NestSiteCard, RunState } from './types.ts'
 /**
  * 둥지 자리 관문 `nestSite` — 04-breeding 4장. `nestSite` 첫 단계, 흐름의 마지막에 열린다.
  * 둥지는 지금 장소에 짓고, 둥지 국면 동안 옮길 수 없다(1장).
- * 잠정(#21): S-23 카드의 구멍별 둥지 손실 위험%(3.2)는 아직 없다.
  * 짝 없이 `nestSite`에 들어가면 관문을 열지 않고 4.5대로 분할 해제한다(api.ts).
  */
 
@@ -74,11 +73,12 @@ export function nestChoices(holes: string[]): Choice[] {
   }));
 }
 
-/** 화면 S-23 카드 — 경쟁 구멍이면 차지할 확률 */
+/** 화면 S-23 카드 — 구멍마다 둥지 손실 위험(4장), 경쟁 구멍이면 차지할 확률 */
 export function nestCards(data: GameData, state: RunState, holes: string[]): NestSiteCard[] {
   return holes.map((id) => ({
     choiceId: `nestSite.${id}`,
     hole: id,
+    nestLoss: nestLossChance(state, data, id),
     ...(data.breeding.nestSite.holes[id]?.contested
       ? { contestChance: contestChance(data, state) }
       : {}),
@@ -118,6 +118,24 @@ export function buildNest(
 }
 
 /**
+ * 둥지 손실 확률 1단계분 (04-breeding 6.3): 3.2 × 구멍 · `guardNest` · 육아 방침 배율. 난수 없음.
+ * 위험 보정은 지금 시기의 `riskMod` — S-23 카드(`nestSite` 국면)에서는 지시·방침 배율이 아직 1이다.
+ */
+function nestLossChance(state: RunState, data: GameData, site: string): number {
+  const guard = data.breeding.orders.guardNest?.nestLossMult ?? 1;
+  return (
+    nestLoss(data.formulas, speciesBalance(data, state.config.speciesId), {
+      vigilance: state.player.stats.vigilance ?? 0,
+      ...(state.mate ? { mateVigilance: state.mate.stats.vigilance ?? 0 } : {}),
+      riskModFactor: periodRiskFactor(state, data),
+    }) *
+    (data.breeding.nestSite.holes[site]?.nestLossMult ?? 1) *
+    orderValue(state, 'mateOrder.guardNest', 1, guard) *
+    parentingNestLossMult(state, data)
+  );
+}
+
+/**
  * 둥지 손실 — 알이나 새끼가 둥지에 있는 단계(`laying` `incubation` `nestling`)마다 1번(01-formulas 3.2).
  * 확률이 칸의 행동과 무관해 단계당 1번 굴린다(새끼 사망과 같은 까닭, 9.4). 알은 산란수 관문 뒤에 생기므로
  * `laying` 첫 단계에는 굴리지 않는다. 구멍 · 짝 지시 `guardNest` · 육아 방침(`clean`·`early`)의 배율을 건다(04-breeding 6.3).
@@ -132,17 +150,7 @@ export function nestSurvives(
   if (!nest || nest.eggs === undefined || !NEST_PHASES.includes(phase) || phase === 'nestSite') {
     return { state, log: [] };
   }
-  const guard = data.breeding.orders.guardNest?.nestLossMult ?? 1;
-  const p =
-    nestLoss(data.formulas, speciesBalance(data, state.config.speciesId), {
-      vigilance: state.player.stats.vigilance ?? 0,
-      ...(state.mate ? { mateVigilance: state.mate.stats.vigilance ?? 0 } : {}),
-      riskModFactor: periodRiskFactor(state, data),
-    }) *
-    (data.breeding.nestSite.holes[nest.site]?.nestLossMult ?? 1) *
-    orderValue(state, 'mateOrder.guardNest', 1, guard) *
-    parentingNestLossMult(state, data);
-  const r = nextChance(state.rng, p);
+  const r = nextChance(state.rng, nestLossChance(state, data, nest.site));
   if (!r.value) return { state: { ...state, rng: r.state }, log: [] };
   const { nest: _n, ...rest } = state;
   return {
