@@ -8,6 +8,7 @@ import {
   formatStatGain,
   getChoices,
   getView,
+  type InheritanceChickCard,
   type LogEntry,
   type MateCandidateCard,
   type MateOrderCard,
@@ -108,6 +109,20 @@ const MATE_GONE: Record<string, string> = {
   mateDeath: '지난 짝은 겨울을 넘기지 못했어요',
   divorce: '지난 짝이 떠났어요',
 };
+/** 새끼 부화 순서 → 이름 (와이어프레임 mid/04-inherit A) */
+const ORDINAL = [
+  '첫째',
+  '둘째',
+  '셋째',
+  '넷째',
+  '다섯째',
+  '여섯째',
+  '일곱째',
+  '여덟째',
+  '아홉째',
+  '열째',
+];
+const SEX_MARK = { female: '♀', male: '♂' } as const;
 const SEASON = [
   'winter',
   'winter',
@@ -238,6 +253,8 @@ export function Game({ data }: { data: GameData }) {
   const [cursor, setCursor] = useState<number>();
   /** 진행 직후 S-12 재생. 확인을 누르면 `next`로 넘어간다 */
   const [replay, setReplay] = useState<Replay>();
+  /** S-24: 새끼를 고르고 결정을 누르면 확인 시트를 한 번 더 (docs/ux/screens.md 3장) */
+  const [confirming, setConfirming] = useState(false);
   const [shown, setShown] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -310,6 +327,12 @@ export function Game({ data }: { data: GameData }) {
   );
   const policyChanged = (policyCards ?? []).some((c) => policyValues[c.item] !== c.current);
   const policyAdjust = (policyCards ?? []).some((c) => c.locked);
+  // S-24: 고른 새끼 카드와 이름(부화 순서)
+  const inherit = view.gate?.kind === 'inheritance' ? view.gate : undefined;
+  const inheritIndex = inherit?.cards.findIndex((c) => c.choiceId === picked) ?? -1;
+  const inheritChick = inherit?.cards[inheritIndex];
+  const chickName = (i: number, card: InheritanceChickCard) =>
+    `${ORDINAL[i] ?? `${i + 1}째`} ${SEX_MARK[card.sex]}`;
   const gateId = policyCards ? (picked ?? 'parentingPolicy') : pickedChoice?.id;
   // 장소 등급은 종의 계절 구분(밸런스)을 따른다 — 엔진의 seasonOf와 같은 규칙
   const seasonPeriods = data.balance.get(view.speciesId)?.seasons;
@@ -367,12 +390,16 @@ export function Game({ data }: { data: GameData }) {
     setEdited(undefined);
     setCursor(undefined);
     setReplay(undefined);
+    setConfirming(false);
   }
 
   function go() {
     if (!state) return;
     if (view.gate) {
-      if (gateId) commit(act(state, gateId, data).state);
+      if (!gateId) return;
+      // 계승은 되돌릴 수 없다 — 확인 시트를 거친다 (잔류는 바로)
+      if (inheritChick && !confirming) return setConfirming(true);
+      commit(act(state, gateId, data).state);
       return;
     }
     // 칸마다 act — 마지막 칸을 채우면 엔진이 루틴을 실행한다
@@ -548,6 +575,54 @@ export function Game({ data }: { data: GameData }) {
           <span className="vals">
             <span>나를 받아들임</span>
             <b>{card.accepts ? '예' : '아니오'}</b>
+          </span>
+        </button>
+      </li>
+    );
+  }
+
+  /** 잠재력 등급 범위 — 위 등급이 높은 순. `limit`이면 강한 것만 그만큼 (mid/04-inherit A) */
+  function potentialRanges(card: InheritanceChickCard, limit?: number) {
+    const order: string[] = data.formulas.stats.grades.map((g) => g.grade);
+    const ranges = Object.entries(card.potentialRange).sort(
+      ([, a], [, b]) => order.indexOf(b?.[1] ?? '') - order.indexOf(a?.[1] ?? ''),
+    );
+    const shown = limit ? ranges.slice(0, limit) : ranges;
+    return (
+      <span className="cap">
+        {shown.map(([stat, r]) => (
+          <span key={stat}>
+            {STAT_WORD[stat as StatName]} <b>{r?.[0]}</b>~<b>{r?.[1]}</b>{' '}
+          </span>
+        ))}
+        {shown.length < ranges.length && <span className="muted">… {ranges.length}개</span>}
+      </span>
+    );
+  }
+
+  /** S-24 새끼 카드: 성별 · 1년 생존(정수 %) · 은수저·첫 겨울 배율(소수 둘째) · 잠재력 범위 — 05-inheritance 5장 */
+  function chickRow(card: InheritanceChickCard, i: number) {
+    const sel = card.choiceId === picked;
+    return (
+      <li key={card.choiceId}>
+        <button
+          type="button"
+          className={`opt${sel ? ' sel' : ''}`}
+          aria-pressed={sel}
+          onClick={() => setPicked(card.choiceId)}
+          data-testid={`choice-${card.choiceId}`}
+        >
+          <span className="main">
+            <span className="b">{chickName(i, card)}</span>
+            <span className="cap">
+              은수저 <b>{card.silverSpoon.toFixed(2)}</b> · 첫 겨울 위험{' '}
+              <b>×{card.firstWinter.toFixed(2)}</b>
+            </span>
+            {potentialRanges(card, sel ? undefined : 2)}
+          </span>
+          <span className="vals">
+            <span>1년 생존</span>
+            <b>{Math.round(card.yearSurvival * 100)}%</b>
           </span>
         </button>
       </li>
@@ -810,6 +885,97 @@ export function Game({ data }: { data: GameData }) {
               </li>
             ))}
           </ul>
+        ) : inherit && confirming && inheritChick ? (
+          <div className="list" data-testid="inherit-confirm">
+            <p className="gate-title b">
+              {chickName(inheritIndex, inheritChick)}로 계승할까?{' '}
+              <span className="caution">되돌릴 수 없다</span>
+            </p>
+            <table className="compare small">
+              <thead>
+                <tr>
+                  <th />
+                  <th>지금 개체</th>
+                  <th>{chickName(inheritIndex, inheritChick)}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>나이</th>
+                  <td>{inherit.stay.age}세</td>
+                  <td className="caution">0세 · 처음부터</td>
+                </tr>
+                <tr>
+                  <th>스탯</th>
+                  <td>지금 값</td>
+                  <td className="caution">낮게 시작</td>
+                </tr>
+                <tr>
+                  <th>잠재력</th>
+                  <td>지금 그대로</td>
+                  <td>새끼의 것</td>
+                </tr>
+                <tr>
+                  <th>짝 · 유대</th>
+                  <td>
+                    {inherit.stay.bond !== undefined ? `있음 · ${inherit.stay.bond}` : '없음'}
+                  </td>
+                  <td className="caution">없음 (내년 새 후보)</td>
+                </tr>
+                <tr>
+                  <th>1년 생존</th>
+                  <td>{Math.round(inherit.stay.yearSurvival * 100)}%</td>
+                  <td>
+                    {Math.round(inheritChick.yearSurvival * 100)}% · 첫 겨울 ×
+                    {inheritChick.firstWinter.toFixed(2)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p className="muted small">그대로: 총 번식 수 · 장소 · 시간 · 도감</p>
+          </div>
+        ) : inherit ? (
+          <ul className="list" aria-label="계승" data-testid="gate-inheritance">
+            <li className="gate-title b">
+              새끼 {inherit.cards.length}마리 독립 — 총 번식 {inherit.totalBreeding - 1} →{' '}
+              {inherit.totalBreeding} 확정
+            </li>
+            <li className="gate-title muted small">계승하든 남든 이미 확정이다.</li>
+            <li>
+              <button
+                type="button"
+                className={`opt${picked === inherit.stay.choiceId ? ' sel' : ''}`}
+                aria-pressed={picked === inherit.stay.choiceId}
+                onClick={() => setPicked(inherit.stay.choiceId)}
+                data-testid={`choice-${inherit.stay.choiceId}`}
+              >
+                <span className="main">
+                  <span className="b">
+                    지금 개체 {SEX_MARK[view.player.sex]} {inherit.stay.age}세{' '}
+                    <span className="muted small">남으면</span>
+                  </span>
+                  <span className="cap">
+                    노화 위험 <b>×{inherit.stay.agingMult.toFixed(2)}</b>
+                    {inherit.stay.bond !== undefined && (
+                      <>
+                        {' '}
+                        · 짝 유대 <b>{inherit.stay.bond}</b>
+                      </>
+                    )}
+                  </span>
+                </span>
+                <span className="vals">
+                  <span>1년 생존</span>
+                  <b>{Math.round(inherit.stay.yearSurvival * 100)}%</b>
+                </span>
+              </button>
+            </li>
+            <li className="gate-title muted small">새끼 — 계승하면 하나를 고른다</li>
+            {inherit.cards.map((card, i) => chickRow(card, i))}
+            <li className="gate-title muted small">
+              1년 생존은 사건 제외 — 실제는 더 낮다. 유전은 잠재력만, 훈련한 스탯은 가지 않는다.
+            </li>
+          </ul>
         ) : view.gate?.kind === 'secondBrood' ? (
           <ul className="list" aria-label="2차 번식" data-testid="gate-secondBrood">
             <li className="gate-title b">한 번 더 둥지를 틀까?</li>
@@ -1046,7 +1212,21 @@ export function Game({ data }: { data: GameData }) {
         )}
 
         <div className="actions">
-          {view.gate ? (
+          {inherit && confirming ? (
+            <>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => setConfirming(false)}
+                data-testid="inherit-back"
+              >
+                다시 고르기
+              </button>
+              <button type="button" className="btn prim" onClick={go} data-testid="go">
+                계승한다
+              </button>
+            </>
+          ) : view.gate ? (
             <button
               type="button"
               className="btn prim"
@@ -1060,9 +1240,11 @@ export function Game({ data }: { data: GameData }) {
                   : GATE_GO.parentingPolicy.none
                 : pickedPrevious
                   ? '지난 짝과 다시'
-                  : pickedChoice
-                    ? GATE_GO[view.gate.kind].done(pickedChoice.label)
-                    : GATE_GO[view.gate.kind].none}
+                  : inheritChick
+                    ? `${chickName(inheritIndex, inheritChick)}로 계승`
+                    : pickedChoice
+                      ? GATE_GO[view.gate.kind].done(pickedChoice.label)
+                      : GATE_GO[view.gate.kind].none}
             </button>
           ) : replay ? (
             replayDone ? (
