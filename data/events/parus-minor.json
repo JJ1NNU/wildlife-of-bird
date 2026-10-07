@@ -294,6 +294,48 @@
     "factCheck": "needs-review"
   },
   {
+    "id": "ev.parus-minor.feeder-every-day",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["winter"],
+      "habitatAny": ["settlement"]
+    },
+    "weight": "common",
+    "title": "날마다 차는 먹이통",
+    "body": "아파트 베란다 밖 먹이통에 오늘도 해바라기씨가 가득하다. 며칠째 여기서만 배를 채웠더니 몸이 묵직하다.",
+    "options": [
+      {
+        "id": "stay-at-feeder",
+        "text": "오늘도 먹이통 곁에 머문다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "gain"
+          },
+          {
+            "type": "riskMod",
+            "tier": "medium"
+          }
+        ]
+      },
+      {
+        "id": "forage-around",
+        "text": "먹이통은 잠깐만 들르고 덤불을 뒤진다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "라트비아 도시에서 겨울을 나는 박새 수컷을 비교했더니, 몇 달 동안 늘 먹이가 차 있는 먹이통 곁의 새는 가끔만 먹이가 놓이는 먹이통 곁의 새보다 몸무게가 무겁고, 날아오르는 속도가 느렸으며, 겨울을 넘겨 다시 확인되는 비율도 낮았다. 연구자들은 먹이를 가끔 주고 먹이통을 포식자가 덮치기 어려운 곳에 두라고 권했다. 유럽 박새 수컷 연구다. 이 차이를 그 시기의 위험으로 옮긴 것과 그 크기는 게임의 선택이다.",
+    "sources": ["SRC-081"],
+    "factCheck": "needs-review"
+  },
+  {
     "id": "ev.parus-minor.territory-song-duel",
     "species": ["parus-minor"],
     "when": {
@@ -690,6 +732,47 @@
     ],
     "ecologyBasis": "입구가 몸에 겨우 맞고 둥지가 입구에서 깊은 구멍일수록 포식자의 발과 부리가 닿지 않아 안전하다(쇠박새 연구). 국내 박새 둥지는 뱀·족제비·담비가 주로 턴다. 박새가 구멍 깊이를 보고 고르는지는 확인하지 못했다.",
     "sources": ["SRC-036", "SRC-034"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.old-nest-hole",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["nestSite"]
+    },
+    "weight": "uncommon",
+    "title": "지난해의 둥지",
+    "body": "며칠째 둘러본 구멍들 가운데 하나에 지난해 둥지가 그대로 남아 있다. 이끼와 털 사이에서 작은 벌레가 톡톡 튄다.",
+    "options": [
+      {
+        "id": "build-on-it",
+        "text": "옛 둥지 위에 새 이끼를 얹는다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "riskMod",
+            "tier": "low"
+          }
+        ]
+      },
+      {
+        "id": "find-clean-hole",
+        "text": "깨끗한 구멍을 더 찾아본다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "중국의 박새(P. minor)는 번식 약 20일 전부터 새집 여러 곳(평균 6곳)을 드나들다가 가장 자주 찾은 곳을 고른다. 스위스 박새 실험에서는 닭벼룩이 든 새집과 깨끗한 새집 가운데 깨끗한 쪽을 골랐고, 벼룩 든 새집밖에 없으면 산란을 11일 늦췄으며, 둥지를 버리는 일이 늘고 부화한 새끼 수가 줄었다. 벼룩 연구는 유럽 박새다. 벼룩의 해는 번식 중에 오는데, 게임은 이를 이번 시기의 위험으로 옮겼다 — 그 크기는 게임의 선택이다.",
+    "sources": ["SRC-082", "SRC-083"],
     "factCheck": "needs-review"
   },
   {
