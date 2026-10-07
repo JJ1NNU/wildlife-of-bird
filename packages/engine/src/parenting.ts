@@ -9,8 +9,7 @@ import type { Choice, LogEntry, ParentingItemChoice, RunState } from './types.ts
  * 첫 칸보다 먼저 열린다(짝 지시 다음). 선택지는 하나이고 항목별 값을 id 뒤에 담는다:
  * `parentingPolicy?intensity=high&allocation=compete` — 빠진 항목은 현재값(처음에는 기본값).
  * 방침은 둥지가 있는 동안 걸린다.
- * 은수저(`compete`·`quality`·`early`)·학습 보너스(독립 `fledgling`)는 `clutch.ts`. 잠정(#21): 둥지 손실 배율(`clean`·`early`)은 걸어 두기만 한다 —
- * 둥지 손실 조각에서 효과.
+ * 은수저(`compete`·`quality`·`early`)·학습 보너스(독립 `fledgling`)는 `clutch.ts`. 둥지 손실 배율(`clean`·`early`)은 `nest.ts` `nestSurvives`.
  */
 
 /** 이 항목은 `postFledge` 조정에서 못 바꾼다 (6.2) */
@@ -135,6 +134,18 @@ export function chickDeathMult(state: RunState, data: GameData): number {
   if (state.parenting && phase === 'postFledge') {
     const early = data.breeding.parenting.fledgeTiming[policy(state, data, 'fledgeTiming')];
     m *= early?.postFledgeChickDeathMult ?? 1;
+  }
+  return m;
+}
+
+/** 둥지 손실 배율 (6.3) — `clean` × `early`(nestling) */
+export function parentingNestLossMult(state: RunState, data: GameData): number {
+  const phase = phaseAt(state.calendar, state.at);
+  let m = 1;
+  for (const o of active(state, data, phase)) m *= o.nestLossMult ?? 1;
+  if (state.parenting && phase === 'nestling') {
+    const early = data.breeding.parenting.fledgeTiming[policy(state, data, 'fledgeTiming')];
+    m *= early?.nestLossMult ?? 1;
   }
   return m;
 }

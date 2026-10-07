@@ -34,7 +34,7 @@ import {
   mateYear,
   potentialRange,
 } from './mate.ts';
-import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
+import { buildNest, nestCards, nestChoices, nestHoles, nestSurvives, releaseNest } from './nest.ts';
 import {
   carryOrder,
   giveOrder,
@@ -197,7 +197,10 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   const ran = runRoutine(planned, filled, data);
   const log = ran.log;
   if (ran.state.gameOver) return { state: { ...ran.state, log: [...state.log, ...log] }, log };
-  const moved = ran.state;
+  // 둥지 손실: 둥지에 알·새끼가 있는 단계의 판정 3 다음 (01-formulas 3.2)
+  const kept = nestSurvives(ran.state, data);
+  log.push(...kept.log);
+  const moved = kept.state;
 
   // 부화: `incubation` 마지막 단계의 판정 3 다음 (04-breeding 5장)
   const hatched = hatchIfDue(moved, data);
@@ -214,7 +217,7 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
     return { state: { ...opened.state, log: [...state.log, ...log] }, log };
   }
   // 번식 실패(B-5): 2차 번식 여부 관문, 열리지 않으면 분할 해제 (00-core-loop 4.4 · 4.5)
-  const failed = moved.nest !== undefined && raised.state.nest === undefined;
+  const failed = ran.state.nest !== undefined && raised.state.nest === undefined;
   if (failed && secondBroodDue(raised.state, data)) {
     return {
       state: { ...raised.state, gate: { kind: 'secondBrood' }, log: [...state.log, ...log] },
