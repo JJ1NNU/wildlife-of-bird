@@ -4,7 +4,7 @@ import { chickDeath } from '../src/formulas.ts';
 import type { RunState } from '../src/index.ts';
 import { act, getChoices, getView, newRun } from '../src/index.ts';
 import { chickDeathMult } from '../src/parenting.ts';
-import { actStep, testData } from './fixture.ts';
+import { actStep, testData, tit } from './fixture.ts';
 
 const start = newRun({ speciesId: 'parus-minor', seed: 'parenting', mode: 'free' }, testData);
 /** `incubation` 마지막 단계(`period 9` 단계 3), 짝 없음 — 다음 단계가 `nestling` 첫 단계 */
@@ -19,6 +19,7 @@ const titBreeding = testData.breeding.species['parus-minor'];
 if (!titBreeding) throw new Error('breeding.json에 박새가 없다');
 const sure: GameData = {
   ...testData,
+  balance: new Map([...testData.balance, ['parus-minor', { ...tit, nestLossPerStep: 0 }]]),
   formulas: {
     ...testData.formulas,
     brood: { ...testData.formulas.brood, chickDeathPerStep: 0 },
