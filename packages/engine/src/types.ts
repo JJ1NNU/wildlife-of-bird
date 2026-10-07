@@ -168,6 +168,14 @@ export interface Nest {
   eggs?: number;
   /** 살아 있는 새끼 수 — `incubation` 마지막 단계에 부화로 정해지고, 급이 국면마다 새끼 사망으로 준다 */
   chicks?: number;
+  /** 살아 있는 새끼 — 부화 순서. 길이는 늘 `chicks` (05-inheritance 3장) */
+  young?: Chick[];
+}
+
+/** 새끼 하나 — 부화 때 성별·잠재력이 정해진다 (05-inheritance 3장, 01-formulas 5장) */
+export interface Chick {
+  sex: 'female' | 'male';
+  potential: Partial<Record<StatName, number>>;
 }
 
 /** 산란수 관문 카드 (04-breeding 5장) */

@@ -150,6 +150,20 @@ describe('부화 (04-breeding 5장)', () => {
     expect(actStep(lastIncubation, 'action.rest', withHatchRate(1)).state.nest?.chicks).toBe(8);
   });
 
+  it('부화한 새끼마다 성별·잠재력 6개를 정한다 (05-inheritance 3장)', () => {
+    const nest = actStep(lastIncubation, 'action.rest', withHatchRate(1)).state.nest;
+    const h = testData.formulas.heredity;
+    expect(nest?.young).toHaveLength(8);
+    for (const chick of nest?.young ?? []) {
+      const values = Object.values(chick.potential);
+      expect(values).toHaveLength(6);
+      for (const v of values) {
+        expect(v).toBeGreaterThanOrEqual(h.potentialMin);
+        expect(v).toBeLessThanOrEqual(h.potentialMax);
+      }
+    }
+  });
+
   it('하나도 안 깨면 번식 실패(B-5) — 둥지를 거둔다', () => {
     const r = actStep(lastIncubation, 'action.rest', withHatchRate(0));
     expect(r.state.nest).toBeUndefined();
