@@ -79,3 +79,26 @@ describe('알이 하나도 안 깨면 관문이 열린다 (act 흐름)', () => {
     expect(getView(next, data).phase).toBe('nestSite');
   });
 });
+
+describe('짝 없이 nestSite에 들어오면 분할 해제 (00-core-loop 4.6)', () => {
+  const single: RunState = {
+    ...start,
+    at: { year: 1, period: 7, step: 1 },
+    player: { ...start.player, energy: 60 },
+  };
+  const r = actStep(single, 'action.rest', testData);
+
+  it('관문 없이 다음 단계 molt · 둥지 국면 시기는 molt 1단계', () => {
+    expect(r.state.gate).toBeUndefined();
+    expect(r.state.calendar[6]).toEqual(['nestSite', 'molt', 'molt']);
+    expect(r.state.calendar.slice(7, 12)).toEqual([
+      ['molt'],
+      ['molt'],
+      ['molt'],
+      ['molt'],
+      ['molt'],
+    ]);
+    expect(getView(r.state, testData).phase).toBe('molt');
+    expect(r.log.some((e) => e.type === 'brood')).toBe(true);
+  });
+});
