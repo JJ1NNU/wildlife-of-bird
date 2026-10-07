@@ -1,4 +1,5 @@
 import type { GameData, StatName } from '@wb/schema';
+import { endLife } from './inherit.ts';
 import { nextChance } from './rng.ts';
 import { judgeStep, slotCount, stepChoices } from './step.ts';
 import type { LogEntry, RunState } from './types.ts';
@@ -92,7 +93,8 @@ export function runRoutine(
     text: labels.join(' · '),
     deltas: deltas(state.player, s.player),
   };
-  const log = [decision, ...slots, ...(death ? [death] : [])];
+  // 가계도: 죽은 개체의 생애를 닫는다 (05-inheritance 8장)
+  const log = [decision, ...slots, ...(death ? [{ ...death, life: endLife(s, 'death') }] : [])];
   return { state: { ...s, lastRoutine: filled, gameOver: Boolean(death) }, log };
 }
 
