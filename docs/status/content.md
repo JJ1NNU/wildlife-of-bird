@@ -2,27 +2,30 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 32, 자동 근무 47회차)
-- 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321 완료
+- 마지막 근무: 2026-10-08 (라운드 33, 자동 근무 50회차)
+- 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321·#324 완료
 
 ## 이번 근무에 한 것
-- **#324 2차 — PR #331 머지(#327 닫힘)**: 디자인 결정대로 참매 포식자(`goshawk.json`) 삭제, 이벤트 `goshawk-chase` → `sparrowhawk-chase`(predator sparrowhawk, 효과·확률 그대로, 근거 SRC-098·103 추가). **P-37 해결**. 이벤트는 피하는 방법 차이 근거가 없어 needs-review 유지
+- **#324 5차 — PR #338 머지, #324 닫음**: `late-frost-song`(P-15) **verified** — SRC-107 본문 고찰(새벽 노래 시작 ↔ 기온 상관, 기온→대사→노래 해석) + SRC-005. 완료 조건(needs-review 해결 이벤트 5건) 충족
 
 ## 진행 중
-- #324 (fact-check 4차) — 완료 조건 '열림 줄 3개 이상' 중 1개(P-37) 해결. 남은 것: P-15·P-23·P-24·P-25 needs-review 줄이기(또는 needs-review 이벤트 5건 해결)
+- 없음
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
-1. #324 계속 — P-15·P-23·P-24 이벤트 needs-review 줄이기
-2. 다음 SRC 번호 104, 다음 P 번호 P-38
-3. fact-check 열림: P-10(주식) · P-14 · P-15 · P-18 · P-23~P-25 · P-30~P-35
+1. `dept:content` 새 이슈를 기다린다(PM이 다음 fact-check 차수를 열 수 있음)
+2. 다음 SRC 번호 108, 다음 P 번호 P-38
+3. fact-check 열림: P-10(주식) · P-14 · P-15(남은 needs-review: courtship-feeding · rival-near-mate · long-cold-night · first-winter-follow) · P-18 · P-23~P-25 · P-30~P-35
 4. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155·#313(#21) 뒤
 5. 족제비 도감 — 출처 더 찾으면(M3). 올빼미 도감에 SRC-099 한 문장 넣을 수 있음(M3)
 6. S-30 가계도 줄(`lifeLine`) 문구는 엔진 #21 뒤 클라이언트가 따로 요청한다(#297)
 
 ## 메모 (다음 근무의 나에게)
+- 한국환경생태학회지(KJEE) 본문은 `doi.org` → envecojournal.org 페이지를 curl로 받으면 HTML 전문이 나온다(SRC-107). ScienceDirect(Elsevier)는 내장 브라우저에서도 CAPTCHA — 넘기지 않는다. Springer 초록은 내장 브라우저 `#Abs1-content`로 읽힌다
+- rival-near-mate: *P. minor* 짝 지키기 문헌 없음(OpenAlex). 후보만: 「Reproductive ecology of Japanese great tits focusing on extra-pair paternity」(2013, Medical Entomology and Zoology?) · jjo 71:171(2022, 박새 섞인 한배 DNA 기록) — 짝 밖 부성까지라 쫓아내기 근거는 아님. Hamao 2016 *Anim Behav* 119:143(일본 박새 방언 반응)·Hamao 2020 *J Ethol* 38:383(노래 특성, 영역 언급 없음)
+- J-STAGE 초록은 `curl -sL https://doi.org/<doi>`로 받힌다(`/_article/-char/en` 직접 주소는 404). crossref `query.bibliographic`로 DOI 찾기. Saitou 1979 원문 제목엔 부제가 안 보여 sources.md엔 '연작 n편'으로만 적음
 - #324에서 못 찾은 것: 박새(P. minor) 구애 먹이·짝 지키기·겨울 서열 — OpenAlex 결과 없음. Da Silva 2025 *Biology* 14:297(일본 박새 날갯짓 '먼저 들어가' 몸짓 재분석)은 둥지 입구 짝 신호라 지금 이벤트엔 안 맞음. SRC-082 초록은 입구 기울기·나무 굵기까지 — 구멍 깊이는 없음(shallow-hole 못 닫음)
 - Sci Rep·PMC 논문 본문은 Europe PMC `ebi.ac.uk/europepmc/webservices/rest/<PMCID>/fullTextXML`로 받는다(SRC-097). Ardea(BioOne) 공개 논문은 `.full` 페이지를 WebFetch로 읽힌다(PDF는 curl 막힘). 지린 쭤자 박새 연구진(Wang Haitao)의 Dryad 데이터셋에 산란·부화 날짜가 있을 수 있다
 - tandfonline 본문은 curl은 403(Cloudflare)이지만 **내장 브라우저**로 열면 읽힌다. 표는 'Display Table' 버튼을 눌러야 DOM에 들어온다(CSV 다운로드는 챌린지에 막힘) — SRC-095에서 확인
