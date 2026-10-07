@@ -11,11 +11,11 @@ import { phaseAt } from './calendar.ts';
 import { fatCap, statGain } from './formulas.ts';
 import { nextChance } from './rng.ts';
 import { growthNow, mapNode, speciesBalance } from './step.ts';
-import type { RunState } from './types.ts';
+import type { LogEntry, RunState } from './types.ts';
 
 /**
  * 이벤트 해석기 — 조건(`when`) · 후보 · 가중치 추첨 · 판정형 선택지의 성공 확률 · 효과 (03-events 3~6장).
- * 잠정(#21): 루틴에 연결(칸마다 추첨 · 이벤트 관문 · `replan`)과 효과 `injury`·`broodRisk`·`chickLoss`·`fledgeEarly`는 다음 조각.
+ * 잠정(#21): 루틴에 연결(칸마다 추첨 · 이벤트 관문 · `replan`)과 효과 `injury`·`fledgeEarly`는 다음 조각.
  */
 
 /** `when`을 판단하는 데 쓰는 지금 상태 (03-events 4장) */
@@ -143,14 +143,17 @@ export function checkChance(f: Formulas, stat: number, difficulty: number): numb
  * 효과를 배열 순서대로 적용한다 (03-events 6.1). 중간에 조작 개체가 죽으면 남은 효과는 버리고 `death`에 원인.
  * 에너지 0 이하는 아사(`starvation`), `deathRisk`는 `u < 값`이면 `cause`(`predation`이면 `predation:<predator>`).
  * `riskMod`·`foodMod`는 `periodMods`에 쌓는다 — 시기가 바뀌면 지워진다.
+ * `broodRisk`가 맞거나 `chickLoss`로 새끼가 다 죽으면 B-5: 둥지를 거두고 로그 `brood`(`cause` = 효과 이름).
+ * `chickLoss`는 늦게 깬 새끼부터 죽는다 — 잠정(#21, 명세에 누가 죽는지 없음).
  */
 export function applyEffects(
   state: RunState,
   effects: readonly Effect[],
   data: GameData,
-): { state: RunState; death?: string } {
+): { state: RunState; death?: string; log: LogEntry[] } {
   const f = data.formulas;
   const t = data.effects;
+  const log: LogEntry[] = [];
   let s = state;
   for (const e of effects) {
     const p = s.player;
@@ -160,7 +163,7 @@ export function applyEffects(
         const d = e.sign === 'gain' ? t.energy[e.tier] : -t.energy[e.tier];
         const energy = Math.min(fatCap(f, p.stats.stamina ?? 0), p.energy + d);
         if (energy <= 0)
-          return { state: { ...s, player: { ...p, energy: 0 } }, death: 'starvation' };
+          return { state: { ...s, player: { ...p, energy: 0 } }, death: 'starvation', log };
         s = { ...s, player: { ...p, energy } };
         break;
       }
@@ -194,7 +197,7 @@ export function applyEffects(
         const rolled = nextChance(s.rng, t.deathRisk[e.tier]);
         s = { ...s, rng: rolled.state };
         if (rolled.value)
-          return { state: s, death: e.predator ? `${e.cause}:${e.predator}` : e.cause };
+          return { state: s, death: e.predator ? `${e.cause}:${e.predator}` : e.cause, log };
         break;
       }
       case 'riskMod':
@@ -203,9 +206,37 @@ export function applyEffects(
       case 'foodMod':
         s = { ...s, periodMods: { ...mods, food: [...mods.food, { tier: e.tier, sign: e.sign }] } };
         break;
+      case 'broodRisk': {
+        if (!s.nest) break;
+        const rolled = nextChance(s.rng, t.broodRisk[e.tier]);
+        s = { ...s, rng: rolled.state };
+        if (rolled.value) s = broodFails(s, '둥지를 잃었다', 'broodRisk', log);
+        break;
+      }
+      case 'chickLoss': {
+        const nest = s.nest;
+        const chicks = nest?.chicks ?? 0;
+        if (!nest || chicks === 0) break;
+        const dead = Math.min(chicks, Math.ceil(chicks * t.chickLoss[e.tier]));
+        if (dead === chicks) {
+          s = broodFails(s, '새끼를 모두 잃었다', 'chickLoss', log);
+          break;
+        }
+        const young = nest.young?.slice(0, chicks - dead);
+        s = { ...s, nest: { ...nest, chicks: chicks - dead, ...(young ? { young } : {}) } };
+        log.push({ at: s.at, type: 'nest', text: `새끼 ${dead}마리를 잃었다` });
+        break;
+      }
       default:
         throw new Error(`잠정(#21): 아직 해석하지 않는 효과다: ${e.type}`);
     }
   }
-  return { state: s };
+  return { state: s, log };
+}
+
+/** B-5 — 둥지를 거두고 로그를 남긴다 */
+function broodFails(state: RunState, text: string, cause: string, log: LogEntry[]): RunState {
+  const { nest: _n, ...rest } = state;
+  log.push({ at: state.at, type: 'brood', text, cause });
+  return rest;
 }
