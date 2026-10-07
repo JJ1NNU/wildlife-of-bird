@@ -62,7 +62,7 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
     const slot = { ...example, stay: 11, player: { ...example.player, energy: 41.089 - slotGain } };
     const p = preview(slot, 'action.forage', data);
     expect(p.energyDelta[0]).toBeCloseTo(slotGain, 6);
-    expect(p.deathRisk).toBeCloseTo(1 - (1 - 0.004155) ** (1 / 6), 6);
+    expect(p.deathRisk).toBeCloseTo(1 - (1 - 0.003324384) ** (1 / 6), 6);
   });
 
   it('칸 채우기는 판정·난수 없이 적어 두고, 마지막 칸이 루틴을 실행한다', () => {
@@ -88,7 +88,7 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
     const p = preview(before, 'action.explore', data);
     const gained = p.statGains?.vigilance ?? 0;
     expect(gained).toBeGreaterThan(0);
-    const unchanged = 0.007 * 1.3 * (1 - 0.004 * 70) * 0.97 * 0.85;
+    const unchanged = 0.0056 * 1.3 * (1 - 0.004 * 70) * 0.97 * 0.85;
     expect(p.deathRisk).toBeLessThan(unchanged);
   });
 
@@ -131,7 +131,7 @@ describe('시기 효과 riskMod·foodMod (03-events 6.1, 01-formulas 2.3·3.1)',
       preview({ ...slot, ...(m ? { periodMods: m } : {}) }, 'action.forage', data);
     const plain = energy();
     const hit = energy(mods);
-    expect(hit.deathRisk).toBeCloseTo(1 - (1 - 0.004155 * 2) ** (1 / 6), 6);
+    expect(hit.deathRisk).toBeCloseTo(1 - (1 - 0.003324384 * 2) ** (1 / 6), 6);
     // 소비는 같고 섭취만 준다: 줄어든 에너지의 비 = (1 − 0.49) : (1 − 0.5)
     const half = energy({ risk: [], food: [{ tier: 'large', sign: 'loss' }] });
     const lost = (p: typeof plain) => (plain.energyDelta[0] ?? 0) - (p.energyDelta[0] ?? 0);

@@ -137,10 +137,10 @@ describe('3. 위험', () => {
   } as const;
 
   it('3.1 단계 사망 위험', () => {
-    expect(deathRisk(f, tit, calm)).toBeCloseTo(0.004155, 6);
-    expect(deathRisk(f, tit, { ...calm, r: 0.2, feather: 40, age: 4 })).toBeCloseTo(0.010285, 6);
-    expect(deathRisk(f, tit, { ...calm, flight: 65 })).toBeCloseTo(0.0037395, 6);
-    expect(deathRisk(f, tit, worst)).toBeCloseTo(0.227363, 6);
+    expect(deathRisk(f, tit, calm)).toBeCloseTo(0.003324, 6);
+    expect(deathRisk(f, tit, { ...calm, r: 0.2, feather: 40, age: 4 })).toBeCloseTo(0.008228, 6);
+    expect(deathRisk(f, tit, { ...calm, flight: 65 })).toBeCloseTo(0.0029919, 6);
+    expect(deathRisk(f, tit, worst)).toBeCloseTo(0.181891, 6);
     const highMod = 1 + testData.effects.riskMod.high;
     expect(deathRisk(f, tit, { ...worst, riskModFactor: highMod })).toBe(f.risk.cap);
     const quiet = {
@@ -154,7 +154,7 @@ describe('3. 위험', () => {
       r: 0.6,
       feather: 90,
     } as const;
-    expect(deathRisk(f, tit, quiet)).toBeCloseTo(0.000546, 6);
+    expect(deathRisk(f, tit, quiet)).toBe(f.risk.floor);
   });
 
   it('3.2 둥지 손실 · 3.3 새끼 사망', () => {
@@ -219,8 +219,8 @@ describe('6. 은수저', () => {
 describe('7. 화면 표시', () => {
   it('7.1 확률', () => {
     expect(formatRisk(f, 0.0004).text).toBe('0.1% 미만');
-    expect(formatRisk(f, 0.004155)).toEqual({ text: '0.4%', band: 'low' });
-    expect(formatRisk(f, 0.010285)).toEqual({ text: '1.0%', band: 'mid' });
+    expect(formatRisk(f, 0.003324)).toEqual({ text: '0.3%', band: 'low' });
+    expect(formatRisk(f, 0.008228)).toEqual({ text: '0.8%', band: 'mid' });
     expect(formatRisk(f, 0.1234).text).toBe('12%');
   });
 
