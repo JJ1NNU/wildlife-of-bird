@@ -5,6 +5,6 @@
   "basis": {
     "sources": ["SRC-034"],
     "factCheck": "needs-review",
-    "note": "박새 성조를 가끔 잡는다(SRC-034, '올빼미류'로만 답함 — 종을 나누지 않는다). 이벤트 long-cold-night(#114)의 predator id. 다시 확인 필요(#266) — 박새를 잡는다는 문헌을 찾는다."
+    "note": "성조 포식자 자리. 이벤트 long-cold-night(#114)의 predator id. 박새류가 올빼미 모형에 모빙한다(SRC-050)는 확인했지만, 박새를 얼마나 잡는지 문헌은 못 찾았다 — 이전 근거 SRC-034는 AI 답이라 빈도('가끔')를 뺐다(#266). Korpimäki & Sulkava(Ornis Fennica, 핀란드 긴꼬리올빼미 식단)는 들쥐 위주이고 박새류 수치 없음."
   }
 }
