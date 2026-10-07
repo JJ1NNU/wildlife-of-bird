@@ -15,7 +15,7 @@ import type { LogEntry, RunState } from './types.ts';
 
 /**
  * 이벤트 해석기 — 조건(`when`) · 후보 · 가중치 추첨 · 판정형 선택지의 성공 확률 · 효과 (03-events 3~6장).
- * 잠정(#21): 루틴에 연결(칸마다 추첨 · 이벤트 관문 · `replan`)과 효과 `injury`·`fledgeEarly`는 다음 조각.
+ * 잠정(#21): 루틴에 연결(칸마다 추첨 · 이벤트 관문 · `replan`)과 효과 `fledgeEarly`는 다음 조각.
  */
 
 /** `when`을 판단하는 데 쓰는 지금 상태 (03-events 4장) */
@@ -145,6 +145,7 @@ export function checkChance(f: Formulas, stat: number, difficulty: number): numb
  * `riskMod`·`foodMod`는 `periodMods`에 쌓는다 — 시기가 바뀌면 지워진다.
  * `broodRisk`가 맞거나 `chickLoss`로 새끼가 다 죽으면 B-5: 둥지를 거두고 로그 `brood`(`cause` = 효과 이름).
  * `chickLoss`는 늦게 깬 새끼부터 죽는다 — 잠정(#21, 명세에 누가 죽는지 없음).
+ * `injury`는 남은 부상 단계와 새 값 중 큰 쪽.
  */
 export function applyEffects(
   state: RunState,
@@ -227,6 +228,9 @@ export function applyEffects(
         log.push({ at: s.at, type: 'nest', text: `새끼 ${dead}마리를 잃었다` });
         break;
       }
+      case 'injury':
+        s = { ...s, injury: Math.max(s.injury ?? 0, t.injury[e.tier]) };
+        break;
       default:
         throw new Error(`잠정(#21): 아직 해석하지 않는 효과다: ${e.type}`);
     }

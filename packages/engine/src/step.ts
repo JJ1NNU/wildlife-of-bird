@@ -257,7 +257,7 @@ export function judgeStep(
     feather,
     age: p.age,
     silverSpoon: p.silverSpoon ?? 0,
-    injured: false,
+    injured: (state.injury ?? 0) > 0,
   });
   // 9.4: 칸 위험 = 1 − (1 − 단계 위험)^(1/n) — 모든 칸이 같은 행동이면 단계 위험과 같다
   const risk = 1 - (1 - stepRisk) ** (1 / n);

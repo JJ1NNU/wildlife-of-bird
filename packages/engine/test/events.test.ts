@@ -111,6 +111,12 @@ describe('효과 (03-events 6.1 예시)', () => {
     );
     expect(out.death).toBe('predation:snake');
   });
+  it('injury — 남은 부상 단계와 새 값 중 큰 쪽', () => {
+    const hurt = applyEffects(run, [{ type: 'injury', tier: 'medium' }], testData).state;
+    expect(hurt.injury).toBe(3);
+    expect(applyEffects(hurt, [{ type: 'injury', tier: 'small' }], testData).state.injury).toBe(3);
+    expect(applyEffects(hurt, [{ type: 'injury', tier: 'large' }], testData).state.injury).toBe(4);
+  });
   const brood = (chicks: number) => ({
     ...run,
     nest: { site: 'deep', node: 'village-farmland', eggs: chicks, chicks },

@@ -150,6 +150,19 @@ describe('시기 효과 riskMod·foodMod (03-events 6.1, 01-formulas 2.3·3.1)',
   });
 });
 
+describe('부상 injury (03-events 6.1, 01-formulas 3.1)', () => {
+  const slot = { ...example, stay: 11 };
+
+  it('부상 중이면 단계 위험 × injuryMult, 단계마다 1 줄어 0이면 사라진다', () => {
+    const hit = preview({ ...slot, injury: 2 }, 'action.forage', data);
+    expect(hit.deathRisk).toBeCloseTo(1 - (1 - 0.004155 * 1.3) ** (1 / 6), 6);
+    const molt = { ...example, at: { year: 1, period: 13, step: 1 }, injury: 2 };
+    const one = actStep(molt, 'action.forage', data).state;
+    expect(one.injury).toBe(1);
+    expect(actStep(one, 'action.forage', data).state.injury).toBeUndefined();
+  });
+});
+
 describe('칸 수 스탯 (01-formulas 9.6)', () => {
   /** 박새 스탯을 모두 종 평균 잠재력 × r 로 — 스탯 합 ÷ 348 = r */
   const at = (r: number, period: number) => {

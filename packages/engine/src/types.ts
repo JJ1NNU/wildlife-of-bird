@@ -319,6 +319,11 @@ export interface RunState {
   order?: MateOrder;
   /** 그 시기가 끝날 때까지 걸린 이벤트·환경 효과 `riskMod`·`foodMod` (03-events 6.1). 시기가 바뀌면 지운다 */
   periodMods?: { risk: RiskTier[]; food: FoodMod[] };
+  /**
+   * 부상이 남은 단계 수 — 이 단계 포함, 단계가 끝날 때 1 줄고 0이면 지운다 (03-events 6.1 `injury`).
+   * 잠정(#21): 명세에 "값만큼의 단계"를 이 단계부터 세는지 없다
+   */
+  injury?: number;
   /** 지금 걸린 육아 방침 — 항목 → 선택 (04-breeding 6장). 둥지가 없어지면 없어진다 */
   parenting?: Record<string, string>;
   /** 최근 `mate.reciprocityWindowSteps` 단계가 도움 단계였나 (04-breeding 3.3 상호성) */
