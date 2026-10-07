@@ -550,9 +550,9 @@
         ]
       }
     ],
-    "ecologyBasis": "이른 봄에는 기온이 오르내린다. 추운 날에는 몸을 데우는 데 에너지가 더 든다.",
-    "sources": ["SRC-005"],
-    "factCheck": "needs-review"
+    "ecologyBasis": "이른 봄 번식 준비기에는 기온이 오르내리고, 산란 준비기의 기온이 번식 시기에 중요하다. 국내 원주 박새 수컷은 3월 말~5월에 날이 따뜻할수록 새벽 노래를 일찍 시작했다 — 저자는 주변 기온이 대사를 거쳐 노래에 영향을 준다고 본다.",
+    "sources": ["SRC-107", "SRC-005"],
+    "factCheck": "verified"
   },
   {
     "id": "ev.parus-minor.mate-in-flock",
