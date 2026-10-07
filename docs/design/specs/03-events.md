@@ -1,6 +1,6 @@
 # 03 · 이벤트 틀
 
-- 버전: v0.1.2 (2026-10-08, #21 칸 루틴의 `injury` — 걸린 단계 끝에는 줄지 않음) · v0.1.1 (2026-10-08, #21 `injury` 세는 법) · v0.1 (2026-10-04, #7 · #73 `phaseLastStep`)
+- 버전: v0.1.1 (2026-10-08, #21 `injury` 세는 법) · v0.1 (2026-10-04, #7 · #73 `phaseLastStep`)
 - 소유: 게임디자인(틀·효과·등급) / 이벤트 글·생태 근거: 생태·콘텐츠 / 해석기: 엔진
 - 기준: 기획서 `gdd.md` 3장 원칙 5, 4.3, 6.2, 7.2 / `03-contracts.md` 4.2·4.3 / 스키마 v0(`packages/schema/src/events.ts`, PR #41)
 - 숫자: `data/balance/effects.json`(효과 등급표), `data/balance/formulas.json`의 `events.*`(추첨·판정 계수) — PR #48
@@ -160,7 +160,7 @@ u < 성공 확률 → onSuccess, 아니면 onFail
 | `feather` | `tier` `sign` | small·medium·large | ±값, 0~`feather.max`로 자름 | 조작 개체 |
 | `statGain` | `stat` `tier` | small·medium·large | `01-formulas` 1.3의 공식으로 상승(등급 값이 기본 상승) | 조작 개체 |
 | `bond` | `tier` `sign` | small·medium·large | 짝 유대 ±값, 0~100으로 자름 | 짝 |
-| `injury` | `tier` | small·medium·large | 값 = 부상 배율(`risk.injuryMult`)을 받는 **위험 판정 수**. 판정 3을 받은 단계가 끝날 때마다 1 줄고 0이면 낫는다 — 단계 이벤트(판정 뒤)는 다음 단계부터, 환경 카드(판정 전)는 그 단계부터 센다. 루틴(칸) 중에 걸린 단계 이벤트의 부상은 **그 단계의 남은 칸 판정에도 배율이 붙지만 그 단계 끝에는 줄지 않는다**(몇 번째 칸이든 같다, #21). 이미 부상이면 남은 값과 새 값 중 큰 쪽 | 조작 개체 |
+| `injury` | `tier` | small·medium·large | 값 = 부상 배율(`risk.injuryMult`)을 받는 **위험 판정 수**. 판정 3을 받은 단계가 끝날 때마다 1 줄고 0이면 낫는다 — 단계 이벤트(판정 뒤)는 다음 단계부터, 환경 카드(판정 전)는 그 단계부터 센다. 이미 부상이면 남은 값과 새 값 중 큰 쪽 | 조작 개체 |
 | `deathRisk` | `tier` `cause` (+`predator`) | low·medium·high | 그 자리에서 1회 사망 판정: `u < 값`이면 사망, 원인 `cause` | 조작 개체 |
 | `broodRisk` | `tier` | low·medium·high | 그 자리에서 1회 둥지 판정: `u < 값`이면 알·새끼 전멸(`00-core-loop` B-5) | 둥지 |
 | `chickLoss` | `tier` | small·medium·large | 살아 있는 새끼 수 × 값을 **올림**한 만큼 사망(1마리 이상). 전부 죽으면 전멸 | 새끼 |
@@ -179,7 +179,6 @@ u < 성공 확률 → onSuccess, 아니면 onFail
 | 새끼 7, `chickLoss medium` | `ceil(7 × 0.3)` = **3마리 사망**, 4마리 남음 |
 | 새끼 1, `chickLoss small` | `ceil(0.15)` = 1 → **전멸** → B-5 |
 | 단계 k(판정 3 뒤)에 `injury small`(2) | 단계 k+1·k+2의 판정에 × `injuryMult`, k+3부터 정상 |
-| 단계 k의 6칸 중 3번째 칸 이벤트로 `injury small`(2) | 단계 k의 4~6번째 칸 + 단계 k+1·k+2의 판정에 × `injuryMult`, k+3부터 정상 |
 | `foodMod medium loss` 두 번 | 섭취 × `0.7 × 0.7` = **× 0.49** (그 시기 끝까지) |
 | `riskMod high` | 위험 **× 2.0** (그 시기 끝까지) |
 
