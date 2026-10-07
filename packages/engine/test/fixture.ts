@@ -15,7 +15,13 @@ if (!loaded.data) {
     `data/ 검증 실패 — npm run validate:data 로 확인: ${JSON.stringify(loaded.issues)}`,
   );
 }
-export const testData: GameData = loaded.data;
+/** 실제 데이터 그대로 — 이벤트 테스트용 */
+export const fullData: GameData = loaded.data;
+/**
+ * 단계 이벤트를 뺀 데이터 — 이벤트가 아닌 규칙의 테스트가 이벤트 관문에 멈추지 않게.
+ * 추첨 u₁은 그대로 쓰므로 난수 순서는 실제와 같다 (03-events 3.1)
+ */
+export const testData: GameData = { ...loaded.data, events: [] };
 
 const species = testData.balance.get('parus-minor');
 if (!species) throw new Error('data/balance/species/parus-minor.json 이 없다');

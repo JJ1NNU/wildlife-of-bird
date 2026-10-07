@@ -15,7 +15,7 @@ import type { LogEntry, RunState } from './types.ts';
 
 /**
  * 이벤트 해석기 — 조건(`when`) · 후보 · 가중치 추첨 · 판정형 선택지의 성공 확률 · 효과 (03-events 3~6장).
- * 잠정(#21): 루틴에 연결(칸마다 추첨 · 이벤트 관문 · `replan` · 쿨다운 상태)은 다음 조각.
+ * 루틴에 연결(칸마다 추첨 · 이벤트 관문 · 다시 채우기)은 `routine.ts`·`api.ts`.
  */
 
 /** `when`을 판단하는 데 쓰는 지금 상태 (03-events 4장) */
@@ -141,17 +141,20 @@ export function checkChance(f: Formulas, stat: number, difficulty: number): numb
 
 /**
  * 단계 이벤트 추첨 (03-events 3.1): u₁ < `chancePerStep`이면 후보 중 u₂로 하나.
- * u₁은 늘 쓰고, u₁에서 끝나거나 후보가 없으면 u₂는 쓰지 않는다. `choiceIds` = 이 단계 루틴의 칸
+ * u₁은 늘 쓰고, u₁에서 끝나거나 후보가 없으면 u₂는 쓰지 않는다. `choiceIds` = 이 단계 루틴의 칸.
+ * 칸마다 추첨하면 `slots` = 칸 수 — 확률은 `1 − (1 − chancePerStep)^(1/칸 수)` (01-formulas 9.4)
  */
 export function drawStepEvent(
   state: RunState,
   data: GameData,
   choiceIds: readonly string[],
   cooldown: Readonly<Record<string, number>> = {},
+  slots = 1,
 ): { state: RunState; event?: GameEvent } {
   const u1 = nextFloat(state.rng);
   let s: RunState = { ...state, rng: u1.state };
-  if (u1.value >= data.formulas.events.chancePerStep) return { state: s };
+  const chance = 1 - (1 - data.formulas.events.chancePerStep) ** (1 / slots);
+  if (u1.value >= chance) return { state: s };
   const c = eventContext(s, data, choiceIds);
   const candidates = eventCandidates(data.events, 'step', s.player.speciesId, c, cooldown);
   if (candidates.length === 0) return { state: s };

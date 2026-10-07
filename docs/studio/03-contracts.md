@@ -188,7 +188,8 @@ interface LogEntry {
 - **봇**: 인터페이스 그대로. 칸마다 `choose`가 1번 불린다(`view.routine`으로 몇째 칸인지·제안값을 본다). 기존 봇은 고치지 않아도 돈다. `choose` 호출 수는 결정 수가 아니다 — 지표는 로그 `decision`으로 센다.
 - **저장·리플레이**: `RunState`에 짜는 중인 루틴(칸 수·채운 칸·이벤트로 멈춘 위치)이 있어 칸 사이 어디서든 `serialize`/`deserialize`·`replay --resume-at`이 이어진다. 판 기록 `choices`는 칸 id 순서(관문·이벤트 선택이 사이에 섞임). 구현 때 `SAVE_VERSION` +1.
 - **연속 체류(`stay`)**: 칸 단위로 센다(도착한 칸 0). 칸 단위 수치(에너지·깃털 ÷ 칸 수, 고갈 `stay ÷ 칸 수`, 위험 `1 − (1 − p)^(1/칸 수)`, 잠 회복 `sleepRecoverPerStep`)는 `01-formulas` 9.4.
-- 구현(#186): `RunState.routine`(채운 칸)·`lastRoutine`(제안값), `SAVE_VERSION` 3. 에너지 상한은 칸마다 자른다. 잠정(#186): 이벤트가 아직 없어 `replan`은 늘 false.
+- 구현(#186): `RunState.routine`(채운 칸)·`lastRoutine`(제안값), `SAVE_VERSION` 3. 에너지 상한은 칸마다 자른다.
+- 구현(#21, 이벤트): 칸마다 판정 3 뒤 단계 이벤트 추첨 — 확률 `1 − (1 − events.chancePerStep)^(1/칸 수)`(`01-formulas` 9.4), u₁은 칸마다 늘 쓴다. 당첨되면 **관문 `event`**(`RunState.gate = { kind: 'event', id }`, 멈춘 자리 `RunState.paused` — 칸 수·실행한 칸 수·원래 계획). 선택지 id `event.<선택지 id>`(`kind: 'eventOption'`, `label` = 선택지 글). `getView().gate`는 `{ kind: 'event', id, cards: { choiceId, chance? }[] }` — `chance`는 판정형만(성공 확률 0~1, 03-events 5.2), 제목·본문·효과 숫자는 화면이 `data.events`·`data.effects`에서. 다시 채우기 중 `view.routine`은 `slots` = 남은 칸 수 · `filled`·`suggested`는 남은 칸만 · `replan: true` · `nextSlotIn` 없음. 이벤트 효과로 죽으면 `death`(`cause` = 효과 원인). 쿨다운 `RunState.eventCooldown`(이벤트 id → 남은 단계, 단계가 넘어갈 때 1 준다). 로그 `event` 2건(당첨: `text` = 제목, `slot` / 고름: `text` = 선택지 글) — 둘 다 `event` = 이벤트 id. `SAVE_VERSION` 6. 잠정(#21): 마지막 칸의 이벤트로 걸린 부상도 그 단계 끝에 1 준다.
 
 ### 필수 성질
 - **결정론**: 난수 상태(`RunState.rng`, 32비트 정수)가 상태 안에 있다. `Math.random`·현재 시간 사용 금지. 테스트가 지킨다.

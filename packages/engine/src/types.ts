@@ -80,6 +80,8 @@ export interface LogEntry {
   cause?: string;
   /** 칸 판정 로그면 그 단계의 몇째 칸 (1부터) */
   slot?: number;
+  /** 이벤트 로그면 이벤트 id */
+  event?: string;
   /** 조작이 끝난 개체의 생애 기록 — 계승(`inheritance`)·사망(`death`) 로그에만 (05-inheritance 8장) */
   life?: LifeRecord;
 }
@@ -182,7 +184,21 @@ export type Gate =
   | { kind: 'clutchSize'; options: number[] }
   | { kind: 'parentingPolicy' }
   | { kind: 'secondBrood' }
-  | { kind: 'inheritance' };
+  | { kind: 'inheritance' }
+  /** 단계 이벤트 — 루틴이 멈춘 자리 (03-contracts 3장 '이벤트로 멈춤') */
+  | { kind: 'event'; id: string };
+
+/** 이벤트로 멈춘 루틴 (03-contracts 3장) — 이벤트 선택지를 고르면 남은 칸을 다시 채운다 */
+export interface PausedRoutine {
+  /** 이 단계의 칸 수 — 실행 전 상태로 고정 (01-formulas 9.6) */
+  slots: number;
+  /** 이미 실행한 칸 수 */
+  done: number;
+  /** 원래 계획 — 다시 채우기의 제안값은 `plan.slice(done)` */
+  plan: string[];
+  /** 단계를 시작할 때 둥지가 있었나 — 이벤트로 둥지를 잃어도 B-5 흐름을 탄다 */
+  nest: boolean;
+}
 
 /** 지은 둥지 (04-breeding 4장). 둥지 국면 동안 이 장소에 묶인다 */
 export interface Nest {
@@ -212,6 +228,13 @@ export interface Fledgling extends Chick {
   silverSpoon: number;
   stats: Partial<Record<StatName, number>>;
   firstWinter: number;
+}
+
+/** 이벤트 선택지 카드 — 글은 `data.events`의 그 선택지, 효과 숫자는 `data.effects` 등급표 (03-events 5.3) */
+export interface EventOptionCard {
+  choiceId: string;
+  /** 판정형만 — 성공 확률 0~1 (5.2) */
+  chance?: number;
 }
 
 /** 산란수 관문 카드 (04-breeding 5장) */
@@ -302,6 +325,10 @@ export interface RunState {
   routine?: string[];
   /** 바로 전 단계에 실행한 루틴 — 다음 루틴의 제안값 */
   lastRoutine?: string[];
+  /** 이벤트로 멈춘 루틴 — 이벤트 관문 중이거나 남은 칸 다시 채우기 중 */
+  paused?: PausedRoutine;
+  /** 이벤트 id → 다시 나올 수 있을 때까지 남은 단계 수 (03-events 3.1 쿨다운). 단계가 넘어갈 때 1 줄고 0이면 지운다 */
+  eventCooldown?: Record<string, number>;
   player: Bird;
   mate?: Mate;
   /** 지은 둥지. 둥지 국면을 벗어나면 없어진다 */
@@ -326,6 +353,8 @@ export interface RunState {
    * 단계 이벤트(판정 뒤)로 걸리면 다음 단계부터, 환경 카드(판정 전)로 걸리면 그 단계부터 센다
    */
   injury?: number;
+  /** 이 단계의 이벤트로 걸린(늘어난) 부상 — 이 단계 끝에는 `injury`를 줄이지 않는다 (03-events 6.1 v0.1.2) */
+  injuryFresh?: true;
   /** 지금 걸린 육아 방침 — 항목 → 선택 (04-breeding 6장). 둥지가 없어지면 없어진다 */
   parenting?: Record<string, string>;
   /** 최근 `mate.reciprocityWindowSteps` 단계가 도움 단계였나 (04-breeding 3.3 상호성) */
@@ -362,6 +391,7 @@ export interface ViewModel {
     | { kind: 'clutchSize'; cards: ClutchSizeCard[] }
     | { kind: 'parentingPolicy'; cards: ParentingItemChoice[] }
     | { kind: 'secondBrood'; cards: SecondBroodCard[] }
+    | { kind: 'event'; id: string; cards: EventOptionCard[] }
     | {
         kind: 'inheritance';
         /** 맨 위 "번식 성공 — 총 N" */
@@ -372,15 +402,15 @@ export interface ViewModel {
   nest?: Nest;
   /** 루틴을 짜는 중일 때만 (관문 중에는 없음, 03-contracts 3장 '행동 루틴') */
   routine?: {
-    /** 이 단계의 칸 수 (평시는 스탯 합 문턱으로 7·8, 01-formulas 9.6) */
+    /** 이 단계의 칸 수 (평시는 스탯 합 문턱으로 7·8, 01-formulas 9.6). 다시 채우기면 남은 칸 수 */
     slots: number;
     /** 평시에 다음 칸까지 남은 스탯 합. 번식기·문턱을 모두 넘었으면 없음 */
     nextSlotIn?: number;
-    /** 이미 채운 칸의 선택 id */
+    /** 이미 채운 칸의 선택 id — 다시 채우기면 실행된 칸은 빠진다 */
     filled: string[];
     /** 남은 빈 칸마다 제안 id. null = 제안 없음 */
     suggested: (string | null)[];
-    /** 이벤트 뒤 남은 칸 다시 채우기 — 이벤트가 생기기 전에는 늘 false */
+    /** 이벤트 뒤 남은 칸 다시 채우기 (결정으로 세지 않는다) */
     replan: boolean;
   };
   /** 최근 판정 기록 — 이야기 피드 */

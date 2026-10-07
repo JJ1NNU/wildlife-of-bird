@@ -65,11 +65,13 @@ const GROUPS = [
 ] as const;
 type GroupKey = (typeof GROUPS)[number]['key'];
 const RES_WORD: Record<string, string> = { energy: t('main.energy'), feather: t('main.feather') };
-/** 관문 결정 버튼 글 — 문구 data/text/gate.json. 2차 번식·계승은 고른 선택지 글 그대로 */
+/** 관문 결정 버튼 글 — 문구 data/text/gate.json. 2차 번식·계승·이벤트는 고른 선택지 글 그대로 */
 function gateGo(kind: string, label?: string): string {
   if (label === undefined)
     return kind === 'inheritance' ? t('inheritance.go.none') : t(`gate.${kind}.none`);
-  return kind === 'secondBrood' || kind === 'inheritance' ? label : t(`gate.${kind}.go`, { label });
+  return kind === 'secondBrood' || kind === 'inheritance' || kind === 'event'
+    ? label
+    : t(`gate.${kind}.go`, { label });
 }
 /** 새끼 부화 순서 → 이름 (와이어프레임 mid/04-inherit A) — 문구 data/text/inheritance.json */
 const ORDINAL = [
