@@ -3,8 +3,8 @@
   "nameKo": "족제비",
   "targets": ["nest"],
   "basis": {
-    "sources": ["SRC-034"],
+    "sources": ["SRC-041"],
     "factCheck": "verified",
-    "note": "박새 둥지의 주 포식자(SRC-034). 출처는 전문가 답(C) 단독 — 사냥 방식 문장은 이벤트를 쓸 때 출처를 더한다."
+    "note": "포란 중인 암컷과 새끼를 노린다(SRC-041, 스위스 P. major 초록). 사냥 방식 문장은 이벤트를 쓸 때 출처를 더한다."
   }
 }

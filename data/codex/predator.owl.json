@@ -9,8 +9,8 @@
     "predator": "owl"
   },
   "basis": {
-    "sources": ["SRC-034", "SRC-050", "SRC-002"],
-    "factCheck": "verified",
-    "note": "성조 포식자, 종을 나누지 않음(SRC-034) · 올빼미(Strix aluco) 모형에 대한 모빙, 독일 박새(SRC-050) · 다른 종을 부름(SRC-002)."
+    "sources": ["SRC-050", "SRC-002"],
+    "factCheck": "needs-review",
+    "note": "성조 포식자, 종을 나누지 않음(SRC-034, AI 답 — 출처 아님, #266) · 올빼미(Strix aluco) 모형에 대한 모빙, 독일 박새(SRC-050) · 다른 종을 부름(SRC-002). 다시 확인 필요(#266)."
   }
 }

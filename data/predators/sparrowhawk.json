@@ -3,8 +3,8 @@
   "nameKo": "새매",
   "targets": ["adult"],
   "basis": {
-    "sources": ["SRC-034"],
+    "sources": ["SRC-041"],
     "factCheck": "verified",
-    "note": "박새 성조의 주 포식자(SRC-034). 이벤트 sparrowhawk-ambush(#114)의 predator id."
+    "note": "박새 성조와 이소한 새끼를 노린다(SRC-041, 스위스 P. major 초록). 이벤트 sparrowhawk-ambush(#114)의 predator id."
   }
 }
