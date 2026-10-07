@@ -25,7 +25,15 @@ import {
   startLife,
   stayCard,
 } from './inherit.ts';
-import { divorce, isPhaseStart, makeCandidates, mateCards, mateChoices, mateYear } from './mate.ts';
+import {
+  divorce,
+  isPhaseStart,
+  makeCandidates,
+  mateCards,
+  mateChoices,
+  mateYear,
+  potentialRange,
+} from './mate.ts';
 import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
 import {
   carryOrder,
@@ -400,6 +408,12 @@ export function getView(state: RunState, data: GameData): ViewModel {
     node: state.node,
     player: state.player,
     energyCap: fatCap(data.formulas, state.player.stats.stamina ?? 0),
+    potentialRange: Object.fromEntries(
+      Object.entries(state.player.potential).map(([stat, v]) => [
+        stat,
+        potentialRange(data.formulas, v ?? 0),
+      ]),
+    ),
     totalBreeding: state.totalBreeding,
     gameOver: state.gameOver,
     ...(state.gate?.kind === 'mateCandidate'

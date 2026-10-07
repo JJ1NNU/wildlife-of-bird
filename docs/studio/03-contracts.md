@@ -121,6 +121,7 @@ interface ViewModel {
   node: string                   // 지금 장소 id — 이름은 data.nodes
   player: Bird                   // 종 · 성별 · 나이 · 에너지 · 스탯(현재값) · 잠재력 · 깃털 · 경험 연수
   energyCap: number              // 에너지 상한(지방 상한, 01-formulas 2.1)
+  potentialRange: { [stat]: [아래, 위] }  // 플레이어 잠재력 등급 범위 — 숫자 대신 이것을 보인다 (05-inheritance 4장)
   totalBreeding: number          // 점수
   gameOver: boolean
   gate?: { kind: 'mateCandidate', cards: MateCandidateCard[], previousGone?: 'mateDeath' | 'divorce' }  // 열린 관문 — 짝 후보(S-20). previousGone = 지난 짝이 없어진 이유(2.1)

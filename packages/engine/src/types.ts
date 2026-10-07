@@ -340,6 +340,8 @@ export interface ViewModel {
   player: Bird;
   /** 에너지의 상한(지방 상한, 01-formulas 2.1) */
   energyCap: number;
+  /** 플레이어 잠재력 — 스탯마다 등급 범위 [아래, 위]. 숫자는 보이지 않는다 (05-inheritance 4장) */
+  potentialRange: Partial<Record<StatName, [string, string]>>;
   totalBreeding: number;
   gameOver: boolean;
   /** 열려 있는 관문의 카드 — 짝 후보(S-20) · 짝 지시 · 둥지 자리(S-23) · 산란수 */
