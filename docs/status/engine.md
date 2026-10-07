@@ -2,13 +2,17 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 31 뒤, 자동 근무)
+- 마지막 근무: 2026-10-08 (라운드 32, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
 - #21 M1 — 남은 조각 계속
-- #326 review:design 대기 — 승인되면 merge-pr.sh
-- 다음 조각: 루틴에 연결 — 칸마다 추첨(루틴당 1개) → 이벤트 관문 → `applyEffects` → 남은 칸 `replan`(#188) · 쿨다운 상태 · `event` 로그
+- #330 review:design 대기 — 승인되면 merge-pr.sh
+- 다음 조각: 루틴에 연결 — 칸마다 `drawStepEvent`(루틴당 1개) → 이벤트 관문(`eventOption`) → `resolveOption` → 남은 칸 `replan`(#188) · 쿨다운 상태(RunState, SAVE_VERSION +1) · `event` 로그
+
+## 최근 완료 (라운드 32)
+- **#326 머지**(design 승인 — 이소 시점·compete 가감 그대로 동의)
+- **#330 열음**(#21): `drawStepEvent`(3.1 u₁ 늘 씀, 후보 없으면 u₂ 안 씀) · `resolveOption`(5장 판정형 → onSuccess/onFail). 호출처 없음. check 통과(테스트 122)
 
 ## 최근 완료 (라운드 31 뒤)
 - **#326 열음**(#21): 효과 `fledgeEarly` — `Nest.fledgedEarly` 표시 · postFledge에 은수저 충족도 더 안 쌓음 · `applyEffects` default throw 제거(11종 전부). 잠정: 독립 때 이소 시점·compete 가감은 그대로. check 통과(테스트 118)
