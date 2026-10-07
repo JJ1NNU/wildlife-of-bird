@@ -266,6 +266,8 @@ export function Game({ data }: { data: GameData }) {
   const [confirming, setConfirming] = useState(false);
   const [shown, setShown] = useState(0);
   const [paused, setPaused] = useState(false);
+  /** 평시 칸 수가 바뀐 직후 한 줄 알림(01-formulas 9.6). 다음 결정에서 사라진다 */
+  const [slotNote, setSlotNote] = useState<{ from: number; to: number }>();
 
   useEffect(() => {
     if (!replay || paused || shown >= replay.rows.length) return;
@@ -392,6 +394,10 @@ export function Game({ data }: { data: GameData }) {
   }
 
   function commit(next: RunState) {
+    // 칸 수 알림: 평시(6칸 이상)끼리 바뀔 때만 — 번식기 칸 나누기는 알리지 않는다
+    const from = state && getView(state, data).routine?.slots;
+    const to = getView(next, data).routine?.slots;
+    setSlotNote(from && to && from >= 6 && to >= 6 && from !== to ? { from, to } : undefined);
     saveRun(next);
     setState(next);
     setPicked(undefined);
@@ -1033,7 +1039,22 @@ export function Game({ data }: { data: GameData }) {
             </div>
 
             <div className="slots" data-testid="routine">
-              <div className="cells">
+              {(slotNote || view.routine?.nextSlotIn !== undefined) && (
+                // 평시 칸 수(01-formulas 9.6) — 문구 잠정(#278), 콘텐츠가 data/text/routine.json에 키를 내면 바꾼다
+                <div className="slot-head" role="status" data-testid="slot-head">
+                  {slotNote ? (
+                    <b>
+                      {slotNote.to}칸으로 {slotNote.to > slotNote.from ? '늘었다' : '줄었다'}
+                    </b>
+                  ) : (
+                    <span>{slots.length + done}칸</span>
+                  )}
+                  {view.routine?.nextSlotIn !== undefined && (
+                    <span> · 다음 칸까지 스탯 합 {view.routine.nextSlotIn}</span>
+                  )}
+                </div>
+              )}
+              <div className={`cells${slots.length + done > 6 ? ' many' : ''}`}>
                 {slots.map((s, k) => {
                   const place = placeBefore(k);
                   return (
