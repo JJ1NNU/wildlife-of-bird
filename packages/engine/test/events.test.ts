@@ -260,4 +260,18 @@ describe('루틴에 연결 — 칸마다 추첨 · 이벤트로 멈춤 · 다시
     expect(r.paused).toBeUndefined();
     expect(r.eventCooldown).toEqual({ 'ev.t.a': f.events.cooldownSteps - 1 });
   });
+
+  it('칸 이벤트로 injury small(2) → 그 단계 끝에는 줄지 않고 다음 두 단계 뒤 낫는다 (03-events 6.1 v0.1.2)', () => {
+    const hurt: GameEvent = {
+      ...ev,
+      options: [{ id: 'hurt', text: '다쳤다', effects: [{ type: 'injury', tier: 'small' }] }],
+    };
+    const d: GameData = { ...data, events: [hurt] };
+    let r = act(s, 'event.hurt', d).state;
+    expect(r.injury).toBe(2);
+    for (let i = 0; i < n - 1; i++) r = act(r, 'action.rest', d).state;
+    expect(r.at).not.toEqual(start.at);
+    expect(r.injury).toBe(2);
+    expect(r.injuryFresh).toBeUndefined();
+  });
 });

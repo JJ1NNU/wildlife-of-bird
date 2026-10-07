@@ -353,6 +353,8 @@ export interface RunState {
    * 단계 이벤트(판정 뒤)로 걸리면 다음 단계부터, 환경 카드(판정 전)로 걸리면 그 단계부터 센다
    */
   injury?: number;
+  /** 이 단계의 이벤트로 걸린(늘어난) 부상 — 이 단계 끝에는 `injury`를 줄이지 않는다 (03-events 6.1 v0.1.2) */
+  injuryFresh?: true;
   /** 지금 걸린 육아 방침 — 항목 → 선택 (04-breeding 6장). 둥지가 없어지면 없어진다 */
   parenting?: Record<string, string>;
   /** 최근 `mate.reciprocityWindowSteps` 단계가 도움 단계였나 (04-breeding 3.3 상호성) */

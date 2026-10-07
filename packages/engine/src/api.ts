@@ -254,7 +254,10 @@ function pickEventOption(state: RunState, choiceId: string, data: GameData): Act
     { at: state.at, type: 'event', text: option?.text ?? optionId, event: event.id },
     ...out.log,
   ];
-  const { gate: _g, paused, ...closed } = out.state;
+  const { gate: _g, paused, ...after } = out.state;
+  // 이 단계 판정 뒤에 걸린 부상 — 남은 칸에는 배율이 붙지만 이 단계 끝에는 줄지 않는다 (03-events 6.1 `injury`)
+  const fresh = (after.injury ?? 0) > (state.injury ?? 0);
+  const closed: RunState = fresh ? { ...after, injuryFresh: true } : after;
   if (!paused) throw new Error('멈춘 루틴 없이 이벤트 관문이 열려 있다');
   if (out.death) {
     const text = out.death === 'starvation' ? '굶어 죽었다' : '목숨을 잃었다';
@@ -273,7 +276,7 @@ function pickEventOption(state: RunState, choiceId: string, data: GameData): Act
  * `hadNest` = 단계를 시작할 때 둥지가 있었나 (이벤트로 잃어도 B-5)
  */
 function endStep(state: RunState, routed: ActResult, hadNest: boolean, data: GameData): ActResult {
-  // 부상은 판정 3을 받은 단계가 끝날 때 1 준다 — 이 단계 판정 뒤에 걸린 부상은 다음 단계부터 센다 (03-events 6.1 `injury`)
+  // 부상은 판정 3을 받은 단계가 끝날 때 1 준다 — 이 단계 이벤트로 걸린 부상은 다음 단계부터 센다 (03-events 6.1 `injury`)
   const ran = { ...routed, state: heal(routed.state) };
   const log = ran.log;
   if (ran.state.gameOver) return { state: { ...ran.state, log: [...state.log, ...log] }, log };
@@ -353,9 +356,10 @@ function endStep(state: RunState, routed: ActResult, hadNest: boolean, data: Gam
   return { state: { ...next.state, log: [...state.log, ...log] }, log };
 }
 
-/** 부상 1 감소, 0이면 지운다 (03-events 6.1 `injury`) */
+/** 부상 1 감소, 0이면 지운다. 이 단계에 걸린 부상이면 표시만 지운다 (03-events 6.1 `injury`) */
 function heal(state: RunState): RunState {
-  const { injury, ...rest } = state;
+  const { injury, injuryFresh, ...rest } = state;
+  if (injuryFresh && injury) return { ...rest, injury };
   return injury && injury > 1 ? { ...rest, injury: injury - 1 } : rest;
 }
 
