@@ -2,13 +2,17 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 14:25 (라운드 23, 자동 근무)
+- 마지막 근무: 2026-10-07 15:40 (라운드 23, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
 - #21 M1 — 남은 관문 조각 계속(#219 육아 방침 머지됨)
 - #121 — 2.1 머지(#220), 실패 뒤 `secondBrood` 머지(#236), 짝 없이 `nestSite` 분할 해제 #240 머지. 남은 것 = 1차 성공 뒤 2차 번식(계승 #139 뒤)
-- #139 — 새 키 #153 · 새끼 성별·잠재력 #242 · 1년 생존 예상 #248(main 직접, 사후 리뷰) 머지. 은수저 #244 · 독립 #250 머지. 관문 `inheritance` #258 리뷰 대기. 남은 것: 은수저 성장 배율(`growthUntilAge`) · 가계도 로그(8장)
+- #139 — 새 키 #153 · 새끼 성별·잠재력 #242 · 1년 생존 예상 #248(main 직접, 사후 리뷰) 머지. 은수저 #244 · 독립 #250 머지. 관문 `inheritance` #258 머지. 은수저 성장 배율 #260 리뷰 대기. 남은 것: 가계도 로그(8장)
+
+## 최근 완료 (라운드 23, 2번째)
+- **#258 머지**(design·client 승인)
+- **#260 열음**(#139): 은수저 성장 배율 — `Bird.silverSpoon` 있고 나이 ≤ `growthUntilAge`이면 스탯 상승 × `growthMult`(런 시작 개체는 1). 03-contracts `'inheritance'` 중복 제거. check 통과(테스트 89), 시뮬 avg·random 200판 오류 0, 리플레이 다름 0. review:design 대기
 
 ## 최근 완료 (라운드 23)
 - **#258 열음**(#139): `inherit.ts` — postFledge 마지막 단계에 독립 → `totalBreeding` +1(로그 `breeding`) → 관문 `inheritance`(`inherit.stay`·`inherit.chick.<n>`) · view `{totalBreeding, stay, cards}`(yearSurvival 포함) · 잔류 → secondBrood 관문(#121 1차 성공 뒤) · 계승 → 새끼가 player(7장 예시 33.71·80 일치), `Bird.silverSpoon` 첫 겨울 · forecast.test #255 값 · 03-contracts · web GATE_GO 한 줄. check 통과(테스트 88), 시뮬 avg·random·임시 계승 봇 200판 오류 0, 리플레이 다름 0. review:design·client 대기
