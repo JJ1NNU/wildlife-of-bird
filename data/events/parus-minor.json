@@ -1525,9 +1525,9 @@
         ]
       }
     ],
-    "ecologyBasis": "박새류의 이소 후 돌봄은 평균 3주쯤이지만 둥지마다 길이가 크게 다르다. 2차 번식에 들어간 암컷은 이소한 새끼를 덜 돌본다. 유럽 박새 연구다.",
-    "sources": ["SRC-043"],
-    "factCheck": "needs-review"
+    "ecologyBasis": "박새류의 이소 후 돌봄은 평균 3주쯤이지만 둥지마다 길이가 크게 다르다. 2차 번식에 들어간 암컷은 이소한 새끼를 덜 돌본다(유럽 박새). 일본 박새에서는 이소 직후 영역에 먹이가 적을수록 새끼가 부모에게 더 오래 기댔다.",
+    "sources": ["SRC-043", "SRC-090"],
+    "factCheck": "verified"
   },
   {
     "id": "ev.parus-minor.light-fledgling",
