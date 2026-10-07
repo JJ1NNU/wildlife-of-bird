@@ -329,8 +329,8 @@ export function Game({ data }: { data: GameData }) {
   const chickName = (i: number, card: InheritanceChickCard) =>
     `${ORDINAL[i] ?? `${i + 1}째`} ${SEX_MARK[card.sex]}`;
   // S-13: 지금 이벤트의 글(제목·본문·선택지)은 data/events
-  const gateEvent =
-    view.gate?.kind === 'event' ? data.events.find((e) => e.id === view.gate?.id) : undefined;
+  const eventGate = view.gate?.kind === 'event' ? view.gate : undefined;
+  const gateEvent = eventGate && data.events.find((e) => e.id === eventGate.id);
   const gateId = policyCards ? (picked ?? 'parentingPolicy') : pickedChoice?.id;
   // 장소 등급은 종의 계절 구분(밸런스)을 따른다 — 엔진의 seasonOf와 같은 규칙
   const seasonPeriods = data.balance.get(view.speciesId)?.seasons;
