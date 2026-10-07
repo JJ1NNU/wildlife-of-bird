@@ -31,5 +31,11 @@
   "routine.group.train": "훈련",
   "routine.group.move": "옮기기",
   "routine.group.trainHint": "스탯 하나를 고른다",
-  "routine.group.moveHint": "갈 수 있는 곳 {n}"
+  "routine.group.moveHint": "갈 수 있는 곳 {n}",
+  "routine.editFrom": "— {n}칸 뒤 에너지 {energy}에서",
+  "routine.prevSlot": "앞 칸",
+  "routine.nextSlot": "다음 칸",
+  "routine.slotActions": "{n}칸 행동",
+  "routine.table.resultLabel": "칸별 결과",
+  "routine.table.previewLabel": "칸별 예상"
 }

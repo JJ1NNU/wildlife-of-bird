@@ -9,5 +9,7 @@
   "main.nest.eggs": "알 {n}개",
   "main.nest.chicks": "새끼 {n}마리",
   "main.nest.beforeLaying": "알 낳기 전",
-  "main.feed": "지난 일"
+  "main.feed": "지난 일",
+  "main.move.destination": "먹이 {food} · 경쟁 {competition}",
+  "main.age": "{n}세"
 }
