@@ -1,0 +1,21 @@
+{
+  "word.stat.flight": "비행",
+  "word.stat.foraging": "채식",
+  "word.stat.vigilance": "경계",
+  "word.stat.stamina": "체력",
+  "word.stat.display": "과시",
+  "word.stat.social": "사회",
+  "word.stat.navigation": "항법",
+  "word.food.scarce": "아주 적음",
+  "word.food.low": "적음",
+  "word.food.medium": "보통",
+  "word.food.high": "많음",
+  "word.food.rich": "아주 많음",
+  "word.competition.none": "없음",
+  "word.competition.low": "낮음",
+  "word.competition.medium": "보통",
+  "word.competition.high": "높음",
+  "word.risk.low": "낮음",
+  "word.risk.mid": "보통",
+  "word.risk.high": "높음"
+}

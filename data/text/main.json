@@ -1,0 +1,13 @@
+{
+  "main.period.firstHalf": "{year}년차 {month}월 상반",
+  "main.period.secondHalf": "{year}년차 {month}월 하반",
+  "main.step": "{n}단계",
+  "main.totalBreeding": "총 번식",
+  "main.energy": "에너지",
+  "main.feather": "깃털",
+  "main.nest": "둥지",
+  "main.nest.eggs": "알 {n}개",
+  "main.nest.chicks": "새끼 {n}마리",
+  "main.nest.beforeLaying": "알 낳기 전",
+  "main.feed": "지난 일"
+}
