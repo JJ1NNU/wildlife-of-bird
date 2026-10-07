@@ -9,13 +9,13 @@ import type {
 } from '@wb/schema';
 import { phaseAt } from './calendar.ts';
 import { fatCap, statGain } from './formulas.ts';
-import { nextChance } from './rng.ts';
+import { nextChance, nextFloat } from './rng.ts';
 import { growthNow, mapNode, speciesBalance } from './step.ts';
 import type { LogEntry, RunState } from './types.ts';
 
 /**
  * 이벤트 해석기 — 조건(`when`) · 후보 · 가중치 추첨 · 판정형 선택지의 성공 확률 · 효과 (03-events 3~6장).
- * 잠정(#21): 루틴에 연결(칸마다 추첨 · 이벤트 관문 · `replan`)은 다음 조각.
+ * 잠정(#21): 루틴에 연결(칸마다 추첨 · 이벤트 관문 · `replan` · 쿨다운 상태)은 다음 조각.
  */
 
 /** `when`을 판단하는 데 쓰는 지금 상태 (03-events 4장) */
@@ -137,6 +137,53 @@ export function checkChance(f: Formulas, stat: number, difficulty: number): numb
     e.checkMax,
     Math.max(e.checkMin, e.checkBase + e.checkPerPoint * (stat - difficulty)),
   );
+}
+
+/**
+ * 단계 이벤트 추첨 (03-events 3.1): u₁ < `chancePerStep`이면 후보 중 u₂로 하나.
+ * u₁은 늘 쓰고, u₁에서 끝나거나 후보가 없으면 u₂는 쓰지 않는다. `choiceIds` = 이 단계 루틴의 칸
+ */
+export function drawStepEvent(
+  state: RunState,
+  data: GameData,
+  choiceIds: readonly string[],
+  cooldown: Readonly<Record<string, number>> = {},
+): { state: RunState; event?: GameEvent } {
+  const u1 = nextFloat(state.rng);
+  let s: RunState = { ...state, rng: u1.state };
+  if (u1.value >= data.formulas.events.chancePerStep) return { state: s };
+  const c = eventContext(s, data, choiceIds);
+  const candidates = eventCandidates(data.events, 'step', s.player.speciesId, c, cooldown);
+  if (candidates.length === 0) return { state: s };
+  const u2 = nextFloat(s.rng);
+  s = { ...s, rng: u2.state };
+  const event = pickEvent(candidates, data.effects.eventWeight, u2.value);
+  return event ? { state: s, event } : { state: s };
+}
+
+/**
+ * 고른 선택지를 적용한다 (03-events 5장): 판정형이면 먼저 성공 판정(u < `checkChance`) → `onSuccess`·`onFail`,
+ * 고정 효과면 `effects`. 난수 순서 = 선택지 판정 → 효과 판정(3.1). `success`는 판정형일 때만
+ */
+export function resolveOption(
+  state: RunState,
+  event: GameEvent,
+  optionId: string,
+  data: GameData,
+): ReturnType<typeof applyEffects> & { success?: boolean } {
+  const option = event.options.find((o) => o.id === optionId);
+  if (!option) throw new Error(`이벤트 ${event.id}에 선택지 ${optionId}가 없다`);
+  if (!option.check) return applyEffects(state, option.effects ?? [], data);
+  const { stat, difficulty } = option.check;
+  const p = checkChance(
+    data.formulas,
+    state.player.stats[stat] ?? 0,
+    data.effects.checkDifficulty[difficulty] ?? 0,
+  );
+  const rolled = nextChance(state.rng, p);
+  const s = { ...state, rng: rolled.state };
+  const out = applyEffects(s, (rolled.value ? option.onSuccess : option.onFail) ?? [], data);
+  return { ...out, success: rolled.value };
 }
 
 /**
