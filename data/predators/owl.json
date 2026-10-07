@@ -3,8 +3,8 @@
   "nameKo": "올빼미류",
   "targets": ["adult"],
   "basis": {
-    "sources": ["SRC-034"],
+    "sources": ["SRC-050"],
     "factCheck": "needs-review",
-    "note": "성조 포식자 자리. 이벤트 long-cold-night(#114)의 predator id. 박새류가 올빼미 모형에 모빙한다(SRC-050)는 확인했지만, 박새를 얼마나 잡는지 문헌은 못 찾았다 — 이전 근거 SRC-034는 AI 답이라 빈도('가끔')를 뺐다(#266). Korpimäki & Sulkava(Ornis Fennica, 핀란드 긴꼬리올빼미 식단)는 들쥐 위주이고 박새류 수치 없음."
+    "note": "성조 포식자 자리. 이벤트 long-cold-night(#114)의 predator id. 박새류가 올빼미 모형에 모빙한다(SRC-050)는 확인했지만, 박새를 얼마나 잡는지 문헌은 못 찾았다 — 이전 근거(AI 답, #266)를 떼고 빈도('가끔')도 뺐다. Korpimäki & Sulkava(Ornis Fennica, 핀란드 긴꼬리올빼미 식단)는 들쥐 위주이고 박새류 수치 없음."
   }
 }
