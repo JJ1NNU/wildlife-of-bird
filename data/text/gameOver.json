@@ -1,0 +1,14 @@
+{
+  "gameOver.title": "여기까지",
+  "gameOver.cause": "죽은 이유",
+  "gameOver.lastAction": "마지막 행동: {text}",
+  "gameOver.energyLeft": "남은 에너지",
+  "gameOver.familyTree": "가계도",
+  "gameOver.life": "{generation}세대 · {sex} · {span} · {end} · 번식 {breeding} · 독립 {fledged}",
+  "gameOver.life.span": "{start} {startAge}세 ~ {end} {endAge}세",
+  "gameOver.life.female": "암컷",
+  "gameOver.life.male": "수컷",
+  "gameOver.life.inherit": "계승",
+  "gameOver.life.death": "사망",
+  "gameOver.life.deathCause": "사망({cause})"
+}
