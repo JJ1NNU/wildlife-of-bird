@@ -79,6 +79,27 @@ describe('독립 → 계승 관문 (00-core-loop 6.1 · 05-inheritance 5장)', (
     expect(stayed.player).toEqual(gated.player);
   });
 
+  it('잔류 → 2차 번식 → 둘째 둥지 독립 → 계승 관문, 잔류하면 더 열리지 않고 털갈이로 (04-breeding 7장)', () => {
+    const pick: Record<string, string> = {
+      mateOrder: 'mateOrder.none',
+      nestSite: 'nestSite.deep',
+      clutchSize: 'clutchSize.6',
+    };
+    let s = actStep(actStep(gated, 'inherit.stay', data).state, 'secondBrood.yes', data).state;
+    expect(s.at).toMatchObject({ period: 13, step: 1 });
+    while (s.gate?.kind !== 'inheritance' && s.at.period <= 14) {
+      const kind = s.gate?.kind;
+      const id = kind ? (pick[kind] ?? getChoices(s, data)[0]?.id) : 'action.rest';
+      s = actStep(s, id ?? 'action.rest', data).state;
+    }
+    expect(s.gate?.kind).toBe('inheritance');
+    expect(s.at).toMatchObject({ period: 14, step: 3 });
+    expect(s).toMatchObject({ yearNests: 2, totalBreeding: 2 });
+    const stayed = actStep(s, 'inherit.stay', data).state;
+    expect(stayed.gate).toBeUndefined();
+    expect(getView(stayed, data).phase).toBe('molt');
+  });
+
   it('계승 → 새끼가 조작 개체가 된다 (7장 예시: 에너지 33.71, 깃털 80, 나이 0, 다음은 period 13 molt)', () => {
     const next = actStep(gated, 'inherit.chick.1', data).state;
     expect(next.player).toMatchObject({ sex: 'female', age: 0, expYears: 0, feather: 80 });
