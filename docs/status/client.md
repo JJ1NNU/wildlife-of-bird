@@ -10,6 +10,7 @@
 - **#24** M1 화면 — #125(S-10 · 자동 저장 · S-30) · #134(S-01) · #142(글꼴) · #154(훈련·옮기기 펼침) · #157(빨리 감기) · #164(S-20 짝 후보) · #185(스탯 표·S-23) · #198(산란수 카드) · #211(둥지 줄) · #225(S-22 육아 방침) · #231(S-20 지난 짝) · #235(지난 짝 등급 범위·유대) · #239(2차 번식 카드) · #261(S-24 계승) · #289(S-10 칸 수) · #293(data/text 문구) 머지. 이벤트·나머지 번식 관문·계승은 엔진 #21 대기
 
 ## 최근 완료
+- #297 열림(콘텐츠) — 관문 화면 문구(GATE_GO·POLICY_WORD·GRADE/HINT/PERSONALITY_WORD·MATE_GONE) `data/text/` 키 요청. 머지되면 `Game.tsx`를 `t()`로 (라운드 26)
 - #293 머지 — 화면 문구를 `data/text/*.json`에서 읽기: `apps/web/src/text.ts`의 `t(key, vars)`(`{n}` 채움, 키 없으면 키 그대로). S-10 칸 줄 머리(`routine.slots.*`) · S-24 계승 화면 전부(`inheritance.*`). #278 닫음(#289로 끝) (라운드 26)
 - #289 열림(review:art) — #278 S-10 평시 칸 수: 칸 줄 위 `.slot-head` 한 줄(`6칸 · 다음 칸까지 스탯 합 N`, `view.routine.nextSlotIn`), 결정 뒤 평시 칸 수가 바뀌면 `N칸으로 늘었다/줄었다`(`slotNote`, `commit`에서 계산), 7칸 이상 `.cells.many`(최소 폭 0, 8칸 ≈38px). 문구 잠정 → 콘텐츠 #290 (라운드 25)
 - #285 머지 — S-30 가계도: `state.log`의 `life` 줄 → 세대마다 한 줄(성별 · 조작 기간 · 계승/사망(원인) · 번식 · 독립), `lifeLine`(Game.tsx), 문구 잠정 #24 / #284 리뷰 승인(client) — 엔진 `ViewModel.potentialRange`(플레이어 잠재력 등급 범위). S-03·S-15에 잠재력을 그릴 때 숫자 대신 이것 (라운드 25)
@@ -44,7 +45,7 @@
 - #24 나머지(이벤트·번식·계승·옮기기·훈련 스탯): 엔진 #21이 선택(kind)을 내야 함
 
 ## 다음 근무에서 할 일
-000. 남은 하드코딩 문구(GATE_GO·POLICY_WORD·MATE_GONE·S-30 가계도·S-20~23 카드)는 콘텐츠가 `data/text/`에 키를 내면 `t()`로 — 필요하면 콘텐츠에 이슈. `inheritance.silverSpoon.help`·`firstWinter.help`(도움말)는 아직 안 붙임(도움말 UI 없음)
+000. 남은 하드코딩 문구: 관문 쪽은 콘텐츠 #297 머지되면 `t()`로. S-30 가계도(`lifeLine`)는 #21 뒤 사망 원인이 굳으면 따로 요청. `inheritance.silverSpoon.help`·`firstWinter.help`(도움말)는 아직 안 붙임(도움말 UI 없음)
 00-0. S-24 남은 것: 확인표의 깃털·부상 줄 · 새끼 그림(`bird.parus-minor.juv.perch`, #146) — 엔진·아트가 내면 `Game.tsx`의 `inherit-confirm`·`chickRow`에
 0-0-0-0. S-22 남은 것: 요약 줄(이소 기대 수·내 번식 비용, 04-breeding 6.4) — 엔진이 값을 내면 `parentingPolicy` 분기(Game.tsx) 아래에. 엔진 로그의 방침 글이 id 그대로(`high`)라 엔진이 문구를 내면 따른다
 0-0-0. S-21 남은 것(엔진 ViewModel에 나오면): 짝 줄(나이·유대·성격 힌트/확인·지시 n/3), 지시 효과 설명 수치
