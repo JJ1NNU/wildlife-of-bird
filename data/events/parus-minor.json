@@ -1078,9 +1078,9 @@
         ]
       }
     ],
-    "ecologyBasis": "포란을 암컷이 혼자 하는 참새목 새는 수컷이 품는 암컷에게 먹이를 가져다주는 경우가 많고, 수컷이 자주 먹일수록 암컷이 둥지를 덜 비운다(320종 비교 연구). 박새의 포란 중 급이 빈도는 확인하지 못했다.",
-    "sources": ["SRC-040", "SRC-001"],
-    "factCheck": "needs-review"
+    "ecologyBasis": "박새는 포란을 암컷이 하고, 수컷이 품는 암컷에게 먹이를 날라 준다. 수컷의 급이는 암컷의 조르는 몸짓·소리가 이끌 수 있다. 수컷이 자주 먹일수록 암컷이 둥지를 덜 비운다는 것은 여러 종 비교 연구다. 박새의 급이 빈도는 확인하지 못했다.",
+    "sources": ["SRC-092", "SRC-040", "SRC-001"],
+    "factCheck": "verified"
   },
   {
     "id": "ev.parus-minor.leave-eggs-to-feed",
@@ -1427,9 +1427,9 @@
         ]
       }
     ],
-    "ecologyBasis": "박새류 부모는 새끼가 둥지를 떠난 뒤에도 몇 주 동안 먹이를 날라 준다. 이소 직후 며칠은 새끼가 가장 많이 죽는 때이고, 주된 원인은 포식이다. 둘 다 유럽 박새 연구다.",
-    "sources": ["SRC-043", "SRC-044"],
-    "factCheck": "needs-review"
+    "ecologyBasis": "일본 박새는 둥지를 떠난 새끼가 2~4주 동안 부모에게 먹이를 받으며 가족 무리로 다닌다. 이소 직후 며칠은 새끼가 가장 많이 죽는 때이고 주된 원인은 포식이라는 것은 유럽 박새 연구다.",
+    "sources": ["SRC-093", "SRC-044", "SRC-043"],
+    "factCheck": "verified"
   },
   {
     "id": "ev.parus-minor.crow-near-fledglings",
@@ -2171,9 +2171,9 @@
         ]
       }
     ],
-    "ecologyBasis": "박새류는 아주 추울 때 굶을 위험이 커져 몸에 지방을 더 쌓고, 무리 안 먹이 다툼도 심해진다(유럽 박새). 겨울 박새의 먹이는 식물성 먹이(씨앗)가 큰 몫이고, 낮은 기온은 곤충을 줄인다.",
-    "sources": ["SRC-053", "SRC-054"],
-    "factCheck": "needs-review"
+    "ecologyBasis": "일본 도쿄의 박새는 눈이 오거나 몹시 추운 해에 1년생이 많이 죽어 이듬해 번식 쌍이 줄었다. 박새류는 아주 추울 때 굶을 위험이 커져 몸에 지방을 더 쌓고, 무리 안 먹이 다툼도 심해진다(유럽 박새).",
+    "sources": ["SRC-093", "SRC-053", "SRC-054"],
+    "factCheck": "verified"
   },
   {
     "id": "ev.parus-minor.heavy-snow",
