@@ -164,8 +164,8 @@ u < 성공 확률 → onSuccess, 아니면 onFail
 | `deathRisk` | `tier` `cause` (+`predator`) | low·medium·high | 그 자리에서 1회 사망 판정: `u < 값`이면 사망, 원인 `cause` | 조작 개체 |
 | `broodRisk` | `tier` | low·medium·high | 그 자리에서 1회 둥지 판정: `u < 값`이면 알·새끼 전멸(`00-core-loop` B-5) | 둥지 |
 | `chickLoss` | `tier` | small·medium·large | 살아 있는 새끼 수 × 값을 **올림**한 만큼 사망(1마리 이상). 전부 죽으면 전멸 | 새끼 |
-| `riskMod` | `tier` | low·medium·high | **그 시기가 끝날 때까지** 위험에 `× (1 + 값)`. 여러 개면 곱한다 | 조작 개체 |
-| `foodMod` | `tier` `sign` | small·medium·large | **그 시기가 끝날 때까지** 섭취에 `× (1 + 값)`(gain) 또는 `× (1 − 값)`(loss). 여러 개면 곱한다 | 조작 개체의 섭취 |
+| `riskMod` | `tier` | low·medium·high | **그 시기가 끝날 때까지** 위험에 `× (1 + 값)`. 여러 개면 곱한다 | 조작 개체의 사망 위험(`01-formulas` 3.1) · 둥지 손실(3.2) |
+| `foodMod` | `tier` `sign` | small·medium·large | **그 시기가 끝날 때까지** 섭취에 `× (1 + 값)`(gain) 또는 `× (1 − 값)`(loss). 여러 개면 곱한다 | 조작 개체의 섭취(`01-formulas` 2.3) · 짝 r(`04-breeding` 3.3) |
 | `fledgeEarly` | — | — | 새끼가 **지금** 둥지를 떠난다(이소). 은수저 지수는 지금까지(이 단계 포함)의 평균으로 확정하고, 다음 단계부터 `postFledge`. 육추의 마지막 단계에서만 쓸 수 있어(6.2) 국면 길이는 바뀌지 않는다 — 이 효과의 무게는 "둥지 전체를 걸지 않고 새끼 일부만 잃는 탈출"(7.2)에 있다 | 새끼 |
 
 - `sign`이 있는 효과는 **`sign`이 필수**다(#37 결정 A).
