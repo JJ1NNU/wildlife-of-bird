@@ -102,3 +102,29 @@ describe('짝 없이 nestSite에 들어오면 분할 해제 (00-core-loop 4.6)',
     expect(r.log.some((e) => e.type === 'brood')).toBe(true);
   });
 });
+
+describe('둥지 손실 (01-formulas 3.2 · B-5)', () => {
+  const holes = testData.breeding.nestSite.holes;
+  const data = {
+    ...testData,
+    breeding: {
+      ...testData.breeding,
+      nestSite: {
+        ...testData.breeding.nestSite,
+        holes: { ...holes, deep: { ...holes.deep, nestLossMult: 100 } },
+      },
+    },
+  } as typeof testData;
+  const incubating: RunState = {
+    ...failedAt(9, 2),
+    player: { ...start.player, energy: 60 },
+    nest: { site: 'deep', node: start.node, eggs: 6 },
+  };
+
+  it('알이 있는 incubation 단계에 손실 → 둥지를 거두고 2차 번식 여부 관문', () => {
+    const r = actStep(incubating, 'action.rest', data);
+    expect(r.state.nest).toBeUndefined();
+    expect(r.log).toContainEqual(expect.objectContaining({ type: 'brood', cause: 'nestLoss' }));
+    expect(r.state.gate?.kind).toBe('secondBrood');
+  });
+});

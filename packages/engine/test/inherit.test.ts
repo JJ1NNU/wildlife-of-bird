@@ -85,17 +85,28 @@ describe('독립 → 계승 관문 (00-core-loop 6.1 · 05-inheritance 5장)', (
       nestSite: 'nestSite.deep',
       clutchSize: 'clutchSize.6',
     };
-    let s = actStep(actStep(gated, 'inherit.stay', data).state, 'secondBrood.yes', data).state;
+    // 경로만 본다 — 둥지 손실(3.2)은 0으로
+    const holes = Object.fromEntries(
+      Object.entries(data.breeding.nestSite.holes).map(([id, h]) => [
+        id,
+        { ...h, nestLossMult: 0 },
+      ]),
+    );
+    const safe = {
+      ...data,
+      breeding: { ...data.breeding, nestSite: { ...data.breeding.nestSite, holes } },
+    } as typeof data;
+    let s = actStep(actStep(gated, 'inherit.stay', safe).state, 'secondBrood.yes', safe).state;
     expect(s.at).toMatchObject({ period: 13, step: 1 });
     while (s.gate?.kind !== 'inheritance' && s.at.period <= 14) {
       const kind = s.gate?.kind;
-      const id = kind ? (pick[kind] ?? getChoices(s, data)[0]?.id) : 'action.rest';
-      s = actStep(s, id ?? 'action.rest', data).state;
+      const id = kind ? (pick[kind] ?? getChoices(s, safe)[0]?.id) : 'action.rest';
+      s = actStep(s, id ?? 'action.rest', safe).state;
     }
     expect(s.gate?.kind).toBe('inheritance');
     expect(s.at).toMatchObject({ period: 14, step: 3 });
     expect(s).toMatchObject({ yearNests: 2, totalBreeding: 2 });
-    const stayed = actStep(s, 'inherit.stay', data).state;
+    const stayed = actStep(s, 'inherit.stay', safe).state;
     expect(stayed.gate).toBeUndefined();
     expect(getView(stayed, data).phase).toBe('molt');
   });

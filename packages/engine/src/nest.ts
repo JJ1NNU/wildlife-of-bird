@@ -1,14 +1,16 @@
 import type { GameData, Phase } from '@wb/schema';
 import { phaseAt } from './calendar.ts';
+import { nestLoss } from './formulas.ts';
 import { orderValue } from './order.ts';
+import { parentingNestLossMult } from './parenting.ts';
 import { nextChance } from './rng.ts';
-import { mapNode } from './step.ts';
+import { mapNode, speciesBalance } from './step.ts';
 import type { Choice, LogEntry, Nest, NestSiteCard, RunState } from './types.ts';
 
 /**
  * 둥지 자리 관문 `nestSite` — 04-breeding 4장. `nestSite` 첫 단계, 흐름의 마지막에 열린다.
  * 둥지는 지금 장소에 짓고, 둥지 국면 동안 옮길 수 없다(1장).
- * 잠정(#21): 구멍별 둥지 손실 위험%(3.2)는 둥지 손실 조각에서.
+ * 잠정(#21): S-23 카드의 구멍별 둥지 손실 위험%(3.2)는 아직 없다.
  * 짝 없이 `nestSite`에 들어가면 관문을 열지 않고 4.5대로 분할 해제한다(api.ts).
  */
 
@@ -113,4 +115,38 @@ export function buildNest(
     log.push({ at: state.at, type: 'nest', text: `${HOLE_LABEL[site] ?? site}에 둥지를 지었다` });
   const nest: Nest = { site, node: state.node };
   return { state: { ...state, rng, nest, yearNests: (state.yearNests ?? 0) + 1 }, log };
+}
+
+/**
+ * 둥지 손실 — 알이나 새끼가 둥지에 있는 단계(`laying` `incubation` `nestling`)마다 1번(01-formulas 3.2).
+ * 확률이 칸의 행동과 무관해 단계당 1번 굴린다(새끼 사망과 같은 까닭, 9.4). 알은 산란수 관문 뒤에 생기므로
+ * `laying` 첫 단계에는 굴리지 않는다. 구멍 · 짝 지시 `guardNest` · 육아 방침(`clean`·`early`)의 배율을 건다(04-breeding 6.3).
+ * 잠정(#21): 이벤트 `riskMod`는 이벤트 해석기 전까지 1. 손실이면 B-5: 둥지를 거둔다.
+ */
+export function nestSurvives(
+  state: RunState,
+  data: GameData,
+): { state: RunState; log: LogEntry[] } {
+  const nest = state.nest;
+  const phase = phaseAt(state.calendar, state.at);
+  if (!nest || nest.eggs === undefined || !NEST_PHASES.includes(phase) || phase === 'nestSite') {
+    return { state, log: [] };
+  }
+  const guard = data.breeding.orders.guardNest?.nestLossMult ?? 1;
+  const p =
+    nestLoss(data.formulas, speciesBalance(data, state.config.speciesId), {
+      vigilance: state.player.stats.vigilance ?? 0,
+      ...(state.mate ? { mateVigilance: state.mate.stats.vigilance ?? 0 } : {}),
+      riskModFactor: 1,
+    }) *
+    (data.breeding.nestSite.holes[nest.site]?.nestLossMult ?? 1) *
+    orderValue(state, 'mateOrder.guardNest', 1, guard) *
+    parentingNestLossMult(state, data);
+  const r = nextChance(state.rng, p);
+  if (!r.value) return { state: { ...state, rng: r.state }, log: [] };
+  const { nest: _n, ...rest } = state;
+  return {
+    state: { ...rest, rng: r.state },
+    log: [{ at: state.at, type: 'brood', text: '둥지를 잃었다', cause: 'nestLoss' }],
+  };
 }
