@@ -1,7 +1,9 @@
 import type { GameEvent } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
 import type { EventContext } from '../src/events.ts';
-import { checkChance, eventCandidates, pickEvent, whenHolds } from '../src/events.ts';
+import { applyEffects, checkChance, eventCandidates, pickEvent, whenHolds } from '../src/events.ts';
+import { foodModFactor, riskModFactor } from '../src/formulas.ts';
+import { newRun } from '../src/index.ts';
 import { f, testData } from './fixture.ts';
 
 const ctx: EventContext = {
@@ -67,5 +69,46 @@ describe('판정형 성공 확률 (03-events 5.2 예시)', () => {
     [95, d.low, 0.95],
   ])('스탯 %d, 난이도 %d → %d', (stat, difficulty, p) => {
     expect(checkChance(f, stat, difficulty ?? 0)).toBeCloseTo(p);
+  });
+});
+
+describe('효과 (03-events 6.1 예시)', () => {
+  const run = newRun({ speciesId: 'parus-minor', seed: 'effects', mode: 'free' }, testData);
+  const at = (energy: number) => ({ ...run, player: { ...run.player, energy } });
+
+  it('에너지 20, energy medium loss → 8', () => {
+    const out = applyEffects(at(20), [{ type: 'energy', tier: 'medium', sign: 'loss' }], testData);
+    expect(out.state.player.energy).toBe(8);
+    expect(out.death).toBeUndefined();
+  });
+  it('에너지 10, energy large loss → 아사, 뒤 효과는 버린다', () => {
+    const out = applyEffects(
+      at(10),
+      [
+        { type: 'energy', tier: 'large', sign: 'loss' },
+        { type: 'riskMod', tier: 'high' },
+      ],
+      testData,
+    );
+    expect(out.death).toBe('starvation');
+    expect(out.state.periodMods).toBeUndefined();
+  });
+  it('foodMod medium loss 두 번 → 섭취 × 0.49, riskMod high → 위험 × 2.0', () => {
+    const loss = { type: 'foodMod', tier: 'medium', sign: 'loss' } as const;
+    const { state } = applyEffects(run, [loss, loss, { type: 'riskMod', tier: 'high' }], testData);
+    expect(foodModFactor(testData.effects.foodMod, state.periodMods?.food ?? [])).toBeCloseTo(0.49);
+    expect(riskModFactor(testData.effects.riskMod, state.periodMods?.risk ?? [])).toBe(2);
+  });
+  it('deathRisk — 맞으면 원인 predation:<predator>', () => {
+    const sure = {
+      ...testData,
+      effects: { ...testData.effects, deathRisk: { low: 1, medium: 1, high: 1 } },
+    };
+    const out = applyEffects(
+      run,
+      [{ type: 'deathRisk', tier: 'high', cause: 'predation', predator: 'snake' }],
+      sure,
+    );
+    expect(out.death).toBe('predation:snake');
   });
 });
