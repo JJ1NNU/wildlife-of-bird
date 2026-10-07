@@ -111,4 +111,26 @@ describe('효과 (03-events 6.1 예시)', () => {
     );
     expect(out.death).toBe('predation:snake');
   });
+  const brood = (chicks: number) => ({
+    ...run,
+    nest: { site: 'deep', node: 'village-farmland', eggs: chicks, chicks },
+  });
+  it('새끼 7, chickLoss medium → 3마리 사망, 4마리 남음', () => {
+    const out = applyEffects(brood(7), [{ type: 'chickLoss', tier: 'medium' }], testData);
+    expect(out.state.nest?.chicks).toBe(4);
+  });
+  it('새끼 1, chickLoss small → 전멸 → B-5(둥지를 거둔다)', () => {
+    const out = applyEffects(brood(1), [{ type: 'chickLoss', tier: 'small' }], testData);
+    expect(out.state.nest).toBeUndefined();
+    expect(out.log).toMatchObject([{ type: 'brood', cause: 'chickLoss' }]);
+  });
+  it('broodRisk — 맞으면 알·새끼 전멸 → B-5', () => {
+    const sure = {
+      ...testData,
+      effects: { ...testData.effects, broodRisk: { low: 1, medium: 1, high: 1 } },
+    };
+    const out = applyEffects(brood(5), [{ type: 'broodRisk', tier: 'low' }], sure);
+    expect(out.state.nest).toBeUndefined();
+    expect(out.log).toMatchObject([{ type: 'brood', cause: 'broodRisk' }]);
+  });
 });
