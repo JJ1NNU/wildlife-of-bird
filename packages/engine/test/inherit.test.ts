@@ -92,4 +92,27 @@ describe('독립 → 계승 관문 (00-core-loop 6.1 · 05-inheritance 5장)', (
     expect(getView(next, data).phase).toBe('molt');
     expect(next.totalBreeding).toBe(1);
   });
+
+  it('가계도(8장): 계승 로그에 떠난 개체의 한 줄, 새끼는 다음 세대로 0부터', () => {
+    const counted = opened.state;
+    expect(counted.life).toMatchObject({ generation: 1, breeding: 1, fledged: 2 });
+    const done = actStep(counted, 'inherit.chick.2', data);
+    const line = done.log.find((l) => l.type === 'inheritance')?.life;
+    expect(line).toMatchObject({
+      generation: 1,
+      sex: start.player.sex,
+      start: { at: start.at, age: start.player.age },
+      end: { at: counted.at, age: counted.player.age },
+      reason: 'inherit',
+      breeding: 1,
+      fledged: 2,
+    });
+    expect(done.state.life).toMatchObject({
+      generation: 2,
+      sex: 'male',
+      start: { at: counted.at, age: 0 },
+      breeding: 0,
+      fledged: 0,
+    });
+  });
 });
