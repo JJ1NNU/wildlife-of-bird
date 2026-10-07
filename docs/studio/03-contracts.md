@@ -91,7 +91,7 @@ interface CalendarAt { year: number; period: number; step: number }  // period: 
 interface Choice {
   id: string
   kind: 'node' | 'action' | 'eventOption' | 'seasonPolicy'
-      | 'mateCandidate' | 'mateOrder' | 'nestSite' | 'clutchSize' | 'parentingPolicy' | 'secondBrood'
+      | 'mateCandidate' | 'mateOrder' | 'nestSite' | 'clutchSize' | 'parentingPolicy' | 'secondBrood' | 'inheritance'
       | 'inheritance' | 'migration'
   label: string
   disabled?: { reason: string }  // 예: 생물학적으로 불가능한 짝 지시 → 이유 표시
@@ -147,11 +147,12 @@ interface MateCandidateCard {    // 신호만 — 실제 잠재력·성격은 �
 ### 선택지 ID
 - 행동 `action.<행동>`(`forage` `rest` `social` `explore`), 훈련은 스탯마다 `action.train.<스탯>`(종 `aptitude`의 스탯마다 — 맨 `action.train`은 없다, #124), 이동 `move.<장소>`.
 - 짝 후보 관문의 선택지 id는 `mateCandidate.<n>`(카드 순서, 1부터). 관문은 그 단계의 흐름 끝에 열리고 **달력은 그 단계에 머문다** — 관문을 고르면 다음 단계로 간다. 고르기는 판정이 없어 `preview`는 위험 0·에너지 0이다.
-- 번식 관문(`04-breeding` 1장)의 `kind`: `mateCandidate` `mateOrder` `nestSite` `clutchSize` `parentingPolicy` `secondBrood`. **관문이 열려 있으면 `getChoices`는 관문의 선택지만** 준다. 짝 지시·육아 방침은 판정 1 전에 받고 같은 단계에서 이어 행동을 고른다. 나머지 관문은 단계 흐름의 끝에 열린다.
+- 번식 관문(`04-breeding` 1장)의 `kind`: `mateCandidate` `mateOrder` `nestSite` `clutchSize` `parentingPolicy` `secondBrood` `inheritance`. **관문이 열려 있으면 `getChoices`는 관문의 선택지만** 준다. 짝 지시·육아 방침은 판정 1 전에 받고 같은 단계에서 이어 행동을 고른다. 나머지 관문은 단계 흐름의 끝에 열린다.
 - 짝 지시 관문의 선택지 id는 `mateOrder.none` · `mateOrder.<지시>` · `help.<도움>`(`breeding.json` `orders`·`help`의 키, 그 국면·성별에 맞는 것만). 짝이 있는 둥지 국면의 첫 단계에 **첫 칸보다 먼저** 열리고, 고르면 같은 단계의 칸으로 간다(달력 그대로). 불가능한 지시(`role: impossible`)는 `disabled`. `preview`의 `mateAcceptance`와 카드 등급은 성격 확인 전이면 `neutral`로 계산한 화면용 값. 로그 `order`(`deltas.acceptance`·`effect`, 거절이면 `cause: 'refused'`). `RunState.order`가 그 국면 동안 걸린다.
 - 둥지 국면 동안(둥지 자리 관문 뒤 ~ `nestling` 끝) `move.*`는 `disabled`("둥지를 떠날 수 없다").
 - **육아 방침은 선택지 하나에 여러 항목**을 담는다(확정, #21): 선택지는 `parentingPolicy` 하나, `Choice.items: { item, label, options, current, locked? }[]`(`locked` = `postFledge` 조정에서 못 바꾸는 `nestCare`·`fledgeTiming`). `act(state, 'parentingPolicy?intensity=high&allocation=compete')` — 빠진 항목은 현재값(처음에는 기본값, 급이 강도는 `mid`), 맨 `parentingPolicy`는 그대로 두기. 없는 항목·선택이나 잠긴 항목을 바꾸면 던진다. 항목 이름은 `intensity` + `breeding.json` `parenting`의 키. 새끼가 있는 `nestling`·`postFledge` 첫 단계에 짝 지시 다음, **첫 칸보다 먼저** 열리고 고르면 같은 단계의 칸으로 간다. `getView().gate`는 `{ kind: 'parentingPolicy', cards: items }`. 로그 `parenting`. `RunState.parenting`은 둥지가 있는 동안 걸린다.
-- **2차 번식 여부 관문**(`04-breeding` 7장, #121): 선택지 `secondBrood.yes` · `secondBrood.no`. 번식이 실패한 단계(B-5 부화 0·새끼 전멸)의 흐름 끝에 `00-core-loop` 4.4 조건 1~3(그 해 둥지 `RunState.yearNests` < 2 · 짝 있음 · 다음 시기 ≤ `layByPeriod`)이 참이면 열리고, 고르면 다음 단계로 간다. `getView().gate`는 `{ kind: 'secondBrood', cards: { choiceId, energyCost }[] }`. '한다'는 에너지 손실 · 다음 시기부터 `rebrood`로 덮어쓰기(짝 그대로). '안 한다'거나 관문이 안 열리면 분할 해제(4.5). 로그 `brood`. 잠정(#139): 1차 성공 뒤(계승 화면에서 잔류 직후)와 조건 4는 계승 조각에서.
+- **2차 번식 여부 관문**(`04-breeding` 7장, #121): 선택지 `secondBrood.yes` · `secondBrood.no`. 번식이 실패한 단계(B-5 부화 0·새끼 전멸)의 흐름 끝에 `00-core-loop` 4.4 조건 1~3(그 해 둥지 `RunState.yearNests` < 2 · 짝 있음 · 다음 시기 ≤ `layByPeriod`)이 참이면 열리고, 고르면 다음 단계로 간다. `getView().gate`는 `{ kind: 'secondBrood', cards: { choiceId, energyCost }[] }`. '한다'는 에너지 손실 · 다음 시기부터 `rebrood`로 덮어쓰기(짝 그대로). '안 한다'거나 관문이 안 열리면 분할 해제(4.5). 로그 `brood`. 1차 성공 뒤에는 계승 화면에서 잔류를 고른 직후 같은 단계에서 열린다(조건 4).
+- **계승 관문**(`05-inheritance` 5장, #139): `postFledge` 마지막 단계의 흐름 끝에 새끼가 1마리 이상 살아 있으면 독립 — `totalBreeding` +1(로그 `breeding`) 뒤 열린다. 선택지 `inherit.stay` · `inherit.chick.<n>`(부화 순서, 1부터). `getView().gate`는 `{ kind: 'inheritance', totalBreeding, stay: { choiceId, age, agingMult, bond?, yearSurvival }, cards: { choiceId, sex, potentialRange, silverSpoon, firstWinter, yearSurvival }[] }` — `yearSurvival`은 0~1(사건 제외, 6장). 잔류면 둥지를 거두고 2차 번식 관문(조건이 참일 때) 또는 다음 단계. 계승이면 고른 새끼가 `player`(나이·경험 0, 에너지 = 지방 상한 × `inheritStartRatio`, 깃털 `runStart`, `Bird.silverSpoon` = 은수저 지수)가 되고 짝·둥지·지시·방침이 없어지며 그 해는 분할 해제. 로그 `inheritance`. 잠정(#139): 새끼의 은수저 성장 배율 · 가계도 칸(8장)은 다음 조각.
 
 ### 행동 루틴 — 칸 단위 입력 (#186, 잠정)
 `00-core-loop` 3.5(#175)를 API로 옮긴 것. **함수 목록·`Bot` 인터페이스·선택지 id는 그대로**다 — 루틴은 "칸 하나 = `act` 하나"로 들어온다.

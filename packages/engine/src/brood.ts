@@ -4,8 +4,7 @@ import type { CalendarAt, Choice, LogEntry, RunState, SecondBroodCard } from './
 
 /**
  * 2차 번식 여부 관문 `secondBrood` (04-breeding 7장) · 재번식(00-core-loop 4.4) · 분할 해제(4.5).
- * 지금은 번식이 실패한 단계(B-5)에서만 연다.
- * 잠정(#139): 1차 성공 뒤 '계승 화면에서 잔류를 고른 직후'와 조건 4(계승 #1)는 계승 조각에서.
+ * 번식이 실패한 단계(B-5), 또는 계승 화면에서 잔류를 고른 직후(조건 4, `inherit.ts`)에 연다.
  */
 
 /** 둥지 국면 (00-core-loop 4.2) */

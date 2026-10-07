@@ -210,7 +210,7 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
     r: energy / cap,
     feather,
     age: p.age,
-    silverSpoon: 0,
+    silverSpoon: p.silverSpoon ?? 0,
     injured: false,
   });
   // 9.4: 칸 위험 = 1 − (1 − 단계 위험)^(1/n) — 모든 칸이 같은 행동이면 단계 위험과 같다
