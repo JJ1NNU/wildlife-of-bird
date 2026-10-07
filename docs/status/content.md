@@ -2,14 +2,14 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 32, 자동 근무 48회차)
+- 마지막 근무: 2026-10-08 (라운드 32, 자동 근무 49회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321 완료
 
 ## 이번 근무에 한 것
-- **#324 3차 — PR #333 머지**: SRC-104~106(Saitou 1979 『山階鳥研報』 11(3) 연작 1~3편, 일본 도쿄 *P. minor* 가락지 조사, J-STAGE 초록) 등록. `flock-rank`(P-15) · `mate-in-flock`(P-32) **verified**, `first-winter-follow` 배경 보강(배우는지는 근거 없어 needs-review 유지)
+- **#324 4차 — PR #336 머지**: SRC-107(기경석·조우 2014 『한국환경생태학회지』 28(4):411, 국내 원주 박새 새벽 노래, 본문) 등록. `territory-song-duel`(P-15) **verified**(SRC-107·106·027)
 
 ## 진행 중
-- #324 (fact-check 4차) — 누계: 열림 줄 해결 1개(P-37), needs-review 해결 3건(hawk-settled-nearby · flock-rank · mate-in-flock). 완료 조건(줄 3개 또는 이벤트 5건)까지 이벤트 2건 남음
+- #324 (fact-check 4차) — 누계: 열림 줄 해결 1개(P-37), needs-review 해결 4건(hawk-settled-nearby · flock-rank · mate-in-flock · territory-song-duel). 완료 조건(줄 3개 또는 이벤트 5건)까지 이벤트 1건 남음
 
 ## 막힘
 - 없음
@@ -23,6 +23,8 @@
 6. S-30 가계도 줄(`lifeLine`) 문구는 엔진 #21 뒤 클라이언트가 따로 요청한다(#297)
 
 ## 메모 (다음 근무의 나에게)
+- 한국환경생태학회지(KJEE) 본문은 `doi.org` → envecojournal.org 페이지를 curl로 받으면 HTML 전문이 나온다(SRC-107). ScienceDirect(Elsevier)는 내장 브라우저에서도 CAPTCHA — 넘기지 않는다. Springer 초록은 내장 브라우저 `#Abs1-content`로 읽힌다
+- rival-near-mate: *P. minor* 짝 지키기 문헌 없음(OpenAlex). 후보만: 「Reproductive ecology of Japanese great tits focusing on extra-pair paternity」(2013, Medical Entomology and Zoology?) · jjo 71:171(2022, 박새 섞인 한배 DNA 기록) — 짝 밖 부성까지라 쫓아내기 근거는 아님. Hamao 2016 *Anim Behav* 119:143(일본 박새 방언 반응)·Hamao 2020 *J Ethol* 38:383(노래 특성, 영역 언급 없음)
 - J-STAGE 초록은 `curl -sL https://doi.org/<doi>`로 받힌다(`/_article/-char/en` 직접 주소는 404). crossref `query.bibliographic`로 DOI 찾기. Saitou 1979 원문 제목엔 부제가 안 보여 sources.md엔 '연작 n편'으로만 적음
 - #324에서 못 찾은 것: 박새(P. minor) 구애 먹이·짝 지키기·겨울 서열 — OpenAlex 결과 없음. Da Silva 2025 *Biology* 14:297(일본 박새 날갯짓 '먼저 들어가' 몸짓 재분석)은 둥지 입구 짝 신호라 지금 이벤트엔 안 맞음. SRC-082 초록은 입구 기울기·나무 굵기까지 — 구멍 깊이는 없음(shallow-hole 못 닫음)
 - Sci Rep·PMC 논문 본문은 Europe PMC `ebi.ac.uk/europepmc/webservices/rest/<PMCID>/fullTextXML`로 받는다(SRC-097). Ardea(BioOne) 공개 논문은 `.full` 페이지를 WebFetch로 읽힌다(PDF는 curl 막힘). 지린 쭤자 박새 연구진(Wang Haitao)의 Dryad 데이터셋에 산란·부화 날짜가 있을 수 있다
