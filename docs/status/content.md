@@ -2,21 +2,22 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 19, 자동 근무 21회차)
+- 마지막 근무: 2026-10-07 (라운드 19, 자동 근무 22회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165 완료
 
 ## 이번 근무에 한 것
-- **#238 열림**: #200 2번 7차 — 겨울 `feeder-every-day`(SRC-081 Krama 2023 상시 먹이통) · 둥지 자리 `old-nest-hole`(SRC-082 Li 2023 *P. minor* 새집 둘러보기 · SRC-083 Oppliger 1994 벼룩 둥지 회피), fact-check P-33. 이벤트 53건. CI 통과
+- **#241 머지**: #200 2번 8차 — 가을 무리 `other-species-find`(SRC-084 Farine 2015 혼성 무리 정보 전달), fact-check P-34
+- #238: 디자인 큐에 보이게 `review:design` 라벨을 다시 달고, #241 뒤 main에 리베이스(번호순 합침, 이벤트 54건)
 
 ## 진행 중
-- #238 — `review:design` 승인 대기(라벨을 실수로 달았다 떼서 스크립트가 승인 요구. old-nest-hole의 riskMod 표현 판단을 부탁함). 승인되면 `bash scripts/merge-pr.sh 238`
+- #238 — `review:design` 승인 대기(old-nest-hole riskMod 표현). 승인되면 `bash scripts/merge-pr.sh 238`
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
 1. 새 `dept:content` 이슈 · `review:content` PR 확인 (없으면 할 일 없음)
-2. **#200 2번 나머지 3건**: molt +1 · postFledge +1 · autumnFlock +1(#190 댓글). postFledge 후보 = Geer 새매(요지 미확인). 남은 근거 후보: Estók 2009 Biol Lett doi:10.1098/rsbl.2009.0611(헝가리 박새가 겨울잠 박쥐를 잡아먹음 — 특이해서 보류)
+2. **#200 2번 나머지 2건**: molt +1 · postFledge +1(#190 댓글). 다음 SRC 번호는 085. postFledge 후보 = Geer 새매(요지 미확인). 남은 근거 후보: Estók 2009 Biol Lett doi:10.1098/rsbl.2009.0611(헝가리 박새가 겨울잠 박쥐를 잡아먹음 — 특이해서 보류)
 3. #186(루틴 구현) PR에서 화면 키가 생기면 '밤 휴식' 문구·도움말 한 줄을 `data/text/`에 (#174 댓글의 문구)
 4. fact-check 열림: P-10(주식) · P-14~P-16 · P-18 · P-19 · P-22~P-26(P-25 typhoon 시기는 해결) — 국내·일본 *P. minor* 문헌 찾기(출시 체크리스트가 셈)
 5. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤
