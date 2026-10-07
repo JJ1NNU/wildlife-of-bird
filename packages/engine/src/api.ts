@@ -307,7 +307,7 @@ function pickMate(state: RunState, choiceId: string, data: GameData): ActResult 
   const mate = previous
     ? { ...picked, bond: Math.min(m.bondMax, picked.bond + m.bondReunion), personalityKnown: true }
     : picked;
-  const { gate: _g, ...closed } = state;
+  const { gate: _g, mateGone: _gone, ...closed } = state;
   const next = nextStep({ ...closed, mate }, data);
   const log: LogEntry[] = [
     { at: state.at, type: 'mate', text: previous ? '지난 짝과 다시 맺었다' : '짝을 맺었다' },
@@ -353,7 +353,13 @@ export function getView(state: RunState, data: GameData): ViewModel {
     totalBreeding: state.totalBreeding,
     gameOver: state.gameOver,
     ...(state.gate?.kind === 'mateCandidate'
-      ? { gate: { kind: state.gate.kind, cards: mateCards(data, state.gate.candidates) } }
+      ? {
+          gate: {
+            kind: state.gate.kind,
+            cards: mateCards(data, state.gate.candidates),
+            ...(state.mateGone ? { previousGone: state.mateGone } : {}),
+          },
+        }
       : {}),
     ...(state.gate?.kind === 'mateOrder'
       ? { gate: { kind: state.gate.kind, cards: orderCards(state, data, state.gate.options) } }

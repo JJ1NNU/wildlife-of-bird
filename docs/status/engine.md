@@ -7,8 +7,12 @@
 
 ## 진행 중
 - #21 M1 — 남은 관문 조각 계속(#219 육아 방침 머지됨)
-- #121 — 2.1 지난 짝·이혼·재결합 머지(#220). 남은 것 = `secondBrood`(04-breeding 7장)·나머지 관문 흐름 ← 다음 근무 첫 일
+- #121 — 2.1 머지(#220). **#236 열음**(실패 뒤 `secondBrood`). 남은 것 = 1차 성공 뒤 2차 번식(계승 #139 뒤) · 짝 없이 `nestSite` 분할 해제
 - #139 — 새 키 #153 머지. 남은 것: 부화·관문 `inheritance`·계승·getView(관문 조각 뒤)
+
+## 최근 완료 (라운드 18 뒤, 2번째)
+- **#233 머지**(client 승인) → #232 닫힘
+- **#236 열음**(#121): `brood.ts` — B-5 단계 끝 `secondBrood` 관문(4.4 조건 1~3, `RunState.yearNests`) · '한다' 에너지 손실 + `rebrood` 덮어쓰기 + 뒤 둥지 국면 미리 분할 해제 · '안 한다'/안 열림 → 4.5 분할 해제 · view 카드 `{choiceId, energyCost}` · web GATE_GO 한 줄 · 03-contracts. check 통과(테스트 75), 시뮬 400판 오류 0, 리플레이 다름 0. 시뮬에서 B-5가 0번(둥지 손실 미구현). review:design·client 대기
 
 ## 최근 완료 (라운드 18 뒤)
 - **#233 열음**(#232 client 요청): 짝 살면 나이·경험 +1 · `RunState.mateGone` → `gate.previousGone` · 지난 짝 카드 `potentialRange`·`bond {now, reunion}` · 03-contracts 갱신. check 통과, 시뮬 avg·random 200판 오류 0, 리플레이 다름 0. review:client 대기

@@ -101,7 +101,7 @@ const GRADE_WORD = { high: '높음', mid: '보통', low: '낮음' } as const;
 const HINT_WORD = { bold: '대담해 보인다', shy: '조심스러워 보인다' } as const;
 /** 지난 짝 카드의 성격(이미 확인) — 04-breeding 2.2 */
 const PERSONALITY_WORD = { bold: '대담', shy: '조심스러움' } as const;
-/** 짝 후보 관문 위 한 줄: 지난 짝이 없어진 이유(`LogEntry.cause`, 2.1). 잠정(#21): 문구는 `data/text/`가 생기면 옮긴다 */
+/** 짝 후보 관문 위 한 줄: 지난 짝이 없어진 이유(`gate.previousGone`, 2.1). 잠정(#21): 문구는 `data/text/`가 생기면 옮긴다 */
 const MATE_GONE: Record<string, string> = {
   mateDeath: '지난 짝은 겨울을 넘기지 못했어요',
   divorce: '지난 짝이 떠났어요',
@@ -285,12 +285,12 @@ export function Game({ data }: { data: GameData }) {
   const choices = getChoices(state, data);
   const when = periodLabel(view.at);
   const pickedChoice = choices.find((c) => c.id === picked);
-  // S-20: 지난 짝 카드(맨 앞)가 없으면 그 이유 한 줄 — 올해 마지막 짝 기록의 `cause` (04-breeding 2.1)
+  // S-20: 지난 짝이 없어진 이유 한 줄 — 관문의 `previousGone` (04-breeding 2.1)
   const mateCards = view.gate?.kind === 'mateCandidate' ? view.gate.cards : undefined;
   const pickedPrevious = !!mateCards?.find((c) => c.choiceId === picked)?.previous;
   const mateGone =
-    mateCards && !mateCards[0]?.previous
-      ? MATE_GONE[view.recentLog.findLast((l) => l.type === 'mate')?.cause ?? '']
+    view.gate?.kind === 'mateCandidate' && view.gate.previousGone
+      ? MATE_GONE[view.gate.previousGone]
       : undefined;
   // S-22: 항목별 값은 선택 id 뒤(`parentingPolicy?item=opt&…`)에 담는다 — 안 고른 항목은 지금 걸린 값
   const policyCards = view.gate?.kind === 'parentingPolicy' ? view.gate.cards : undefined;
@@ -473,6 +473,8 @@ export function Game({ data }: { data: GameData }) {
     const sex = view.player.sex === 'female' ? '♂' : '♀';
     const age = <span className="muted small">{card.age <= 1 ? '1년생' : '성조'}</span>;
     if (card.previous) {
+      // 등급 범위는 3개까지, 넘치면 "… n개"로 접는다 (와이어프레임 mid/03 짝 후보)
+      const ranges = Object.entries(card.potentialRange ?? {});
       return (
         <li key={card.choiceId}>
           <button
@@ -485,7 +487,23 @@ export function Game({ data }: { data: GameData }) {
             <span className="main">
               <span className="b">
                 {sex} 지난 짝 {age}
+                {card.bond && (
+                  <span className="muted small">
+                    {' '}
+                    · 유대 {card.bond.now} → {card.bond.reunion}
+                  </span>
+                )}
               </span>
+              {ranges.length > 0 && (
+                <span className="cap">
+                  {ranges.slice(0, 3).map(([stat, [lo, hi]]) => (
+                    <span key={stat}>
+                      {STAT_WORD[stat as StatName]} <b>{lo}</b>~<b>{hi}</b>{' '}
+                    </span>
+                  ))}
+                  {ranges.length > 3 && <span className="muted">… {ranges.length}개</span>}
+                </span>
+              )}
               <span className="cap">성격: {PERSONALITY_WORD[card.hint]} (확인)</span>
             </span>
             <span className="vals">

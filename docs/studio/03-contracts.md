@@ -123,7 +123,7 @@ interface ViewModel {
   energyCap: number              // 에너지 상한(지방 상한, 01-formulas 2.1)
   totalBreeding: number          // 점수
   gameOver: boolean
-  gate?: { kind: 'mateCandidate', cards: MateCandidateCard[] }  // 열린 관문 — 짝 후보(S-20)
+  gate?: { kind: 'mateCandidate', cards: MateCandidateCard[], previousGone?: 'mateDeath' | 'divorce' }  // 열린 관문 — 짝 후보(S-20). previousGone = 지난 짝이 없어진 이유(2.1)
        | { kind: 'mateOrder', cards: { choiceId, acceptance?: 'high' | 'mid' | 'low' }[] }  // 짝 지시 — 수락률은 등급만
        | { kind: 'parentingPolicy', cards: Choice['items'] }  // 육아 방침 — 항목별 선택·현재값
   recentLog: LogEntry[]          // 최근 20건 — 이야기 피드
@@ -137,6 +137,8 @@ interface MateCandidateCard {    // 신호만 — 실제 잠재력·성격은 �
   hint: 'bold' | 'shy'           // 성격 힌트 (hintAccuracy 확률로 맞음)
   accepts: boolean               // 아니면 그 선택지는 disabled
   previous?: true                // 지난 짝(맨 앞 1장, 늘 받아들임, hint는 실제 성격) — 고르면 재결합 (2.1·2.2)
+  potentialRange?: { [stat]: [아래, 위] }  // 지난 짝만 — 잠재력 등급 범위 (05-inheritance 4장)
+  bond?: { now, reunion }        // 지난 짝만 — 유대 지금 → 재결합 뒤 (2.2)
 }
 ```
 
