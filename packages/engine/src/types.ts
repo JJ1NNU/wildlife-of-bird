@@ -99,6 +99,8 @@ export interface Bird {
   feather: number;
   /** 경험 연수 = `period 1`을 지난 횟수 (01-formulas 2.2) */
   expYears: number;
+  /** 계승한 새끼의 은수저 지수 — 첫 겨울 보정에 쓴다(01-formulas 6.3). 런 시작 개체는 없음 */
+  silverSpoon?: number;
 }
 
 /** 플레이어의 짝 (04-breeding 2장). 짝 지시·번식은 이 값을 쓴다 */
@@ -157,7 +159,8 @@ export type Gate =
   | { kind: 'nestSite'; holes: string[] }
   | { kind: 'clutchSize'; options: number[] }
   | { kind: 'parentingPolicy' }
-  | { kind: 'secondBrood' };
+  | { kind: 'secondBrood' }
+  | { kind: 'inheritance' };
 
 /** 지은 둥지 (04-breeding 4장). 둥지 국면 동안 이 장소에 묶인다 */
 export interface Nest {
@@ -200,6 +203,30 @@ export interface SecondBroodCard {
   choiceId: string;
   /** 고르는 순간 잃는 에너지 — '안 한다'는 0 */
   energyCost: number;
+}
+
+/** 계승 관문 — 지금 개체 카드 (05-inheritance 5장) */
+export interface InheritanceStayCard {
+  choiceId: 'inherit.stay';
+  age: number;
+  /** 노화 위험 배율 (01-formulas 4장) */
+  agingMult: number;
+  /** 짝 유대 — 짝이 있을 때만 */
+  bond?: number;
+  /** 1년 생존 예상 0~1, 사건 제외 (05-inheritance 6장) */
+  yearSurvival: number;
+}
+
+/** 계승 관문 — 독립한 새끼 카드, 부화 순서 (05-inheritance 5장) */
+export interface InheritanceChickCard {
+  choiceId: string;
+  sex: 'female' | 'male';
+  /** 잠재력 등급 범위 [아래, 위] (05-inheritance 4장) */
+  potentialRange: Partial<Record<StatName, [string, string]>>;
+  silverSpoon: number;
+  /** 첫 겨울 위험 배율 (01-formulas 6.3) */
+  firstWinter: number;
+  yearSurvival: number;
 }
 
 /** 화면 S-23 둥지 자리 카드 */
@@ -299,7 +326,14 @@ export interface ViewModel {
     | { kind: 'nestSite'; cards: NestSiteCard[] }
     | { kind: 'clutchSize'; cards: ClutchSizeCard[] }
     | { kind: 'parentingPolicy'; cards: ParentingItemChoice[] }
-    | { kind: 'secondBrood'; cards: SecondBroodCard[] };
+    | { kind: 'secondBrood'; cards: SecondBroodCard[] }
+    | {
+        kind: 'inheritance';
+        /** 맨 위 "번식 성공 — 총 N" */
+        totalBreeding: number;
+        stay: InheritanceStayCard;
+        cards: InheritanceChickCard[];
+      };
   nest?: Nest;
   /** 루틴을 짜는 중일 때만 (관문 중에는 없음, 03-contracts 3장 '행동 루틴') */
   routine?: {

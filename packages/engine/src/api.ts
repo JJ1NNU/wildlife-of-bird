@@ -16,6 +16,14 @@ import {
   hatchIfDue,
 } from './clutch.ts';
 import { agedStats, fatCap } from './formulas.ts';
+import {
+  chickCards,
+  chooseInheritance,
+  inheritanceChoices,
+  inheritanceDue,
+  openInheritance,
+  stayCard,
+} from './inherit.ts';
 import { divorce, isPhaseStart, makeCandidates, mateCards, mateChoices, mateYear } from './mate.ts';
 import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
 import {
@@ -106,6 +114,7 @@ export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gate?.kind === 'clutchSize') return clutchChoices(state.gate.options);
   if (state.gate?.kind === 'parentingPolicy') return parentingChoices(state, data);
   if (state.gate?.kind === 'secondBrood') return secondBroodChoices();
+  if (state.gate?.kind === 'inheritance') return inheritanceChoices(state);
   // 루틴의 다음 빈 칸 — 앞 칸에 옮기기를 넣었으면 그 장소 기준 (03-contracts 3장 '행동 루틴')
   return stepChoices(projected(state, data), data);
 }
@@ -166,6 +175,7 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   if (state.gate?.kind === 'clutchSize') return pickClutch(state, choiceId, data);
   if (state.gate?.kind === 'parentingPolicy') return pickPolicy(state, choiceId, data);
   if (state.gate?.kind === 'secondBrood') return pickSecondBrood(state, choiceId, data);
+  if (state.gate?.kind === 'inheritance') return pickInheritance(state, choiceId, data);
   const filled = [...(state.routine ?? []), choiceId];
   // 칸 채우기: 판정·난수 없음
   if (filled.length < slotCount(state)) return { state: { ...state, routine: filled }, log: [] };
@@ -184,6 +194,12 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   log.push(...culled.log);
   // 은수저 충족도: 새끼 사망 다음, 살아남은 새끼로 (01-formulas 6.1)
   const raised = { state: feedChicks(culled.state, data) };
+  // 독립(`postFledge` 마지막 단계): 총 번식 수 +1 → 계승 관문 (00-core-loop 6.1)
+  if (inheritanceDue(raised.state)) {
+    const opened = openInheritance(raised.state);
+    log.push(...opened.log);
+    return { state: { ...opened.state, log: [...state.log, ...log] }, log };
+  }
   // 번식 실패(B-5): 2차 번식 여부 관문, 열리지 않으면 분할 해제 (00-core-loop 4.4 · 4.5)
   const failed = moved.nest !== undefined && raised.state.nest === undefined;
   if (failed && secondBroodDue(raised.state, data)) {
@@ -277,6 +293,22 @@ function pickPolicy(state: RunState, choiceId: string, data: GameData): ActResul
   const set = setPolicy(state, choiceId, data);
   const { gate: _g, ...closed } = set.state;
   return { state: { ...closed, log: [...state.log, ...set.log] }, log: set.log };
+}
+
+/**
+ * 계승 관문을 닫는다 (05-inheritance 5장). 잔류면 같은 단계에서 2차 번식 여부 관문(00-core-loop 6.2),
+ * 열리지 않거나 계승이면 그 해 번식을 마치고 다음 단계로
+ */
+function pickInheritance(state: RunState, choiceId: string, data: GameData): ActResult {
+  const chosen = chooseInheritance(state, choiceId, data);
+  const stays = choiceId === 'inherit.stay';
+  if (stays && secondBroodDue(chosen.state, data)) {
+    const opened: RunState = { ...chosen.state, gate: { kind: 'secondBrood' } };
+    return { state: { ...opened, log: [...state.log, ...chosen.log] }, log: chosen.log };
+  }
+  const next = nextStep(stays ? endBreeding(chosen.state) : chosen.state, data);
+  const log = [...chosen.log, ...next.log];
+  return { state: { ...next.state, log: [...state.log, ...log] }, log };
 }
 
 /** 2차 번식 여부 관문을 닫고 다음 단계로 간다 (04-breeding 7장) */
@@ -389,6 +421,16 @@ export function getView(state: RunState, data: GameData): ViewModel {
       : {}),
     ...(state.gate?.kind === 'secondBrood'
       ? { gate: { kind: state.gate.kind, cards: secondBroodCards(state, data) } }
+      : {}),
+    ...(state.gate?.kind === 'inheritance'
+      ? {
+          gate: {
+            kind: state.gate.kind,
+            totalBreeding: state.totalBreeding,
+            stay: stayCard(state, data),
+            cards: chickCards(state, data),
+          },
+        }
       : {}),
     ...(state.nest ? { nest: state.nest } : {}),
     ...(state.gate || state.gameOver

@@ -31,7 +31,7 @@ export function nestLocked(state: RunState): boolean {
  * 둥지 국면을 벗어났으면 둥지를 거둔다 — 다음 단계로 간 뒤 부른다.
  * 새끼가 살아 있으면 `postFledge` 동안은 남긴다(급이·새끼 사망이 이어진다, 01-formulas 2.4·3.3). 옮기기는 풀린다.
  * 거둘 때 새끼가 남아 있었는지를 `broodFledged`에 적는다 — 다음 해 이혼 확률(04-breeding 2.1).
- * 잠정(#21): 독립(점수·계승)은 그 조각에서 — 지금은 `postFledge`가 끝나면 그냥 거둔다.
+ * 새끼가 독립하면(`postFledge` 마지막 단계) 계승 관문이 먼저 둥지를 거둔다(`inherit.ts`).
  */
 export function releaseNest(state: RunState): RunState {
   if (!state.nest || nestLocked(state)) return state;

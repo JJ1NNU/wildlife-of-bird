@@ -77,6 +77,7 @@ const GATE_GO = {
   mateOrder: { done: (label: string) => `짝에게 · ${label}`, none: '짝에게 맡길 일을 고르세요' },
   parentingPolicy: { done: () => '이 방침으로', none: '이대로 진행' },
   secondBrood: { done: (label: string) => label, none: '할지 고르세요' },
+  inheritance: { done: (label: string) => label, none: '잔류 또는 계승할 새끼를 고르세요' },
 } as const;
 /** 육아 방침 선택 id → 칸 글 (와이어프레임 mid/03 C). 잠정(#21): `data/text/`가 생기면 옮긴다 */
 const POLICY_WORD: Record<string, string> = {
