@@ -17,6 +17,7 @@ import {
   preview,
   type RunState,
   roundHalfUp,
+  type SecondBroodCard,
 } from '@wb/engine';
 import type { GameData, Season, StatName } from '@wb/schema';
 import { useEffect, useState } from 'react';
@@ -75,7 +76,7 @@ const GATE_GO = {
   clutchSize: { done: (label: string) => `${label} 낳기`, none: '알 수를 고르세요' },
   mateOrder: { done: (label: string) => `짝에게 · ${label}`, none: '짝에게 맡길 일을 고르세요' },
   parentingPolicy: { done: () => '이 방침으로', none: '이대로 진행' },
-  secondBrood: { done: (label: string) => label, none: '한 번 더 번식할까요' },
+  secondBrood: { done: (label: string) => label, none: '할지 고르세요' },
 } as const;
 /** 육아 방침 선택 id → 칸 글 (와이어프레임 mid/03 C). 잠정(#21): `data/text/`가 생기면 옮긴다 */
 const POLICY_WORD: Record<string, string> = {
@@ -291,6 +292,14 @@ export function Game({ data }: { data: GameData }) {
   const mateGone =
     view.gate?.kind === 'mateCandidate' && view.gate.previousGone
       ? MATE_GONE[view.gate.previousGone]
+      : undefined;
+  // 2차 번식: 왜 열렸는지 — 마지막 둥지 기록(부화 0 · 새끼 전멸, 00-core-loop 4.4)
+  const broodWhy =
+    view.gate?.kind === 'secondBrood'
+      ? view.recentLog
+          .slice()
+          .reverse()
+          .find((l) => l.type === 'nest')?.text
       : undefined;
   // S-22: 항목별 값은 선택 id 뒤(`parentingPolicy?item=opt&…`)에 담는다 — 안 고른 항목은 지금 걸린 값
   const policyCards = view.gate?.kind === 'parentingPolicy' ? view.gate.cards : undefined;
@@ -607,6 +616,43 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
+  /** 2차 번식 카드 (와이어프레임 mid/04-inherit C): 한다 = 에너지 −n → 남는 값 · 대가 한 줄, 안 한다 = 털갈이 */
+  function broodRow(card: SecondBroodCard) {
+    const c = choices.find((x) => x.id === card.choiceId);
+    const yes = card.energyCost > 0;
+    return (
+      <li key={card.choiceId}>
+        <button
+          type="button"
+          className={`opt${card.choiceId === picked ? ' sel' : ''}`}
+          aria-pressed={card.choiceId === picked}
+          disabled={!!c?.disabled}
+          onClick={() => setPicked(card.choiceId)}
+          data-testid={`choice-${card.choiceId}`}
+        >
+          <span className="main">
+            <span className="b">{c?.label ?? card.choiceId}</span>
+            {yes ? (
+              <span className="cap caution b">
+                털갈이 시기가 번식으로 바뀐다 — 겨울에 깃털이 모자랄 수 있다.
+              </span>
+            ) : (
+              <span className="cap">털갈이로 넘어가 깃털을 회복한다.</span>
+            )}
+          </span>
+          <span className="vals">
+            <span>에너지</span>
+            <b>
+              {yes
+                ? `${formatEnergyDelta(-card.energyCost)} → ${Math.max(0, roundHalfUp(view.player.energy - card.energyCost))}`
+                : '없음'}
+            </b>
+          </span>
+        </button>
+      </li>
+    );
+  }
+
   /** 짝 지시 한 줄: 지시 · 수락률 등급(숫자 없음, 01-formulas 7.4) — 불가면 이유, 도움은 "내가 한다" */
   function orderRow(card: MateOrderCard) {
     const c = choices.find((x) => x.id === card.choiceId);
@@ -762,6 +808,12 @@ export function Game({ data }: { data: GameData }) {
                 </fieldset>
               </li>
             ))}
+          </ul>
+        ) : view.gate?.kind === 'secondBrood' ? (
+          <ul className="list" aria-label="2차 번식" data-testid="gate-secondBrood">
+            <li className="gate-title b">한 번 더 둥지를 틀까?</li>
+            {broodWhy && <li className="gate-title muted small">{broodWhy}</li>}
+            {view.gate.cards.map((card) => broodRow(card))}
           </ul>
         ) : view.gate?.kind === 'clutchSize' ? (
           <ul className="list" aria-label="산란수" data-testid="gate-clutchSize">

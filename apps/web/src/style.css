@@ -201,6 +201,9 @@ h1 {
 .risk.low {
   color: var(--wb-color-sage-strong);
 }
+.caution {
+  color: var(--wb-color-ochre-strong);
+}
 .risk.mid {
   color: var(--wb-color-ochre-strong);
 }
