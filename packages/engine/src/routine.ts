@@ -11,8 +11,8 @@ import type { LogEntry, RunState } from './types.ts';
  */
 
 /** 칸 하나의 판정 결과를 상태에 적용한다 (위험은 굴리지 않는다) */
-function applySlot(state: RunState, choiceId: string, data: GameData): RunState {
-  const out = judgeStep(state, choiceId, data);
+function applySlot(state: RunState, choiceId: string, data: GameData, n: number): RunState {
+  const out = judgeStep(state, choiceId, data, n);
   return {
     ...state,
     node: out.node,
@@ -24,7 +24,8 @@ function applySlot(state: RunState, choiceId: string, data: GameData): RunState 
 /** 채운 칸들을 위험·난수 없이 적용한 예상 상태 — 다음 칸의 선택지·`preview` 기준 */
 export function projected(state: RunState, data: GameData): RunState {
   const { routine = [], ...rest } = state;
-  return routine.reduce<RunState>((s, id) => applySlot(s, id, data), rest);
+  const n = slotCount(state, data);
+  return routine.reduce<RunState>((s, id) => applySlot(s, id, data, n), rest);
 }
 
 /** 고를 수 있는 칸 선택인가 */
@@ -40,11 +41,12 @@ export function suggestions(state: RunState, data: GameData): (string | null)[] 
   const last = state.lastRoutine ?? [];
   const out: (string | null)[] = [];
   let s = projected(state, data);
-  for (let i = state.routine?.length ?? 0; i < slotCount(state); i++) {
+  const n = slotCount(state, data);
+  for (let i = state.routine?.length ?? 0; i < n; i++) {
     const id = last[i] ?? last.at(-1);
     if (id && choosable(s, id, data)) {
       out.push(id);
-      s = applySlot(s, id, data);
+      s = applySlot(s, id, data, n);
     } else out.push(null);
   }
   return out;
@@ -63,10 +65,12 @@ export function runRoutine(
   const labels: string[] = [];
   let s: RunState = state;
   let death: LogEntry | undefined;
+  // 칸 수는 실행 전 상태로 고정한다 (01-formulas 9.6)
+  const n = slotCount(state, data);
   for (const [i, id] of filled.entries()) {
     const label = stepChoices(s, data).find((c) => c.id === id)?.label ?? id;
     labels.push(label);
-    const out = judgeStep(s, id, data);
+    const out = judgeStep(s, id, data, n);
     const slot = i + 1;
     slots.push({ at: state.at, type: 'slot', slot, text: label, deltas: deltas(s.player, out) });
     s = {

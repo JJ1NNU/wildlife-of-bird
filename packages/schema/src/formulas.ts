@@ -184,6 +184,15 @@ export const Formulas = z
         riskBands: table(['low', 'high'], probability),
       })
       .strict(),
+    /** 칸 수 — `01-formulas` 9.6 (#265) */
+    routine: z
+      .object({
+        /** 한 시기의 기본 칸 수. 번식기는 이것 ÷ 단계 수 */
+        slotsBase: int,
+        /** 평시 칸 +1 문턱 — 스탯 합 ÷ 종 평균 잠재력 합이 이 값 이상이면 하나씩 */
+        extraSlotRatios: z.array(nonneg),
+      })
+      .strict(),
     events: z
       .object({
         chancePerStep: probability,

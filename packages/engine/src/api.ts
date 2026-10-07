@@ -47,7 +47,7 @@ import {
 import { parentingChoices, parentingDue, setPolicy } from './parenting.ts';
 import { seedFromString } from './rng.ts';
 import { projected, runRoutine, suggestions } from './routine.ts';
-import { judgeStep, mapNode, slotCount, speciesBalance, stepChoices } from './step.ts';
+import { judgeStep, mapNode, nextSlotIn, slotCount, speciesBalance, stepChoices } from './step.ts';
 import type {
   ActResult,
   Choice,
@@ -159,7 +159,7 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
     };
   }
   const from = projected(state, data);
-  const out = judgeStep(from, choiceId, data);
+  const out = judgeStep(from, choiceId, data, slotCount(state, data));
   const delta = out.energy - from.player.energy;
   const statGains: Partial<Record<StatName, number>> = {};
   for (const [stat, value] of Object.entries(out.stats)) {
@@ -190,7 +190,8 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   if (state.gate?.kind === 'inheritance') return pickInheritance(state, choiceId, data);
   const filled = [...(state.routine ?? []), choiceId];
   // 칸 채우기: 판정·난수 없음
-  if (filled.length < slotCount(state)) return { state: { ...state, routine: filled }, log: [] };
+  if (filled.length < slotCount(state, data))
+    return { state: { ...state, routine: filled }, log: [] };
 
   const { routine: _r, ...planned } = state;
   const ran = runRoutine(planned, filled, data);
@@ -401,6 +402,7 @@ function yearStart(state: RunState, data: GameData): ActResult {
  * 복사본을 돌려준다 — 화면·봇이 고쳐도 `RunState`가 바뀌지 않게(결정론, #33).
  */
 export function getView(state: RunState, data: GameData): ViewModel {
+  const nextIn = nextSlotIn(state, data);
   return structuredClone({
     at: state.at,
     phase: phaseAt(state.calendar, state.at),
@@ -455,7 +457,8 @@ export function getView(state: RunState, data: GameData): ViewModel {
       ? {}
       : {
           routine: {
-            slots: slotCount(state),
+            slots: slotCount(state, data),
+            ...(nextIn === undefined ? {} : { nextSlotIn: nextIn }),
             filled: state.routine ?? [],
             suggested: suggestions(state, data),
             replan: false,
