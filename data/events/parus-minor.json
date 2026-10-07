@@ -883,8 +883,8 @@
         ]
       }
     ],
-    "ecologyBasis": "어치는 박새 둥지를 가끔 턴다. 박새는 포식자에게 경보음을 내고, 다른 새와 함께 몰아내기도 한다. 포식자 앞에서 둥지 출입을 줄여 위치를 숨기는지는 확인하지 못했다.",
-    "sources": ["SRC-034", "SRC-002"],
+    "ecologyBasis": "어치는 박새 둥지를 가끔 턴다. 입구가 넓어진 새집에서는 포란 중인 어른을 공격하고 알을 먹은 기록이 있다. 박새는 어치에게 따로 구별되는 소리를 내고, 다른 새와 함께 몰아내기도 한다. 포식자 앞에서 둥지 출입을 줄여 위치를 숨기는지는 확인하지 못했다.",
+    "sources": ["SRC-034", "SRC-088", "SRC-089", "SRC-002"],
     "factCheck": "needs-review"
   },
   {
@@ -1483,9 +1483,9 @@
         ]
       }
     ],
-    "ecologyBasis": "박새는 경보음으로 다른 종까지 불러 모아 포식자에게 함께 덤빈다. 큰부리까마귀는 박새 둥지를 가끔 턴다. 까마귀가 이소한 새끼를 노리는지는 아직 확인하지 못했다.",
-    "sources": ["SRC-002", "SRC-034"],
-    "factCheck": "needs-review"
+    "ecologyBasis": "박새는 경보음으로 다른 종까지 불러 모아 포식자에게 함께 덤빈다. 국내 박새 관찰에서 이소한 새끼는 까마귀류에 잡히기 쉬웠고, 까마귀류가 부모의 경보음에 끌려올 수도 있다.",
+    "sources": ["SRC-002", "SRC-087", "SRC-034"],
+    "factCheck": "verified"
   },
   {
     "id": "ev.parus-minor.early-independence",
@@ -1525,9 +1525,9 @@
         ]
       }
     ],
-    "ecologyBasis": "박새류의 이소 후 돌봄은 평균 3주쯤이지만 둥지마다 길이가 크게 다르다. 2차 번식에 들어간 암컷은 이소한 새끼를 덜 돌본다. 유럽 박새 연구다.",
-    "sources": ["SRC-043"],
-    "factCheck": "needs-review"
+    "ecologyBasis": "박새류의 이소 후 돌봄은 평균 3주쯤이지만 둥지마다 길이가 크게 다르다. 2차 번식에 들어간 암컷은 이소한 새끼를 덜 돌본다(유럽 박새). 일본 박새에서는 이소 직후 영역에 먹이가 적을수록 새끼가 부모에게 더 오래 기댔다.",
+    "sources": ["SRC-043", "SRC-090"],
+    "factCheck": "verified"
   },
   {
     "id": "ev.parus-minor.light-fledgling",
@@ -2471,6 +2471,54 @@
     ],
     "ecologyBasis": "핀란드 북부와 스웨덴 남부의 박새는 몸깃 구조가 달랐다. 두 곳의 새를 같은 곳에서 먹이를 넉넉히 주며 털갈이시키자 차이가 사라졌고, 함께 털갈이한 어른 새도 같은 깃을 길렀다. 깃이 자라는 동안의 먹이 사정이 깃 구조를 정한다고 해석됐다. 트인 곳에서 위험이 오른다는 것은 게임의 선택이다. 핀란드·스웨덴 박새(P. major) 연구다.",
     "sources": ["SRC-085"],
+    "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.parus-minor.hawk-over-fledglings",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["postFledge"],
+      "hasBrood": true
+    },
+    "weight": "uncommon",
+    "title": "숲 가장자리의 새매",
+    "body": "새매 한 마리가 숲 가장자리를 낮게 돌고 있다. 새끼들은 배가 고파 쉬지 않고 조르고, 먹이를 물고 오갈 때마다 새끼들이 있는 가지가 드러난다.",
+    "options": [
+      {
+        "id": "keep-feeding",
+        "text": "주위를 살피며 하던 대로 먹이를 나른다",
+        "check": {
+          "stat": "vigilance",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "statGain",
+            "stat": "vigilance",
+            "tier": "small"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "chickLoss",
+            "tier": "small"
+          }
+        ]
+      },
+      {
+        "id": "lead-into-forest",
+        "text": "새끼들을 숲 안쪽 빽빽한 가지로 이끈다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "스웨덴 숲의 박새에서 새매는 늦게 이소한 새끼를 일찍 이소한 새끼보다 더 많이 잡았고, 새끼가 7~12마리인 둥지에서 2~6마리인 둥지보다 더 많이 잡았다. 새매는 주로 숲 밖 트인 곳에서 사냥했다. 저자는 배고파 조르는 소리와 잦은 먹이 나르기가 새끼가 있는 곳을 새매에게 드러낼 수 있다고 보았다(추정). 숲 안쪽으로 옮기면 덜 잡히는지는 확인하지 못했다(게임의 선택). 유럽 박새 연구다.",
+    "sources": ["SRC-086"],
     "factCheck": "needs-review"
   }
 ]
