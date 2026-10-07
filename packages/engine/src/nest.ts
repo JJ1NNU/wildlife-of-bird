@@ -112,5 +112,5 @@ export function buildNest(
   if (site === chosen)
     log.push({ at: state.at, type: 'nest', text: `${HOLE_LABEL[site] ?? site}에 둥지를 지었다` });
   const nest: Nest = { site, node: state.node };
-  return { state: { ...state, rng, nest }, log };
+  return { state: { ...state, rng, nest, yearNests: (state.yearNests ?? 0) + 1 }, log };
 }

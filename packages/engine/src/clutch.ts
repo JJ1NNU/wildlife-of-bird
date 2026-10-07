@@ -51,7 +51,7 @@ export function clutchCards(data: GameData, state: RunState, options: number[]):
 /**
  * 부화 — `incubation` 마지막 단계의 판정 3 다음에 알마다 `hatchRate`로 굴린다(5장). 부화한 수가 새끼 수.
  * 0이면 B-5 새끼 전멸: 그 번식은 실패하고 둥지를 거둔다.
- * 잠정(#21): B-5의 2차 번식 관문은 재번식 조각에서.
+ * 실패 뒤 2차 번식 관문·분할 해제는 `brood.ts`(api.ts가 연다).
  */
 export function hatchIfDue(state: RunState, data: GameData): { state: RunState; log: LogEntry[] } {
   const nest = state.nest;
