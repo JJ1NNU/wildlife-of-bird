@@ -107,7 +107,6 @@ export function chickCards(state: RunState, data: GameData): InheritanceChickCar
  * 관문을 닫는다. 새끼들은 독립했으니 둥지를 거둔다.
  * 잔류(7.1)면 개체는 그대로. 계승(7장)이면 고른 새끼가 조작 개체가 되고 짝·둥지 관련 상태는 없어지며,
  * 그 해의 2차 번식은 없다(분할 해제).
- * 잠정(#139): 새끼의 은수저 성장 배율(`silverSpoon.growthUntilAge`)은 다음 조각에서 — 지금 성장 배율은 1.
  */
 export function chooseInheritance(
   state: RunState,
