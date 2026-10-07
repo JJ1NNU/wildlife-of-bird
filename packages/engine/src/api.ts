@@ -15,10 +15,12 @@ import {
   feedChicks,
   hatchIfDue,
 } from './clutch.ts';
+import { checkChance, resolveOption } from './events.ts';
 import { agedStats, fatCap } from './formulas.ts';
 import {
   chickCards,
   chooseInheritance,
+  endLife,
   inheritanceChoices,
   inheritanceDue,
   openInheritance,
@@ -46,11 +48,12 @@ import {
 } from './order.ts';
 import { parentingChoices, parentingDue, setPolicy } from './parenting.ts';
 import { seedFromString } from './rng.ts';
-import { projected, runRoutine, suggestions } from './routine.ts';
-import { judgeStep, mapNode, nextSlotIn, slotCount, speciesBalance, stepChoices } from './step.ts';
+import { emptySlots, projected, routineSlots, runRoutine, suggestions } from './routine.ts';
+import { judgeStep, mapNode, nextSlotIn, speciesBalance, stepChoices } from './step.ts';
 import type {
   ActResult,
   Choice,
+  EventOptionCard,
   LogEntry,
   Preview,
   RunConfig,
@@ -62,11 +65,11 @@ import type {
  * 엔진 API — 일곱 개의 순수 함수 (엔진 원칙 1, 03-contracts 3장).
  *
  * M1 진행 중(#21): 단계표·장소·행동·옮기기와 판정 1·2·3(에너지 → 스탯 → 위험), 아사·포식 사망은
- * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·짝 지시(`mateOrder`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)·육아 방침(`parentingPolicy`)·2차 번식 여부(`secondBrood`, 실패 뒤·잔류 뒤)·계승(`inheritance`)이 있고, 부화·새끼 사망·독립을 굴린다. 이벤트는 아직 없다.
+ * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·짝 지시(`mateOrder`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)·육아 방침(`parentingPolicy`)·2차 번식 여부(`secondBrood`, 실패 뒤·잔류 뒤)·계승(`inheritance`)이 있고, 부화·새끼 사망·독립을 굴린다. 단계 이벤트는 루틴의 칸마다 추첨해 관문(`event`)으로 멈춘다. 환경 카드는 아직 없다.
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 
 /** 새 런을 시작한다. 같은 설정이면 언제나 같은 초기 상태. */
 export function newRun(config: RunConfig, data: GameData): RunState {
@@ -127,8 +130,38 @@ export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gate?.kind === 'parentingPolicy') return parentingChoices(state, data);
   if (state.gate?.kind === 'secondBrood') return secondBroodChoices();
   if (state.gate?.kind === 'inheritance') return inheritanceChoices(state);
+  if (state.gate?.kind === 'event')
+    return gateEvent(state, data).options.map((o) => ({
+      id: `event.${o.id}`,
+      kind: 'eventOption',
+      label: o.text,
+    }));
   // 루틴의 다음 빈 칸 — 앞 칸에 옮기기를 넣었으면 그 장소 기준 (03-contracts 3장 '행동 루틴')
   return stepChoices(projected(state, data), data);
+}
+
+/** 열려 있는 이벤트 관문의 이벤트 */
+function gateEvent(state: RunState, data: GameData) {
+  const id = state.gate?.kind === 'event' ? state.gate.id : undefined;
+  const event = data.events.find((e) => e.id === id);
+  if (!event) throw new Error(`없는 이벤트다: ${String(id)}`);
+  return event;
+}
+
+/** 이벤트 선택지 카드 — 판정형이면 성공 확률 (03-events 5.2·5.3) */
+function eventCards(state: RunState, data: GameData): EventOptionCard[] {
+  return gateEvent(state, data).options.map((o) => ({
+    choiceId: `event.${o.id}`,
+    ...(o.check
+      ? {
+          chance: checkChance(
+            data.formulas,
+            state.player.stats[o.check.stat] ?? 0,
+            data.effects.checkDifficulty[o.check.difficulty] ?? 0,
+          ),
+        }
+      : {}),
+  }));
 }
 
 /** 고를 수 있는 선택을 찾는다. 목록에 없거나 `disabled`면 던진다 (03-contracts 3장, #47) */
@@ -159,7 +192,7 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
     };
   }
   const from = projected(state, data);
-  const out = judgeStep(from, choiceId, data, slotCount(state, data));
+  const out = judgeStep(from, choiceId, data, routineSlots(state, data));
   const delta = out.energy - from.player.energy;
   const statGains: Partial<Record<StatName, number>> = {};
   for (const [stat, value] of Object.entries(out.stats)) {
@@ -188,13 +221,58 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   if (state.gate?.kind === 'parentingPolicy') return pickPolicy(state, choiceId, data);
   if (state.gate?.kind === 'secondBrood') return pickSecondBrood(state, choiceId, data);
   if (state.gate?.kind === 'inheritance') return pickInheritance(state, choiceId, data);
+  if (state.gate?.kind === 'event') return pickEventOption(state, choiceId, data);
   const filled = [...(state.routine ?? []), choiceId];
-  // 칸 채우기: 판정·난수 없음
-  if (filled.length < slotCount(state, data))
+  // 칸 채우기: 판정·난수 없음. 이벤트 뒤 다시 채우기면 남은 칸만
+  if (filled.length < emptySlots(state, data))
     return { state: { ...state, routine: filled }, log: [] };
 
   const { routine: _r, ...planned } = state;
   const routed = runRoutine(planned, filled, data);
+  // 이벤트로 멈춤 — 선택지를 고를 때까지 이 단계에 머문다 (03-contracts 3장)
+  if (routed.event)
+    return { state: { ...routed.state, log: [...state.log, ...routed.log] }, log: routed.log };
+  const { paused, ...done } = routed.state;
+  return endStep(
+    state,
+    { state: done, log: routed.log },
+    paused?.nest ?? state.nest !== undefined,
+    data,
+  );
+}
+
+/**
+ * 이벤트 선택지를 적용한다 (03-events 5장). 남은 칸이 있으면 다시 채우기로, 마지막 칸의 이벤트였으면 단계 끝으로.
+ * 효과로 죽으면 런이 끝난다
+ */
+function pickEventOption(state: RunState, choiceId: string, data: GameData): ActResult {
+  const event = gateEvent(state, data);
+  const optionId = choiceId.slice('event.'.length);
+  const option = event.options.find((o) => o.id === optionId);
+  const out = resolveOption(state, event, optionId, data);
+  const log: LogEntry[] = [
+    { at: state.at, type: 'event', text: option?.text ?? optionId, event: event.id },
+    ...out.log,
+  ];
+  const { gate: _g, paused, ...closed } = out.state;
+  if (!paused) throw new Error('멈춘 루틴 없이 이벤트 관문이 열려 있다');
+  if (out.death) {
+    const text = out.death === 'starvation' ? '굶어 죽었다' : '목숨을 잃었다';
+    const over: RunState = { ...closed, gameOver: true };
+    log.push({ at: state.at, type: 'death', text, cause: out.death, life: endLife(over, 'death') });
+    return { state: { ...over, log: [...state.log, ...log] }, log };
+  }
+  // 남은 칸 다시 채우기 — 결정으로 세지 않는다 (03-contracts 3장)
+  if (paused.done < paused.slots)
+    return { state: { ...closed, paused, log: [...state.log, ...log] }, log };
+  return endStep(state, { state: closed, log }, paused.nest, data);
+}
+
+/**
+ * 루틴을 다 실행한 단계의 끝: 부상 → 둥지 손실 → 부화 → 새끼 사망 → 은수저 → 독립·B-5 → 단계 끝 관문 → 다음 단계 (00-core-loop 4.6).
+ * `hadNest` = 단계를 시작할 때 둥지가 있었나 (이벤트로 잃어도 B-5)
+ */
+function endStep(state: RunState, routed: ActResult, hadNest: boolean, data: GameData): ActResult {
   // 부상은 판정 3을 받은 단계가 끝날 때 1 준다 — 이 단계 판정 뒤에 걸린 부상은 다음 단계부터 센다 (03-events 6.1 `injury`)
   const ran = { ...routed, state: heal(routed.state) };
   const log = ran.log;
@@ -219,7 +297,7 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
     return { state: { ...opened.state, log: [...state.log, ...log] }, log };
   }
   // 번식 실패(B-5): 2차 번식 여부 관문, 열리지 않으면 분할 해제 (00-core-loop 4.4 · 4.5)
-  const failed = ran.state.nest !== undefined && raised.state.nest === undefined;
+  const failed = hadNest && raised.state.nest === undefined;
   if (failed && secondBroodDue(raised.state, data)) {
     return {
       state: { ...raised.state, gate: { kind: 'secondBrood' }, log: [...state.log, ...log] },
@@ -288,8 +366,13 @@ function heal(state: RunState): RunState {
 function nextStep(state: RunState, data: GameData): ActResult {
   const at = advance(state.at, state.calendar);
   // `riskMod`·`foodMod`는 그 시기가 끝날 때 사라진다 (03-events 6.1)
-  const { periodMods, ...rest } = state;
+  const { periodMods, eventCooldown, ...rest } = state;
   const kept = at.period === state.at.period && periodMods ? { ...rest, periodMods } : rest;
+  // 이벤트 쿨다운: 단계마다 1 준다 (03-events 3.1)
+  const cooling = Object.entries(eventCooldown ?? {}).flatMap(([id, n]) =>
+    n > 1 ? [[id, n - 1] as const] : [],
+  );
+  if (cooling.length > 0) Object.assign(kept, { eventCooldown: Object.fromEntries(cooling) });
   const year = yearStart({ ...kept, at }, data);
   const moved = releaseNest(year.state);
   const { parenting, ...carried } = carryOrder(state, moved, data);
@@ -457,6 +540,9 @@ export function getView(state: RunState, data: GameData): ViewModel {
     ...(state.gate?.kind === 'secondBrood'
       ? { gate: { kind: state.gate.kind, cards: secondBroodCards(state, data) } }
       : {}),
+    ...(state.gate?.kind === 'event'
+      ? { gate: { kind: state.gate.kind, id: state.gate.id, cards: eventCards(state, data) } }
+      : {}),
     ...(state.gate?.kind === 'inheritance'
       ? {
           gate: {
@@ -472,11 +558,11 @@ export function getView(state: RunState, data: GameData): ViewModel {
       ? {}
       : {
           routine: {
-            slots: slotCount(state, data),
-            ...(nextIn === undefined ? {} : { nextSlotIn: nextIn }),
+            slots: emptySlots(state, data),
+            ...(nextIn === undefined || state.paused ? {} : { nextSlotIn: nextIn }),
             filled: state.routine ?? [],
             suggested: suggestions(state, data),
-            replan: false,
+            replan: state.paused !== undefined,
           },
         }),
     recentLog: state.log.slice(-20),

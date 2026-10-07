@@ -11,9 +11,9 @@ import {
   whenHolds,
 } from '../src/events.ts';
 import { foodModFactor, riskModFactor } from '../src/formulas.ts';
-import { newRun } from '../src/index.ts';
+import { act, getChoices, getView, newRun } from '../src/index.ts';
 import { nextFloat } from '../src/rng.ts';
-import { f, testData } from './fixture.ts';
+import { f, fullData, testData } from './fixture.ts';
 
 const ctx: EventContext = {
   phase: 'winter',
@@ -51,7 +51,7 @@ describe('조건 when (03-events 4장 예시)', () => {
 
 describe('추첨 (03-events 3.1 예시)', () => {
   const ev = (id: string, weight: GameEvent['weight']): GameEvent => ({
-    ...(testData.events[0] as GameEvent),
+    ...(fullData.events[0] as GameEvent),
     id,
     weight,
     when: {},
@@ -71,7 +71,7 @@ describe('추첨 (03-events 3.1 예시)', () => {
 
 describe('추첨 난수 순서 (03-events 3.1)', () => {
   const run = newRun({ speciesId: 'parus-minor', seed: 'draw', mode: 'free' }, testData);
-  const ev = { ...(testData.events[0] as GameEvent), id: 'ev.t.a', when: {} };
+  const ev = { ...(fullData.events[0] as GameEvent), id: 'ev.t.a', when: {} };
   const withChance = (chancePerStep: number, events: GameEvent[]): GameData => ({
     ...testData,
     events,
@@ -101,7 +101,7 @@ describe('선택지 적용 (03-events 5장)', () => {
   const run = newRun({ speciesId: 'parus-minor', seed: 'option', mode: 'free' }, testData);
   const energy = (sign: 'gain' | 'loss') => ({ type: 'energy', tier: 'small', sign }) as const;
   const ev: GameEvent = {
-    ...(testData.events[0] as GameEvent),
+    ...(fullData.events[0] as GameEvent),
     options: [
       {
         id: 'try',
@@ -215,5 +215,49 @@ describe('효과 (03-events 6.1 예시)', () => {
     const out = applyEffects(brood(5), [{ type: 'broodRisk', tier: 'low' }], sure);
     expect(out.state.nest).toBeUndefined();
     expect(out.log).toMatchObject([{ type: 'brood', cause: 'broodRisk' }]);
+  });
+});
+
+describe('루틴에 연결 — 칸마다 추첨 · 이벤트로 멈춤 · 다시 채우기 (03-contracts 3장)', () => {
+  const ev = { ...(fullData.events[0] as GameEvent), id: 'ev.t.a', when: {} };
+  const data: GameData = {
+    ...testData,
+    events: [ev],
+    formulas: { ...f, events: { ...f.events, chancePerStep: 1 } },
+  };
+  const start = newRun({ speciesId: 'parus-minor', seed: 'routine', mode: 'free' }, data);
+  const n = getView(start, data).routine?.slots ?? 0;
+  let s = start;
+  for (let i = 0; i < n; i++) s = act(s, 'action.rest', data).state;
+
+  it('첫 칸 판정 뒤 당첨 → 그 단계에 멈추고 eventOption만 준다', () => {
+    expect(n).toBeGreaterThan(1);
+    expect(s.at).toEqual(start.at);
+    expect(s.gate).toEqual({ kind: 'event', id: 'ev.t.a' });
+    expect(getChoices(s, data).map((c) => [c.id, c.kind])).toEqual(
+      ev.options.map((o) => [`event.${o.id}`, 'eventOption']),
+    );
+    expect(s.log.map((l) => l.type)).toEqual(['decision', 'slot', 'event']);
+    expect(s.eventCooldown).toEqual({ 'ev.t.a': f.events.cooldownSteps });
+  });
+
+  it('고르면 남은 칸 다시 채우기 — 제안값 = 원래 계획의 남은 칸, 실행은 replan 1건(결정 아님)', () => {
+    const picked = act(s, `event.${ev.options[1]?.id}`, data).state;
+    const view = getView(picked, data).routine;
+    expect(view).toMatchObject({ slots: n - 1, filled: [], replan: true });
+    expect(view?.suggested).toEqual(Array(n - 1).fill('action.rest'));
+    let r = picked;
+    for (let i = 0; i < n - 1; i++) r = act(r, 'action.rest', data).state;
+    const types = r.log.map((l) => l.type);
+    expect(types.filter((t) => t === 'decision')).toHaveLength(1);
+    expect(types.filter((t) => t === 'replan')).toHaveLength(1);
+    expect(types.filter((t) => t === 'event')).toHaveLength(2);
+    expect(r.log.filter((l) => l.type === 'slot').map((l) => l.slot)).toEqual(
+      Array.from({ length: n }, (_, i) => i + 1),
+    );
+    // 다시 채운 칸은 추첨하지 않는다 → 다음 단계로, 쿨다운 1 줄어 후보 없음
+    expect(r.at).not.toEqual(start.at);
+    expect(r.paused).toBeUndefined();
+    expect(r.eventCooldown).toEqual({ 'ev.t.a': f.events.cooldownSteps - 1 });
   });
 });
