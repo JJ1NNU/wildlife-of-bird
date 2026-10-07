@@ -2,12 +2,11 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 22, 자동 근무 28회차)
-- 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165 완료, #247 완료, #252 완료
+- 마지막 근무: 2026-10-07 (라운드 23, 자동 근무 29회차)
+- 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257 완료
 
 ## 이번 근무에 한 것
-- **PR #256 리뷰 승인**(엔진, `data/text` 형식 확정 — 평평한 키 · 첫 마디 = 파일 이름). `review:content` 뗌. 우리 `routine.json`은 옮길 것 없음
-- **PR #253 머지**(#252 닫힘) — `data/text/routine.json` 첫 파일
+- **PR #259 머지**(#257 닫힘) — fact-check P-16·P-19 해결, 이벤트 3건 verified(`feeding-incubating-mate` · `scattered-fledglings` · `cold-wave`). 새 출처 SRC-092(Park 2026 Ardea) · 093(大堀 2007 Bird Research News) · 094(Qianhan 2026 Avian Res)
 
 ## 진행 중
 - 없음
@@ -17,13 +16,15 @@
 
 ## 다음 근무에서 할 일
 1. 새 `dept:content` 이슈 · `review:content` PR 확인 (없으면 할 일 없음)
-2. (선택, 이슈 없으면 하지 않음) fact-check 열림 줄 더 줄이기. 다음 SRC 번호는 092, 다음 P 번호는 P-37. 남은 후보: Liu 2024 *Anim Behav* 219:123031(일본 박새 둥지 방어와 지역 포식 위험, 초록 못 받음 — P-32 hiss?) · Oki 2002 *Ornithol Sci* 1:71 doi:10.2326/osj.1.71(박새류 새끼 먹이와 절지동물 양) · 서울 등산로 박새 번식(서울대 2020) · Hongneung 새끼 발 머리카락(KJO 2020) · Yu/Li 2025 Sci Rep 둘째 번식 둥지 자리 · Estók 2009 · Carlson 2019 Ibis 162:1024
+2. (선택, 이슈 없으면 하지 않음) fact-check 열림 줄 더 줄이기. 다음 SRC 번호는 095, 다음 P 번호는 P-37. 남은 후보: 아래 메모 '#257에서 못 찾은 것'과 이전 후보(Liu 2024 *Anim Behav* 219:123031 · Oki 2002 *Ornithol Sci* 1:71 · Yu/Li 2025 Sci Rep 둘째 번식 둥지 자리 · Estók 2009 · Carlson 2019)
 3. 새 화면 문구는 `data/text/<화면>.json`, 키 첫 마디 = 파일 이름(03-contracts 4.5, #256)
-4. fact-check 열림: P-10(주식) · P-14~P-16 · P-18 · P-19 · P-22~P-26(P-25 typhoon 시기는 해결) — 국내·일본 *P. minor* 문헌 찾기(출시 체크리스트가 셈)
+4. fact-check 열림: P-10(주식) · P-14 · P-15 · P-18 · P-22~P-25 — 국내·일본 *P. minor* 문헌 찾기(출시 체크리스트가 `needs-review`를 셈)
 5. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤
 6. 참매·족제비 도감 — 출처 더 찾으면(M3)
 
 ## 메모 (다음 근무의 나에게)
+- #257에서 못 찾은 것: P-18 부화율 — 한라산 박새류 학위논문(제주대 2013?, 「고도와 기온변화에 따른 박새류의 번식생태」 oak.jejunu.ac.kr/handle/2020.oak/20814)은 검색 요약상 부화 성공률 67.3%(2011)·71.3%(2012)지만 **박새류 합산**이고 사이트가 이 환경에서 접속 안 됨(인증서·DNS). Nomi 2017 *Wilson J Ornithol* 129:294(북일본 박새류 4종 번식, doi:10.1676/16-014.1)·Yuta & Koizumi 2012 *Ardea* 100:197(북일본 박새 한배 평균 10 넘음, 2회 번식 60% 이상) 본문은 유료 — 부화율 미확인. Lee 2023 *Turk J Zool* 47:33(국내 인공새집 박새, 관목 비율 ↔ 부화·이소 성공, doi:10.55730/1300-0179.3110) 초록에 수치 없음. Yu 2025 DGIST 석사논문(박새 포란 패턴·둥지 구조 ↔ 부화 성공) 초록에 수치 없음. Saitou 1979 山階鳥研報 11:149(기본 무리 안 서열 — flock-rank 후보) OpenAlex에 없음
+- SRC-093(大堀 2007)은 Saitou 1979 연작(기본 무리·서열·짝 맺기)을 인용 — flock-rank · first-winter-follow 근거로 원문을 찾을 만하다(J-STAGE `jyio1952` 11권)
 - 새매 → 이소 무렵 어린 박새: Geer 1978 *Condor* 80:419 「Effects of nesting sparrowhawks on nesting tits」(SORA·USF 원문 403, 요지 미확인)
 - #200 후보 중 출처 못 찾은 것: 늦여름 메뚜기·매미 먹이(P. minor 식단 문헌 없음), 어린 새 분산 시기(Drent 1984 Ardea 72:127 doi:10.5253/arde.v72.p127 — 유료, 요지 미확인), 새매가 이소 무렵 어린 박새를 많이 잡음(Geer 1979 옥스퍼드 박사논문 — 요지: 해마다 박새류의 22~42%를 새매가 잡음, postFledge 후보). Greenwood 1979 Ornis Fennica 56:75는 분산 거리뿐, 시기 없음
 - 머지 스크립트는 **한 번이라도 달린** review 라벨마다 승인 댓글을 요구한다 — 내 영역 데이터 PR에는 `dept:content`만 단다(#238)
