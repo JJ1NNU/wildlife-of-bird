@@ -1,12 +1,21 @@
-import type { EffectsTable, EventWhen, Formulas, GameData, GameEvent, Phase } from '@wb/schema';
+import type {
+  Effect,
+  EffectsTable,
+  EventWhen,
+  Formulas,
+  GameData,
+  GameEvent,
+  Phase,
+} from '@wb/schema';
 import { phaseAt } from './calendar.ts';
-import { fatCap } from './formulas.ts';
-import { mapNode } from './step.ts';
+import { fatCap, statGain } from './formulas.ts';
+import { nextChance } from './rng.ts';
+import { growthNow, mapNode, speciesBalance } from './step.ts';
 import type { RunState } from './types.ts';
 
 /**
- * 이벤트 해석기 첫 조각 — 조건(`when`) · 후보 · 가중치 추첨 · 판정형 선택지의 성공 확률 (03-events 3~5장).
- * 잠정(#21): 루틴에 연결(칸마다 추첨 · 이벤트 관문 · 효과 · `replan`)은 다음 조각.
+ * 이벤트 해석기 — 조건(`when`) · 후보 · 가중치 추첨 · 판정형 선택지의 성공 확률 · 효과 (03-events 3~6장).
+ * 잠정(#21): 루틴에 연결(칸마다 추첨 · 이벤트 관문 · `replan`)과 효과 `injury`·`broodRisk`·`chickLoss`·`fledgeEarly`는 다음 조각.
  */
 
 /** `when`을 판단하는 데 쓰는 지금 상태 (03-events 4장) */
@@ -128,4 +137,75 @@ export function checkChance(f: Formulas, stat: number, difficulty: number): numb
     e.checkMax,
     Math.max(e.checkMin, e.checkBase + e.checkPerPoint * (stat - difficulty)),
   );
+}
+
+/**
+ * 효과를 배열 순서대로 적용한다 (03-events 6.1). 중간에 조작 개체가 죽으면 남은 효과는 버리고 `death`에 원인.
+ * 에너지 0 이하는 아사(`starvation`), `deathRisk`는 `u < 값`이면 `cause`(`predation`이면 `predation:<predator>`).
+ * `riskMod`·`foodMod`는 `periodMods`에 쌓는다 — 시기가 바뀌면 지워진다.
+ */
+export function applyEffects(
+  state: RunState,
+  effects: readonly Effect[],
+  data: GameData,
+): { state: RunState; death?: string } {
+  const f = data.formulas;
+  const t = data.effects;
+  let s = state;
+  for (const e of effects) {
+    const p = s.player;
+    const mods = s.periodMods ?? { risk: [], food: [] };
+    switch (e.type) {
+      case 'energy': {
+        const d = e.sign === 'gain' ? t.energy[e.tier] : -t.energy[e.tier];
+        const energy = Math.min(fatCap(f, p.stats.stamina ?? 0), p.energy + d);
+        if (energy <= 0)
+          return { state: { ...s, player: { ...p, energy: 0 } }, death: 'starvation' };
+        s = { ...s, player: { ...p, energy } };
+        break;
+      }
+      case 'feather': {
+        const d = e.sign === 'gain' ? t.feather[e.tier] : -t.feather[e.tier];
+        const feather = Math.min(f.feather.max, Math.max(0, p.feather + d));
+        s = { ...s, player: { ...p, feather } };
+        break;
+      }
+      case 'statGain': {
+        const potential = p.potential[e.stat] ?? 0;
+        const current = p.stats[e.stat] ?? 0;
+        const gain = statGain(f, speciesBalance(data, p.speciesId), {
+          stat: e.stat,
+          base: t.statGain[e.tier],
+          potential,
+          current,
+          growthMult: growthNow(f, p),
+        });
+        const stats = { ...p.stats, [e.stat]: Math.min(potential, current + gain) };
+        s = { ...s, player: { ...p, stats } };
+        break;
+      }
+      case 'bond': {
+        if (!s.mate) break;
+        const d = e.sign === 'gain' ? t.bond[e.tier] : -t.bond[e.tier];
+        s = { ...s, mate: { ...s.mate, bond: Math.min(100, Math.max(0, s.mate.bond + d)) } };
+        break;
+      }
+      case 'deathRisk': {
+        const rolled = nextChance(s.rng, t.deathRisk[e.tier]);
+        s = { ...s, rng: rolled.state };
+        if (rolled.value)
+          return { state: s, death: e.predator ? `${e.cause}:${e.predator}` : e.cause };
+        break;
+      }
+      case 'riskMod':
+        s = { ...s, periodMods: { ...mods, risk: [...mods.risk, e.tier] } };
+        break;
+      case 'foodMod':
+        s = { ...s, periodMods: { ...mods, food: [...mods.food, { tier: e.tier, sign: e.sign }] } };
+        break;
+      default:
+        throw new Error(`잠정(#21): 아직 해석하지 않는 효과다: ${e.type}`);
+    }
+  }
+  return { state: s };
 }
