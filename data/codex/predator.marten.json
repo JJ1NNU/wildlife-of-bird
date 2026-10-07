@@ -9,8 +9,8 @@
     "predator": "marten"
   },
   "basis": {
-    "sources": ["SRC-034", "SRC-023", "SRC-001"],
-    "factCheck": "verified",
-    "note": "국내 둥지 포식자(SRC-034) · 입구 밖 공격과 새끼 반응(SRC-023) · 암컷이 chicka에 머묾(SRC-001). 경보음 연구는 일본 박새."
+    "sources": ["SRC-023", "SRC-001"],
+    "factCheck": "needs-review",
+    "note": "국내 둥지 포식자(SRC-034, AI 답 — 출처 아님, #266) · 입구 밖 공격과 새끼 반응(SRC-023) · 암컷이 chicka에 머묾(SRC-001). 경보음 연구는 일본 박새. 다시 확인 필요(#266)."
   }
 }

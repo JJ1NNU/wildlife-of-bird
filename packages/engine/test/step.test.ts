@@ -87,6 +87,19 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
     expect(p.deathRisk).toBeLessThan(unchanged);
   });
 
+  it('계승한 새끼: 나이 ≤ growthUntilAge 동안 스탯 상승 × 은수저 성장 배율 (01-formulas 1.3·6.2)', () => {
+    const gainAt = (player: Partial<RunState['player']>) =>
+      preview(
+        { ...example, player: { ...example.player, potential: { vigilance: 100 }, ...player } },
+        'action.explore',
+        data,
+      ).statGains?.vigilance ?? 0;
+    const plain = gainAt({});
+    // 은수저 지수 1 → 0.8 + 0.4 × 1 = 1.2
+    expect(gainAt({ silverSpoon: 1, age: 1 })).toBeCloseTo(plain * 1.2, 9);
+    expect(gainAt({ silverSpoon: 1, age: 2 })).toBeCloseTo(plain, 9);
+  });
+
   it('B-1 에너지 0: 즉시 아사, 난수를 당기지 않는다', () => {
     const hungry = { ...example, player: { ...example.player, energy: 1 } };
     const { state, log } = actStep(hungry, 'action.train.flight', data);

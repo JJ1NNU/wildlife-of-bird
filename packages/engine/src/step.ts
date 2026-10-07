@@ -7,6 +7,7 @@ import {
   expenditure,
   fatCap,
   forageEfficiency,
+  growthMult,
   intake,
   nextEnergy,
   nextFeather,
@@ -186,13 +187,17 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
 
   // 판정 2 — 스탯 상승 (01-formulas 1.3)
   const stats = { ...p.stats };
+  // 1.3 성장 배율: 계승한 새끼는 나이 ≤ `growthUntilAge` 동안 은수저 성장 배율. 런 시작 개체는 1
+  const growth =
+    p.silverSpoon !== undefined && p.age <= f.silverSpoon.growthUntilAge
+      ? growthMult(f, p.silverSpoon)
+      : 1;
   for (const [key, base] of Object.entries(f.actions[action].gain)) {
     const s = (key === 'chosen' ? trained : key) as StatName | undefined;
     if (!s || base === undefined) continue;
     const potential = p.potential[s] ?? 0;
     const current = stats[s] ?? 0;
-    // 잠정(#21): 성장 배율 — 은수저 지수는 계승한 새끼부터 생긴다. 런 시작 개체는 1
-    const gain = statGain(f, species, { stat: s, base, potential, current, growthMult: 1 });
+    const gain = statGain(f, species, { stat: s, base, potential, current, growthMult: growth });
     stats[s] = Math.min(potential, current + gain);
   }
 

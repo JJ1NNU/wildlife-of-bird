@@ -2,23 +2,26 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 23, 자동 근무 29회차)
+- 마지막 근무: 2026-10-07 (라운드 23, 자동 근무 30회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257 완료
 
 ## 이번 근무에 한 것
-- **PR #259 머지**(#257 닫힘) — fact-check P-16·P-19 해결, 이벤트 3건 verified(`feeding-incubating-mate` · `scattered-fledglings` · `cold-wave`). 새 출처 SRC-092(Park 2026 Ardea) · 093(大堀 2007 Bird Research News) · 094(Qianhan 2026 Avian Res)
+- **PR #272 머지**(#266 1차) — SRC-034는 AI(Claude Opus) 답(대표 확인). sources.md 고침, 데이터에서 떼고 단독 근거는 needs-review: 번식 수치 6(P-1~P-6 다시 열림) · `caterpillar-shortage` · 포식자 참매·올빼미류 · 도감 6건. 새매·족제비 → SRC-041, 새끼 먹이 → SRC-091로 verified 유지. 수치 변경 없음
+- 디자인 이슈 #271 — gdd 8.4·04-breeding의 SRC-034 표시 고치기
+- **PR #270**(#263) — `data/text/inheritance.json` S-24 계승 화면 문구 + 은수저·첫 겨울 도움말(SRC-039·044). `review:client` 대기(자리 표시 `{n}` `{from}` `{to}` `{name}` `{age}` `{bond}` 확인)
 
 ## 진행 중
-- 없음
+- PR #270 — 클라이언트 승인 뒤 `bash scripts/merge-pr.sh 270`
+- #266 열림 — needs-review 번식 수치를 문헌으로 다시 확인(2차)
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
-1. 새 `dept:content` 이슈 · `review:content` PR 확인 (없으면 할 일 없음)
-2. (선택, 이슈 없으면 하지 않음) fact-check 열림 줄 더 줄이기. 다음 SRC 번호는 095, 다음 P 번호는 P-37. 남은 후보: 아래 메모 '#257에서 못 찾은 것'과 이전 후보(Liu 2024 *Anim Behav* 219:123031 · Oki 2002 *Ornithol Sci* 1:71 · Yu/Li 2025 Sci Rep 둘째 번식 둥지 자리 · Estók 2009 · Carlson 2019)
-3. 새 화면 문구는 `data/text/<화면>.json`, 키 첫 마디 = 파일 이름(03-contracts 4.5, #256)
-4. fact-check 열림: P-10(주식) · P-14 · P-15 · P-18 · P-22~P-25 — 국내·일본 *P. minor* 문헌 찾기(출시 체크리스트가 `needs-review`를 셈)
+1. PR #270 리뷰 확인 → 머지
+2. #266 2차: 번식 `season` · `layStart` · `clutchSize` · `broodsPerYearMax` · `incubationDays` · `nestlingDays`를 국내·일본 *P. minor* 문헌으로(SRC-024 전문 PDF, Yuta & Koizumi 2012 *Ardea* 100:197, Nomi 2017, SRC-090 본문). 포식자 참매·올빼미류, 도감 6건 본문도. 찾으면 verified로 올리고 #266 닫기. 수치가 바뀌면 디자인에 알림(#271)
+3. 다음 SRC 번호 095, 다음 P 번호 P-37
+4. fact-check 열림: P-1~P-6(#266) · P-10(주식) · P-14 · P-15 · P-18 · P-22~P-25
 5. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤
 6. 참매·족제비 도감 — 출처 더 찾으면(M3)
 
@@ -30,7 +33,8 @@
 - 머지 스크립트는 **한 번이라도 달린** review 라벨마다 승인 댓글을 요구한다 — 내 영역 데이터 PR에는 `dept:content`만 단다(#238)
 - **머지는 `bash scripts/merge-pr.sh <번호>` 한 줄로**(#117, `gh pr merge` 직접 금지). 그 전에 별도 명령으로 `git switch --detach origin/main`(worktree를 브랜치에서 떼기, #113)
 - 원문 확인한 출처: SRC-001~005 · 023~034 (032·033은 서지·초록까지, 032·033은 #110에 있음). 006~022는 `미확인`
-- SRC-034(전문가 답)에서 답한 분이 '모른다'·'확인 권함'이라 한 부분(생존율, B1~B3)은 출처로 안 씀(N-6)
+- **SRC-034는 AI 답 — 어떤 사실의 출처로도 쓰지 않는다**(#266). 남은 쓰임은 needs-review 자리 표시뿐
+- 화면 문구 키 마디에 숫자 금지(camelCase 정규식) — 순서는 `first`~`tenth`로(#270)
 - SRC-032·033 원문은 *P. major* 표기(구 분류) — 한국 개체 = 지금의 *P. minor*
 - 이벤트 스키마에 결과 글 필드가 없다(옵션은 id·text·효과만). 결과 글이 필요하면 디자인·엔진에 요청
 - 장소 등급 어림: 섭취 ≈ food 수치 × (1 − competition). 봄 노숙림 9.6, 겨울 소나무숲 9.75
