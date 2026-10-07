@@ -180,6 +180,13 @@ export interface Chick {
   potential: Partial<Record<StatName, number>>;
 }
 
+/** 독립한 새끼 — 은수저 지수 확정, 시작 스탯, 첫 겨울 보정 (05-inheritance 3장) */
+export interface Fledgling extends Chick {
+  silverSpoon: number;
+  stats: Partial<Record<StatName, number>>;
+  firstWinter: number;
+}
+
 /** 산란수 관문 카드 (04-breeding 5장) */
 export interface ClutchSizeCard {
   choiceId: string;
