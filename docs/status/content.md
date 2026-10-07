@@ -2,27 +2,30 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 23, 자동 근무 29회차)
+- 마지막 근무: 2026-10-07 (라운드 24, 자동 근무 31회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257 완료
 
 ## 이번 근무에 한 것
-- **PR #259 머지**(#257 닫힘) — fact-check P-16·P-19 해결, 이벤트 3건 verified(`feeding-incubating-mate` · `scattered-fledglings` · `cold-wave`). 새 출처 SRC-092(Park 2026 Ardea) · 093(大堀 2007 Bird Research News) · 094(Qianhan 2026 Avian Res)
+- **PR #282 머지**(#266 2차) — SRC-095(Rhim 외 2013, 서울 남산 인공새집 2012) 본문·표 3 확인. `clutchSize`(평균 9.71)·`layStart`(첫 알 4월 15~16일) → verified, P-1·P-6 해결. `nestlingDays`는 남산 평균 15.5~15.7일로 게임 16~20일보다 짧음 → 값 유지, 디자인 #271에 댓글. `incubationDays`는 논문 계산식이 이상해 근거로 안 씀
+- PR #270(#263) — 여전히 `review:client` 대기
 
 ## 진행 중
-- 없음
+- PR #270 — 클라이언트 승인 뒤 `bash scripts/merge-pr.sh 270`
+- #266 열림 — 남은 needs-review: P-2 포란 · P-3 육추 · P-4 연 번식 횟수 · P-5 번식기 · P-7 포식자 · 이벤트 `caterpillar-shortage` · 도감 6건
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
-1. 새 `dept:content` 이슈 · `review:content` PR 확인 (없으면 할 일 없음)
-2. (선택, 이슈 없으면 하지 않음) fact-check 열림 줄 더 줄이기. 다음 SRC 번호는 095, 다음 P 번호는 P-37. 남은 후보: 아래 메모 '#257에서 못 찾은 것'과 이전 후보(Liu 2024 *Anim Behav* 219:123031 · Oki 2002 *Ornithol Sci* 1:71 · Yu/Li 2025 Sci Rep 둘째 번식 둥지 자리 · Estók 2009 · Carlson 2019)
-3. 새 화면 문구는 `data/text/<화면>.json`, 키 첫 마디 = 파일 이름(03-contracts 4.5, #256)
-4. fact-check 열림: P-10(주식) · P-14 · P-15 · P-18 · P-22~P-25 — 국내·일본 *P. minor* 문헌 찾기(출시 체크리스트가 `needs-review`를 셈)
+1. PR #270 리뷰 확인 → 머지
+2. #266 3차: 포란 일수·연 번식 횟수·번식기 끝 — Yuta & Koizumi 2012 *Ardea* 100:197, Nomi 2017, SRC-024 전문, 중국 *P. minor* 논문(Avian Research는 공개). 포식자 참매·올빼미류, 도감 6건 본문도
+3. 다음 SRC 번호 096, 다음 P 번호 P-37
+4. fact-check 열림: P-2~P-5 · P-7(#266) · P-10(주식) · P-14 · P-15 · P-18 · P-22~P-25
 5. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤
 6. 참매·족제비 도감 — 출처 더 찾으면(M3)
 
 ## 메모 (다음 근무의 나에게)
+- tandfonline 본문은 curl은 403(Cloudflare)이지만 **내장 브라우저**로 열면 읽힌다. 표는 'Display Table' 버튼을 눌러야 DOM에 들어온다(CSV 다운로드는 챌린지에 막힘) — SRC-095에서 확인
 - #257에서 못 찾은 것: P-18 부화율 — 한라산 박새류 학위논문(제주대 2013?, 「고도와 기온변화에 따른 박새류의 번식생태」 oak.jejunu.ac.kr/handle/2020.oak/20814)은 검색 요약상 부화 성공률 67.3%(2011)·71.3%(2012)지만 **박새류 합산**이고 사이트가 이 환경에서 접속 안 됨(인증서·DNS). Nomi 2017 *Wilson J Ornithol* 129:294(북일본 박새류 4종 번식, doi:10.1676/16-014.1)·Yuta & Koizumi 2012 *Ardea* 100:197(북일본 박새 한배 평균 10 넘음, 2회 번식 60% 이상) 본문은 유료 — 부화율 미확인. Lee 2023 *Turk J Zool* 47:33(국내 인공새집 박새, 관목 비율 ↔ 부화·이소 성공, doi:10.55730/1300-0179.3110) 초록에 수치 없음. Yu 2025 DGIST 석사논문(박새 포란 패턴·둥지 구조 ↔ 부화 성공) 초록에 수치 없음. Saitou 1979 山階鳥研報 11:149(기본 무리 안 서열 — flock-rank 후보) OpenAlex에 없음
 - SRC-093(大堀 2007)은 Saitou 1979 연작(기본 무리·서열·짝 맺기)을 인용 — flock-rank · first-winter-follow 근거로 원문을 찾을 만하다(J-STAGE `jyio1952` 11권)
 - 새매 → 이소 무렵 어린 박새: Geer 1978 *Condor* 80:419 「Effects of nesting sparrowhawks on nesting tits」(SORA·USF 원문 403, 요지 미확인)
@@ -30,7 +33,8 @@
 - 머지 스크립트는 **한 번이라도 달린** review 라벨마다 승인 댓글을 요구한다 — 내 영역 데이터 PR에는 `dept:content`만 단다(#238)
 - **머지는 `bash scripts/merge-pr.sh <번호>` 한 줄로**(#117, `gh pr merge` 직접 금지). 그 전에 별도 명령으로 `git switch --detach origin/main`(worktree를 브랜치에서 떼기, #113)
 - 원문 확인한 출처: SRC-001~005 · 023~034 (032·033은 서지·초록까지, 032·033은 #110에 있음). 006~022는 `미확인`
-- SRC-034(전문가 답)에서 답한 분이 '모른다'·'확인 권함'이라 한 부분(생존율, B1~B3)은 출처로 안 씀(N-6)
+- **SRC-034는 AI 답 — 어떤 사실의 출처로도 쓰지 않는다**(#266). 남은 쓰임은 needs-review 자리 표시뿐
+- 화면 문구 키 마디에 숫자 금지(camelCase 정규식) — 순서는 `first`~`tenth`로(#270)
 - SRC-032·033 원문은 *P. major* 표기(구 분류) — 한국 개체 = 지금의 *P. minor*
 - 이벤트 스키마에 결과 글 필드가 없다(옵션은 id·text·효과만). 결과 글이 필요하면 디자인·엔진에 요청
 - 장소 등급 어림: 섭취 ≈ food 수치 × (1 − competition). 봄 노숙림 9.6, 겨울 소나무숲 9.75

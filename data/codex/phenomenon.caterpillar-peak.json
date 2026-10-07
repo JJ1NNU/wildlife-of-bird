@@ -8,8 +8,8 @@
     "events": ["ev.parus-minor.caterpillar-shortage"]
   },
   "basis": {
-    "sources": ["SRC-034", "SRC-024", "SRC-091", "SRC-090"],
-    "factCheck": "verified",
-    "note": "새끼 먹이·산란 시기(SRC-034) · 연도 차이(SRC-024) · 일본 박새 새끼 먹이의 약 70%가 나방류 애벌레(SRC-091) · 산란 무렵 영역의 애벌레 양과 산란 시기(SRC-090, 일본 P. minor). 기온 문장은 근거가 SRC-005(D) 단독이라 뺐다(#247). 미리 안다는 식으로 쓰지 않는다(writing-style 3.3)."
+    "sources": ["SRC-024", "SRC-091", "SRC-090"],
+    "factCheck": "needs-review",
+    "note": "새끼 먹이·산란 시기(SRC-034, AI 답 — 출처 아님, #266) · 연도 차이(SRC-024) · 일본 박새 새끼 먹이의 약 70%가 나방류 애벌레(SRC-091) · 산란 무렵 영역의 애벌레 양과 산란 시기(SRC-090, 일본 P. minor). 기온 문장은 근거가 SRC-005(D) 단독이라 뺐다(#247). 미리 안다는 식으로 쓰지 않는다(writing-style 3.3). 다시 확인 필요(#266)."
   }
 }

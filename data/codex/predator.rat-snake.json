@@ -9,8 +9,8 @@
     "predator": "rat-snake"
   },
   "basis": {
-    "sources": ["SRC-034", "SRC-001", "SRC-023", "SRC-002"],
-    "factCheck": "verified",
-    "note": "국내 둥지 포식자(SRC-034) · 뱀 경보음과 암컷 반응·어미 포식(SRC-001) · 새끼 반응(SRC-023) · 다른 종의 반응(SRC-002). 경보음 연구는 일본 박새."
+    "sources": ["SRC-001", "SRC-023", "SRC-002"],
+    "factCheck": "needs-review",
+    "note": "국내 둥지 포식자(SRC-034, AI 답 — 출처 아님, #266) · 뱀 경보음과 암컷 반응·어미 포식(SRC-001) · 새끼 반응(SRC-023) · 다른 종의 반응(SRC-002). 경보음 연구는 일본 박새. 다시 확인 필요(#266)."
   }
 }
