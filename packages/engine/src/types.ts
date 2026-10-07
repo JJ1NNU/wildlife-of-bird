@@ -230,11 +230,31 @@ export interface Fledgling extends Chick {
   firstWinter: number;
 }
 
-/** 이벤트 선택지 카드 — 글은 `data.events`의 그 선택지, 효과 숫자는 `data.effects` 등급표 (03-events 5.3) */
+/**
+ * 효과 하나의 화면용 숫자 (03-events 5.3·6.1). 지금 상태 기준이고 판정은 하지 않는다.
+ * `delta`·`gain` = 등급표 값(에너지는 지방 상한으로 자르기 전), `chance` = 그 자리 판정 확률 0~1,
+ * `chicks` = 지금 새끼 수로 올림한 마릿수, `factor` = 그 시기 끝까지 곱하는 배율, `checks` = 부상 배율을 받는 판정 수
+ */
+export type EffectPreview =
+  | { type: 'energy' | 'feather' | 'bond'; delta: number }
+  | { type: 'statGain'; stat: StatName; gain: number }
+  | { type: 'deathRisk'; chance: number; cause: string }
+  | { type: 'broodRisk'; chance: number }
+  | { type: 'chickLoss'; chicks: number }
+  | { type: 'riskMod' | 'foodMod'; factor: number }
+  | { type: 'injury'; checks: number }
+  | { type: 'fledgeEarly' };
+
+/** 이벤트 선택지 카드 — 글은 `data.events`의 그 선택지, 효과 숫자는 여기 (03-events 5.3) */
 export interface EventOptionCard {
   choiceId: string;
   /** 판정형만 — 성공 확률 0~1 (5.2) */
   chance?: number;
+  /** 고정 효과 */
+  effects?: EffectPreview[];
+  /** 판정형만 — 성공·실패 효과 */
+  onSuccess?: EffectPreview[];
+  onFail?: EffectPreview[];
 }
 
 /** 산란수 관문 카드 (04-breeding 5장) */

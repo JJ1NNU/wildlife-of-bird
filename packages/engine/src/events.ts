@@ -11,7 +11,7 @@ import { phaseAt } from './calendar.ts';
 import { fatCap, statGain } from './formulas.ts';
 import { nextChance, nextFloat } from './rng.ts';
 import { growthNow, mapNode, speciesBalance } from './step.ts';
-import type { LogEntry, RunState } from './types.ts';
+import type { EffectPreview, LogEntry, RunState } from './types.ts';
 
 /**
  * 이벤트 해석기 — 조건(`when`) · 후보 · 가중치 추첨 · 판정형 선택지의 성공 확률 · 효과 (03-events 3~6장).
@@ -291,6 +291,63 @@ export function applyEffects(
     }
   }
   return { state: s, log };
+}
+
+/**
+ * 효과의 화면용 숫자 (03-events 5.3) — 지금 상태 하나로 각각 계산하고 난수는 쓰지 않는다.
+ * `deathRisk`·`broodRisk`는 `applyEffects`가 판정하는 등급표 값 그대로(정직한 확률)
+ */
+export function previewEffects(
+  state: RunState,
+  effects: readonly Effect[],
+  data: GameData,
+): EffectPreview[] {
+  const f = data.formulas;
+  const t = data.effects;
+  const p = state.player;
+  return effects.map((e) => previewEffect(e));
+
+  function previewEffect(e: Effect): EffectPreview {
+    switch (e.type) {
+      case 'energy':
+      case 'feather':
+      case 'bond':
+        return { type: e.type, delta: e.sign === 'gain' ? t[e.type][e.tier] : -t[e.type][e.tier] };
+      case 'statGain': {
+        const potential = p.potential[e.stat] ?? 0;
+        const current = p.stats[e.stat] ?? 0;
+        const gain = statGain(f, speciesBalance(data, p.speciesId), {
+          stat: e.stat,
+          base: t.statGain[e.tier],
+          potential,
+          current,
+          growthMult: growthNow(f, p),
+        });
+        return { type: 'statGain', stat: e.stat, gain: Math.min(potential - current, gain) };
+      }
+      case 'deathRisk':
+        return { type: 'deathRisk', chance: t.deathRisk[e.tier], cause: e.cause };
+      case 'broodRisk':
+        return { type: 'broodRisk', chance: t.broodRisk[e.tier] };
+      case 'chickLoss': {
+        const chicks = state.nest?.chicks ?? 0;
+        return {
+          type: 'chickLoss',
+          chicks: Math.min(chicks, Math.ceil(chicks * t.chickLoss[e.tier])),
+        };
+      }
+      case 'riskMod':
+        return { type: 'riskMod', factor: 1 + t.riskMod[e.tier] };
+      case 'foodMod': {
+        const v = t.foodMod[e.tier];
+        return { type: 'foodMod', factor: e.sign === 'gain' ? 1 + v : 1 - v };
+      }
+      case 'injury':
+        return { type: 'injury', checks: t.injury[e.tier] };
+      case 'fledgeEarly':
+        return { type: 'fledgeEarly' };
+    }
+  }
 }
 
 /** B-5 — 둥지를 거두고 로그를 남긴다 */

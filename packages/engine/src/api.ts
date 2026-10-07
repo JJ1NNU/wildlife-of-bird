@@ -15,7 +15,7 @@ import {
   feedChicks,
   hatchIfDue,
 } from './clutch.ts';
-import { checkChance, resolveOption } from './events.ts';
+import { checkChance, previewEffects, resolveOption } from './events.ts';
 import { agedStats, fatCap } from './formulas.ts';
 import {
   chickCards,
@@ -148,8 +148,10 @@ function gateEvent(state: RunState, data: GameData) {
   return event;
 }
 
-/** 이벤트 선택지 카드 — 판정형이면 성공 확률 (03-events 5.2·5.3) */
+/** 이벤트 선택지 카드 — 효과 숫자, 판정형이면 성공 확률과 성공·실패 효과 (03-events 5.2·5.3) */
 function eventCards(state: RunState, data: GameData): EventOptionCard[] {
+  const fx = (effects: Parameters<typeof previewEffects>[1] = []) =>
+    previewEffects(state, effects, data);
   return gateEvent(state, data).options.map((o) => ({
     choiceId: `event.${o.id}`,
     ...(o.check
@@ -159,8 +161,10 @@ function eventCards(state: RunState, data: GameData): EventOptionCard[] {
             state.player.stats[o.check.stat] ?? 0,
             data.effects.checkDifficulty[o.check.difficulty] ?? 0,
           ),
+          onSuccess: fx(o.onSuccess),
+          onFail: fx(o.onFail),
         }
-      : {}),
+      : { effects: fx(o.effects) }),
   }));
 }
 
