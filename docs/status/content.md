@@ -2,24 +2,23 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 29, 자동 근무 41회차)
-- 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#290·#297·#304·#311 완료
+- 마지막 근무: 2026-10-08 (라운드 30, 자동 근무 42회차)
+- 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311 완료
 
 ## 이번 근무에 한 것
-- **PR #314 머지**(#311 닫힘) — 클라이언트 마지막 화면 문구 키 21개(main·gate·routine)
-- **PR #315 머지**(#266 7차) — 도감 새매 SRC-041로 verified, 도감 올빼미류 '가끔 잡는다' 삭제 → verified, predators owl·goshawk·이벤트 goshawk-chase 빈도 문구 삭제(needs-review 유지)
+- **PR #316 머지 → #266 닫음**(8차) — `sources` 배열에서 SRC-034 전부 뗌: predators owl → SRC-050, goshawk → 빈 배열, 이벤트 goshawk-chase → SRC-049(모두 needs-review). ecology lifespan '전문가도 모른다' 문구·fact-check P-9·P-18 바로잡음
 
 ## 진행 중
-- #266 열림 — SRC-034가 남은 곳: predators owl·goshawk, 이벤트 goshawk-chase(박새 포식 문헌 못 찾음), species.parus-minor 도감·ecology·caterpillar-peak 노트(이력 언급인지 확인 필요)
+- 없음
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
-1. #266 8차: 남은 SRC-034 쓰임 전수 점검(`grep -rn SRC-034 data`) — 이력 언급뿐이면 #266 닫기 제안. 올빼미·참매가 박새를 잡는 문헌 후보: Perrins & Geer 1980 Ardea 68:133(새매), 일본 フクロウ 식성 문헌(J-STAGE). Korpimäki & Sulkava(Ornis Fennica, 핀란드 긴꼬리올빼미)는 들쥐 위주·박새류 수치 없음(확인함)
+1. fact-check P-7 성조 포식자(올빼미류·참매가 박새를 잡는 문헌) — 후보: Perrins & Geer 1980 Ardea 68:133(새매), 일본 フクロウ 식성 문헌(J-STAGE). 핀란드 참매 번식기 식단(Ornis Fennica)은 뇌조·오리·까마귀류 위주, 박새류 수치 없음(확인함)
 2. 다음 SRC 번호 098, 다음 P 번호 P-37
-3. fact-check 열림: P-7(#266) · P-10(주식) · P-14 · P-15 · P-18 · P-22~P-25
-4. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤
+3. fact-check 열림: P-7 · P-10(주식) · P-14 · P-15 · P-18 · P-22~P-25
+4. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155·#313(#21) 뒤
 5. 참매·족제비 도감 — 출처 더 찾으면(M3)
 6. S-30 가계도 줄(`lifeLine`) 문구는 엔진 #21 뒤 클라이언트가 따로 요청한다(#297)
 
