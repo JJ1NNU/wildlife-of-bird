@@ -11,7 +11,7 @@
 - **생태가 맞지 않으면 상황을 바꿔도 된다.** 지킬 것은 "긴장"과 "등급의 크기"다. 컨셉을 버려야 하면 같은 국면에서 다른 상황으로 바꾸고 PR에 적는다(`review:design`).
 - **효과 등급은 바꿔도 되지만** 03-events 8장의 리뷰 기준을 지킨다: 지배 선택지 없음, `deathRisk high`는 `rare`에만, 짝 갈등에 큰 `broodRisk` 없음.
 - `when`의 성립 조건(03-events 6.2)은 컨셉에 이미 적었다: `bond` → `hasMate`, `broodRisk`·`chickLoss` → `hasBrood`, `fledgeEarly` → 육추 마지막 단계.
-- id는 잠정이다(`ev.parus-minor.<컨셉 id>`). 포식자 id(`rat-snake` `sparrowhawk` `goshawk` `owl` `jay` `crow` `weasel`)도 잠정 — `data/predators/`에서 콘텐츠가 확정한다.
+- id는 잠정이다(`ev.parus-minor.<컨셉 id>`). 포식자 id(`rat-snake` `sparrowhawk` `owl` `jay` `crow` `weasel`)도 잠정 — `data/predators/`에서 콘텐츠가 확정한다.
 - 근거 단서의 SRC는 `docs/content/sources.md`의 것. "확인 필요"는 디자인이 근거를 모르는 것이다 — 근거가 없으면 `needs-review`로 두거나 상황을 바꾼다.
 - 선택지 글은 예시다. 최종 글은 콘텐츠 문체 가이드로.
 
@@ -73,7 +73,7 @@
 - A 가장 가까운 덤불 속으로 뛰어든다 — `chk flight medium` → 성공 `statGain flight small` / 실패 `deathRisk medium (predation, sparrowhawk)`
 - B 경보음을 내고 무리 속에 섞인다 → `deathRisk low (predation, sparrowhawk)` + `foodMod small (loss)`
 - 긴장: 비행(박새 적성 C)에 거는 선택 vs 확실한 작은 손해. 비행을 키운 개체만 A가 낫다.
-- 근거 단서: 포식자 상성 '새매·참매(매복) → 덤불'(gdd 10장) — 확인 필요.
+- 근거 단서: 포식자 상성 '새매(매복) → 덤불'(gdd 10장) — 확인 필요.
 
 ## 2. 짝 맺기 `pairing` — 시기 5–6
 
@@ -272,12 +272,12 @@
 - 긴장: 모빙의 학습(gdd 10장 '모빙') vs 포식자가 남은 숲.
 - 근거 단서: 여러 종 모빙 SRC-002. 대상이 올빼미류인지 확인 필요.
 
-**A3 `goshawk-chase` 참매의 추격** — **rare** · `phaseAny: [autumnFlock]`
-- 상황: 참매가 무리 한가운데로 곧장 내리꽂는다.
-- A 급선회해 덤불로 — `chk flight high` → 성공 `statGain flight medium` / 실패 `deathRisk high (predation, goshawk)`
-- B 무리 한가운데로 파고든다 → `deathRisk medium (predation, goshawk)`
+**A3 `sparrowhawk-chase` 새매의 추격** — **rare** · `phaseAny: [autumnFlock]` (이전 `goshawk-chase` — 참매는 박새 근거 없음, P-37 · #327)
+- 상황: 새매가 먹이 찾는 무리 한가운데로 낮게 파고들어 한 마리를 쫓는다. 겨울 `sparrowhawk-ambush`(덤불 위로 미끄러져 드는 매복, uncommon)와 국면·무게가 다르다 — 이쪽은 가을 무리 속 **추격**, 컨셉의 유일한 `deathRisk high`.
+- A 급선회해 덤불로 — `chk flight high` → 성공 `statGain flight medium` / 실패 `deathRisk high (predation, sparrowhawk)`
+- B 무리 한가운데로 파고든다 → `deathRisk medium (predation, sparrowhawk)`
 - 긴장: 이 컨셉의 유일한 `deathRisk high`. 비행 80이면 A의 실제 사망 확률 0.25 × 8% = 2%로 B(3%)보다 낮고, 비행 30이면 0.9 × 8% = 7.2%로 훨씬 높다 — **비행 훈련이 목숨값으로 돌아오는 순간.**
-- 근거 단서: 포식자 상성 '새매·참매(매복) → 덤불'(gdd 10장) — 확인 필요.
+- 근거 단서: 포식자 상성 '새매(매복) → 덤불'(gdd 10장) — 확인 필요.
 
 ## 10. 환경 카드 `draw: "periodStart"` — 8개
 
