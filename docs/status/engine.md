@@ -2,12 +2,17 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 01:00 (라운드 28, 자동 근무)
+- 마지막 근무: 2026-10-08 (라운드 29, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
-- #21 M1 — 남은 조각 계속. **#309 효과 `applyEffects`** review:design 대기
-- 다음 조각: ① 효과 `injury`(RunState에 남은 단계 + step.ts `injured`) · `broodRisk`·`chickLoss`(전멸이면 B-5 — brood.ts) · `fledgeEarly` ② 루틴에 연결 — 칸마다 추첨(루틴당 1개) → 이벤트 관문 → `applyEffects` → 남은 칸 `replan`(#188) · 쿨다운 상태 · `event` 로그
+- #21 M1 — 남은 조각 계속. **#313 효과 `broodRisk`·`chickLoss`** review:design 대기
+- 다음 조각: ① 효과 `injury`(RunState에 남은 단계 + step.ts `injured`) · `fledgeEarly` ② 루틴에 연결 — 칸마다 추첨(루틴당 1개) → 이벤트 관문 → `applyEffects` → 남은 칸 `replan`(#188) · 쿨다운 상태 · `event` 로그
+
+## 최근 완료 (라운드 29)
+- **#309 머지**(design 승인)
+- **#312 승인**(design 둥지 손실 0.2 — 엔진 테스트 2개 확인, review:engine 라벨 뗌)
+- **#313 열음**(#21): `applyEffects`에 `broodRisk`(1회 판정 → B-5) · `chickLoss`(올림, 늦게 깬 새끼부터 — 잠정, 전멸 B-5) · 반환에 `log`. check 통과(테스트 113)
 
 ## 최근 완료 (라운드 28 뒤)
 - **#306 머지됨**

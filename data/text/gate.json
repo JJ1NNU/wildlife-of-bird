@@ -68,5 +68,15 @@
   "gate.clutchSize.layingCost": "산란 비용/단계",
   "gate.secondBrood.title": "한 번 더 둥지를 틀까?",
   "gate.secondBrood.yesCost": "털갈이 시기가 번식으로 바뀐다 — 겨울에 깃털이 모자랄 수 있다.",
-  "gate.secondBrood.noGain": "털갈이로 넘어가 깃털을 회복한다."
+  "gate.secondBrood.noGain": "털갈이로 넘어가 깃털을 회복한다.",
+  "gate.mateCandidate.bond": "유대 {now} → {reunion}",
+  "gate.mateCandidate.personalityKnown": "성격: {hint} (확인)",
+  "gate.moreCount": "… {n}개",
+  "gate.mateCandidate.label": "짝 후보",
+  "gate.nestSite.label": "둥지 자리",
+  "gate.mateOrder.label": "짝 지시",
+  "gate.parentingPolicy.label": "육아 방침",
+  "gate.inheritance.label": "계승",
+  "gate.secondBrood.label": "2차 번식",
+  "gate.clutchSize.label": "산란수"
 }
