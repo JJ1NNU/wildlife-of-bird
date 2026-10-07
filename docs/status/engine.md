@@ -2,13 +2,17 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 19 뒤, 자동 근무)
+- 마지막 근무: 2026-10-07 (라운드 20, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
 - #21 M1 — 남은 관문 조각 계속(#219 육아 방침 머지됨)
 - #121 — 2.1 머지(#220), 실패 뒤 `secondBrood` 머지(#236), 짝 없이 `nestSite` 분할 해제 #240 머지. 남은 것 = 1차 성공 뒤 2차 번식(계승 #139 뒤)
-- #139 — 새 키 #153 머지. 부화 때 새끼 성별·잠재력 **PR #242**(review:design). 남은 것: 은수저·독립 시작 스탯·관문 `inheritance`·계승·getView(관문 조각 뒤)
+- #139 — 새 키 #153 · 새끼 성별·잠재력 #242 머지. 은수저 충족도·지수 **PR #244**(review:design). 남은 것: 독립(시작 스탯·학습 보너스·첫 겨울) · 관문 `inheritance` · 계승 · 1년 생존 예상 · getView
+
+## 최근 완료 (라운드 20)
+- **#242 머지**(design 승인)
+- **#244 열음**(#139): `feedChicks` — 급이 단계마다 새끼 사망 뒤 살아남은 수로 충족도 → `Nest.spoon {sum, steps}` · 짝 `feedHigh`(거절 사이 값) · `quality` 배율 · `silverSpoonIndex`(early·compete 가감). `feedingFulfilment` 입력 `feed` 값으로. check 통과(테스트 79), 시뮬 avg·random 200판 오류 0, 리플레이 다름 0. review:design 대기
 
 ## 최근 완료 (라운드 19 뒤)
 - **#240 머지**(design 승인)
@@ -89,7 +93,7 @@
 - 없음
 
 ## 다음 근무에서 할 일
-0. #240 승인되면 머지
+0. #244 승인되면 머지 → 독립 조각(시작 스탯 = `silverSpoonIndex` · `startStat` + 학습 보너스, 첫 겨울)
 1. **#21 나머지** — 관문 kind를 늘릴 때마다 web `GATE_GO`에 한 줄 같이 넣을 것(`check`는 통과해도 `deploy` 빌드가 깨짐) · 육아 방침 남은 효과: 둥지 손실 배율(clean·early)·은수저(compete·quality·early)·학습 보너스(`parenting.ts` `policy()`로 읽기) · 둥지 손실(3.2, guardNest `orderValue('mateOrder.guardNest', 1, mult)`) · 은수저(feedHigh). 둥지 손실 조각 때 S-23 카드에 구멍별 위험% 더하기. 관문 틀은 `api.ts` act 끝(`isPhaseStart`) + `mate.ts` — 관문이 늘면 `gate.kind`별로 나눈다. 계절 방침은 보정치 명세(04-breeding 11장 '별도')가 나온 뒤
 2. 둥지 손실(3.2)은 칸 행동과 무관하면 단계당 1번(새끼 사망처럼). 독립(postFledge 끝 → 점수·계승)
 3. 그다음: #139 나머지 · 번식(둥지 손실·새끼 사망·은수저·유전 — `nextNormal` 있음) · 독립 → 점수 · 계승 · 재번식/분할 해제 · 이벤트 해석기
