@@ -1298,9 +1298,9 @@
         ]
       }
     ],
-    "ecologyBasis": "박새 새끼는 나방 애벌레를 주로 먹고, 부화 후 9~12일쯤에 가장 많이 먹는다. 번식 시기는 애벌레가 가장 많은 때에 맞추지만 해마다 어긋날 수 있다.",
-    "sources": ["SRC-005"],
-    "factCheck": "needs-review"
+    "ecologyBasis": "박새 새끼 먹이의 약 70%가 나방·나비 애벌레이고, 새끼가 가장 많이 먹는 때는 육추 기간 중반이다(SRC-091). 영역의 애벌레 양이 산란 시기와 한배 크기에 영향을 주고, 먹이가 적은 영역일수록 둥지 기간이 길었다(SRC-090). 번식 시기는 해마다 다르다(SRC-024).",
+    "sources": ["SRC-091", "SRC-090", "SRC-024"],
+    "factCheck": "verified"
   },
   {
     "id": "ev.parus-minor.nest-cleaning",
