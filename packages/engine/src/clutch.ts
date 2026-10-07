@@ -4,14 +4,16 @@ import {
   chickDeath,
   childPotential,
   feedingFulfilment,
+  firstWinterRiskMult,
   forageEfficiency,
   seasonOf,
+  startStat,
 } from './formulas.ts';
 import { orderValue } from './order.ts';
 import { chickDeathMult, feedIntensity, policy } from './parenting.ts';
 import { nextChance, nextFloat, nextNormal, type RngState } from './rng.ts';
 import { mapNode, speciesBalance } from './step.ts';
-import type { Chick, Choice, ClutchSizeCard, LogEntry, RunState } from './types.ts';
+import type { Chick, Choice, ClutchSizeCard, Fledgling, LogEntry, RunState } from './types.ts';
 
 /**
  * 산란수 관문 `clutchSize` — 04-breeding 5장. `laying` 첫 단계, 흐름의 마지막에 열린다(둥지가 있을 때만).
@@ -223,4 +225,28 @@ export function silverSpoonIndex(state: RunState, data: GameData, i: number): nu
   v = Math.max(0, v + (p.fledgeTiming[policy(state, data, 'fledgeTiming')]?.silverSpoon ?? 0));
   if (i === 0) v += p.allocation[policy(state, data, 'allocation')]?.topChickSilverSpoon ?? 0;
   return Math.min(1, v);
+}
+
+/**
+ * 독립 — 새끼 하나의 은수저 지수를 확정하고 시작 스탯(01-formulas 6.2, 학습 보너스 포함)과
+ * 첫 겨울 보정(6.3)을 정한다(05-inheritance 3장). 시작 스탯은 잠재력을 넘지 않는다(I-7). `i`는 `nest.young`의 순서
+ */
+export function fledgling(state: RunState, data: GameData, i: number): Fledgling | undefined {
+  const chick = state.nest?.young?.[i];
+  if (!chick) return undefined;
+  const f = data.formulas;
+  const species = speciesBalance(data, state.config.speciesId);
+  const spoon = silverSpoonIndex(state, data, i);
+  const learn = data.breeding.parenting.learning[policy(state, data, 'learning')]?.learnBonus ?? {};
+  const stats: Partial<Record<StatName, number>> = {};
+  for (const s of Object.keys(species.aptitude) as StatName[]) {
+    const potential = chick.potential[s] ?? 0;
+    stats[s] = Math.min(potential, startStat(f, potential, spoon, learn[s] ?? 0));
+  }
+  return {
+    ...chick,
+    silverSpoon: spoon,
+    stats,
+    firstWinter: firstWinterRiskMult(f, species, spoon),
+  };
 }

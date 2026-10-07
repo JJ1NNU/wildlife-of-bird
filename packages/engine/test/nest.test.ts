@@ -1,6 +1,6 @@
 import type { GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
-import { silverSpoonIndex } from '../src/clutch.ts';
+import { fledgling, silverSpoonIndex } from '../src/clutch.ts';
 import type { RunState } from '../src/index.ts';
 import { act, contestChance, getChoices, getView, nestHoles, newRun } from '../src/index.ts';
 import { actStep, testData } from './fixture.ts';
@@ -242,5 +242,49 @@ describe('은수저 (01-formulas 6.1 · 04-breeding 6.3)', () => {
     };
     expect(silverSpoonIndex(fed, testData, 0)).toBeCloseTo(0.7, 9);
     expect(silverSpoonIndex(fed, testData, 1)).toBeCloseTo(0.5, 9);
+  });
+});
+
+describe('독립 — 시작 스탯 · 첫 겨울 (05-inheritance 3장 예시)', () => {
+  // 은수저 0.545(평균, 가감 없음), 학습 varied(채식 +4)
+  const fledged: RunState = {
+    ...start,
+    nest: {
+      site: 'nestBox',
+      node: 'village-farmland',
+      chicks: 1,
+      young: [
+        {
+          sex: 'female',
+          potential: {
+            flight: 46,
+            foraging: 76.4,
+            vigilance: 72.4,
+            stamina: 34,
+            display: 58,
+            social: 70,
+          },
+        },
+      ],
+      spoon: { sum: 0.545, steps: 1 },
+    },
+    parenting: { learning: 'varied' },
+  };
+
+  it('시작 스탯 = 잠재력 × 0.3635 + 학습 보너스, 첫 겨울 ×1.473', () => {
+    const c = fledgling(fledged, testData, 0);
+    expect(c?.silverSpoon).toBeCloseTo(0.545, 9);
+    expect(c?.stats.flight).toBeCloseTo(16.72, 2);
+    expect(c?.stats.foraging).toBeCloseTo(31.77, 2);
+    expect(c?.stats.vigilance).toBeCloseTo(26.32, 2);
+    expect(c?.firstWinter).toBeCloseTo(1.473, 9);
+  });
+
+  it('학습 보너스로 잠재력을 넘으면 잠재력에서 멈춘다 (I-7)', () => {
+    const tiny = {
+      ...fledged,
+      nest: { ...fledged.nest!, young: [{ sex: 'male' as const, potential: { foraging: 5 } }] },
+    };
+    expect(fledgling(tiny, testData, 0)?.stats.foraging).toBe(5);
   });
 });
