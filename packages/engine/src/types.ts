@@ -170,6 +170,8 @@ export interface Nest {
   chicks?: number;
   /** 살아 있는 새끼 — 부화 순서. 길이는 늘 `chicks` (05-inheritance 3장) */
   young?: Chick[];
+  /** 은수저 — 급이 단계 충족도의 합과 단계 수. 평균이 은수저 지수의 바탕 (01-formulas 6.1) */
+  spoon?: { sum: number; steps: number };
 }
 
 /** 새끼 하나 — 부화 때 성별·잠재력이 정해진다 (05-inheritance 3장, 01-formulas 5장) */

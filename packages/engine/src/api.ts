@@ -7,7 +7,14 @@ import {
   secondBroodDue,
 } from './brood.ts';
 import { advance, phaseAt, yearCalendar } from './calendar.ts';
-import { chicksSurvive, clutchCards, clutchChoices, clutchOptions, hatchIfDue } from './clutch.ts';
+import {
+  chicksSurvive,
+  clutchCards,
+  clutchChoices,
+  clutchOptions,
+  feedChicks,
+  hatchIfDue,
+} from './clutch.ts';
 import { agedStats, fatCap } from './formulas.ts';
 import { divorce, isPhaseStart, makeCandidates, mateCards, mateChoices, mateYear } from './mate.ts';
 import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
@@ -173,8 +180,10 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   const hatched = hatchIfDue(moved, data);
   log.push(...hatched.log);
   // 새끼 개별 사망: 급이 국면의 판정 3 다음 (01-formulas 3.3)
-  const raised = chicksSurvive(hatched.state, data);
-  log.push(...raised.log);
+  const culled = chicksSurvive(hatched.state, data);
+  log.push(...culled.log);
+  // 은수저 충족도: 새끼 사망 다음, 살아남은 새끼로 (01-formulas 6.1)
+  const raised = { state: feedChicks(culled.state, data) };
   // 번식 실패(B-5): 2차 번식 여부 관문, 열리지 않으면 분할 해제 (00-core-loop 4.4 · 4.5)
   const failed = moved.nest !== undefined && raised.state.nest === undefined;
   if (failed && secondBroodDue(raised.state, data)) {

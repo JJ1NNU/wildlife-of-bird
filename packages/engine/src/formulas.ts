@@ -285,21 +285,21 @@ export function childPotential(
 
 // ── 6. 은수저 ────────────────────────────────────────────
 
-/** 6.1 급이 단계 하나의 충족도(0~1). 부모마다 급이 강도와 채식 효율 */
+/**
+ * 6.1 급이 단계 하나의 충족도(0~1). 부모마다 급이 몫(`silverSpoon.feedByIntensity`의 값 —
+ * 짝 지시 `feedHigh`를 거절하면 그 사이 값)과 채식 효율
+ */
 export function feedingFulfilment(
   f: Formulas,
   input: {
-    parents: { intensity: Intensity; efficiency: number }[];
+    parents: { feed: number; efficiency: number }[];
     food: FoodTier;
     chicks: number;
   },
 ): number {
   const s = f.silverSpoon;
   const supply = input.parents.reduce(
-    (sum, p) =>
-      sum +
-      (s.feedByIntensity[p.intensity] * p.efficiency * f.nodeTiers.food[input.food]) /
-        s.nodeFoodDivisor,
+    (sum, p) => sum + (p.feed * p.efficiency * f.nodeTiers.food[input.food]) / s.nodeFoodDivisor,
     0,
   );
   return Math.min(1, supply / input.chicks / s.chickNeedPerStep);
