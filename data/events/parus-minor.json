@@ -401,9 +401,9 @@
         ]
       }
     ],
-    "ecologyBasis": "번식기가 다가오면 수컷은 노래로 영역을 알리고 이웃과 경계를 다툰다.",
-    "sources": ["SRC-004"],
-    "factCheck": "needs-review"
+    "ecologyBasis": "봄 번식기(3월 말~5월)에 박새 수컷은 동트기 전부터 노래하며, 이 노래는 영역 주장과 짝 찾기의 노래다(국내 원주). 봄에 짝들은 영역을 나눠 갖고 어른 수컷이 좋은 가운데 자리를 먼저 차지한다(일본). 박새 노래는 두 음을 한 쌍으로 되풀이한다.",
+    "sources": ["SRC-107", "SRC-106", "SRC-027"],
+    "factCheck": "verified"
   },
   {
     "id": "ev.parus-minor.courtship-feeding",
