@@ -261,6 +261,47 @@ describe('루틴에 연결 — 칸마다 추첨 · 이벤트로 멈춤 · 다시
     expect(r.eventCooldown).toEqual({ 'ev.t.a': f.events.cooldownSteps - 1 });
   });
 
+  it('선택지 카드 효과 숫자 — 고정은 effects, 판정형은 onSuccess·onFail (03-events 5.3)', () => {
+    const t = data.effects;
+    const shown: GameEvent = {
+      ...ev,
+      options: [
+        {
+          id: 'fixed',
+          text: '고정',
+          effects: [
+            { type: 'energy', tier: 'medium', sign: 'loss' },
+            { type: 'foodMod', tier: 'medium', sign: 'loss' },
+          ],
+        },
+        {
+          id: 'check',
+          text: '판정',
+          check: { stat: 'vigilance', difficulty: 'medium' },
+          onSuccess: [{ type: 'riskMod', tier: 'high' }],
+          onFail: [{ type: 'deathRisk', tier: 'medium', cause: 'predation' }],
+        },
+      ],
+    };
+    const d: GameData = { ...data, events: [shown] };
+    const gate = getView({ ...s, gate: { kind: 'event', id: shown.id } }, d).gate;
+    expect(gate?.kind === 'event' && gate.cards).toEqual([
+      {
+        choiceId: 'event.fixed',
+        effects: [
+          { type: 'energy', delta: -t.energy.medium },
+          { type: 'foodMod', factor: 1 - t.foodMod.medium },
+        ],
+      },
+      {
+        choiceId: 'event.check',
+        chance: expect.any(Number),
+        onSuccess: [{ type: 'riskMod', factor: 1 + t.riskMod.high }],
+        onFail: [{ type: 'deathRisk', chance: t.deathRisk.medium, cause: 'predation' }],
+      },
+    ]);
+  });
+
   it('칸 이벤트로 injury small(2) → 그 단계 끝에는 줄지 않고 다음 두 단계 뒤 낫는다 (03-events 6.1 v0.1.2)', () => {
     const hurt: GameEvent = {
       ...ev,
