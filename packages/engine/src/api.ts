@@ -22,9 +22,18 @@ import {
   inheritanceChoices,
   inheritanceDue,
   openInheritance,
+  startLife,
   stayCard,
 } from './inherit.ts';
-import { divorce, isPhaseStart, makeCandidates, mateCards, mateChoices, mateYear } from './mate.ts';
+import {
+  divorce,
+  isPhaseStart,
+  makeCandidates,
+  mateCards,
+  mateChoices,
+  mateYear,
+  potentialRange,
+} from './mate.ts';
 import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
 import {
   carryOrder,
@@ -57,7 +66,7 @@ import type {
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 /** 새 런을 시작한다. 같은 설정이면 언제나 같은 초기 상태. */
 export function newRun(config: RunConfig, data: GameData): RunState {
@@ -80,26 +89,29 @@ export function newRun(config: RunConfig, data: GameData): RunState {
     potential[stat as StatName] = p;
     stats[stat as StatName] = p * data.breeding.mate.candidateCurrentRatio;
   }
+  const at = { year: 1, period: species.runStart.period, step: 1 };
+  const player = {
+    speciesId: config.speciesId,
+    // 런 시작 상태: 모든 종은 '첫 번식기를 앞둔 젊은 성조' (gdd 4.1장)
+    sex: config.startSex ?? 'female',
+    age: species.runStart.age,
+    energy: fatCap(f, stats.stamina ?? 0) * f.energy.runStartRatio,
+    stats,
+    potential,
+    feather: f.feather.runStart,
+    // 05-inheritance 2장: 경험 연수 = `runStart.age` (짝 후보와 같은 셈)
+    expYears: species.runStart.age,
+  };
   return {
     config,
     rng: seedFromString(`${config.speciesId}:${config.seed}`),
-    at: { year: 1, period: species.runStart.period, step: 1 },
+    at,
     calendar: yearCalendar(data, config.speciesId),
     node,
     stay: 0,
-    player: {
-      speciesId: config.speciesId,
-      // 런 시작 상태: 모든 종은 '첫 번식기를 앞둔 젊은 성조' (gdd 4.1장)
-      sex: config.startSex ?? 'female',
-      age: species.runStart.age,
-      energy: fatCap(f, stats.stamina ?? 0) * f.energy.runStartRatio,
-      stats,
-      potential,
-      feather: f.feather.runStart,
-      // 05-inheritance 2장: 경험 연수 = `runStart.age` (짝 후보와 같은 셈)
-      expYears: species.runStart.age,
-    },
+    player,
     totalBreeding: 0,
+    life: startLife({ at, player }, 1),
     gameOver: false,
     log: [],
   };
@@ -398,6 +410,12 @@ export function getView(state: RunState, data: GameData): ViewModel {
     node: state.node,
     player: state.player,
     energyCap: fatCap(data.formulas, state.player.stats.stamina ?? 0),
+    potentialRange: Object.fromEntries(
+      Object.entries(state.player.potential).map(([stat, v]) => [
+        stat,
+        potentialRange(data.formulas, v ?? 0),
+      ]),
+    ),
     totalBreeding: state.totalBreeding,
     gameOver: state.gameOver,
     ...(state.gate?.kind === 'mateCandidate'

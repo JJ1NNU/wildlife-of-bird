@@ -79,6 +79,27 @@ export interface LogEntry {
   cause?: string;
   /** 칸 판정 로그면 그 단계의 몇째 칸 (1부터) */
   slot?: number;
+  /** 조작이 끝난 개체의 생애 기록 — 계승(`inheritance`)·사망(`death`) 로그에만 (05-inheritance 8장) */
+  life?: LifeRecord;
+}
+
+/** 지금 조작 중인 개체의 생애 — 가계도 한 줄의 앞부분 (05-inheritance 8장) */
+export interface Life {
+  /** 1부터 */
+  generation: number;
+  sex: Bird['sex'];
+  start: { at: CalendarAt; age: number };
+  /** 이 개체를 조작하는 동안 확정된 번식 수 */
+  breeding: number;
+  /** 이 개체를 조작하는 동안 독립시킨 새끼 수 */
+  fledged: number;
+}
+
+/** 가계도 한 줄 (S-30) */
+export interface LifeRecord extends Life {
+  end: { at: CalendarAt; age: number };
+  /** 끝난 이유. 사망이면 원인은 그 로그의 `cause` */
+  reason: 'inherit' | 'death';
 }
 
 /**
@@ -301,6 +322,8 @@ export interface RunState {
   recentHelp?: boolean[];
   /** 점수 = 총 번식 수 (gdd 11.1장 [확정]) */
   totalBreeding: number;
+  /** 지금 조작 중인 개체의 생애 (05-inheritance 8장) */
+  life: Life;
   gameOver: boolean;
   /** 남긴 판정 기록. 저장 파일에 함께 들어가 이야기 피드가 이어진다 */
   log: LogEntry[];
@@ -317,6 +340,8 @@ export interface ViewModel {
   player: Bird;
   /** 에너지의 상한(지방 상한, 01-formulas 2.1) */
   energyCap: number;
+  /** 플레이어 잠재력 — 스탯마다 등급 범위 [아래, 위]. 숫자는 보이지 않는다 (05-inheritance 4장) */
+  potentialRange: Partial<Record<StatName, [string, string]>>;
   totalBreeding: number;
   gameOver: boolean;
   /** 열려 있는 관문의 카드 — 짝 후보(S-20) · 짝 지시 · 둥지 자리(S-23) · 산란수 */
