@@ -194,8 +194,8 @@ describe('5. 유전', () => {
 
 describe('6. 은수저', () => {
   const parents = (player: 'mid' | 'high') => [
-    { intensity: player, efficiency: 1.18 },
-    { intensity: 'mid' as const, efficiency: 1.0 },
+    { feed: f.silverSpoon.feedByIntensity[player], efficiency: 1.18 },
+    { feed: f.silverSpoon.feedByIntensity.mid, efficiency: 1.0 },
   ];
 
   it('6.1 충족도 — 새끼가 많을수록 1마리 몫이 준다', () => {

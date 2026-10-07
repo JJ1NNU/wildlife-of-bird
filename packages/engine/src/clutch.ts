@@ -1,10 +1,16 @@
 import type { GameData, StatName } from '@wb/schema';
 import { advance, phaseAt } from './calendar.ts';
-import { chickDeath, childPotential } from './formulas.ts';
+import {
+  chickDeath,
+  childPotential,
+  feedingFulfilment,
+  forageEfficiency,
+  seasonOf,
+} from './formulas.ts';
 import { orderValue } from './order.ts';
-import { chickDeathMult, feedIntensity } from './parenting.ts';
+import { chickDeathMult, feedIntensity, policy } from './parenting.ts';
 import { nextChance, nextFloat, nextNormal, type RngState } from './rng.ts';
-import { speciesBalance } from './step.ts';
+import { mapNode, speciesBalance } from './step.ts';
 import type { Chick, Choice, ClutchSizeCard, LogEntry, RunState } from './types.ts';
 
 /**
@@ -168,4 +174,53 @@ export function chicksSurvive(
     state: { ...state, rng, nest: { ...nest, chicks: alive, ...(nest.young ? { young } : {}) } },
     log: lost > 0 ? [{ at: state.at, type: 'nest', text: `새끼 ${lost}마리를 잃었다` }] : [],
   };
+}
+
+/**
+ * 은수저 충족도 — `nestling` `postFledge` 단계마다 새끼 사망 다음에 살아남은 새끼 수로 계산해 둥지에 쌓는다(01-formulas 6.1).
+ * 부모 = 플레이어(육아 방침의 급이 강도)와 짝(`mid`, 지시 `feedHigh`면 그 값 — 거절이면 사이 값, 04-breeding 3.5).
+ * 먹이 등급은 둥지 장소의 그 계절 값. 먹이 질 `quality`면 `× fulfilmentMult`(상한 1, 04-breeding 6.3)
+ */
+export function feedChicks(state: RunState, data: GameData): RunState {
+  const nest = state.nest;
+  const chicks = nest?.chicks ?? 0;
+  const phase = phaseAt(state.calendar, state.at);
+  if (!nest || chicks === 0 || (phase !== 'nestling' && phase !== 'postFledge')) return state;
+  const f = data.formulas;
+  const feed = f.silverSpoon.feedByIntensity;
+  const season = seasonOf(speciesBalance(data, state.config.speciesId), state.at.period);
+  const food = mapNode(data, nest.node).seasons[season].food;
+  const parents = [
+    {
+      feed: feed[feedIntensity(state, data)],
+      efficiency: forageEfficiency(f, state.player.stats.foraging ?? 0, state.player.expYears),
+    },
+  ];
+  if (state.mate) {
+    parents.push({
+      feed: orderValue(state, 'mateOrder.feedHigh', feed.mid, feed.high),
+      efficiency: forageEfficiency(f, state.mate.stats.foraging ?? 0, state.mate.expYears),
+    });
+  }
+  const quality = data.breeding.parenting.foodQuality[policy(state, data, 'foodQuality')];
+  const value = Math.min(
+    1,
+    feedingFulfilment(f, { parents, food, chicks }) * (quality?.fulfilmentMult ?? 1),
+  );
+  const spoon = { sum: (nest.spoon?.sum ?? 0) + value, steps: (nest.spoon?.steps ?? 0) + 1 };
+  return { ...state, nest: { ...nest, spoon } };
+}
+
+/**
+ * 새끼 하나의 은수저 지수(0~1) — 충족도 평균 → 이소 시점 `early` 가감 → 첫째 새끼(살아 있는 새끼 중 부화 순서 첫째)
+ * `compete` 가감 → 0~1로 자른다(04-breeding 6.3). `i`는 `nest.young`의 순서. 급이 단계가 없었으면 0
+ */
+export function silverSpoonIndex(state: RunState, data: GameData, i: number): number {
+  const spoon = state.nest?.spoon;
+  if (!spoon || spoon.steps === 0) return 0;
+  const p = data.breeding.parenting;
+  let v = spoon.sum / spoon.steps;
+  v = Math.max(0, v + (p.fledgeTiming[policy(state, data, 'fledgeTiming')]?.silverSpoon ?? 0));
+  if (i === 0) v += p.allocation[policy(state, data, 'allocation')]?.topChickSilverSpoon ?? 0;
+  return Math.min(1, v);
 }

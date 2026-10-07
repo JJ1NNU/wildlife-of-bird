@@ -1,5 +1,6 @@
 import type { GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
+import { silverSpoonIndex } from '../src/clutch.ts';
 import type { RunState } from '../src/index.ts';
 import { act, contestChance, getChoices, getView, nestHoles, newRun } from '../src/index.ts';
 import { actStep, testData } from './fixture.ts';
@@ -207,5 +208,39 @@ describe('새끼 급이·개별 사망 (01-formulas 2.4·3.3)', () => {
     const r = actStep(fledged, 'action.rest', withChickDeath(0));
     expect(r.state.nest?.chicks).toBe(6);
     expect(getChoices(r.state, testData).some((c) => c.kind === 'node' && !c.disabled)).toBe(true);
+  });
+});
+
+describe('은수저 (01-formulas 6.1 · 04-breeding 6.3)', () => {
+  /** `nestling` 첫 단계, 새끼 6, 짝 없음 — 플레이어 몫만 */
+  const nestling: RunState = {
+    ...start,
+    at: { year: 1, period: 10, step: 1 },
+    node: 'village-farmland',
+    nest: { site: 'nestBox', node: 'village-farmland', eggs: 8, chicks: 6 },
+    player: { ...start.player, energy: 60 },
+  };
+  const noDeath: GameData = {
+    ...testData,
+    formulas: { ...testData.formulas, brood: { ...testData.formulas.brood, chickDeathPerStep: 0 } },
+  };
+  const spoonAfter = (s: RunState) => actStep(s, 'action.rest', noDeath).state.nest?.spoon;
+
+  it('급이 단계마다 충족도를 쌓고, 먹이 질 quality면 × fulfilmentMult', () => {
+    const plain = spoonAfter(nestling);
+    expect(plain?.steps).toBe(1);
+    expect(plain?.sum).toBeGreaterThan(0);
+    const quality = spoonAfter({ ...nestling, parenting: { foodQuality: 'quality' } });
+    expect((quality?.sum ?? 0) / (plain?.sum ?? 1)).toBeCloseTo(1.15, 9);
+  });
+
+  it('지수 = 평균 → early 가감 → 첫째 새끼 compete 가감', () => {
+    const fed: RunState = {
+      ...nestling,
+      nest: { site: 'nestBox', node: 'village-farmland', chicks: 6, spoon: { sum: 1.2, steps: 2 } },
+      parenting: { fledgeTiming: 'early', allocation: 'compete' },
+    };
+    expect(silverSpoonIndex(fed, testData, 0)).toBeCloseTo(0.7, 9);
+    expect(silverSpoonIndex(fed, testData, 1)).toBeCloseTo(0.5, 9);
   });
 });

@@ -10,7 +10,7 @@ import type { Choice, LogEntry, MateOrder, MateOrderCard, RunState } from './typ
 /**
  * 짝 지시 관문 `mateOrder` — 04-breeding 3장. 짝이 있는 둥지 국면의 첫 단계, 첫 칸보다 먼저 열린다.
  * 고르면 같은 단계에서 이어 칸을 고른다. 지시는 그 국면이 끝날 때까지 걸린다.
- * 잠정(#21): `guardNest`(둥지 손실)·`feedHigh`(짝 급이 몫 → 은수저)는 걸어 두기만 한다 — 둥지 손실·은수저 조각에서 효과.
+ * 잠정(#21): `guardNest`(둥지 손실)는 걸어 두기만 한다 — 둥지 손실 조각에서 효과. `feedHigh`는 은수저 충족도(`clutch.ts` `feedChicks`).
  */
 
 /** 짝 지시를 받는 둥지 국면 (3.1) */
