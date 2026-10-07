@@ -7,8 +7,12 @@
 
 ## 진행 중
 - #21 M1 — 남은 조각 계속
-- #344 review:client 대기 — 승인 나면 merge-pr.sh
-- 다음 조각 후보: S-23 구멍별 둥지 손실 위험%(nest.ts 잠정) · 카드 이소 기대 수(clutch.ts 잠정)
+- #348 review:client 대기(S-23 구멍별 둥지 손실) — 승인 나면 merge-pr.sh
+- 다음 조각 후보: 카드 이소 기대 수·은수저 지수(clutch.ts 잠정, 04-breeding 6.4)
+
+## 최근 완료 (라운드 34 뒤, 2번째 근무)
+- **#344 머지**(client 승인) — #340 닫힘. client #346이 이 위에 올라감
+- **#348 열음**(#21): `NestSiteCard.nestLoss` — `nestLossChance`(3.2 × 구멍 · guardNest · 방침)를 판정과 카드가 같이 씀. check 통과(테스트 126)
 
 ## 최근 완료 (라운드 34 뒤)
 - **#342 승인**(design 잠정 #325 deathRisk ½ · 장소 위험 × 0.85 — 엔진 테스트 숫자만, 0.003324384×0.85 확인, review:engine 라벨 뗌)

@@ -109,11 +109,11 @@
       "rich": 16
     },
     "risk": {
-      "veryLow": 0.0016,
-      "low": 0.0032,
-      "medium": 0.0056,
-      "high": 0.0096,
-      "veryHigh": 0.016
+      "veryLow": 0.00136,
+      "low": 0.00272,
+      "medium": 0.00476,
+      "high": 0.00816,
+      "veryHigh": 0.0136
     },
     "competition": {
       "none": 0.0,
