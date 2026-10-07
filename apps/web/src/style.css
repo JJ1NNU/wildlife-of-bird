@@ -460,3 +460,21 @@ h1 {
   color: var(--wb-color-danger);
   font-weight: bold;
 }
+
+/* S-24 계승 확인: 지금 개체 ↔ 새끼 비교표 (mid/04-inherit B) — 잃는 칸은 주의색 + 낱말 */
+.compare {
+  width: 100%;
+  border-collapse: collapse;
+}
+.compare th,
+.compare td {
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--wb-color-line);
+  text-align: left;
+  vertical-align: top;
+}
+.compare tbody th {
+  color: var(--wb-color-ink-muted);
+  font-weight: normal;
+  white-space: nowrap;
+}
