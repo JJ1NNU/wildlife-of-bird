@@ -13,8 +13,13 @@ const start = newRun({ speciesId: 'parus-minor', seed: 'step', mode: 'free' }, t
 const edge = testData.nodes.get('forest-edge');
 if (!edge) throw new Error('data/nodes/forest-edge.json 이 없다');
 const tiers = { food: 'medium', risk: 'medium', competition: 'low' } as const;
+// 3.1 예시는 6칸 기준이다 — 예시 스탯 합(약 323)이 칸 수 문턱(9.6)을 넘으므로 여기서는 끈다
 const data: GameData = {
   ...testData,
+  formulas: {
+    ...testData.formulas,
+    routine: { ...testData.formulas.routine, extraSlotRatios: [] },
+  },
   nodes: new Map(testData.nodes).set('forest-edge', {
     ...edge,
     seasons: { winter: tiers, spring: tiers, summer: tiers, autumn: tiers },
@@ -108,6 +113,28 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
     expect(state.rng).toBe(hungry.rng);
     expect(log[0]?.type).toBe('decision');
     expect(log.at(-1)).toMatchObject({ cause: 'starvation', slot: 1 });
+  });
+});
+
+describe('칸 수 스탯 (01-formulas 9.6)', () => {
+  /** 박새 스탯을 모두 종 평균 잠재력 × r 로 — 스탯 합 ÷ 348 = r */
+  const at = (r: number, period: number) => {
+    const stats = Object.fromEntries(
+      Object.entries(start.player.potential).map(([k, v]) => [k, (v ?? 0) * r]),
+    );
+    return { ...start, at: { year: 1, period, step: 1 }, player: { ...start.player, stats } };
+  };
+
+  it('평시: r 0.89 → 6칸, 0.90 → 7칸, 1.00 → 8칸', () => {
+    expect(getView(at(0.89, 2), testData).routine?.slots).toBe(6);
+    expect(getView(at(0.9, 2), testData).routine).toMatchObject({ slots: 7, nextSlotIn: 35 });
+    expect(getView(at(1, 2), testData).routine?.slots).toBe(8);
+  });
+
+  it('번식기는 스탯 합과 무관하게 6 ÷ 단계 수', () => {
+    const breeding = start.calendar.findIndex((stages) => stages.length > 1) + 1;
+    const s = at(1, breeding);
+    expect(getView(s, testData).routine?.slots).toBe(slotsOf(s));
   });
 });
 

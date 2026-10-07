@@ -340,6 +340,8 @@ export interface ViewModel {
   player: Bird;
   /** 에너지의 상한(지방 상한, 01-formulas 2.1) */
   energyCap: number;
+  /** 플레이어 잠재력 — 스탯마다 등급 범위 [아래, 위]. 숫자는 보이지 않는다 (05-inheritance 4장) */
+  potentialRange: Partial<Record<StatName, [string, string]>>;
   totalBreeding: number;
   gameOver: boolean;
   /** 열려 있는 관문의 카드 — 짝 후보(S-20) · 짝 지시 · 둥지 자리(S-23) · 산란수 */
@@ -360,8 +362,10 @@ export interface ViewModel {
   nest?: Nest;
   /** 루틴을 짜는 중일 때만 (관문 중에는 없음, 03-contracts 3장 '행동 루틴') */
   routine?: {
-    /** 이 단계의 칸 수 */
+    /** 이 단계의 칸 수 (평시는 스탯 합 문턱으로 7·8, 01-formulas 9.6) */
     slots: number;
+    /** 평시에 다음 칸까지 남은 스탯 합. 번식기·문턱을 모두 넘었으면 없음 */
+    nextSlotIn?: number;
     /** 이미 채운 칸의 선택 id */
     filled: string[];
     /** 남은 빈 칸마다 제안 id. null = 제안 없음 */

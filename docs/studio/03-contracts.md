@@ -121,6 +121,7 @@ interface ViewModel {
   node: string                   // 지금 장소 id — 이름은 data.nodes
   player: Bird                   // 종 · 성별 · 나이 · 에너지 · 스탯(현재값) · 잠재력 · 깃털 · 경험 연수
   energyCap: number              // 에너지 상한(지방 상한, 01-formulas 2.1)
+  potentialRange: { [stat]: [아래, 위] }  // 플레이어 잠재력 등급 범위 — 숫자 대신 이것을 보인다 (05-inheritance 4장)
   totalBreeding: number          // 점수
   gameOver: boolean
   gate?: { kind: 'mateCandidate', cards: MateCandidateCard[], previousGone?: 'mateDeath' | 'divorce' }  // 열린 관문 — 짝 후보(S-20). previousGone = 지난 짝이 없어진 이유(2.1)
@@ -169,7 +170,8 @@ interface MateCandidateCard {    // 신호만 — 실제 잠재력·성격은 �
 interface ViewModel {
   // ...기존 필드
   routine?: {                    // 루틴을 짜는 중일 때만 (관문·이벤트 중에는 없음)
-    slots: number                // 이 단계의 칸 수 = 6 ÷ 그 시기의 단계 수 (3.5)
+    slots: number                // 이 단계의 칸 수. 번식기 = 6 ÷ 단계 수, 평시 = 6 + 스탯 합 문턱(7·8, 01-formulas 9.6). 루틴을 짜기 시작한 상태로 정하고 실행 중에는 고정
+    nextSlotIn?: number          // 평시에 다음 칸까지 남은 스탯 합(올림). 번식기·8칸이면 없음
     filled: string[]             // 이미 채운 칸의 선택 id (이벤트 뒤 다시 채우기면 실행된 칸은 빠진다). 마지막 칸에서 이벤트가 났으면 다시 채우기 없이 단계 끝
     suggested: (string | null)[] // 남은 빈 칸마다 제안 id. null = 제안 없음
     replan: boolean              // true = 이벤트 뒤 남은 칸 다시 채우기 (결정으로 세지 않는다)

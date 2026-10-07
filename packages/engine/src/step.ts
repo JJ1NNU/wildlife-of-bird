@@ -26,12 +26,39 @@ import type { Choice, RunState } from './types.ts';
  * 같은 계산을 공유한다.
  */
 
-/** 한 시기의 칸 수 (00-core-loop 3.5) */
-const SLOTS_PER_PERIOD = 6;
+/** 문턱 비교의 부동소수 여유 — 스탯이 소수라 문턱에 딱 닿아도 합이 아래로 반올림될 수 있다 */
+const EPS = 1e-9;
 
-/** 이 단계의 칸 수 = 6 ÷ 그 시기의 단계 수 */
-export function slotCount(state: RunState): number {
-  return SLOTS_PER_PERIOD / (state.calendar[state.at.period - 1]?.length ?? 1);
+/** 칸 수 스탯의 r = 지금 스탯 합 ÷ 종 평균 잠재력 합 (`01-formulas` 9.6) */
+function statSumRatio(state: RunState, data: GameData): { sum: number; mean: number } {
+  const mean = data.formulas.stats.aptitudeMean;
+  const species = speciesBalance(data, state.config.speciesId);
+  const sumOf = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+  return {
+    sum: sumOf(Object.values(state.player.stats)),
+    mean: sumOf(Object.values(species.aptitude).map((g) => mean[g] ?? 0)),
+  };
+}
+
+/**
+ * 이 단계의 칸 수 (00-core-loop 3.5, 01-formulas 9.6). 번식기 = `slotsBase` ÷ 단계 수.
+ * 평시(단계 1개) = `slotsBase` + 스탯 합 문턱을 넘은 개수. 루틴을 짜기 시작한 상태로 부르고
+ * 실행 중에는 그 값을 고정한다 — 칸마다 스탯이 올라도 이번 루틴의 칸 수는 바뀌지 않는다.
+ */
+export function slotCount(state: RunState, data: GameData): number {
+  const { slotsBase, extraSlotRatios } = data.formulas.routine;
+  const stages = state.calendar[state.at.period - 1]?.length ?? 1;
+  if (stages > 1) return slotsBase / stages;
+  const { sum, mean } = statSumRatio(state, data);
+  return slotsBase + extraSlotRatios.filter((ratio) => sum >= ratio * mean - EPS).length;
+}
+
+/** 다음 칸 문턱까지 남은 스탯 합. 번식기이거나 문턱을 모두 넘었으면 없음 (S-10 '다음 칸까지') */
+export function nextSlotIn(state: RunState, data: GameData): number | undefined {
+  if ((state.calendar[state.at.period - 1]?.length ?? 1) > 1) return undefined;
+  const { sum, mean } = statSumRatio(state, data);
+  const next = data.formulas.routine.extraSlotRatios.find((ratio) => sum < ratio * mean - EPS);
+  return next === undefined ? undefined : Math.ceil(next * mean - sum);
 }
 
 /** `action.<행동>`으로 고르는 행동. `move`·`train`은 `move.<장소>`·`action.train.<스탯>`으로 (03-contracts 3장) */
@@ -141,7 +168,12 @@ function orderCost(state: RunState, data: GameData): number {
 }
 
 /** 칸 하나의 판정 1·2·3을 계산한다. 난수 없음 */
-export function judgeStep(state: RunState, choiceId: string, data: GameData): StepOutcome {
+export function judgeStep(
+  state: RunState,
+  choiceId: string,
+  data: GameData,
+  n = slotCount(state, data),
+): StepOutcome {
   const f = data.formulas;
   const species = speciesBalance(data, state.config.speciesId);
   const p = state.player;
@@ -150,7 +182,6 @@ export function judgeStep(state: RunState, choiceId: string, data: GameData): St
   const season = seasonOf(species, state.at.period);
   const tiers = mapNode(data, node).seasons[season];
   const stat = (s: StatName) => p.stats[s] ?? 0;
-  const n = slotCount(state);
 
   // 판정 1 — 에너지 수지 (01-formulas 2장)
   const cap = fatCap(f, stat('stamina'));

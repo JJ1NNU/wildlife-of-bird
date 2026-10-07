@@ -25,7 +25,15 @@ import {
   startLife,
   stayCard,
 } from './inherit.ts';
-import { divorce, isPhaseStart, makeCandidates, mateCards, mateChoices, mateYear } from './mate.ts';
+import {
+  divorce,
+  isPhaseStart,
+  makeCandidates,
+  mateCards,
+  mateChoices,
+  mateYear,
+  potentialRange,
+} from './mate.ts';
 import { buildNest, nestCards, nestChoices, nestHoles, releaseNest } from './nest.ts';
 import {
   carryOrder,
@@ -39,7 +47,7 @@ import {
 import { parentingChoices, parentingDue, setPolicy } from './parenting.ts';
 import { seedFromString } from './rng.ts';
 import { projected, runRoutine, suggestions } from './routine.ts';
-import { judgeStep, mapNode, slotCount, speciesBalance, stepChoices } from './step.ts';
+import { judgeStep, mapNode, nextSlotIn, slotCount, speciesBalance, stepChoices } from './step.ts';
 import type {
   ActResult,
   Choice,
@@ -54,7 +62,7 @@ import type {
  * 엔진 API — 일곱 개의 순수 함수 (엔진 원칙 1, 03-contracts 3장).
  *
  * M1 진행 중(#21): 단계표·장소·행동·옮기기와 판정 1·2·3(에너지 → 스탯 → 위험), 아사·포식 사망은
- * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·짝 지시(`mateOrder`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)·육아 방침(`parentingPolicy`)·2차 번식 여부(`secondBrood`, 실패 뒤만)가 있고, 부화를 굴린다. 번식·계승·이벤트는 아직 없다.
+ * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·짝 지시(`mateOrder`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)·육아 방침(`parentingPolicy`)·2차 번식 여부(`secondBrood`, 실패 뒤·잔류 뒤)·계승(`inheritance`)이 있고, 부화·새끼 사망·독립을 굴린다. 이벤트는 아직 없다.
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
@@ -151,7 +159,7 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
     };
   }
   const from = projected(state, data);
-  const out = judgeStep(from, choiceId, data);
+  const out = judgeStep(from, choiceId, data, slotCount(state, data));
   const delta = out.energy - from.player.energy;
   const statGains: Partial<Record<StatName, number>> = {};
   for (const [stat, value] of Object.entries(out.stats)) {
@@ -182,7 +190,8 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   if (state.gate?.kind === 'inheritance') return pickInheritance(state, choiceId, data);
   const filled = [...(state.routine ?? []), choiceId];
   // 칸 채우기: 판정·난수 없음
-  if (filled.length < slotCount(state)) return { state: { ...state, routine: filled }, log: [] };
+  if (filled.length < slotCount(state, data))
+    return { state: { ...state, routine: filled }, log: [] };
 
   const { routine: _r, ...planned } = state;
   const ran = runRoutine(planned, filled, data);
@@ -393,6 +402,7 @@ function yearStart(state: RunState, data: GameData): ActResult {
  * 복사본을 돌려준다 — 화면·봇이 고쳐도 `RunState`가 바뀌지 않게(결정론, #33).
  */
 export function getView(state: RunState, data: GameData): ViewModel {
+  const nextIn = nextSlotIn(state, data);
   return structuredClone({
     at: state.at,
     phase: phaseAt(state.calendar, state.at),
@@ -400,6 +410,12 @@ export function getView(state: RunState, data: GameData): ViewModel {
     node: state.node,
     player: state.player,
     energyCap: fatCap(data.formulas, state.player.stats.stamina ?? 0),
+    potentialRange: Object.fromEntries(
+      Object.entries(state.player.potential).map(([stat, v]) => [
+        stat,
+        potentialRange(data.formulas, v ?? 0),
+      ]),
+    ),
     totalBreeding: state.totalBreeding,
     gameOver: state.gameOver,
     ...(state.gate?.kind === 'mateCandidate'
@@ -441,7 +457,8 @@ export function getView(state: RunState, data: GameData): ViewModel {
       ? {}
       : {
           routine: {
-            slots: slotCount(state),
+            slots: slotCount(state, data),
+            ...(nextIn === undefined ? {} : { nextSlotIn: nextIn }),
             filled: state.routine ?? [],
             suggested: suggestions(state, data),
             replan: false,

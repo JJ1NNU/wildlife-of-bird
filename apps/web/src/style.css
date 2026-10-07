@@ -384,6 +384,21 @@ h1 {
   font-size: var(--wb-font-size-caption);
   cursor: pointer;
 }
+/* 평시 7·8칸(01-formulas 9.6): 360 폭에 8칸이 들어가게 최소 폭을 푼다 — 8칸이면 칸 ≈37px */
+.cells.many {
+  gap: 3px;
+}
+.cells.many .cell {
+  min-width: 0;
+}
+.slot-head {
+  margin: 0 0 14px;
+  font-size: var(--wb-font-size-small);
+  color: var(--wb-color-ink-muted);
+}
+.slot-head b {
+  color: var(--wb-color-sage-strong);
+}
 .cell .n {
   color: var(--wb-color-ink-muted);
   line-height: 12px;
