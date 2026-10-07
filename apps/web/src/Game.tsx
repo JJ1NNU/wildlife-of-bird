@@ -9,6 +9,7 @@ import {
   getChoices,
   getView,
   type InheritanceChickCard,
+  type LifeRecord,
   type LogEntry,
   type MateCandidateCard,
   type MateOrderCard,
@@ -233,6 +234,14 @@ function logLine(l: LogEntry): string {
   const d = deltaText(l.deltas, l.slot !== undefined);
   const where = `${periodLabel(l.at).text} ${l.at.step}단계${l.slot ? ` ${l.slot}칸` : ''}`;
   return `${where} — ${l.text}${d ? ` · ${d}` : ''}`;
+}
+
+/** S-30 가계도 한 줄 (05-inheritance 8장). 문구는 잠정(#24) — 콘텐츠가 data/text에 내면 따른다 */
+function lifeLine(r: LifeRecord, cause?: string): string {
+  const sex = r.sex === 'female' ? '암컷' : '수컷';
+  const span = `${periodLabel(r.start.at).text} ${r.start.age}세 ~ ${periodLabel(r.end.at).text} ${r.end.age}세`;
+  const end = r.reason === 'inherit' ? '계승' : `사망${cause ? `(${cause})` : ''}`;
+  return `${r.generation}세대 · ${sex} · ${span} · ${end} · 번식 ${r.breeding} · 독립 ${r.fledged}`;
 }
 
 function startRun(data: GameData): RunState {
@@ -792,6 +801,18 @@ export function Game({ data }: { data: GameData }) {
           <p className="score">
             총 번식 <b>{view.totalBreeding}</b>
           </p>
+          <h2 className="small">가계도</h2>
+          <ol className="feed-list" data-testid="lineage">
+            {state.log.flatMap((l) =>
+              l.life
+                ? [
+                    <li key={l.life.generation}>
+                      {lifeLine(l.life, l.type === 'death' ? l.text : undefined)}
+                    </li>,
+                  ]
+                : [],
+            )}
+          </ol>
           <ul className="feed-list">
             {view.recentLog.slice(-5).map((l) => (
               <li key={logKey(l)}>{logLine(l)}</li>

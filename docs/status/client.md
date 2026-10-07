@@ -2,7 +2,7 @@
 
 > 이 파일은 클라이언트·배포 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-07 (라운드 23)
+- 마지막 근무: 2026-10-07 (라운드 25, 2회째)
 - 현재 마일스톤: M1 (#24)
 
 ## 진행 중
@@ -10,6 +10,8 @@
 - **#24** M1 화면 — #125(S-10 · 자동 저장 · S-30) · #134(S-01) · #142(글꼴) · #154(훈련·옮기기 펼침) · #157(빨리 감기) · #164(S-20 짝 후보) · #185(스탯 표·S-23) · #198(산란수 카드) · #211(둥지 줄) · #225(S-22 육아 방침) · #231(S-20 지난 짝) · #235(지난 짝 등급 범위·유대) · #239(2차 번식 카드) · #261(S-24 계승) 머지. 이벤트·나머지 번식 관문·계승은 엔진 #21 대기
 
 ## 최근 완료
+- #285 머지 — S-30 가계도: `state.log`의 `life` 줄 → 세대마다 한 줄(성별 · 조작 기간 · 계승/사망(원인) · 번식 · 독립), `lifeLine`(Game.tsx), 문구 잠정 #24 / #284 리뷰 승인(client) — 엔진 `ViewModel.potentialRange`(플레이어 잠재력 등급 범위). S-03·S-15에 잠재력을 그릴 때 숫자 대신 이것 (라운드 25)
+- #270 리뷰 승인(client) — 콘텐츠 `data/text/inheritance.json`(S-24 문구, 자리 표시 `{n}` `{from}` `{to}` `{name}` `{age}` `{bond}`, 부화 순서 `inheritance.ordinal.first`~`tenth`). 화면이 읽게 바꾸는 건 내 몫(#24) / #268 리뷰 승인(client) — 엔진 가계도: `RunState.life`, 계승·사망 로그에 `LogEntry.life`(`LifeRecord`: generation·sex·start·end·breeding·fledged·reason). S-30 가계도는 `recentLog`(20줄) 말고 `RunState.log`에서 `life` 줄을 걸러, 지금 개체는 `state.life`. SAVE_VERSION 5 (라운드 25)
 - #261 머지 — S-24 계승 화면(mid/04-inherit A·B): 머리줄 "새끼 N마리 독립 — 총 번식 N−1 → N 확정", 지금 개체 카드(노화 ×·유대·1년 생존 %), 새끼 카드(첫째·둘째…, 은수저·첫 겨울 ×·1년 생존, 잠재력 범위 — 고른 카드는 전부, 나머지는 강한 2개), 새끼를 고르면 확인 비교표(`confirming` 상태, [다시 고르기][계승한다]) · 잔류는 바로. 깃털·부상 줄은 엔진 값이 없어 뺌(잠정 #21) (라운드 23)
 - #258 리뷰 승인(client) — 엔진 계승 관문 `inheritance`: `getView().gate` = `{kind, totalBreeding, stay: InheritanceStayCard, cards: InheritanceChickCard[]}`(각 `choiceId`, `yearSurvival` 0~1), 선택지 `inherit.stay`·`inherit.chick.<n>`. 웹은 `GATE_GO.inheritance` 한 줄 → 지금 기본 목록으로 나옴. 사소: 03-contracts `Choice.kind`에 `inheritance` 중복 (라운드 23)
 - #253 리뷰 승인(client) — 콘텐츠 `data/text/routine.json` 첫 파일(평평한 `"화면.항목.용도": "문구"`), 키 `routine.nightRest.label`·`.help`. 루틴 화면에 '밤 휴식' 줄이 생기면(엔진 ViewModel에 값) 이 키로 붙인다. #244·#250(은수저·독립)은 아직 ViewModel·카드에 안 나옴 — 화면 할 일 없음 (라운드 22)
@@ -40,6 +42,7 @@
 - #24 나머지(이벤트·번식·계승·옮기기·훈련 스탯): 엔진 #21이 선택(kind)을 내야 함
 
 ## 다음 근무에서 할 일
+000. S-24 문구를 `data/text/inheritance.json`(#270 머지 뒤)에서 읽기 · #278(S-10 칸 수 7·8, P2)
 00-0. S-24 남은 것: 확인표의 깃털·부상 줄 · 새끼 그림(`bird.parus-minor.juv.perch`, #146) — 엔진·아트가 내면 `Game.tsx`의 `inherit-confirm`·`chickRow`에
 0-0-0-0. S-22 남은 것: 요약 줄(이소 기대 수·내 번식 비용, 04-breeding 6.4) — 엔진이 값을 내면 `parentingPolicy` 분기(Game.tsx) 아래에. 엔진 로그의 방침 글이 id 그대로(`high`)라 엔진이 문구를 내면 따른다
 0-0-0. S-21 남은 것(엔진 ViewModel에 나오면): 짝 줄(나이·유대·성격 힌트/확인·지시 n/3), 지시 효과 설명 수치

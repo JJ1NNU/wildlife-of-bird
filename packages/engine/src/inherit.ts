@@ -10,6 +10,8 @@ import type {
   Choice,
   InheritanceChickCard,
   InheritanceStayCard,
+  Life,
+  LifeRecord,
   LogEntry,
   RunState,
 } from './types.ts';
@@ -18,6 +20,17 @@ import type {
  * 계승 관문 `inheritance` (05-inheritance 5장 · 00-core-loop 6.1).
  * `postFledge` 마지막 단계의 판정 뒤, 새끼가 1마리 이상 살아 있으면 독립 — 총 번식 수 +1 확정 → 관문.
  */
+
+/** 가계도 한 줄을 닫는다 — 지금 개체의 조작이 끝났다 (8장) */
+export function endLife(state: RunState, reason: LifeRecord['reason']): LifeRecord {
+  return { ...state.life, end: { at: state.at, age: state.player.age }, reason };
+}
+
+/** 새 개체의 생애를 연다. 런 시작 개체는 1세대 */
+export function startLife(state: Pick<RunState, 'at' | 'player'>, generation: number): Life {
+  const { at, player } = state;
+  return { generation, sex: player.sex, start: { at, age: player.age }, breeding: 0, fledged: 0 };
+}
 
 /** 독립하나 — 지금이 `postFledge` 마지막 단계이고 새끼가 살아 있다 */
 export function inheritanceDue(state: RunState): boolean {
@@ -32,8 +45,13 @@ export function inheritanceDue(state: RunState): boolean {
 export function openInheritance(state: RunState): { state: RunState; log: LogEntry[] } {
   const chicks = state.nest?.chicks ?? 0;
   const totalBreeding = state.totalBreeding + 1;
+  const life = {
+    ...state.life,
+    breeding: state.life.breeding + 1,
+    fledged: state.life.fledged + chicks,
+  };
   return {
-    state: { ...state, totalBreeding, gate: { kind: 'inheritance' } },
+    state: { ...state, totalBreeding, life, gate: { kind: 'inheritance' } },
     log: [
       {
         at: state.at,
@@ -145,12 +163,17 @@ export function chooseInheritance(
     silverSpoon: chick.silverSpoon,
   };
   return {
-    state: endBreeding({ ...rest, player }),
+    state: endBreeding({
+      ...rest,
+      player,
+      life: startLife({ at: state.at, player }, state.life.generation + 1),
+    }),
     log: [
       {
         at: state.at,
         type: 'inheritance',
         text: `새끼 ${index + 1}로 계승했다`,
+        life: endLife(state, 'inherit'),
       },
     ],
   };
