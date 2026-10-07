@@ -73,44 +73,12 @@ const GROUPS = [
 type GroupKey = (typeof GROUPS)[number]['key'];
 const RES_WORD: Record<string, string> = { energy: '에너지', feather: '깃털' };
 /** 관문 결정 버튼: [고른 뒤 앞말, 고르기 전] */
-const GATE_GO = {
-  mateCandidate: { done: (label: string) => `짝 맺기 · ${label}`, none: '짝을 고르세요' },
-  nestSite: { done: (label: string) => `${label}에 짓기`, none: '둥지 자리를 고르세요' },
-  clutchSize: { done: (label: string) => `${label} 낳기`, none: '알 수를 고르세요' },
-  mateOrder: { done: (label: string) => `짝에게 · ${label}`, none: '짝에게 맡길 일을 고르세요' },
-  parentingPolicy: { done: () => '이 방침으로', none: '이대로 진행' },
-  secondBrood: { done: (label: string) => label, none: '할지 고르세요' },
-  inheritance: { done: (label: string) => label, none: t('inheritance.go.none') },
-} as const;
-/** 육아 방침 선택 id → 칸 글 (와이어프레임 mid/03 C). 잠정(#21): `data/text/`가 생기면 옮긴다 */
-const POLICY_WORD: Record<string, string> = {
-  low: '적게',
-  mid: '보통',
-  high: '많이',
-  even: '고르게',
-  compete: '센 새끼 먼저',
-  quantity: '양 많이',
-  quality: '질 좋게',
-  feedFocus: '먹이 우선',
-  clean: '청소',
-  full: '다 자라서',
-  early: '일찍',
-  long: '길게',
-  short: '짧게',
-  safe: '안전',
-  varied: '여러 곳',
-  predator: '포식자',
-  song: '노래',
-};
-const GRADE_WORD = { high: '높음', mid: '보통', low: '낮음' } as const;
-const HINT_WORD = { bold: '대담해 보인다', shy: '조심스러워 보인다' } as const;
-/** 지난 짝 카드의 성격(이미 확인) — 04-breeding 2.2 */
-const PERSONALITY_WORD = { bold: '대담', shy: '조심스러움' } as const;
-/** 짝 후보 관문 위 한 줄: 지난 짝이 없어진 이유(`gate.previousGone`, 2.1). 잠정(#21): 문구는 `data/text/`가 생기면 옮긴다 */
-const MATE_GONE: Record<string, string> = {
-  mateDeath: '지난 짝은 겨울을 넘기지 못했어요',
-  divorce: '지난 짝이 떠났어요',
-};
+/** 관문 결정 버튼 글 — 문구 data/text/gate.json. 2차 번식·계승은 고른 선택지 글 그대로 */
+function gateGo(kind: string, label?: string): string {
+  if (label === undefined)
+    return kind === 'inheritance' ? t('inheritance.go.none') : t(`gate.${kind}.none`);
+  return kind === 'secondBrood' || kind === 'inheritance' ? label : t(`gate.${kind}.go`, { label });
+}
 /** 새끼 부화 순서 → 이름 (와이어프레임 mid/04-inherit A) — 문구 data/text/inheritance.json */
 const ORDINAL = [
   'first',
@@ -321,7 +289,7 @@ export function Game({ data }: { data: GameData }) {
   const pickedPrevious = !!mateCards?.find((c) => c.choiceId === picked)?.previous;
   const mateGone =
     view.gate?.kind === 'mateCandidate' && view.gate.previousGone
-      ? MATE_GONE[view.gate.previousGone]
+      ? t(`gate.previousGone.${view.gate.previousGone}`)
       : undefined;
   // 2차 번식: 왜 열렸는지 — 마지막 둥지 기록(부화 0 · 새끼 전멸, 00-core-loop 4.4)
   const broodWhy =
@@ -557,7 +525,7 @@ export function Game({ data }: { data: GameData }) {
                   {ranges.length > 3 && <span className="muted">… {ranges.length}개</span>}
                 </span>
               )}
-              <span className="cap">성격: {PERSONALITY_WORD[card.hint]} (확인)</span>
+              <span className="cap">성격: {t(`gate.personality.${card.hint}`)} (확인)</span>
             </span>
             <span className="vals">
               <span>재결합</span>
@@ -585,7 +553,7 @@ export function Game({ data }: { data: GameData }) {
               깃 선명도 <b>{card.plumage}</b> · 노래 <b>{card.song}</b>
             </span>
             <span className="cap">
-              {[HINT_WORD[card.hint], c?.disabled?.reason].filter(Boolean).join(' · ')}
+              {[t(`gate.mateHint.${card.hint}`), c?.disabled?.reason].filter(Boolean).join(' · ')}
             </span>
           </span>
           <span className="vals">
@@ -751,7 +719,7 @@ export function Game({ data }: { data: GameData }) {
     const val = c?.disabled
       ? '불가'
       : card.acceptance
-        ? GRADE_WORD[card.acceptance]
+        ? t(`gate.grade.${card.acceptance}`)
         : card.choiceId.startsWith('help.')
           ? '내가 한다'
           : undefined;
@@ -906,7 +874,7 @@ export function Game({ data }: { data: GameData }) {
                       }
                       data-testid={`policy-${it.item}-${o}`}
                     >
-                      {POLICY_WORD[o] ?? o}
+                      {t(`gate.policy.${o}`)}
                     </button>
                   ))}
                 </fieldset>
@@ -1288,15 +1256,15 @@ export function Game({ data }: { data: GameData }) {
             >
               {policyCards
                 ? policyChanged || !policyAdjust
-                  ? GATE_GO.parentingPolicy.done()
-                  : GATE_GO.parentingPolicy.none
+                  ? gateGo('parentingPolicy', '')
+                  : gateGo('parentingPolicy')
                 : pickedPrevious
                   ? '지난 짝과 다시'
                   : inheritChick
                     ? t('inheritance.go.chick', { name: chickName(inheritIndex, inheritChick) })
                     : pickedChoice
-                      ? GATE_GO[view.gate.kind].done(pickedChoice.label)
-                      : GATE_GO[view.gate.kind].none}
+                      ? gateGo(view.gate.kind, pickedChoice.label)
+                      : gateGo(view.gate.kind)}
             </button>
           ) : replay ? (
             replayDone ? (
