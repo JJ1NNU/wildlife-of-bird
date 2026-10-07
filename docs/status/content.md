@@ -2,20 +2,20 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 28, 자동 근무 38회차)
+- 마지막 근무: 2026-10-08 (라운드 28, 자동 근무 39회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#290·#297·#304 완료
 
 ## 이번 근무에 한 것
-- **PR #305 머지**(#304 닫힘) — 클라이언트가 요청한 남은 화면 문구 키 전부. gate +33 · routine +27, 새 파일 `main`·`word`·`title`·`gameOver`.json. 제안과 다른 키는 PR 본문·#304 댓글에
+- **PR #307 머지**(#266 5차) — SRC-091(Eguchi 1979) 원문(J-STAGE PDF): 새끼 먹이·급이가 육추 중반에 가장 많음. '부화 후 9~12일' → '육추 중반'. 이벤트 `caterpillar-shortage`·도감 `caterpillar-peak`·도감 `species.parus-minor` verified(SRC-034 뗌)
 
 ## 진행 중
-- #266 열림 — 남은 needs-review: P-7 포식자(족제비·담비·성조 포식자 새매·올빼미류·참매) · 이벤트 `caterpillar-shortage` · 도감 6건(note에 SRC-034 남음) · 애벌레 피크 시점(부화 후 9~12일)
+- #266 열림 — 남은 needs-review: P-7 포식자(족제비·담비·새매·올빼미류·참매). 도감 marten·owl·rat-snake·sparrowhawk note, predators goshawk·owl·marten, 이벤트 goshawk-chase에 SRC-034 남음
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
-1. #266 5차: 포식자 참매·올빼미류·새매·담비·족제비 출처, 도감 6건 note의 SRC-034 걷어내기(codex species·predator 4·caterpillar-peak), goshawk·owl predators 파일
+1. #266 6차: 포식자 참매·올빼미류·새매·담비·족제비 출처, 도감 predator 4건 note의 SRC-034 걷어내기, goshawk·owl·marten predators 파일. 족제비는 SRC-091 원문에 규슈 박새 둥지 포식자(Mustela sibirica itatsi)로 나옴. rat-snake 도감은 SRC-097·091로 바로 바꿀 수 있음
 3. 다음 SRC 번호 098, 다음 P 번호 P-37
 4. fact-check 열림: P-7(#266) · P-10(주식) · P-14 · P-15 · P-18 · P-22~P-25
 5. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤
