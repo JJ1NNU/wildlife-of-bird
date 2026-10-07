@@ -3,8 +3,8 @@
   "nameKo": "올빼미류",
   "targets": ["adult"],
   "basis": {
-    "sources": ["SRC-050"],
-    "factCheck": "needs-review",
-    "note": "성조 포식자 자리. 이벤트 long-cold-night(#114)의 predator id. 박새류가 올빼미 모형에 모빙한다(SRC-050)는 확인했지만, 박새를 얼마나 잡는지 문헌은 못 찾았다 — 이전 근거(AI 답, #266)를 떼고 빈도('가끔')도 뺐다. Korpimäki & Sulkava(Ornis Fennica, 핀란드 긴꼬리올빼미 식단)는 들쥐 위주이고 박새류 수치 없음."
+    "sources": ["SRC-099", "SRC-100", "SRC-050"],
+    "factCheck": "verified",
+    "note": "성조 포식자 자리. 이벤트 long-cold-night(#114)·owl-mobbing의 predator id. 일본 긴점박이올빼미가 새끼에게 박새를 물어다 먹였다(SRC-099, 니가타 인공새집, 번식기). 박새(P. minor)는 소쩍새류 박제에 새매 박제보다 더 세게 덤빈다 — 어른에게 덜 위험한 상대(SRC-100, 중국). 독일 박새도 올빼미 모형에 모빙한다(SRC-050). 얼마나 자주 잡는지(빈도) 수치는 없다 — 빈도 말은 쓰지 않는다."
   }
 }

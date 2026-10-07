@@ -194,7 +194,9 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
     return { state: { ...state, routine: filled }, log: [] };
 
   const { routine: _r, ...planned } = state;
-  const ran = runRoutine(planned, filled, data);
+  const routed = runRoutine(planned, filled, data);
+  // 부상은 판정 3을 받은 단계가 끝날 때 1 준다 — 이 단계 판정 뒤에 걸린 부상은 다음 단계부터 센다 (03-events 6.1 `injury`)
+  const ran = { ...routed, state: heal(routed.state) };
   const log = ran.log;
   if (ran.state.gameOver) return { state: { ...ran.state, log: [...state.log, ...log] }, log };
   // 둥지 손실: 둥지에 알·새끼가 있는 단계의 판정 3 다음 (01-formulas 3.2)
@@ -271,6 +273,12 @@ export function act(state: RunState, choiceId: string, data: GameData): ActResul
   const next = nextStep(survived, data);
   log.push(...next.log);
   return { state: { ...next.state, log: [...state.log, ...log] }, log };
+}
+
+/** 부상 1 감소, 0이면 지운다 (03-events 6.1 `injury`) */
+function heal(state: RunState): RunState {
+  const { injury, ...rest } = state;
+  return injury && injury > 1 ? { ...rest, injury: injury - 1 } : rest;
 }
 
 /**
