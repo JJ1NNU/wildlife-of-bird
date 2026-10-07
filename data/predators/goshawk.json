@@ -3,8 +3,8 @@
   "nameKo": "참매",
   "targets": ["adult"],
   "basis": {
-    "sources": ["SRC-034"],
+    "sources": [],
     "factCheck": "needs-review",
-    "note": "박새 성조를 드물게 잡는다(SRC-034, AI 답 — 출처 아님, #266). 이벤트 goshawk-chase(#23)의 predator id. 다시 확인 필요(#266) — 박새를 잡는다는 문헌을 찾는다."
+    "note": "성조 포식자 자리. 이벤트 goshawk-chase(#23)의 predator id. 참매가 박새를 잡는다는 문헌을 못 찾았다 — 이전 근거는 AI 답(#266)이라 출처를 비우고 빈도('드물게')를 뺐다. 2026-10-08 검색: 핀란드 참매 번식기 식단은 뇌조·오리·까마귀류·지빠귀·비둘기 위주(Ornis Fennica) — 박새류 수치 없음."
   }
 }

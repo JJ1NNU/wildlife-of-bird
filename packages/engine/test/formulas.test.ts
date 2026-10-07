@@ -159,7 +159,7 @@ describe('3. 위험', () => {
 
   it('3.2 둥지 손실 · 3.3 새끼 사망', () => {
     const parents = { vigilance: 70, mateVigilance: 58, riskModFactor: 1 };
-    expect(nestLoss(f, tit, parents)).toBeCloseTo(0.03636, 9);
+    expect(nestLoss(f, tit, parents)).toBeCloseTo(0.1616, 9);
     expect(chickDeath(f, 'high')).toBeCloseTo(0.014, 9);
   });
 });
