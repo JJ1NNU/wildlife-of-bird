@@ -267,3 +267,30 @@ describe('도감 (#155)', () => {
     expect(issues.map((i) => i.at)).toEqual(['id', 'target', 'unlock.events[0]']);
   });
 });
+
+describe('화면 문구 (#254)', () => {
+  it('키의 첫 마디가 파일 이름이 아니면 잡아낸다', () => {
+    const { issues } = loadGameData({
+      ecology: [],
+      balance: [],
+      calendar: [],
+      nodes: [],
+      predators: [],
+      events: [],
+      text: [
+        {
+          file: 'data/text/routine.json',
+          json: { 'routine.nightRest.label': '밤 휴식', 'gate.mate.title': '짝' },
+        },
+      ],
+    });
+
+    expect(issues).toEqual([
+      {
+        file: 'data/text/routine.json',
+        at: 'gate.mate.title',
+        reason: '키는 routine.으로 시작해야 한다',
+      },
+    ]);
+  });
+});

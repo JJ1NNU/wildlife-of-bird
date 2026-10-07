@@ -66,6 +66,7 @@ export async function readDataDir(): Promise<{ raw: RawGameData; issues: DataIss
       predators: read(await listFiles('data/predators', '.json')),
       events: read(await listFiles('data/events', '.json')),
       codex: read(await listFiles('data/codex', '.json')),
+      text: read(await listFiles('data/text', '.json')),
     },
     issues,
   };

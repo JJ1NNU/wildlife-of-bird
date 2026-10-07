@@ -10,6 +10,7 @@ import { Formulas } from './formulas.ts';
 import { MapNode } from './nodes.ts';
 import { Predator } from './predators.ts';
 import { SpeciesBalance, SpeciesEcology } from './species.ts';
+import { TextFile } from './text.ts';
 
 /**
  * 검증된 게임 데이터 묶음. 엔진의 모든 함수가 이것을 받는다 (03-contracts 3장).
@@ -30,6 +31,8 @@ export interface GameData {
   events: GameEvent[];
   /** 도감. id → 항목 */
   codex: Map<string, CodexEntry>;
+  /** 화면 문구. 키 → 문구 (모든 `data/text/` 파일을 합친 것) */
+  text: Map<string, string>;
 }
 
 /** 검증 실패 하나 — 어느 파일의 어디가 왜 틀렸는지 */
@@ -77,6 +80,8 @@ export interface RawGameData {
   events: RawFile[];
   /** 도감. 화면이 도감을 읽기 전에는 넘기지 않아도 된다 */
   codex?: RawFile[];
+  /** 화면 문구. 화면이 읽기 전에는 넘기지 않아도 된다 */
+  text?: RawFile[];
 }
 
 /**
@@ -183,6 +188,7 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
   }
 
   const codex = loadCodex(raw.codex ?? [], { ecology, predators, nodes, events }, issues);
+  const text = loadText(raw.text ?? [], issues);
 
   const effects = raw.effects ? check(EffectsTable, raw.effects, issues) : undefined;
   const formulas = raw.formulas ? check(Formulas, raw.formulas, issues) : undefined;
@@ -204,6 +210,7 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
       predators,
       events,
       codex,
+      text,
     },
     issues,
   };
@@ -275,6 +282,27 @@ function loadCodex(
     }
   }
   return codex;
+}
+
+/** 화면 문구를 합친다. 키의 첫 마디는 파일 이름이어야 한다(#254) — 그래서 파일끼리 키가 겹치지 않는다 */
+function loadText(files: RawFile[], issues: DataIssue[]): Map<string, string> {
+  const text = new Map<string, string>();
+  for (const file of files) {
+    const parsed = check(TextFile, file, issues);
+    if (!parsed) continue;
+    const name = file.file
+      .split('/')
+      .pop()
+      ?.replace(/.json$/, '');
+    for (const [key, value] of Object.entries(parsed)) {
+      if (!key.startsWith(`${name}.`)) {
+        issues.push({ file: file.file, at: key, reason: `키는 ${name}.으로 시작해야 한다` });
+        continue;
+      }
+      text.set(key, value);
+    }
+  }
+  return text;
 }
 
 /** 장소를 읽고 종·연결을 확인한다. 연결은 양방향이어야 한다(`00-core-loop` 3.4) */

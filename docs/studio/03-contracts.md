@@ -224,7 +224,7 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 ## 4. 데이터 계약 — `@wb/schema` (값은 예시)
 
 - 검증: `npm run validate:data` — CI에서도 돈다. 실패하면 **파일 · 파일 안의 위치 · 이유**를 알려 준다.
-- 스키마가 담은 형식: 4.1 · 4.2 · 4.3 · 4.3.1 · 4.3.2 · 4.3.3 · 4.4 장소·포식자·도감. `data/titles/` `data/text/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
+- 스키마가 담은 형식: 4.1 · 4.2 · 4.3 · 4.3.1 · 4.3.2 · 4.3.3 · 4.4 장소·포식자·도감 · 4.5 화면 문구. `data/titles/`는 소유 부서가 **첫 파일을 올릴 때** 엔진이 형식을 확정해 스키마에 더한다(미리 만들지 않는다).
 - 모든 객체는 **모르는 필드를 거부**한다(오타를 잡기 위해). 필드를 더하려면 8장 절차로 스키마를 함께 고친다.
 
 ### 4.1 종: 생태 사실(content)과 밸런스(design)의 분리
@@ -388,6 +388,10 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 - `unlock.on` 잠정(#155 — 해금 조건은 design 몫): `run-start`+`species` · `predator-met`+`predator` · `node-visited`+`node` · `event-seen`+`events`(1개 이상, 그중 하나를 보면).
 - `target`과 `unlock`의 id는 실제 데이터(`data/species/` 생태 · `data/predators/` · `data/nodes/` · `data/events/`)에 있어야 한다(교차 검증).
 - `GameData.codex`: 도감 id → 항목. `RawGameData.codex`는 선택(화면이 도감을 읽기 전에는 빈 묶음).
+
+### 4.5 화면 문구 — content
+- `data/text/<화면>.json`(스키마 `TextFile`, #254): 평평한 `{ "<화면>.<항목>.<용도>": "문구" }`. 키는 camelCase 마디를 점으로 잇고(2마디 이상), **첫 마디 = 파일 이름**(그래서 파일끼리 겹치지 않는다). 문구는 빈 글 금지. 예: `data/text/routine.json`의 `routine.nightRest.label`.
+- `GameData.text`: 키 → 문구(모든 파일을 합친 것). `RawGameData.text`는 선택.
 
 ---
 
