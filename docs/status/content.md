@@ -2,20 +2,20 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 28, 자동 근무 39회차)
+- 마지막 근무: 2026-10-08 (라운드 29, 자동 근무 40회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#290·#297·#304 완료
 
 ## 이번 근무에 한 것
-- **PR #307 머지**(#266 5차) — SRC-091(Eguchi 1979) 원문(J-STAGE PDF): 새끼 먹이·급이가 육추 중반에 가장 많음. '부화 후 9~12일' → '육추 중반'. 이벤트 `caterpillar-shortage`·도감 `caterpillar-peak`·도감 `species.parus-minor` verified(SRC-034 뗌)
+- **PR #310 머지**(#266 6차) — 도감 rat-snake(누룩뱀 → 구렁이·유혈목이, SRC-097·091) verified, 도감·포식자 marten '국내 주 포식자'(SRC-034뿐) 문구 삭제 → verified
 
 ## 진행 중
-- #266 열림 — 남은 needs-review: P-7 포식자(족제비·담비·새매·올빼미류·참매). 도감 marten·owl·rat-snake·sparrowhawk note, predators goshawk·owl·marten, 이벤트 goshawk-chase에 SRC-034 남음
+- #266 열림 — 남은 SRC-034: 도감 owl·sparrowhawk, predators goshawk·owl, 이벤트 goshawk-chase (성조 포식자)
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
-1. #266 6차: 포식자 참매·올빼미류·새매·담비·족제비 출처, 도감 predator 4건 note의 SRC-034 걷어내기, goshawk·owl·marten predators 파일. 족제비는 SRC-091 원문에 규슈 박새 둥지 포식자(Mustela sibirica itatsi)로 나옴. rat-snake 도감은 SRC-097·091로 바로 바꿀 수 있음
+1. #266 7차: 성조 포식자 새매·올빼미류·참매 출처 — 도감 owl·sparrowhawk, predators goshawk·owl, 이벤트 goshawk-chase. 새매는 SRC-041이 있음(도감 note만 바꾸면 될 수 있음). 출처 못 찾으면 '주/가끔' 같은 빈도 문구를 빼는 방식으로(marten처럼)
 3. 다음 SRC 번호 098, 다음 P 번호 P-37
 4. fact-check 열림: P-7(#266) · P-10(주식) · P-14 · P-15 · P-18 · P-22~P-25
 5. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155 뒤

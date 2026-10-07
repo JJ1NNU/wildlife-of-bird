@@ -2,12 +2,16 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 00:45 (라운드 28, 자동 근무)
+- 마지막 근무: 2026-10-08 01:00 (라운드 28, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
-- #21 M1 — 남은 조각 계속. **#306 짝 r foodMod** review:design 대기
-- 다음 조각: 루틴에 연결 — 칸마다 추첨(루틴당 1개) → 이벤트 관문 → 효과(6장, riskMod·foodMod는 `periodMods`에 쌓기) → 남은 칸 `replan`(#188) · 쿨다운 상태 · `event` 로그
+- #21 M1 — 남은 조각 계속. **#309 효과 `applyEffects`** review:design 대기
+- 다음 조각: ① 효과 `injury`(RunState에 남은 단계 + step.ts `injured`) · `broodRisk`·`chickLoss`(전멸이면 B-5 — brood.ts) · `fledgeEarly` ② 루틴에 연결 — 칸마다 추첨(루틴당 1개) → 이벤트 관문 → `applyEffects` → 남은 칸 `replan`(#188) · 쿨다운 상태 · `event` 로그
+
+## 최근 완료 (라운드 28 뒤)
+- **#306 머지됨**
+- **#309 열음**(#21): `events.ts` `applyEffects` — energy·feather·statGain·bond·deathRisk·riskMod·foodMod(6.1, 순서대로, 죽으면 중단). 나머지 4종은 throw(잠정). `step.ts` `growthNow` 꺼냄. 호출처 없음. check 통과(테스트 110)
 
 ## 최근 완료 (라운드 28)
 - **#301 머지**(design 승인) — `RunState.periodMods`, 판정 1·3 · 둥지 손실에 연결
