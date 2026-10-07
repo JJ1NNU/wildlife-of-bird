@@ -10,9 +10,9 @@
     "large": 20
   },
   "deathRisk": {
-    "low": 0.01,
-    "medium": 0.03,
-    "high": 0.08
+    "low": 0.005,
+    "medium": 0.015,
+    "high": 0.04
   },
   "broodRisk": {
     "low": 0.1,
