@@ -4,7 +4,7 @@ import { nestLoss } from './formulas.ts';
 import { orderValue } from './order.ts';
 import { parentingNestLossMult } from './parenting.ts';
 import { nextChance } from './rng.ts';
-import { mapNode, speciesBalance } from './step.ts';
+import { mapNode, periodRiskFactor, speciesBalance } from './step.ts';
 import type { Choice, LogEntry, Nest, NestSiteCard, RunState } from './types.ts';
 
 /**
@@ -121,7 +121,7 @@ export function buildNest(
  * 둥지 손실 — 알이나 새끼가 둥지에 있는 단계(`laying` `incubation` `nestling`)마다 1번(01-formulas 3.2).
  * 확률이 칸의 행동과 무관해 단계당 1번 굴린다(새끼 사망과 같은 까닭, 9.4). 알은 산란수 관문 뒤에 생기므로
  * `laying` 첫 단계에는 굴리지 않는다. 구멍 · 짝 지시 `guardNest` · 육아 방침(`clean`·`early`)의 배율을 건다(04-breeding 6.3).
- * 잠정(#21): 이벤트 `riskMod`는 이벤트 해석기 전까지 1. 손실이면 B-5: 둥지를 거둔다.
+ * 위험 보정은 그 시기의 `riskMod`(03-events 6.1). 손실이면 B-5: 둥지를 거둔다.
  */
 export function nestSurvives(
   state: RunState,
@@ -137,7 +137,7 @@ export function nestSurvives(
     nestLoss(data.formulas, speciesBalance(data, state.config.speciesId), {
       vigilance: state.player.stats.vigilance ?? 0,
       ...(state.mate ? { mateVigilance: state.mate.stats.vigilance ?? 0 } : {}),
-      riskModFactor: 1,
+      riskModFactor: periodRiskFactor(state, data),
     }) *
     (data.breeding.nestSite.holes[nest.site]?.nestLossMult ?? 1) *
     orderValue(state, 'mateOrder.guardNest', 1, guard) *
