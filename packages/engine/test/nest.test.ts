@@ -243,6 +243,18 @@ describe('은수저 (01-formulas 6.1 · 04-breeding 6.3)', () => {
     expect(silverSpoonIndex(fed, testData, 0)).toBeCloseTo(0.7, 9);
     expect(silverSpoonIndex(fed, testData, 1)).toBeCloseTo(0.5, 9);
   });
+
+  it('조기 이소(fledgeEarly)한 둥지는 postFledge에 충족도를 더 쌓지 않는다 (03-events 6.1)', () => {
+    const spoon = { sum: 1.2, steps: 2 };
+    const postFledge: RunState = {
+      ...nestling,
+      at: { year: 1, period: 11, step: 1 },
+      nest: { site: 'nestBox', node: 'village-farmland', chicks: 6, spoon },
+    };
+    expect(spoonAfter(postFledge)?.steps).toBe(3);
+    const early = { ...postFledge, nest: { ...postFledge.nest!, fledgedEarly: true as const } };
+    expect(spoonAfter(early)).toEqual(spoon);
+  });
 });
 
 describe('독립 — 시작 스탯 · 첫 겨울 (05-inheritance 3장 예시)', () => {
