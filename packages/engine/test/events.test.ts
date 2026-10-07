@@ -1,9 +1,18 @@
-import type { GameEvent } from '@wb/schema';
+import type { GameData, GameEvent } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
 import type { EventContext } from '../src/events.ts';
-import { applyEffects, checkChance, eventCandidates, pickEvent, whenHolds } from '../src/events.ts';
+import {
+  applyEffects,
+  checkChance,
+  drawStepEvent,
+  eventCandidates,
+  pickEvent,
+  resolveOption,
+  whenHolds,
+} from '../src/events.ts';
 import { foodModFactor, riskModFactor } from '../src/formulas.ts';
 import { newRun } from '../src/index.ts';
+import { nextFloat } from '../src/rng.ts';
 import { f, testData } from './fixture.ts';
 
 const ctx: EventContext = {
@@ -57,6 +66,66 @@ describe('추첨 (03-events 3.1 예시)', () => {
     const cands = eventCandidates([a], 'step', 'parus-minor', ctx, { 'ev.t.a': 7 });
     expect(cands).toEqual([]);
     expect(pickEvent(cands, testData.effects.eventWeight, 0.1)).toBeUndefined();
+  });
+});
+
+describe('추첨 난수 순서 (03-events 3.1)', () => {
+  const run = newRun({ speciesId: 'parus-minor', seed: 'draw', mode: 'free' }, testData);
+  const ev = { ...(testData.events[0] as GameEvent), id: 'ev.t.a', when: {} };
+  const withChance = (chancePerStep: number, events: GameEvent[]): GameData => ({
+    ...testData,
+    events,
+    formulas: { ...f, events: { ...f.events, chancePerStep } },
+  });
+  const after = (n: number) =>
+    Array.from({ length: n }).reduce<typeof run.rng>((r) => nextFloat(r).state, run.rng);
+
+  it('u₁에서 끝나면 난수 1개, 이벤트 없음', () => {
+    const out = drawStepEvent(run, withChance(0, [ev]), ['action.forage']);
+    expect(out.event).toBeUndefined();
+    expect(out.state.rng).toEqual(after(1));
+  });
+  it('후보가 없어도 u₁은 쓴다 — 난수 1개', () => {
+    const out = drawStepEvent(run, withChance(1, [ev]), ['action.forage'], { 'ev.t.a': 3 });
+    expect(out.event).toBeUndefined();
+    expect(out.state.rng).toEqual(after(1));
+  });
+  it('당첨이면 u₁ → u₂ — 난수 2개', () => {
+    const out = drawStepEvent(run, withChance(1, [ev]), ['action.forage']);
+    expect(out.event?.id).toBe('ev.t.a');
+    expect(out.state.rng).toEqual(after(2));
+  });
+});
+
+describe('선택지 적용 (03-events 5장)', () => {
+  const run = newRun({ speciesId: 'parus-minor', seed: 'option', mode: 'free' }, testData);
+  const energy = (sign: 'gain' | 'loss') => ({ type: 'energy', tier: 'small', sign }) as const;
+  const ev: GameEvent = {
+    ...(testData.events[0] as GameEvent),
+    options: [
+      {
+        id: 'try',
+        text: '시도한다',
+        check: { stat: 'vigilance', difficulty: 'medium' },
+        onSuccess: [energy('gain')],
+        onFail: [energy('loss')],
+      },
+    ],
+  };
+  const clamp = (p: number): GameData => ({
+    ...testData,
+    formulas: { ...f, events: { ...f.events, checkMin: p, checkMax: p } },
+  });
+  const low = { ...run, player: { ...run.player, energy: 20 } };
+
+  it('판정 성공 → onSuccess, 실패 → onFail (판정 난수 1개 뒤 효과)', () => {
+    const win = resolveOption(low, ev, 'try', clamp(1));
+    expect(win.success).toBe(true);
+    expect(win.state.player.energy).toBeGreaterThan(20);
+    const lose = resolveOption(low, ev, 'try', clamp(0));
+    expect(lose.success).toBe(false);
+    expect(lose.state.player.energy).toBeLessThan(20);
+    expect(lose.state.rng).toEqual(nextFloat(low.rng).state);
   });
 });
 
