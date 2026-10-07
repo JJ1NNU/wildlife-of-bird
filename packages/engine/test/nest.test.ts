@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { fledgling, silverSpoonIndex } from '../src/clutch.ts';
 import type { RunState } from '../src/index.ts';
 import { act, contestChance, getChoices, getView, nestHoles, newRun } from '../src/index.ts';
+import { nestLossChance } from '../src/nest.ts';
 import { actStep, testData } from './fixture.ts';
 
 const start = newRun({ speciesId: 'parus-minor', seed: 'nest', mode: 'free' }, testData);
@@ -113,6 +114,15 @@ describe('산란수 관문 (04-breeding 5장)', () => {
     ]);
     const card = getView(opened, testData).gate?.cards[0];
     expect(card).toMatchObject({ eggs: 6, layingCost: expect.closeTo(2.4) });
+    // 6.4: 새끼 6 × 0.9 × 둥지 8단계(laying 2 · incubation 3 · nestling 3) × 새끼 7단계(0.98) · 은수저는 새끼 수에 반비례
+    const [six, eight] = (getView(opened, testData).gate?.cards ?? []).map((c) =>
+      'expectedFledged' in c ? c : undefined,
+    );
+    const loss = nestLossChance(opened, testData, 'nestBox');
+    expect(six?.expectedFledged).toBeCloseTo(6 * 0.9 * (1 - loss) ** 8 * 0.98 ** 7, 10);
+    expect(eight?.expectedFledged).toBeCloseTo(((six?.expectedFledged ?? 0) * 8) / 6, 10);
+    expect(six?.silverSpoon).toBeLessThan(1);
+    expect((eight?.silverSpoon ?? 0) * 8).toBeCloseTo((six?.silverSpoon ?? 0) * 6, 10);
 
     const laid = act(opened, 'clutchSize.8', testData).state;
     expect(laid.nest?.eggs).toBe(8);
