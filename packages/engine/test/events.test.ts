@@ -125,6 +125,14 @@ describe('효과 (03-events 6.1 예시)', () => {
     const out = applyEffects(brood(7), [{ type: 'chickLoss', tier: 'medium' }], testData);
     expect(out.state.nest?.chicks).toBe(4);
   });
+  it('fledgeEarly + chickLoss small — 새끼 7 → 둥지에 조기 이소 표시, 2마리 사망', () => {
+    const out = applyEffects(
+      brood(7),
+      [{ type: 'fledgeEarly' }, { type: 'chickLoss', tier: 'small' }],
+      testData,
+    );
+    expect(out.state.nest).toMatchObject({ fledgedEarly: true, chicks: 5 });
+  });
   it('새끼 1, chickLoss small → 전멸 → B-5(둥지를 거둔다)', () => {
     const out = applyEffects(brood(1), [{ type: 'chickLoss', tier: 'small' }], testData);
     expect(out.state.nest).toBeUndefined();

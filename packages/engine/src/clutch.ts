@@ -180,6 +180,7 @@ export function chicksSurvive(
 
 /**
  * 은수저 충족도 — `nestling` `postFledge` 단계마다 새끼 사망 다음에 살아남은 새끼 수로 계산해 둥지에 쌓는다(01-formulas 6.1).
+ * 조기 이소(`fledgeEarly`)한 둥지는 `postFledge`에 더 쌓지 않는다 — 지수가 그 단계까지의 평균으로 확정(03-events 6.1).
  * 부모 = 플레이어(육아 방침의 급이 강도)와 짝(`mid`, 지시 `feedHigh`면 그 값 — 거절이면 사이 값, 04-breeding 3.5).
  * 먹이 등급은 둥지 장소의 그 계절 값. 먹이 질 `quality`면 `× fulfilmentMult`(상한 1, 04-breeding 6.3)
  */
@@ -188,6 +189,7 @@ export function feedChicks(state: RunState, data: GameData): RunState {
   const chicks = nest?.chicks ?? 0;
   const phase = phaseAt(state.calendar, state.at);
   if (!nest || chicks === 0 || (phase !== 'nestling' && phase !== 'postFledge')) return state;
+  if (nest.fledgedEarly && phase === 'postFledge') return state;
   const f = data.formulas;
   const feed = f.silverSpoon.feedByIntensity;
   const season = seasonOf(speciesBalance(data, state.config.speciesId), state.at.period);
