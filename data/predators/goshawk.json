@@ -4,7 +4,7 @@
   "targets": ["adult"],
   "basis": {
     "sources": ["SRC-034"],
-    "factCheck": "verified",
-    "note": "박새 성조를 드물게 잡는다(SRC-034). 이벤트 goshawk-chase(#23)의 predator id."
+    "factCheck": "needs-review",
+    "note": "박새 성조를 드물게 잡는다(SRC-034, AI 답 — 출처 아님, #266). 이벤트 goshawk-chase(#23)의 predator id. 다시 확인 필요(#266) — 박새를 잡는다는 문헌을 찾는다."
   }
 }
