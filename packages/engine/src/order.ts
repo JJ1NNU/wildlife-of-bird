@@ -1,7 +1,7 @@
 import type { GameData, Phase } from '@wb/schema';
 import { phaseAt } from './calendar.ts';
 import { acceptanceBand } from './display.ts';
-import { mateAcceptance, seasonOf } from './formulas.ts';
+import { foodModFactor, mateAcceptance, seasonOf } from './formulas.ts';
 import { isPhaseStart } from './mate.ts';
 import { nextChance, nextFloat } from './rng.ts';
 import { mapNode, speciesBalance } from './step.ts';
@@ -82,13 +82,14 @@ export function orderChoices(state: RunState, data: GameData, options: string[])
   }));
 }
 
-/** 2.6 짝 r — 지금 걸린 지시·도움의 `mateR`까지 */
+/** 2.6 짝 r — 그 시기의 `foodMod`(01-formulas 2.3과 같은 값), 지금 걸린 지시·도움의 `mateR`까지 */
 export function mateR(state: RunState, data: GameData): number {
   const f = data.formulas;
   const species = speciesBalance(data, state.config.speciesId);
   const food = mapNode(data, state.node).seasons[seasonOf(species, state.at.period)].food;
-  // 잠정(#21): 먹이 보정(`foodMod`)은 이벤트·환경 조각에서 — 지금은 1
-  const base = (data.breeding.mate.rBase * f.nodeTiers.food[food]) / f.nodeTiers.food.medium;
+  const base =
+    ((data.breeding.mate.rBase * f.nodeTiers.food[food]) / f.nodeTiers.food.medium) *
+    foodModFactor(data.effects.foodMod, state.periodMods?.food ?? []);
   return Math.min(1, Math.max(0, base + (state.order?.mateR ?? 0)));
 }
 

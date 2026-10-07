@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Mate, RunState } from '../src/index.ts';
 import { act, contestChance, getChoices, getView, newRun } from '../src/index.ts';
+import { mateR } from '../src/order.ts';
 import { actStep, testData } from './fixture.ts';
 
 const start = newRun({ speciesId: 'parus-minor', seed: 'order', mode: 'free' }, testData);
@@ -64,6 +65,16 @@ describe('짝 지시 관문 (04-breeding 3장)', () => {
     };
     const p = act(layingStart, 'mateOrder.courtshipFeed', testData).log[0]?.deltas?.acceptance;
     expect(p).toBeCloseTo(0.6369, 4);
+  });
+
+  it('짝 r에 그 시기 foodMod가 걸린다 — medium 0.6, medium loss면 × 0.7 = 0.42 (2.6)', () => {
+    const edge: RunState = { ...lastPairing, node: 'forest-edge' };
+    expect(mateR(edge, testData)).toBeCloseTo(0.6);
+    const lean: RunState = {
+      ...edge,
+      periodMods: { risk: [], food: [{ tier: 'medium', sign: 'loss' }] },
+    };
+    expect(mateR(lean, testData)).toBeCloseTo(0.42);
   });
 
   it('patrol 수락이면 경쟁 확률 1, 거절 f 0.8이면 p + 0.8 × (1 − p) (4장 예시)', () => {
