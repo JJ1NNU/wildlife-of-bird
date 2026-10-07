@@ -27,6 +27,7 @@ import { birdUrl } from './art.ts';
 import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
 import { clearRun, loadRun, saveRun } from './save.ts';
+import { t } from './text.ts';
 
 /**
  * M1 화면(#24): S-01 타이틀·이어하기 · S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
@@ -79,7 +80,7 @@ const GATE_GO = {
   mateOrder: { done: (label: string) => `짝에게 · ${label}`, none: '짝에게 맡길 일을 고르세요' },
   parentingPolicy: { done: () => '이 방침으로', none: '이대로 진행' },
   secondBrood: { done: (label: string) => label, none: '할지 고르세요' },
-  inheritance: { done: (label: string) => label, none: '잔류 또는 계승할 새끼를 고르세요' },
+  inheritance: { done: (label: string) => label, none: t('inheritance.go.none') },
 } as const;
 /** 육아 방침 선택 id → 칸 글 (와이어프레임 mid/03 C). 잠정(#21): `data/text/`가 생기면 옮긴다 */
 const POLICY_WORD: Record<string, string> = {
@@ -110,19 +111,19 @@ const MATE_GONE: Record<string, string> = {
   mateDeath: '지난 짝은 겨울을 넘기지 못했어요',
   divorce: '지난 짝이 떠났어요',
 };
-/** 새끼 부화 순서 → 이름 (와이어프레임 mid/04-inherit A) */
+/** 새끼 부화 순서 → 이름 (와이어프레임 mid/04-inherit A) — 문구 data/text/inheritance.json */
 const ORDINAL = [
-  '첫째',
-  '둘째',
-  '셋째',
-  '넷째',
-  '다섯째',
-  '여섯째',
-  '일곱째',
-  '여덟째',
-  '아홉째',
-  '열째',
-];
+  'first',
+  'second',
+  'third',
+  'fourth',
+  'fifth',
+  'sixth',
+  'seventh',
+  'eighth',
+  'ninth',
+  'tenth',
+].map((k) => t(`inheritance.ordinal.${k}`));
 const SEX_MARK = { female: '♀', male: '♂' } as const;
 const SEASON = [
   'winter',
@@ -266,6 +267,8 @@ export function Game({ data }: { data: GameData }) {
   const [confirming, setConfirming] = useState(false);
   const [shown, setShown] = useState(0);
   const [paused, setPaused] = useState(false);
+  /** 평시 칸 수가 바뀐 직후 한 줄 알림(01-formulas 9.6). 다음 결정에서 사라진다 */
+  const [slotNote, setSlotNote] = useState<{ from: number; to: number }>();
 
   useEffect(() => {
     if (!replay || paused || shown >= replay.rows.length) return;
@@ -392,6 +395,10 @@ export function Game({ data }: { data: GameData }) {
   }
 
   function commit(next: RunState) {
+    // 칸 수 알림: 평시(6칸 이상)끼리 바뀔 때만 — 번식기 칸 나누기는 알리지 않는다
+    const from = state && getView(state, data).routine?.slots;
+    const to = getView(next, data).routine?.slots;
+    setSlotNote(from && to && from >= 6 && to >= 6 && from !== to ? { from, to } : undefined);
     saveRun(next);
     setState(next);
     setPicked(undefined);
@@ -624,13 +631,13 @@ export function Game({ data }: { data: GameData }) {
           <span className="main">
             <span className="b">{chickName(i, card)}</span>
             <span className="cap">
-              은수저 <b>{card.silverSpoon.toFixed(2)}</b> · 첫 겨울 위험{' '}
-              <b>×{card.firstWinter.toFixed(2)}</b>
+              {t('inheritance.chick.silverSpoon')} <b>{card.silverSpoon.toFixed(2)}</b> ·{' '}
+              {t('inheritance.chick.firstWinter')} <b>×{card.firstWinter.toFixed(2)}</b>
             </span>
             {potentialRanges(card, sel ? undefined : 2)}
           </span>
           <span className="vals">
-            <span>1년 생존</span>
+            <span>{t('inheritance.card.yearSurvival')}</span>
             <b>{Math.round(card.yearSurvival * 100)}%</b>
           </span>
         </button>
@@ -909,42 +916,44 @@ export function Game({ data }: { data: GameData }) {
         ) : inherit && confirming && inheritChick ? (
           <div className="list" data-testid="inherit-confirm">
             <p className="gate-title b">
-              {chickName(inheritIndex, inheritChick)}로 계승할까?{' '}
-              <span className="caution">되돌릴 수 없다</span>
+              {t('inheritance.confirm.title', { name: chickName(inheritIndex, inheritChick) })}{' '}
+              <span className="caution">{t('inheritance.confirm.caution')}</span>
             </p>
             <table className="compare small">
               <thead>
                 <tr>
                   <th />
-                  <th>지금 개체</th>
+                  <th>{t('inheritance.confirm.colStay')}</th>
                   <th>{chickName(inheritIndex, inheritChick)}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th>나이</th>
-                  <td>{inherit.stay.age}세</td>
-                  <td className="caution">0세 · 처음부터</td>
+                  <th>{t('inheritance.confirm.rowAge')}</th>
+                  <td>{t('inheritance.confirm.stayAge', { age: inherit.stay.age })}</td>
+                  <td className="caution">{t('inheritance.confirm.chickAge')}</td>
                 </tr>
                 <tr>
-                  <th>스탯</th>
-                  <td>지금 값</td>
-                  <td className="caution">낮게 시작</td>
+                  <th>{t('inheritance.confirm.rowStats')}</th>
+                  <td>{t('inheritance.confirm.stayStats')}</td>
+                  <td className="caution">{t('inheritance.confirm.chickStats')}</td>
                 </tr>
                 <tr>
-                  <th>잠재력</th>
-                  <td>지금 그대로</td>
-                  <td>새끼의 것</td>
+                  <th>{t('inheritance.confirm.rowPotential')}</th>
+                  <td>{t('inheritance.confirm.stayPotential')}</td>
+                  <td>{t('inheritance.confirm.chickPotential')}</td>
                 </tr>
                 <tr>
-                  <th>짝 · 유대</th>
+                  <th>{t('inheritance.confirm.rowMate')}</th>
                   <td>
-                    {inherit.stay.bond !== undefined ? `있음 · ${inherit.stay.bond}` : '없음'}
+                    {inherit.stay.bond !== undefined
+                      ? t('inheritance.confirm.mateYes', { bond: inherit.stay.bond })
+                      : t('inheritance.confirm.mateNo')}
                   </td>
-                  <td className="caution">없음 (내년 새 후보)</td>
+                  <td className="caution">{t('inheritance.confirm.chickMate')}</td>
                 </tr>
                 <tr>
-                  <th>1년 생존</th>
+                  <th>{t('inheritance.confirm.rowSurvival')}</th>
                   <td>{Math.round(inherit.stay.yearSurvival * 100)}%</td>
                   <td>
                     {Math.round(inheritChick.yearSurvival * 100)}% · 첫 겨울 ×
@@ -953,15 +962,18 @@ export function Game({ data }: { data: GameData }) {
                 </tr>
               </tbody>
             </table>
-            <p className="muted small">그대로: 총 번식 수 · 장소 · 시간 · 도감</p>
+            <p className="muted small">{t('inheritance.confirm.kept')}</p>
           </div>
         ) : inherit ? (
           <ul className="list" aria-label="계승" data-testid="gate-inheritance">
             <li className="gate-title b">
-              새끼 {inherit.cards.length}마리 독립 — 총 번식 {inherit.totalBreeding - 1} →{' '}
-              {inherit.totalBreeding} 확정
+              {t('inheritance.header.title', {
+                n: inherit.cards.length,
+                from: inherit.totalBreeding - 1,
+                to: inherit.totalBreeding,
+              })}
             </li>
-            <li className="gate-title muted small">계승하든 남든 이미 확정이다.</li>
+            <li className="gate-title muted small">{t('inheritance.header.note')}</li>
             <li>
               <button
                 type="button"
@@ -972,30 +984,29 @@ export function Game({ data }: { data: GameData }) {
               >
                 <span className="main">
                   <span className="b">
-                    지금 개체 {SEX_MARK[view.player.sex]} {inherit.stay.age}세{' '}
-                    <span className="muted small">남으면</span>
+                    {t('inheritance.stay.label')} {SEX_MARK[view.player.sex]}{' '}
+                    {t('inheritance.confirm.stayAge', { age: inherit.stay.age })}{' '}
+                    <span className="muted small">{t('inheritance.stay.tag')}</span>
                   </span>
                   <span className="cap">
-                    노화 위험 <b>×{inherit.stay.agingMult.toFixed(2)}</b>
+                    {t('inheritance.stay.aging')} <b>×{inherit.stay.agingMult.toFixed(2)}</b>
                     {inherit.stay.bond !== undefined && (
                       <>
                         {' '}
-                        · 짝 유대 <b>{inherit.stay.bond}</b>
+                        · {t('inheritance.stay.bond')} <b>{inherit.stay.bond}</b>
                       </>
                     )}
                   </span>
                 </span>
                 <span className="vals">
-                  <span>1년 생존</span>
+                  <span>{t('inheritance.card.yearSurvival')}</span>
                   <b>{Math.round(inherit.stay.yearSurvival * 100)}%</b>
                 </span>
               </button>
             </li>
-            <li className="gate-title muted small">새끼 — 계승하면 하나를 고른다</li>
+            <li className="gate-title muted small">{t('inheritance.chicks.title')}</li>
             {inherit.cards.map((card, i) => chickRow(card, i))}
-            <li className="gate-title muted small">
-              1년 생존은 사건 제외 — 실제는 더 낮다. 유전은 잠재력만, 훈련한 스탯은 가지 않는다.
-            </li>
+            <li className="gate-title muted small">{t('inheritance.footer.note')}</li>
           </ul>
         ) : view.gate?.kind === 'secondBrood' ? (
           <ul className="list" aria-label="2차 번식" data-testid="gate-secondBrood">
@@ -1033,7 +1044,27 @@ export function Game({ data }: { data: GameData }) {
             </div>
 
             <div className="slots" data-testid="routine">
-              <div className="cells">
+              {(slotNote || view.routine?.nextSlotIn !== undefined) && (
+                // 평시 칸 수(01-formulas 9.6) — 문구 data/text/routine.json
+                <div className="slot-head" role="status" data-testid="slot-head">
+                  {slotNote ? (
+                    <b>
+                      {t(
+                        slotNote.to > slotNote.from ? 'routine.slots.gained' : 'routine.slots.lost',
+                        {
+                          n: slotNote.to,
+                        },
+                      )}
+                    </b>
+                  ) : (
+                    <span>{t('routine.slots.count', { n: slots.length + done })}</span>
+                  )}
+                  {view.routine?.nextSlotIn !== undefined && (
+                    <span> · {t('routine.slots.nextIn', { n: view.routine.nextSlotIn })}</span>
+                  )}
+                </div>
+              )}
+              <div className={`cells${slots.length + done > 6 ? ' many' : ''}`}>
                 {slots.map((s, k) => {
                   const place = placeBefore(k);
                   return (
@@ -1241,10 +1272,10 @@ export function Game({ data }: { data: GameData }) {
                 onClick={() => setConfirming(false)}
                 data-testid="inherit-back"
               >
-                다시 고르기
+                {t('inheritance.confirm.back')}
               </button>
               <button type="button" className="btn prim" onClick={go} data-testid="go">
-                계승한다
+                {t('inheritance.confirm.go')}
               </button>
             </>
           ) : view.gate ? (
@@ -1262,7 +1293,7 @@ export function Game({ data }: { data: GameData }) {
                 : pickedPrevious
                   ? '지난 짝과 다시'
                   : inheritChick
-                    ? `${chickName(inheritIndex, inheritChick)}로 계승`
+                    ? t('inheritance.go.chick', { name: chickName(inheritIndex, inheritChick) })
                     : pickedChoice
                       ? GATE_GO[view.gate.kind].done(pickedChoice.label)
                       : GATE_GO[view.gate.kind].none}
