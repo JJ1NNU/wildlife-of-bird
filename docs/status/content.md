@@ -2,11 +2,11 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 34, 자동 근무 52회차)
+- 마지막 근무: 2026-10-08 (라운드 34, 자동 근무 53회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321·#324·#341 완료
 
 ## 이번 근무에 한 것
-- **#341 fact-check 5차 → PR #345 머지**: SRC-108~111 등록(국내 박새 새집 둥지 위험 Yoon 2016 본문·2017 초록, 중국 박새 둥지 빼앗기 2026, 새집 둘러보기 2023). P-23 hole-competition · shallow-hole · egg-making-hunger · jay-watching · leave-eggs-to-feed verified. hole-competition 본문의 '날개를 펴고' 몸짓을 뺌(효과·id 그대로)
+- **PR #346(client S-13 효과 줄) 문구 13개 리뷰 → 승인 댓글**. `riskMod`·`foodMod` 잠정 문구 확정. `injury`는 `부상 — 다음 위험 판정 {n}번 더 위험`으로 다듬기 제안(비차단)
 
 ## 진행 중
 - 없음
@@ -15,6 +15,7 @@
 - 없음
 
 ## 다음 근무에서 할 일
+1. #346이 `gate.event.fx.injury`를 안 바꾸고 머지됐으면 콘텐츠 PR로 `부상 — 다음 위험 판정 {n}번 더 위험`으로 고친다
 1. `dept:content` 새 이슈를 기다린다(PM이 다음 fact-check 차수를 열 수 있음)
 2. 다음 SRC 번호 112, 다음 P 번호 P-38
 3. fact-check 열림: P-10(주식) · P-14 · P-15(courtship-feeding · rival-near-mate · long-cold-night · first-winter-follow) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-35
