@@ -1822,14 +1822,14 @@
     "factCheck": "verified"
   },
   {
-    "id": "ev.parus-minor.goshawk-chase",
+    "id": "ev.parus-minor.sparrowhawk-chase",
     "species": ["parus-minor"],
     "when": {
       "phaseAny": ["autumnFlock"]
     },
     "weight": "rare",
-    "title": "참매",
-    "body": "큰 그림자가 나무 사이를 낮게 가르며 무리 한가운데로 곧장 들어온다. 참매다. 무리가 사방으로 흩어진다.",
+    "title": "새매의 추격",
+    "body": "작은 매 한 마리가 나무 사이를 낮게 가르며 무리 한가운데로 곧장 들어온다. 새매다. 무리가 사방으로 흩어진다.",
     "options": [
       {
         "id": "swerve",
@@ -1850,7 +1850,7 @@
             "type": "deathRisk",
             "tier": "high",
             "cause": "predation",
-            "predator": "goshawk"
+            "predator": "sparrowhawk"
           }
         ]
       },
@@ -1862,13 +1862,13 @@
             "type": "deathRisk",
             "tier": "medium",
             "cause": "predation",
-            "predator": "goshawk"
+            "predator": "sparrowhawk"
           }
         ]
       }
     ],
-    "ecologyBasis": "참매가 박새 성조를 얼마나 잡는지는 문헌을 찾지 못했다(#266 — 이전 근거는 AI 답이라 뗐다). 무리 속에 있으면 경계 부담이 준다는 것은 조류·포유류 메타분석(SRC-049)뿐이고, 덤불로 숨거나 무리에 섞여 피하는 방법의 차이는 확인하지 못했다.",
-    "sources": ["SRC-049"],
+    "ecologyBasis": "새매는 박새를 잡는다 — 일본 북부 새매 위 내용물 45개 가운데 박새가 5%(SRC-098). 한반도의 새매는 겨울 철새·나그네새로, 표본 대부분이 10~3월에 잡혔다 — 가을 무리 시기와 겹친다(SRC-103). 이전에는 참매였으나 참매가 박새를 잡는다는 문헌을 찾지 못해 새매로 바꿨다(P-37, #327). 무리 속에 있으면 경계 부담이 준다는 것은 조류·포유류 메타분석(SRC-049)뿐이고, 덤불로 숨거나 무리에 섞여 피하는 방법의 차이는 확인하지 못했다.",
+    "sources": ["SRC-098", "SRC-103", "SRC-049"],
     "factCheck": "needs-review"
   },
   {
