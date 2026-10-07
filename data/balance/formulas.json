@@ -258,7 +258,7 @@
     }
   },
   "events": {
-    "chancePerStep": 0.2,
+    "chancePerStep": 0.4,
     "cooldownSteps": 12,
     "envChancePerPeriod": 0.25,
     "checkBase": 0.6,
