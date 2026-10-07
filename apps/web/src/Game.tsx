@@ -456,7 +456,10 @@ export function Game({ data }: { data: GameData }) {
         : (dest?.nameKo ?? c.label);
     const cap = [
       destSeason &&
-        `먹이 ${t(`word.food.${destSeason.food}`)} · 경쟁 ${t(`word.competition.${destSeason.competition}`)}`,
+        t('main.move.destination', {
+          food: t(`word.food.${destSeason.food}`),
+          competition: t(`word.competition.${destSeason.competition}`),
+        }),
       gains,
       c.disabled?.reason,
       ...(p?.notes ?? []),
@@ -525,7 +528,11 @@ export function Game({ data }: { data: GameData }) {
                 {card.bond && (
                   <span className="muted small">
                     {' '}
-                    · 유대 {card.bond.now} → {card.bond.reunion}
+                    ·{' '}
+                    {t('gate.mateCandidate.bond', {
+                      now: card.bond.now,
+                      reunion: card.bond.reunion,
+                    })}
                   </span>
                 )}
               </span>
@@ -536,10 +543,16 @@ export function Game({ data }: { data: GameData }) {
                       {STAT_WORD[stat as StatName]} <b>{lo}</b>~<b>{hi}</b>{' '}
                     </span>
                   ))}
-                  {ranges.length > 3 && <span className="muted">… {ranges.length}개</span>}
+                  {ranges.length > 3 && (
+                    <span className="muted">{t('gate.moreCount', { n: ranges.length })}</span>
+                  )}
                 </span>
               )}
-              <span className="cap">성격: {t(`gate.personality.${card.hint}`)} (확인)</span>
+              <span className="cap">
+                {t('gate.mateCandidate.personalityKnown', {
+                  hint: t(`gate.personality.${card.hint}`),
+                })}
+              </span>
             </span>
             <span className="vals">
               <span>{t('gate.mateCandidate.reunion')}</span>
@@ -594,7 +607,9 @@ export function Game({ data }: { data: GameData }) {
             {STAT_WORD[stat as StatName]} <b>{r?.[0]}</b>~<b>{r?.[1]}</b>{' '}
           </span>
         ))}
-        {shown.length < ranges.length && <span className="muted">… {ranges.length}개</span>}
+        {shown.length < ranges.length && (
+          <span className="muted">{t('gate.moreCount', { n: ranges.length })}</span>
+        )}
       </span>
     );
   }
@@ -781,7 +796,7 @@ export function Game({ data }: { data: GameData }) {
         <div className="over">
           <h1>{t('gameOver.title')}</h1>
           <p className="muted">
-            {when.text} · {view.player.age}세
+            {when.text} · {t('main.age', { n: view.player.age })}
           </p>
           {death && (
             <p className="cause" data-testid="death-cause">
@@ -848,25 +863,33 @@ export function Game({ data }: { data: GameData }) {
         </header>
 
         {view.gate?.kind === 'mateCandidate' ? (
-          <ul className="list" aria-label="짝 후보" data-testid="gate-mateCandidate">
+          <ul
+            className="list"
+            aria-label={t('gate.mateCandidate.label')}
+            data-testid="gate-mateCandidate"
+          >
             <li className="gate-title b">{t('gate.mateCandidate.title')}</li>
             {mateGone && <li className="gate-title muted small">{mateGone}</li>}
             {view.gate.cards.map((card, i) => mateRow(card, mateCards?.[0]?.previous ? i : i + 1))}
           </ul>
         ) : view.gate?.kind === 'nestSite' ? (
-          <ul className="list" aria-label="둥지 자리" data-testid="gate-nestSite">
+          <ul className="list" aria-label={t('gate.nestSite.label')} data-testid="gate-nestSite">
             <li className="gate-title b">{t('gate.nestSite.title')}</li>
             {view.gate.cards.map((card) => nestRow(card))}
             <li className="gate-title muted small">{t('gate.nestSite.help')}</li>
           </ul>
         ) : view.gate?.kind === 'mateOrder' ? (
-          <ul className="list" aria-label="짝 지시" data-testid="gate-mateOrder">
+          <ul className="list" aria-label={t('gate.mateOrder.label')} data-testid="gate-mateOrder">
             <li className="gate-title b">{t('gate.mateOrder.title')}</li>
             {view.gate.cards.map((card) => orderRow(card))}
             <li className="gate-title muted small">{t('gate.mateOrder.help')}</li>
           </ul>
         ) : view.gate?.kind === 'parentingPolicy' ? (
-          <ul className="list" aria-label="육아 방침" data-testid="gate-parentingPolicy">
+          <ul
+            className="list"
+            aria-label={t('gate.parentingPolicy.label')}
+            data-testid="gate-parentingPolicy"
+          >
             <li className="gate-title b">
               {t(policyAdjust ? 'gate.parentingPolicy.adjustTitle' : 'gate.parentingPolicy.title')}
             </li>
@@ -952,7 +975,11 @@ export function Game({ data }: { data: GameData }) {
             <p className="muted small">{t('inheritance.confirm.kept')}</p>
           </div>
         ) : inherit ? (
-          <ul className="list" aria-label="계승" data-testid="gate-inheritance">
+          <ul
+            className="list"
+            aria-label={t('gate.inheritance.label')}
+            data-testid="gate-inheritance"
+          >
             <li className="gate-title b">
               {t('inheritance.header.title', {
                 n: inherit.cards.length,
@@ -996,13 +1023,21 @@ export function Game({ data }: { data: GameData }) {
             <li className="gate-title muted small">{t('inheritance.footer.note')}</li>
           </ul>
         ) : view.gate?.kind === 'secondBrood' ? (
-          <ul className="list" aria-label="2차 번식" data-testid="gate-secondBrood">
+          <ul
+            className="list"
+            aria-label={t('gate.secondBrood.label')}
+            data-testid="gate-secondBrood"
+          >
             <li className="gate-title b">{t('gate.secondBrood.title')}</li>
             {broodWhy && <li className="gate-title muted small">{broodWhy}</li>}
             {view.gate.cards.map((card) => broodRow(card))}
           </ul>
         ) : view.gate?.kind === 'clutchSize' ? (
-          <ul className="list" aria-label="산란수" data-testid="gate-clutchSize">
+          <ul
+            className="list"
+            aria-label={t('gate.clutchSize.label')}
+            data-testid="gate-clutchSize"
+          >
             <li className="gate-title b">{t('gate.clutchSize.title')}</li>
             {view.gate.cards.map((card) => clutchRow(card))}
             <li className="gate-title muted small">{t('gate.clutchSize.help')}</li>
@@ -1013,7 +1048,8 @@ export function Game({ data }: { data: GameData }) {
               <img className="art-bird" src={birdUrl(view.speciesId)} alt="" />
               <div className="plate small">
                 {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
-                {view.player.sex === 'female' ? '♀' : '♂'} {view.player.age}세{' · '}
+                {view.player.sex === 'female' ? '♀' : '♂'} {t('main.age', { n: view.player.age })}
+                {' · '}
                 {data.nodes.get(view.node)?.nameKo ?? view.node}
                 {view.nest && (
                   <div className="b" data-testid="nest-band">
@@ -1093,7 +1129,7 @@ export function Game({ data }: { data: GameData }) {
 
             {replay ? (
               <div className="list" data-testid="replay">
-                <table className="slot-table small" aria-label="칸별 결과">
+                <table className="slot-table small" aria-label={t('routine.table.resultLabel')}>
                   <thead>
                     <tr>
                       <th>{t('routine.table.slot')}</th>
@@ -1135,7 +1171,7 @@ export function Game({ data }: { data: GameData }) {
               </div>
             ) : cursor === undefined ? (
               <div className="list">
-                <table className="slot-table small" aria-label="칸별 예상">
+                <table className="slot-table small" aria-label={t('routine.table.previewLabel')}>
                   <thead>
                     <tr>
                       <th>{t('routine.table.slot')}</th>
@@ -1170,13 +1206,15 @@ export function Game({ data }: { data: GameData }) {
                 <p className="muted small">{t('routine.editHelp')}</p>
               </div>
             ) : (
-              <ul className="list" aria-label={`${done + cursor + 1}칸 행동`}>
+              <ul className="list" aria-label={t('routine.slotActions', { n: done + cursor + 1 })}>
                 <li className="gate-title row small">
                   <span className="b">{t('routine.slot', { n: done + cursor + 1 })}</span>
                   {cursor > 0 && (
                     <span className="muted">
-                      — {done + cursor}칸 뒤 에너지{' '}
-                      {roundHalfUp(energyAfter[cursor - 1] ?? 0, 1).toFixed(1)}에서
+                      {t('routine.editFrom', {
+                        n: done + cursor,
+                        energy: roundHalfUp(energyAfter[cursor - 1] ?? 0, 1).toFixed(1),
+                      })}
                     </span>
                   )}
                   <span className="sp" />
@@ -1185,7 +1223,7 @@ export function Game({ data }: { data: GameData }) {
                     className="step"
                     disabled={cursor === 0}
                     onClick={() => setCursor(cursor - 1)}
-                    aria-label="앞 칸"
+                    aria-label={t('routine.prevSlot')}
                   >
                     ◂
                   </button>
@@ -1194,7 +1232,7 @@ export function Game({ data }: { data: GameData }) {
                     className="step"
                     disabled={cursor === slots.length - 1}
                     onClick={() => setCursor(cursor + 1)}
-                    aria-label="다음 칸"
+                    aria-label={t('routine.nextSlot')}
                   >
                     ▸
                   </button>
