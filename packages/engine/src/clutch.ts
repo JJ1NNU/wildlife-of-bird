@@ -1,10 +1,11 @@
-import type { GameData } from '@wb/schema';
+import type { GameData, StatName } from '@wb/schema';
 import { advance, phaseAt } from './calendar.ts';
-import { chickDeath } from './formulas.ts';
+import { chickDeath, childPotential } from './formulas.ts';
 import { orderValue } from './order.ts';
 import { chickDeathMult, feedIntensity } from './parenting.ts';
-import { nextChance } from './rng.ts';
-import type { Choice, ClutchSizeCard, LogEntry, RunState } from './types.ts';
+import { nextChance, nextFloat, nextNormal, type RngState } from './rng.ts';
+import { speciesBalance } from './step.ts';
+import type { Chick, Choice, ClutchSizeCard, LogEntry, RunState } from './types.ts';
 
 /**
  * 산란수 관문 `clutchSize` — 04-breeding 5장. `laying` 첫 단계, 흐름의 마지막에 열린다(둥지가 있을 때만).
@@ -49,7 +50,41 @@ export function clutchCards(data: GameData, state: RunState, options: number[]):
 }
 
 /**
+ * 새끼 하나의 성별 → 잠재력 6개(`species.aptitude` 키 순서) — 05-inheritance 3장, 01-formulas 5장.
+ * 어미·아비 = 플레이어와 짝. 짝이 없으면 그 쪽은 종 평균(잠정 #139 — 둥지 국면엔 늘 짝이 있다)
+ */
+function makeChick(
+  rng: RngState,
+  state: RunState,
+  data: GameData,
+): { rng: RngState; chick: Chick } {
+  const f = data.formulas;
+  const species = speciesBalance(data, state.config.speciesId);
+  const u = nextFloat(rng);
+  let next = u.state;
+  const sex = u.value < f.heredity.femaleShare ? 'female' : 'male';
+  const potential: Partial<Record<StatName, number>> = {};
+  for (const [stat, grade] of Object.entries(species.aptitude)) {
+    const s = stat as StatName;
+    const mean = f.stats.aptitudeMean[grade] ?? 0;
+    const own = state.player.potential[s] ?? mean;
+    const mate = state.mate?.potential[s] ?? mean;
+    const female = state.player.sex === 'female';
+    const z = nextNormal(next);
+    next = z.state;
+    potential[s] = childPotential(f, species, {
+      stat: s,
+      mother: female ? own : mate,
+      father: female ? mate : own,
+      z: z.value,
+    });
+  }
+  return { rng: next, chick: { sex, potential } };
+}
+
+/**
  * 부화 — `incubation` 마지막 단계의 판정 3 다음에 알마다 `hatchRate`로 굴린다(5장). 부화한 수가 새끼 수.
+ * 알을 다 굴린 뒤 부화한 새끼마다 성별·잠재력을 정한다(05-inheritance 3장).
  * 0이면 B-5 새끼 전멸: 그 번식은 실패하고 둥지를 거둔다.
  * 실패 뒤 2차 번식 관문·분할 해제는 `brood.ts`(api.ts가 연다).
  */
@@ -77,8 +112,14 @@ export function hatchIfDue(state: RunState, data: GameData): { state: RunState; 
       ],
     };
   }
+  const young: Chick[] = [];
+  for (let i = 0; i < chicks; i++) {
+    const made = makeChick(rng, state, data);
+    rng = made.rng;
+    young.push(made.chick);
+  }
   return {
-    state: { ...state, rng, nest: { ...nest, chicks } },
+    state: { ...state, rng, nest: { ...nest, chicks, young } },
     log: [{ at: state.at, type: 'nest', text: `새끼 ${chicks}마리가 깨어났다` }],
   };
 }
@@ -106,10 +147,14 @@ export function chicksSurvive(
     orderValue(state, 'mateOrder.splitBrood', 1, split);
   let rng = state.rng;
   let alive = 0;
+  const young: Chick[] = [];
   for (let i = 0; i < chicks; i++) {
     const r = nextChance(rng, p);
     rng = r.state;
-    if (!r.value) alive++;
+    if (r.value) continue;
+    alive++;
+    const chick = nest.young?.[i];
+    if (chick) young.push(chick);
   }
   if (alive === 0) {
     const { nest: _n, ...rest } = state;
@@ -120,7 +165,7 @@ export function chicksSurvive(
   }
   const lost = chicks - alive;
   return {
-    state: { ...state, rng, nest: { ...nest, chicks: alive } },
+    state: { ...state, rng, nest: { ...nest, chicks: alive, ...(nest.young ? { young } : {}) } },
     log: lost > 0 ? [{ at: state.at, type: 'nest', text: `새끼 ${lost}마리를 잃었다` }] : [],
   };
 }
