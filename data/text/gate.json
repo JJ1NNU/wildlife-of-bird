@@ -54,6 +54,7 @@
   "gate.nestSite.noContest": "다툼 없음",
   "gate.nestSite.contest": "좋은 구멍은 다툰다 — 과시 판정",
   "gate.nestSite.chance": "차지할 확률",
+  "gate.nestSite.nestLoss": "둥지 손실",
   "gate.mateOrder.title": "짝에게 맡길 일 — 하나를 고른다",
   "gate.mateOrder.help": "고른 지시는 이 국면이 끝날 때까지 간다. 짝이 거절하면 다른 일을 한다 — 원래 효과의 일부만 난다.",
   "gate.mateOrder.self": "내가 한다",

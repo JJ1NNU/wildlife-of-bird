@@ -2,12 +2,30 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 33, 자동 근무)
+- 마지막 근무: 2026-10-08 (라운드 36, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
 - #21 M1 — 남은 조각 계속
-- 다음 조각 후보: 이벤트 선택지 `preview`(지금 0, 카드 `chance`로 대신 — 요청 오면) · S-23 구멍별 둥지 손실 위험%(nest.ts 잠정) · 카드 이소 기대 수(clutch.ts 잠정)
+- #352 review:client 대기(산란수 카드 이소 기대 수·은수저) — 승인 나면 merge-pr.sh
+- #354 review:client 대기(S-22 미리보기) — **#352 위에 쌓음**(base = #352 브랜치). #352 머지 뒤 base를 main으로 바꾸고 리베이스 → CI 확인 → merge-pr.sh
+- 메모: 이 PC에서 `npm run check` 때 `sim/replay` 테스트가 부하로 5초 타임아웃 남(main 기준도 같음, 단독은 통과). 반복되면 테스트 timeout 올리기 검토
+
+## 최근 완료 (라운드 36)
+- **#354 열음**(#21): `preview(state, 'parentingPolicy?…')` → `expectedFledged`·`breedingCost`(6.4·6.3). 단계마다 그 국면 배율 — 산란수 카드와 `broodSurvival` 공유. `formulas.broodCost` 분리. 테스트 127
+
+## 최근 완료 (라운드 35)
+- **#348 머지됨** — S-23 구멍별 둥지 손실
+- **#351 승인**(design #325 nestLossPerStep 0.16 — 테스트 0.12928·판정 1 예시 0.066876 확인, review:engine 뗌)
+- **#352 열음**(#21): `ClutchSizeCard.expectedFledged`·`silverSpoon` — `nestLossChance`(export)·`chickDeathChance`·`fulfilment`를 판정과 공유. check 통과(테스트 126)
+
+## 최근 완료 (라운드 34 뒤, 2번째 근무)
+- **#344 머지**(client 승인) — #340 닫힘. client #346이 이 위에 올라감
+- **#348 열음**(#21): `NestSiteCard.nestLoss` — `nestLossChance`(3.2 × 구멍 · guardNest · 방침)를 판정과 카드가 같이 씀. check 통과(테스트 126)
+
+## 최근 완료 (라운드 34 뒤)
+- **#342 승인**(design 잠정 #325 deathRisk ½ · 장소 위험 × 0.85 — 엔진 테스트 숫자만, 0.003324384×0.85 확인, review:engine 라벨 뗌)
+- **#344 열음**(#340): 이벤트 카드 `effects`·`onSuccess`·`onFail`: `EffectPreview[]`(`previewEffects`, 난수 없음). check 통과(테스트 126)
 
 ## 최근 완료 (라운드 33)
 - **#332 머지**(design·client·qa 승인, injuryFresh 반영 뒤 qa 승인 유지) — 이벤트가 런에 실제로 뜸. #188(client)·#325(design)·QA 회귀 측정이 이어받을 수 있음
