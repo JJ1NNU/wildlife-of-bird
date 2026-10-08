@@ -19,7 +19,7 @@ describe('판 기록 리플레이 (test-strategy T1 · T3)', () => {
     expect(record.choices.length).toBeGreaterThan(10);
     expect(replay(record, testData)).toBe(record.finalStateHash);
     expect(replay(record, testData, 7)).toBe(record.finalStateHash);
-  });
+  }, 20_000); // 한 판을 세 번 돌린다 — v0.3.6부터 판이 길다(#392)
 
   it('결정 수는 루틴 칸·확인 버튼을 세지 않는다 · 사망 원인이 남는다 (M-11, #393)', () => {
     const { choices, result } = runOne(
