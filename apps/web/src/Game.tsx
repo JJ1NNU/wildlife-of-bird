@@ -969,7 +969,7 @@ export function Game({ data }: { data: GameData }) {
 
   return (
     <main className="game" data-testid="main-turn">
-      <div className="zone">
+      <div className={`zone${eventGate ? ' ov' : ''}`}>
         <header className="status">
           <div className="row small">
             <span className="ico s" style={iconStyle(`icon.season.${when.season}`)} />
@@ -1169,7 +1169,7 @@ export function Game({ data }: { data: GameData }) {
             {view.gate.cards.map((card) => broodRow(card))}
           </ul>
         ) : view.gate?.kind === 'event' ? (
-          <ul className="list" aria-label={t('gate.event.label')} data-testid="gate-event">
+          <ul className="list sheet" aria-label={t('gate.event.label')} data-testid="gate-event">
             <li className="gate-title b">{gateEvent?.title ?? view.gate.id}</li>
             {gateEvent && <li className="gate-title muted small">{gateEvent.body}</li>}
             {view.nest?.chicks !== undefined && (
