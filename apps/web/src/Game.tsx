@@ -942,6 +942,29 @@ export function Game({ data }: { data: GameData }) {
           <p className="score">
             {t('main.totalBreeding')} <b>{view.totalBreeding}</b>
           </p>
+          {view.records && (
+            <table className="compare small" data-testid="run-records">
+              <tbody>
+                <tr>
+                  <th>{t('gameOver.records.span')}</th>
+                  <td>
+                    {t('gameOver.records.spanValue', {
+                      generations: view.records.generations,
+                      years: view.records.yearsSurvived.toFixed(1),
+                    })}
+                  </td>
+                </tr>
+                <tr>
+                  <th>{t('gameOver.records.fledged')}</th>
+                  <td>{t('main.nest.chicks', { n: view.records.fledged })}</td>
+                </tr>
+                <tr>
+                  <th>{t('gameOver.records.oldestAge')}</th>
+                  <td>{t('main.age', { n: view.records.oldestAge })}</td>
+                </tr>
+              </tbody>
+            </table>
+          )}
           <h2 className="small">{t('gameOver.familyTree')}</h2>
           <ol className="feed-list" data-testid="lineage">
             {state.log.flatMap((l) =>
@@ -969,7 +992,7 @@ export function Game({ data }: { data: GameData }) {
 
   return (
     <main className="game" data-testid="main-turn">
-      <div className="zone">
+      <div className={`zone${eventGate ? ' ov' : ''}`}>
         <header className="status">
           <div className="row small">
             <span className="ico s" style={iconStyle(`icon.season.${when.season}`)} />
@@ -986,6 +1009,11 @@ export function Game({ data }: { data: GameData }) {
               {t('main.energy')} <b data-testid="energy">{roundHalfUp(shownEnergy)}</b>
               <span className="muted"> / {roundHalfUp(view.energyCap)}</span>
             </span>
+            {view.starving && (
+              <span className="risk high b" role="alert" data-testid="starving">
+                {t('main.starving')}
+              </span>
+            )}
             <span className="ico s" style={iconStyle('icon.res.feather')} />
             <span>
               {t('main.feather')} <b>{roundHalfUp(view.player.feather)}</b>
@@ -1164,7 +1192,7 @@ export function Game({ data }: { data: GameData }) {
             {view.gate.cards.map((card) => broodRow(card))}
           </ul>
         ) : view.gate?.kind === 'event' ? (
-          <ul className="list" aria-label={t('gate.event.label')} data-testid="gate-event">
+          <ul className="list sheet" aria-label={t('gate.event.label')} data-testid="gate-event">
             <li className="gate-title b">{gateEvent?.title ?? view.gate.id}</li>
             {gateEvent && <li className="gate-title muted small">{gateEvent.body}</li>}
             {view.nest?.chicks !== undefined && (
