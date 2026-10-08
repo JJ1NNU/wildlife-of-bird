@@ -25,6 +25,7 @@ import {
   inheritanceChoices,
   inheritanceDue,
   openInheritance,
+  runRecords,
   startLife,
   stayCard,
 } from './inherit.ts';
@@ -550,6 +551,7 @@ export function getView(state: RunState, data: GameData): ViewModel {
     ),
     totalBreeding: state.totalBreeding,
     gameOver: state.gameOver,
+    ...(state.gameOver ? { records: runRecords(state, data) } : {}),
     ...(state.gate?.kind === 'mateCandidate'
       ? {
           gate: {
