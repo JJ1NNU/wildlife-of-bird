@@ -28,3 +28,10 @@ export const greedyBot: Bot = {
 
 런 한 판을 끝까지 돌리는 고리와 봇 인터페이스만 있다. 대량 실행 · 지표 집계 ·
 봇 3종(무작위 / 평균 플레이어 / 숙련)은 M1이다. 계측 항목은 QA가 요구한 것만 넣는다.
+
+## 판 기록의 계측 (#393)
+
+`--out`의 JSONL 한 줄 `result`에:
+
+- `decisionsByYear` — 해마다 결정 수(`[0]` = 1년차, M-11). 루틴은 짜기 시작할 때 1회, 나머지 칸·이벤트 뒤 다시 채우기·선택지 1개 진행은 세지 않는다(`00-core-loop` 5.1·5.4). 마지막 해는 끝까지 못 산 해다
+- `deathCause` — 게임 오버 사망 원인(`starvation`·`predation`·`accident` …). 사망 로그 전체는 `log`의 `type: 'death'`

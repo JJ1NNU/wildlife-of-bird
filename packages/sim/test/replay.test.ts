@@ -20,4 +20,17 @@ describe('판 기록 리플레이 (test-strategy T1 · T3)', () => {
     expect(replay(record, testData)).toBe(record.finalStateHash);
     expect(replay(record, testData, 7)).toBe(record.finalStateHash);
   });
+
+  it('결정 수는 루틴 칸·확인 버튼을 세지 않는다 · 사망 원인이 남는다 (M-11, #393)', () => {
+    const { choices, result } = runOne(
+      { speciesId: 'parus-minor', seed: 'replay', mode: 'free' },
+      testData,
+      firstBot,
+    );
+    const decisions = result.decisionsByYear.reduce((a, b) => a + b, 0);
+    expect(decisions).toBeGreaterThan(0);
+    expect(decisions).toBeLessThan(choices.length);
+    expect(result.decisionsByYear).toHaveLength(result.endAt.year);
+    expect(result.deathCause).not.toBeNull();
+  });
 });
