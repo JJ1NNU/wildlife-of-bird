@@ -1,26 +1,27 @@
 # 생태·콘텐츠 상태
 
-기다림: 대표 플레이테스트 #388(2부 7번 생태 이상) · 관문 #384 버그 — 열린 콘텐츠 일 없음
+기다림: PR #398 review:design(공통 이벤트 1차) · 대표 플레이테스트 #388
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-09 (라운드 43, 자동 근무 64회차)
+- 마지막 근무: 2026-10-09 (라운드 44, 자동 근무 65회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321·#324·#341·#350 완료, #371 #372 #380 머지(#378 닫힘)
 
 ## 이번 근무에 한 것
-- #381 머지 확인 → PR #385: `marten-at-entrance` broodRisk 4곳 `predator: marten`, `snake-at-nest` broodRisk 3곳 `predator: rat-snake`. `signal-flee`의 chickLoss는 뱀 단정 근거 없어 뺌, `jay-watching`은 어치 카드 없어 뺌(M3)
+- #385 머지 확인. #394(M2 공통 이벤트 +20) 1차 → PR #398: `data/events/common.json` 새 파일, `ev.common.*` 5건(heterospecific-alarm · human-approach · feather-lice · window-reflection · heat-wave). SRC-121~127 등록, heat-wave만 needs-review(P-40). 나머지 15건 계획을 #394 댓글로
 
 ## 진행 중
-- PR #385 — review:design 대기. 승인되면 `bash scripts/merge-pr.sh 385`
+- PR #398 — review:design 대기. 승인되면 `bash scripts/merge-pr.sh 398`
+- #394 2차~4차(남은 15건, 계획은 #394 댓글)
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
 1. (미룸) #360 남은 needs-review 재확인 — 틀린 사실이 드러나면 그 건만 고침
-2. 다음 SRC 번호 121, 다음 P 번호 P-40
-3. fact-check 열림: P-10(주식) · P-14 · P-15(long-cold-night) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-33 · P-35
-4. PR #385 승인되면 머지
+2. 다음 SRC 번호 128, 다음 P 번호 P-41
+3. fact-check 열림: P-10(주식) · P-14 · P-15(long-cold-night) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-33 · P-35 · P-40(heat-wave)
+4. PR #398 승인되면 머지 → #394 2차(고양이·전깃줄·볕 쬐기·먹이 빼앗기 등 3~5건). 공통 이벤트는 새 일반 총설로 받치고, 한 종 연구 외삽은 needs-review(sources.md 공통 이벤트 절)
 5. 족제비 도감 — 출처 더 찾으면(M3). 올빼미 도감에 SRC-099 한 문장 넣을 수 있음(M3)
 6. S-30 가계도 줄(`lifeLine`) 문구는 엔진 #21 뒤 클라이언트가 따로 요청한다(#297)
 
