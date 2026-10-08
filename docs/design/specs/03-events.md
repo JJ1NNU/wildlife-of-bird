@@ -318,6 +318,6 @@ u < 성공 확률 → onSuccess, 아니면 onFail
 | 무엇 | 어디서 | 언제 |
 |---|---|---|
 | 박새 이벤트 컨셉 40개 | `docs/design/event-concepts/parus-minor.md` | M1 (#22) |
-| 계절 방침의 보정 | `04-breeding.md` | M1 |
+| ~~계절 방침의 보정~~ | `11-season-policy.md` v0 | ✅ #369 |
 | 미니게임형 이벤트 | 이 문서 | 필요해질 때 |
 | 세대를 넘는 환경 변화 | `08-environment.md` | M5 |
