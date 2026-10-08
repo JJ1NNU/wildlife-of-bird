@@ -32,6 +32,10 @@ describe('짝 후보 관문 (04-breeding 2.2, 00-core-loop 4.6)', () => {
   it('흐름의 마지막에 열리고, 그 단계에 머물며, 관문 선택지만 준다', () => {
     expect(opened.gameOver).toBe(false);
     expect(opened.at).toEqual(pairing.at);
+    // 번식기 시작 로그 (지표 M-05)
+    expect(opened.log.filter((l) => l.type === 'breedingSeason')).toEqual([
+      expect.objectContaining({ at: pairing.at, deltas: { breedable: 1 } }),
+    ]);
     const choices = getChoices(opened, testData);
     expect(choices).toHaveLength(testData.breeding.mate.candidates);
     expect(choices.every((c) => c.kind === 'mateCandidate')).toBe(true);
