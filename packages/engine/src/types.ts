@@ -409,6 +409,8 @@ export interface ViewModel {
   player: Bird;
   /** 에너지의 상한(지방 상한, 01-formulas 2.1) */
   energyCap: number;
+  /** 굶주림 경고 — 에너지 < 지방 상한 × `energy.starvationWarnRatio` (01-formulas 2.1 · S-10) */
+  starving: boolean;
   /** 플레이어 잠재력 — 스탯마다 등급 범위 [아래, 위]. 숫자는 보이지 않는다 (05-inheritance 4장) */
   potentialRange: Partial<Record<StatName, [string, string]>>;
   totalBreeding: number;
