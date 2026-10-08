@@ -10,5 +10,9 @@
   "gameOver.life.male": "수컷",
   "gameOver.life.inherit": "계승",
   "gameOver.life.death": "사망",
-  "gameOver.life.deathCause": "사망({cause})"
+  "gameOver.life.deathCause": "사망({cause})",
+  "gameOver.records.span": "이어 온 기간",
+  "gameOver.records.spanValue": "{generations}세대 · {years}년",
+  "gameOver.records.fledged": "독립시킨 새끼",
+  "gameOver.records.oldestAge": "가장 오래 산 개체"
 }
