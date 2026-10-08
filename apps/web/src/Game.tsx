@@ -981,6 +981,11 @@ export function Game({ data }: { data: GameData }) {
               {t('main.energy')} <b data-testid="energy">{roundHalfUp(shownEnergy)}</b>
               <span className="muted"> / {roundHalfUp(view.energyCap)}</span>
             </span>
+            {view.starving && (
+              <span className="risk high b" role="alert" data-testid="starving">
+                {t('main.starving')}
+              </span>
+            )}
             <span className="ico s" style={iconStyle('icon.res.feather')} />
             <span>
               {t('main.feather')} <b>{roundHalfUp(view.player.feather)}</b>
