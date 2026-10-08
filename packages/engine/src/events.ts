@@ -354,11 +354,12 @@ export function previewEffects(
   }
 }
 
-/** B-5 — 둥지를 거두고 로그를 남긴다 */
+/** 로그 cause에 포식자 id를 붙인다 — `<효과>:<포식자>` (#379) */
 function withPredator(cause: string, predator?: string): string {
   return predator ? `${cause}:${predator}` : cause;
 }
 
+/** B-5 — 둥지를 거두고 로그를 남긴다 */
 function broodFails(state: RunState, text: string, cause: string, log: LogEntry[]): RunState {
   const { nest: _n, ...rest } = state;
   log.push({ at: state.at, type: 'brood', text, cause });
