@@ -125,6 +125,7 @@ interface ViewModel {
   potentialRange: { [stat]: [아래, 위] }  // 플레이어 잠재력 등급 범위 — 숫자 대신 이것을 보인다 (05-inheritance 4장)
   totalBreeding: number          // 점수
   gameOver: boolean
+  records?: { yearsSurvived, generations, fledged, oldestAge }  // 게임 오버 때만 — 부가 기록(02-scoring 4장). yearsSurvived = 지난 시기 ÷ 24 소수 첫째 버림
   gate?: { kind: 'mateCandidate', cards: MateCandidateCard[], previousGone?: 'mateDeath' | 'divorce' }  // 열린 관문 — 짝 후보(S-20). previousGone = 지난 짝이 없어진 이유(2.1)
        | { kind: 'mateOrder', cards: { choiceId, acceptance?: 'high' | 'mid' | 'low' }[] }  // 짝 지시 — 수락률은 등급만
        | { kind: 'parentingPolicy', cards: Choice['items'] }  // 육아 방침 — 항목별 선택·현재값
