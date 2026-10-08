@@ -1,29 +1,33 @@
 # 생태·콘텐츠 상태
 
+기다림: 엔진 #21 번식 조각(담비 둥지 이벤트·S-30 문구 요청이 그 뒤) — #360은 미룸(D-029), review:content PR 없음
+
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 37, 자동 근무 56회차)
+- 마지막 근무: 2026-10-08 (라운드 37, 자동 근무 57회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321·#324·#341·#350 완료
 
 ## 이번 근무에 한 것
-- **PR #357 승인**(클라이언트 #24 산란수 카드) — 새 키 `gate.clutchSize.expectedFledged` = "이소 기대", 은수저 키 재사용. `review:content` 뗌, 머지는 클라이언트
-- `dept:content` 열린 이슈 없음
+- **PR #359 승인**(클라이언트 S-10 굶주림 경고) — `main.starving` = "굶주림", 와이어프레임·01-formulas 낱말과 같음. `review:content` 뗌, 머지는 클라이언트(#358 뒤)
+- **#360 1차 PR #365** — first-mixed-flock 해결(verified), first-moult · roost-hole · late-brood-moult · winter-feathers 정리(needs-review 유지, SRC-115~119 더함, winter-feathers 본문 한 문장 약하게)
 
 ## 진행 중
-- 없음
+- #360 — #365 머지됨(5건 정리·해결). 남은 몫 P-15 · P-29
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
-1. `dept:content` 새 이슈를 기다린다(PM이 다음 fact-check 차수를 열 수 있음)
-2. 다음 SRC 번호 115, 다음 P 번호 P-38
+1. #360 남은 몫: P-15 long-cold-night · P-29 dawn-feeding(2건 더 정리하면 #360 닫기)
+2. 다음 SRC 번호 120, 다음 P 번호 P-38
 3. fact-check 열림: P-10(주식) · P-14 · P-15(long-cold-night) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-33 · P-35
 4. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155·#313(#21) 뒤
 5. 족제비 도감 — 출처 더 찾으면(M3). 올빼미 도감에 SRC-099 한 문장 넣을 수 있음(M3)
 6. S-30 가계도 줄(`lifeLine`) 문구는 엔진 #21 뒤 클라이언트가 따로 요청한다(#297)
 
 ## 메모 (다음 근무의 나에게)
+- #360에서 못 찾은 것: *P. minor* 털갈이 시기·구멍 잠자리 — OpenAlex·crossref 'Parus minor moult/roost'·'シジュウカラ 換羽/ねぐら' 없음. 手井 2018 鳥類標識誌 30:24(가나자와 박새 계절 몸 치수)은 털갈이 내용 없음. 외삽뿐인 이벤트(P-27 2건·P-28·P-35)는 전문가 질문 후보
+- J-STAGE 초록 뽑기: 받은 HTML에서 `id="article-overiew-abstract-wrap"` 뒤를 태그 지우고 읽는다. OpenAlex `abstract_inverted_index`로도 초록 복원 가능. Windows에서 `python`은 멈춘다(스토어 스텁) — node만
 - #341에서 못 찾은 것: 박새 배설물 주머니·둥지 청소(nest-cleaning) — OpenAlex 'Parus minor/Japanese tit fecal sac·nest sanitation' 없음. Yoon 외(한국교원대 청주) 연구진이 국내 박새 둥지 위험 실험을 여럿 냈다(SRC-108·109, *J Avian Biol* 2016 jav.00890 암컷 품기·수컷 급이와 기후) — P-23·P-31 후보
 - 한국환경생태학회지(KJEE) 본문은 `doi.org` → envecojournal.org 페이지를 curl로 받으면 HTML 전문이 나온다(SRC-107). ScienceDirect(Elsevier)는 내장 브라우저에서도 CAPTCHA — 넘기지 않는다. Springer 초록은 내장 브라우저 `#Abs1-content`로 읽힌다
 - rival-near-mate: *P. minor* 짝 지키기 문헌 없음(OpenAlex). 후보만: 「Reproductive ecology of Japanese great tits focusing on extra-pair paternity」(2013, Medical Entomology and Zoology?) · jjo 71:171(2022, 박새 섞인 한배 DNA 기록) — 짝 밖 부성까지라 쫓아내기 근거는 아님. Hamao 2016 *Anim Behav* 119:143(일본 박새 방언 반응)·Hamao 2020 *J Ethol* 38:383(노래 특성, 영역 언급 없음)
