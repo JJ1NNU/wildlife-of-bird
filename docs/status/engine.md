@@ -1,17 +1,31 @@
 # 엔진 상태
 
+기다림: 대표 #368(Actions 결제 한도 — #363·#366·#370→#373 머지 멈춤). 번식 선택 조각은 이미 main — QA #26에 알림
+
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 37, 자동 근무)
+- 마지막 근무: 2026-10-08 (라운드 40)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
 - #21 M1 — 남은 조각 계속
-- **#363** review:client 대기(게임 오버 부가 기록 `ViewModel.records` — 02-scoring 4장, 테스트 129) — 승인 나면 merge-pr.sh
-- **#366** review:qa 대기(지표 로그 `breedingSeason`·`breeding` 시도 — QA M1-04의 M-05·M-13) — 승인 나면 merge-pr.sh
-- 남은 #21: 계절 방침 관문(보정치 #22 디자인 대기). '번식 선택'·`replan`은 이미 main에 있음(#21 댓글로 PM에 알림)
+- **#363** client 승인 완료 — merge-pr.sh가 CI 실패(Actions 결제 한도, #368)로 멈춤. #368 해결 뒤 다시 merge-pr.sh (게임 오버 부가 기록 `ViewModel.records` — 02-scoring 4장, 테스트 129) — 승인 나면 merge-pr.sh
+- **#366** QA 승인(eeaa670) — #368 풀리면 merge-pr.sh(지표 로그 `breedingSeason`·`breeding` 시도 — QA M1-04의 M-05·M-13) — 승인 나면 merge-pr.sh
+- **#373** 계절 방침 관문 + `preview`(27f2aae, 4장) — design 승인. **base를 main으로 바꿔 둠**(자동 닫힘 방지). 머지 순서 #370 → #373 (#368 풀린 뒤 merge-pr.sh)
+- 남은 #21: `replan`은 이미 구현돼 있음 확인(routine.ts · 03-contracts, 화면 D 조각은 client #188). #21 남은 조각은 #373 머지 뒤 다시 점검
 - 메모: 쌓은 PR은 바탕 PR 머지 때 브랜치가 지워지며 **자동으로 닫힌다**(#354). 다음엔 쌓지 말거나, 바탕 머지 전에 base를 main으로 바꿔 둘 것
 - 메모: 이 PC에서 `npm run check` 때 `sim/replay` 테스트가 부하로 5초 타임아웃 남(main 기준도 같음, 단독은 통과). 반복되면 테스트 timeout 올리기 검토
+
+## 최근 완료 (라운드 40)
+- 대시보드 '#21 번식 선택 조각'은 **이미 main에 있음**(#210~#355) — QA #26에 M-01(`totalBreeding`, main)·M-05/06/13(#366)·M-11(`decision`, main) 어디서 재는지 댓글. #366+#373 로컬 합치기 충돌 없음 확인. PM: 대시보드 엔진 ①을 고쳐 주세요
+
+## 최근 완료 (라운드 39)
+- **#373 base → main**(#370 브랜치 삭제 때 자동 닫힘 방지) · `replan` 구현 확인
+- **#373에 `preview` 커밋**(11-season-policy 4장): 방침 건 다음 단계 루틴 제안값의 위험 합·에너지 변화. check 통과(테스트 138), avg·random 봇 각 30판 오류 0
+- **#373 열음**(#21): 계절 방침 관문 — schema 로드 · 관문(다른 관문보다 먼저, 고르면 나머지 관문으로) · 효과 키 6개 · 계절 바뀌면 거둠. check 통과(테스트 137), 평균·랜덤 봇 각 50판 오류 0. testData는 계절 방침 뺌(`seasonData` 따로)
+
+## 최근 완료 (라운드 38)
+- **#370 승인**(design 계절 방침 v0): 효과 키 6개 모두 엔진 자리 있음. schema·로드는 #21 관문 PR에서 엔진이 붙인다(#370 머지 뒤 main 기준으로, 쌓지 않음)
 
 ## 최근 완료 (라운드 37, 3번째 근무)
 - **#366 열음**(#21): `breedingSeason`(pairing 첫 단계, `deltas.breedable` 1) · 둥지 지을 때 `breeding` 시도(`deltas.attempt` = 그해 몇째 둥지). 03-contracts 반영. check 통과(테스트 128), 평균 봇 50판 오류 0
