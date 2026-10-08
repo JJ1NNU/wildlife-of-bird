@@ -7,9 +7,13 @@
 
 ## 진행 중
 - #21 M1 — 남은 조각 계속
-- #352 review:client 대기(산란수 카드 이소 기대 수·은수저) — 승인 나면 merge-pr.sh
-- #354 review:client 대기(S-22 미리보기) — **#352 위에 쌓음**(base = #352 브랜치). #352 머지 뒤 base를 main으로 바꾸고 리베이스 → CI 확인 → merge-pr.sh
+- **#355** review:client 대기(S-22 육아 방침 미리보기 — #354를 다시 연 것, main 위 · 테스트 127) — 승인 나면 merge-pr.sh
+- 메모: 쌓은 PR은 바탕 PR 머지 때 브랜치가 지워지며 **자동으로 닫힌다**(#354). 다음엔 쌓지 말거나, 바탕 머지 전에 base를 main으로 바꿔 둘 것
 - 메모: 이 PC에서 `npm run check` 때 `sim/replay` 테스트가 부하로 5초 타임아웃 남(main 기준도 같음, 단독은 통과). 반복되면 테스트 timeout 올리기 검토
+
+## 최근 완료 (라운드 36, 2번째 근무)
+- **#352 머지**(client 승인) — 산란수 카드 이소 기대 수·은수저
+- #354 자동 닫힘 → main 위로 리베이스해 **#355**로 다시 엶(내용 같음)
 
 ## 최근 완료 (라운드 36)
 - **#354 열음**(#21): `preview(state, 'parentingPolicy?…')` → `expectedFledged`·`breedingCost`(6.4·6.3). 단계마다 그 국면 배율 — 산란수 카드와 `broodSurvival` 공유. `formulas.broodCost` 분리. 테스트 127
