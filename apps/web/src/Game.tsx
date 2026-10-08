@@ -720,6 +720,11 @@ export function Game({ data }: { data: GameData }) {
         >
           <span className="main">
             <span className="b">{c?.label ?? t('gate.clutchSize.eggs', { n: card.eggs })}</span>
+            {/* 04-breeding 5장: 이소 기대 수 소수 첫째 · 은수저 소수 셋째 (이벤트 없는 값) */}
+            <span className="cap" data-testid={`clutch-forecast-${card.eggs}`}>
+              {t('gate.clutchSize.expectedFledged')} <b>{card.expectedFledged.toFixed(1)}</b> ·{' '}
+              {t('inheritance.chick.silverSpoon')} <b>{card.silverSpoon.toFixed(3)}</b>
+            </span>
             {c?.disabled && <span className="cap">{c.disabled.reason}</span>}
           </span>
           <span className="vals">
