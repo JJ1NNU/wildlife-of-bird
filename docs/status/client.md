@@ -2,7 +2,7 @@
 
 > 이 파일은 클라이언트·배포 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 36, 자동 근무)
+- 마지막 근무: 2026-10-08 (라운드 37, 자동 근무)
 - 현재 마일스톤: M1 (#24)
 
 ## 진행 중
@@ -10,6 +10,7 @@
 - **#24** M1 화면 — #125(S-10 · 자동 저장 · S-30) · #134(S-01) · #142(글꼴) · #154(훈련·옮기기 펼침) · #157(빨리 감기) · #164(S-20 짝 후보) · #185(스탯 표·S-23) · #198(산란수 카드) · #211(둥지 줄) · #225(S-22 육아 방침) · #231(S-20 지난 짝) · #235(지난 짝 등급 범위·유대) · #239(2차 번식 카드) · #261(S-24 계승) · #289(S-10 칸 수) · #293(data/text 문구) · #349(S-23 둥지 손실) 머지. 이벤트·나머지 번식 관문·계승은 엔진 #21 대기
 
 ## 최근 완료
+- #355 리뷰 승인(client) — 엔진 S-22 `preview(state,'parentingPolicy?…')`에 `expectedFledged`·`breedingCost`. 머지되면 S-22 요약 줄 / #357 열림(review:content) — 산란수 카드에 `이소 기대 N.N · 은수저 N.NNN`(#352 값), 새 키 `gate.clutchSize.expectedFledged` (라운드 37)
 - #352 리뷰 승인(client) — 엔진 `ClutchSizeCard.expectedFledged`(이소 기대 수, 6.4)·`silverSpoon`(0~1) 추가. 머지되면 `clutchRow` vals에 소수 첫째·셋째로 / #349·#346 main 합쳐(빌드·타입체크 통과) 머지 (라운드 36)
 - #348 리뷰 승인(client) — 엔진 `NestSiteCard.nestLoss`(0~1, 구멍별 단계당 둥지 손실) / #349 열림(review:content) — S-23 카드에 `둥지 손실 N%`(`formatRisk`, 위험 아이콘), 키 `gate.nestSite.nestLoss`. **#348 위에 쌓음** → #348 머지 뒤 main 합쳐 머지 (라운드 34)
 - #344 리뷰 승인(client) — 엔진 이벤트 카드 효과 `EffectPreview`(effects / onSuccess·onFail, fledgeEarly) / #346 열림(review:content) — S-13 효과 줄: 효과마다 한 덩이, 내 사망 위험만 띠, 둥지·새끼는 위험색 + 낱말, 이소 줄, 본문 아래 둥지 새끼 수. 문구 13개 `gate.json`. **#344 위에 쌓음** → #344 머지 뒤 `git merge origin/main` 후 머지 (라운드 34)
@@ -61,9 +62,9 @@
 0000. S-13 그림(ev-art)·시트 겹침(dim, 상태 바 아래)
 000. 엔진 #21에 `eventOption`(루틴 칸 추첨·이벤트 관문)이 나오면 S-13 먼저. `inheritance.silverSpoon.help`·`firstWinter.help`는 도움말 UI가 생기면
 00-0. S-24 남은 것: 확인표의 깃털·부상 줄 · 새끼 그림(`bird.parus-minor.juv.perch`, #146) — 엔진·아트가 내면 `Game.tsx`의 `inherit-confirm`·`chickRow`에
-0-0-0-0. S-22 남은 것: 요약 줄(이소 기대 수·내 번식 비용, 04-breeding 6.4) — 엔진이 값을 내면 `parentingPolicy` 분기(Game.tsx) 아래에. 엔진 로그의 방침 글이 id 그대로(`high`)라 엔진이 문구를 내면 따른다
+0-0-0-0. S-22 남은 것: 요약 줄(이소 기대 수 소수 첫째·내 번식 비용 정수, 04-breeding 6.4) — 엔진 #355가 머지되면 고른 조합마다 `preview(state, 'parentingPolicy?…').expectedFledged`·`.breedingCost`로 `parentingPolicy` 분기(Game.tsx) 아래에. 엔진 로그의 방침 글이 id 그대로(`high`)라 엔진이 문구를 내면 따른다
 0-0-0. S-21 남은 것(엔진 ViewModel에 나오면): 짝 줄(나이·유대·성격 힌트/확인·지시 n/3), 지시 효과 설명 수치
-0-0. 엔진 #352(승인함)가 머지되면 `ClutchSizeCard`의 `expectedFledged`·`silverSpoon`을 `clutchRow`(Game.tsx)의 vals에 붙이기(5장: 소수 첫째·셋째 자리)
+0-0. #357(산란수 카드 이소 기대·은수저) content 승인 뒤 `bash scripts/merge-pr.sh 357`
 0. #188 D(엔진 `replan`이 생기면) · 이벤트 칸 재생 멈춤 — 재생은 `Game.tsx`의 `replay`(진행 때 판정·저장 끝, 표만 `shown`칸까지)
 1. 엔진 #21이 새 선택 kind(eventOption·나머지 번식 관문·inheritance)를 내면 `Game.tsx`에 붙이기 — S-13 이벤트 시트(zone 안 absolute, 상태 바 아래). 묶음 줄은 `GROUPS`(id 앞부분)로 더할 수 있다
 00. 2차 번식 카드 남은 것: 바뀌는 털갈이 단계 수(와이어프레임 '털갈이 4단계') — 엔진 `SecondBroodCard`에 나오면 `broodRow`(Game.tsx)의 대가 줄에 숫자로

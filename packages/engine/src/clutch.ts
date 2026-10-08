@@ -57,43 +57,49 @@ export function layingCost(data: GameData, state: RunState): number {
   return costFor(data, state, eggs);
 }
 
-/** 이 단계 다음부터 이 번식이 끝날 때까지 — 둥지 단계 수(`laying`~`nestling`), 급이 단계 수(`nestling` `postFledge`), 첫 급이 단계 */
-function broodAhead(state: RunState): {
-  nestSteps: number;
-  feedSteps: number;
-  firstFeed?: CalendarAt;
-} {
-  let nestSteps = 0;
-  let feedSteps = 0;
+/**
+ * `from`부터 이 번식이 끝날 때까지 새끼 1마리가 이소하는 확률(04-breeding 6.4) — 둥지 단계(`laying`~`nestling`)마다
+ * `1 − 둥지 손실`, 급이 단계(`nestling` `postFledge`)마다 `1 − 새끼 사망`. 단계마다 그 국면의 방침·지시 배율. 난수 없음.
+ * 함께 첫 급이 단계(은수저 계산용).
+ */
+function broodSurvival(
+  state: RunState,
+  data: GameData,
+  from: CalendarAt,
+): { survival: number; firstFeed?: CalendarAt } {
+  const site = state.nest?.site;
+  if (site === undefined) return { survival: 0 };
+  let survival = 1;
   let firstFeed: CalendarAt | undefined;
-  let at = advance(state.at, state.calendar);
-  for (;;) {
+  for (let at = from; ; at = advance(at, state.calendar)) {
     const phase = phaseAt(state.calendar, at);
     if (!['laying', 'incubation', 'nestling', 'postFledge'].includes(phase)) break;
-    if (phase !== 'postFledge') nestSteps++;
+    const s = { ...state, at };
+    if (phase !== 'postFledge') survival *= 1 - nestLossChance(s, data, site);
     if (phase === 'nestling' || phase === 'postFledge') {
-      feedSteps++;
+      survival *= 1 - chickDeathChance(s, data);
       firstFeed ??= at;
     }
-    at = advance(at, state.calendar);
   }
-  return { nestSteps, feedSteps, ...(firstFeed ? { firstFeed } : {}) };
+  return { survival, ...(firstFeed ? { firstFeed } : {}) };
 }
 
-/** 화면 카드 — 산란 단계 비용 · 이소 기대 수(04-breeding 6.4) · 은수저 지수(새끼 수 = 산란수 × `hatchRate`) */
+/** 이소 기대 수 — 지금 둥지의 새끼 수 × 이 단계부터의 생존(6.4, S-22). 이벤트 없음 */
+export function expectedFledged(state: RunState, data: GameData): number {
+  return (state.nest?.chicks ?? 0) * broodSurvival(state, data, state.at).survival;
+}
+
+/** 화면 카드 — 산란 단계 비용 · 이소 기대 수(6.4, 관문 다음 단계부터) · 은수저 지수(새끼 수 = 산란수 × `hatchRate`) */
 export function clutchCards(data: GameData, state: RunState, options: number[]): ClutchSizeCard[] {
-  const nest = state.nest;
   const hatchRate = breedingSpecies(data, state.config.speciesId).hatchRate;
-  const { nestSteps, feedSteps, firstFeed } = broodAhead(state);
-  const nestSurvival = nest ? (1 - nestLossChance(state, data, nest.site)) ** nestSteps : 0;
-  const chickSurvival = (1 - chickDeathChance(state, data)) ** feedSteps;
+  const { survival, firstFeed } = broodSurvival(state, data, advance(state.at, state.calendar));
   return options.map((eggs) => {
     const chicks = eggs * hatchRate;
     return {
       choiceId: `clutchSize.${eggs}`,
       eggs,
       layingCost: costFor(data, state, eggs),
-      expectedFledged: chicks * nestSurvival * chickSurvival,
+      expectedFledged: chicks * survival,
       silverSpoon: firstFeed ? fulfilment(state, data, chicks, firstFeed) : 0,
     };
   });

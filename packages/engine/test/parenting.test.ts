@@ -2,7 +2,8 @@ import type { GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
 import { chickDeath } from '../src/formulas.ts';
 import type { RunState } from '../src/index.ts';
-import { act, getChoices, getView, newRun } from '../src/index.ts';
+import { act, getChoices, getView, newRun, preview } from '../src/index.ts';
+import { nestLossChance } from '../src/nest.ts';
 import { chickDeathMult } from '../src/parenting.ts';
 import { actStep, testData, tit } from './fixture.ts';
 
@@ -81,6 +82,18 @@ describe('육아 방침 관문 (04-breeding 6장)', () => {
     expect(brood(A, opened.at)).toBeCloseTo(9.6);
     expect(brood(B, opened.at)).toBeCloseTo(6.1);
     expect(brood(B, { year: 1, period: 11, step: 1 })).toBeCloseTo(4.1);
+  });
+
+  it('S-22 미리보기 — 고를 방침의 이소 기대 수(6.4)·내 번식 비용', () => {
+    const p = (choice: string) => preview(opened, choice, testData);
+    // nestling 3단계는 둥지 손실 × 새끼 사망, postFledge 4단계는 새끼 사망만 (예시 A의 0.0119 · 0.014)
+    const lossA = nestLossChance(act(opened, A, testData).state, testData, 'deep');
+    expect(p(A).expectedFledged).toBeCloseTo(
+      7 * ((1 - lossA) * (1 - 0.0119)) ** 3 * 0.986 ** 4,
+      10,
+    );
+    expect(p(A).breedingCost).toBeCloseTo(9.6);
+    expect(p(B).breedingCost).toBeCloseTo(6.1);
   });
 
   it('postFledge 첫 단계에 다시 열리고, 둥지 관리·이소 시점은 못 바꾼다', () => {
