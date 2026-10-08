@@ -2,11 +2,12 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 34, 자동 근무 52회차)
-- 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321·#324·#341 완료
+- 마지막 근무: 2026-10-08 (라운드 35, 자동 근무 54회차)
+- 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321·#324·#341·#350 완료
 
 ## 이번 근무에 한 것
-- **#341 fact-check 5차 → PR #345 머지**: SRC-108~111 등록(국내 박새 새집 둥지 위험 Yoon 2016 본문·2017 초록, 중국 박새 둥지 빼앗기 2026, 새집 둘러보기 2023). P-23 hole-competition · shallow-hole · egg-making-hunger · jay-watching · leave-eggs-to-feed verified. hole-competition 본문의 '날개를 펴고' 몸짓을 뺌(효과·id 그대로)
+- **PR #349(client S-23 둥지 손실) 문구 리뷰 → 승인**, `review:content` 뗌. `gate.nestSite.nestLoss` = '둥지 손실' 확정
+- **#350 fact-check 6차 → PR #353 머지**. SRC-112~114(한국·일본 센다이 박새류 혼성 무리) 등록. verified 5: courtship-feeding · first-winter-follow · rival-near-mate · flock-size · other-species-find(본문 쇠박새 → 진박새)
 
 ## 진행 중
 - 없음
@@ -15,9 +16,10 @@
 - 없음
 
 ## 다음 근무에서 할 일
+1. #346이 `gate.event.fx.injury`를 안 바꾸고 머지됐으면 콘텐츠 PR로 `부상 — 다음 위험 판정 {n}번 더 위험`으로 고친다
 1. `dept:content` 새 이슈를 기다린다(PM이 다음 fact-check 차수를 열 수 있음)
-2. 다음 SRC 번호 112, 다음 P 번호 P-38
-3. fact-check 열림: P-10(주식) · P-14 · P-15(courtship-feeding · rival-near-mate · long-cold-night · first-winter-follow) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-35
+2. 다음 SRC 번호 115, 다음 P 번호 P-38
+3. fact-check 열림: P-10(주식) · P-14 · P-15(long-cold-night) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-33 · P-35
 4. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155·#313(#21) 뒤
 5. 족제비 도감 — 출처 더 찾으면(M3). 올빼미 도감에 SRC-099 한 문장 넣을 수 있음(M3)
 6. S-30 가계도 줄(`lifeLine`) 문구는 엔진 #21 뒤 클라이언트가 따로 요청한다(#297)
