@@ -70,8 +70,13 @@ describe('둥지 자리 관문 (04-breeding 1·4장)', () => {
     expect(deep / 0.75).toBeCloseTo(shallow / 1.15, 10);
     expect(box / 0.9).toBeCloseTo(shallow / 1.15, 10);
 
-    const built = act(opened, 'nestSite.nestBox', testData).state;
+    const picked = act(opened, 'nestSite.nestBox', testData);
+    const built = picked.state;
     expect(built.nest).toEqual({ site: 'nestBox', node: 'village-farmland' });
+    // 둥지 = 그해 첫 번식 시도 (지표 M-13)
+    expect(picked.log.filter((l) => l.type === 'breeding')).toEqual([
+      expect.objectContaining({ deltas: { attempt: 1 } }),
+    ]);
     expect(built.at).toEqual({ year: 1, period: 7, step: 2 });
     const moves = getChoices(built, testData).filter((c) => c.kind === 'node');
     expect(moves.every((c) => c.disabled?.reason === '둥지를 떠날 수 없다')).toBe(true);

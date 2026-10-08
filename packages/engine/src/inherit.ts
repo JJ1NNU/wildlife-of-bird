@@ -1,6 +1,6 @@
 import type { GameData, StatName } from '@wb/schema';
 import { endBreeding } from './brood.ts';
-import { advance, phaseAt } from './calendar.ts';
+import { advance, PERIODS_PER_YEAR, phaseAt } from './calendar.ts';
 import { fledgling } from './clutch.ts';
 import { yearSurvival } from './forecast.ts';
 import { agingRiskMult, fatCap } from './formulas.ts';
@@ -13,6 +13,7 @@ import type {
   Life,
   LifeRecord,
   LogEntry,
+  RunRecords,
   RunState,
 } from './types.ts';
 
@@ -24,6 +25,19 @@ import type {
 /** 가계도 한 줄을 닫는다 — 지금 개체의 조작이 끝났다 (8장) */
 export function endLife(state: RunState, reason: LifeRecord['reason']): LifeRecord {
   return { ...state.life, end: { at: state.at, age: state.player.age }, reason };
+}
+
+/** 게임 오버 뒤 부가 기록 (02-scoring 4장) — 끝난 생애는 모두 로그의 `life`에 있다 */
+export function runRecords(state: RunState, data: GameData): RunRecords {
+  const lives = state.log.flatMap((l) => (l.life ? [l.life] : []));
+  const start = speciesBalance(data, state.config.speciesId).runStart.period;
+  const periods = (state.at.year - 1) * PERIODS_PER_YEAR + state.at.period - start;
+  return {
+    yearsSurvived: Math.floor((periods * 10) / PERIODS_PER_YEAR) / 10,
+    generations: state.life.generation,
+    fledged: lives.reduce((sum, l) => sum + l.fledged, 0),
+    oldestAge: Math.max(...lives.map((l) => l.end.age)),
+  };
 }
 
 /** 새 개체의 생애를 연다. 런 시작 개체는 1세대 */
