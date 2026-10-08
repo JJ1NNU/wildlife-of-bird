@@ -349,7 +349,7 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 - `draw`: `step`(기본 — 단계 이벤트) | `periodStart`(환경 카드).
 - `when`(모두 선택, 모두 참이어야 함): `phaseAny`(국면 열거 `Phase`, 이벤트의 모든 종의 단계표에 있어야 함) `phaseLastStep`(그 국면이 이어지는 마지막 단계, #73) `habitatAny` `periodFrom`·`periodTo`(함께, from > to면 해를 넘김) `sex` `ageMin` `ageMax` `hasMate` `hasBrood` `energyBelow`(0~1) `actionAny`. v0의 `phase`는 `phaseAny`로 바뀌었다(#54).
 - 선택지 두 모양: 고정 효과 `{ id, text, effects }` / 판정형 `{ id, text, check: { stat, difficulty }, onSuccess, onFail }`. 섞어 쓸 수 없다.
-- 효과 종류: `energy` `feather` `bond` `foodMod`(등급 + **`sign` 필수**: `gain` | `loss`, #37), `statGain`(`stat` + 등급), `chickLoss` `injury`(등급), `deathRisk`(위험 등급 + **`cause` 필수**: `cold` `accident` `disease` `predation`, `predation`이면 `predator` 선택), `broodRisk` `riskMod`(위험 등급), `fledgeEarly`.
+- 효과 종류: `energy` `feather` `bond` `foodMod`(등급 + **`sign` 필수**: `gain` | `loss`, #37), `statGain`(`stat` + 등급), `chickLoss` `injury`(등급), `deathRisk`(위험 등급 + **`cause` 필수**: `cold` `accident` `disease` `predation`, `predation`이면 `predator` 선택), `broodRisk` `riskMod`(위험 등급), `fledgeEarly`. `broodRisk`·`chickLoss`는 `predator` 선택(#379 — 둥지가 거둬지면 로그 `brood`의 `cause`가 `broodRisk:<id>`·`chickLoss:<id>`).
 - **성립 조건 검증** (03-events 6.2): `bond` → `when.hasMate: true` / `broodRisk`·`chickLoss` → `when.hasBrood: true` / `fledgeEarly` → `when.phaseAny`가 `["nestling"]`뿐 **그리고** `phaseLastStep: true` (#73) / `statGain`·`check.stat` → 이벤트의 모든 종의 `aptitude`에 그 스탯 / 선택지 수: `step` 2~3개, `periodStart` 1~3개.
 - 글은 v1에서 데이터 파일에 한국어로 직접 쓴다(다국어는 P2).
 - `factCheck`: `verified` | `needs-review`. `needs-review` 항목은 출시 빌드에서 제외하거나 출시 전 해결(QA 출시 체크리스트).

@@ -194,7 +194,7 @@ export function resolveOption(
  * 효과를 배열 순서대로 적용한다 (03-events 6.1). 중간에 조작 개체가 죽으면 남은 효과는 버리고 `death`에 원인.
  * 에너지 0 이하는 아사(`starvation`), `deathRisk`는 `u < 값`이면 `cause`(`predation`이면 `predation:<predator>`).
  * `riskMod`·`foodMod`는 `periodMods`에 쌓는다 — 시기가 바뀌면 지워진다.
- * `broodRisk`가 맞거나 `chickLoss`로 새끼가 다 죽으면 B-5: 둥지를 거두고 로그 `brood`(`cause` = 효과 이름).
+ * `broodRisk`가 맞거나 `chickLoss`로 새끼가 다 죽으면 B-5: 둥지를 거두고 로그 `brood`(`cause` = 효과 이름, `predator`가 있으면 `<효과>:<predator>`).
  * `chickLoss`는 늦게 깬 새끼부터 죽는다 — 잠정(#21, 명세에 누가 죽는지 없음).
  * `injury`는 남은 부상 단계와 새 값 중 큰 쪽.
  * `fledgeEarly`는 둥지에 표시만 한다 — 육추 마지막 단계에서만 나오므로(6.2) 다음 단계가 곧 `postFledge`이고,
@@ -265,7 +265,8 @@ export function applyEffects(
         if (!s.nest) break;
         const rolled = nextChance(s.rng, t.broodRisk[e.tier]);
         s = { ...s, rng: rolled.state };
-        if (rolled.value) s = broodFails(s, '둥지를 잃었다', 'broodRisk', log);
+        if (rolled.value)
+          s = broodFails(s, '둥지를 잃었다', withPredator('broodRisk', e.predator), log);
         break;
       }
       case 'chickLoss': {
@@ -274,7 +275,7 @@ export function applyEffects(
         if (!nest || chicks === 0) break;
         const dead = Math.min(chicks, Math.ceil(chicks * t.chickLoss[e.tier]));
         if (dead === chicks) {
-          s = broodFails(s, '새끼를 모두 잃었다', 'chickLoss', log);
+          s = broodFails(s, '새끼를 모두 잃었다', withPredator('chickLoss', e.predator), log);
           break;
         }
         const young = nest.young?.slice(0, chicks - dead);
@@ -354,6 +355,10 @@ export function previewEffects(
 }
 
 /** B-5 — 둥지를 거두고 로그를 남긴다 */
+function withPredator(cause: string, predator?: string): string {
+  return predator ? `${cause}:${predator}` : cause;
+}
+
 function broodFails(state: RunState, text: string, cause: string, log: LogEntry[]): RunState {
   const { nest: _n, ...rest } = state;
   log.push({ at: state.at, type: 'brood', text, cause });

@@ -483,7 +483,7 @@ function checkPredatorsExist(
   if (predators.size === 0) return;
   for (const [o, option] of event.options.entries()) {
     for (const effect of optionEffects(option)) {
-      if (effect.type === 'deathRisk' && effect.predator && !predators.has(effect.predator)) {
+      if ('predator' in effect && effect.predator && !predators.has(effect.predator)) {
         issues.push({
           file,
           at: `[${index}].options[${o}]`,
