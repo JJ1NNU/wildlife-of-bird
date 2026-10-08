@@ -1262,6 +1262,77 @@
     "factCheck": "verified"
   },
   {
+    "id": "ev.parus-minor.marten-at-entrance",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["nestling"],
+      "habitatAny": ["forest"],
+      "hasBrood": true
+    },
+    "weight": "uncommon",
+    "title": "구멍 앞의 담비",
+    "body": "갈색 털짐승이 둥지 나무 줄기를 타고 올라와 둥지 구멍 앞에 멈춘다. 고개를 기울여 구멍 안을 들여다본다. 안에서 새끼들이 먹이를 조르는 소리가 난다.",
+    "options": [
+      {
+        "id": "alarm",
+        "text": "가까운 가지에서 짧은 경보음을 쉬지 않고 낸다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "medium",
+            "sign": "loss"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ]
+      },
+      {
+        "id": "mob",
+        "text": "담비 머리 위를 스치듯 날며 쫓아낸다",
+        "check": {
+          "stat": "vigilance",
+          "difficulty": "medium"
+        },
+        "onSuccess": [
+          {
+            "type": "statGain",
+            "stat": "vigilance",
+            "tier": "small"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "low"
+          }
+        ],
+        "onFail": [
+          {
+            "type": "injury",
+            "tier": "small"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "medium"
+          }
+        ]
+      },
+      {
+        "id": "stay-away",
+        "text": "소리를 내지 않고 멀리서 지켜본다",
+        "effects": [
+          {
+            "type": "broodRisk",
+            "tier": "medium"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "담비는 뱀과 달리 둥지 구멍에 들어오지 않고 입구 밖에서 둥지를 노린다. 박새 어미는 담비·까마귀에게 뱀 때와 다른 경보음(chicka)을 내고, 이 소리를 들은 새끼는 구멍 밖으로 나가지 않고 안쪽에 웅크린다(SRC-023, 일본 박새). 포란 중 암컷도 이 소리에는 둥지에 머문다(SRC-001). 담비에게 달려드는 것의 효과·위험은 근거가 없어 게임의 선택이다.",
+    "sources": ["SRC-023", "SRC-001"],
+    "factCheck": "verified"
+  },
+  {
     "id": "ev.parus-minor.caterpillar-shortage",
     "species": ["parus-minor"],
     "when": {
