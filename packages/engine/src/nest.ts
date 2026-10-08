@@ -4,6 +4,7 @@ import { nestLoss } from './formulas.ts';
 import { orderValue } from './order.ts';
 import { parentingNestLossMult } from './parenting.ts';
 import { nextChance } from './rng.ts';
+import { seasonEffect } from './season.ts';
 import { mapNode, periodRiskFactor, speciesBalance } from './step.ts';
 import type { Choice, LogEntry, Nest, NestSiteCard, RunState } from './types.ts';
 
@@ -118,7 +119,7 @@ export function buildNest(
 }
 
 /**
- * 둥지 손실 확률 1단계분 (04-breeding 6.3): 3.2 × 구멍 · `guardNest` · 육아 방침 배율. 난수 없음.
+ * 둥지 손실 확률 1단계분 (04-breeding 6.3): 3.2 × 구멍 · `guardNest` · 육아 방침 · 계절 방침 배율. 난수 없음.
  * 위험 보정은 지금 시기의 `riskMod` — S-23 카드(`nestSite` 국면)에서는 지시·방침 배율이 아직 1이다.
  */
 export function nestLossChance(state: RunState, data: GameData, site: string): number {
@@ -131,7 +132,8 @@ export function nestLossChance(state: RunState, data: GameData, site: string): n
     }) *
     (data.breeding.nestSite.holes[site]?.nestLossMult ?? 1) *
     orderValue(state, 'mateOrder.guardNest', 1, guard) *
-    parentingNestLossMult(state, data)
+    parentingNestLossMult(state, data) *
+    (seasonEffect(state, data).nestLossMult ?? 1)
   );
 }
 

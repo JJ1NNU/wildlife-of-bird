@@ -50,6 +50,7 @@ import {
 import { parentingChoices, parentingDue, setPolicy } from './parenting.ts';
 import { seedFromString } from './rng.ts';
 import { emptySlots, projected, routineSlots, runRoutine, suggestions } from './routine.ts';
+import { chooseSeason, dropSeasonPolicy, seasonCards, seasonChoices, seasonDue } from './season.ts';
 import {
   breedingCost,
   judgeStep,
@@ -73,7 +74,7 @@ import type {
  * 엔진 API — 일곱 개의 순수 함수 (엔진 원칙 1, 03-contracts 3장).
  *
  * M1 진행 중(#21): 단계표·장소·행동·옮기기와 판정 1·2·3(에너지 → 스탯 → 위험), 아사·포식 사망은
- * 실제 규칙이다. 관문은 짝 후보(`mateCandidate`)·짝 지시(`mateOrder`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)·육아 방침(`parentingPolicy`)·2차 번식 여부(`secondBrood`, 실패 뒤·잔류 뒤)·계승(`inheritance`)이 있고, 부화·새끼 사망·독립을 굴린다. 단계 이벤트는 루틴의 칸마다 추첨해 관문(`event`)으로 멈춘다. 환경 카드는 아직 없다.
+ * 실제 규칙이다. 관문은 계절 방침(`seasonPolicy`)·짝 후보(`mateCandidate`)·짝 지시(`mateOrder`)·둥지 자리(`nestSite`)·산란수(`clutchSize`)·육아 방침(`parentingPolicy`)·2차 번식 여부(`secondBrood`, 실패 뒤·잔류 뒤)·계승(`inheritance`)이 있고, 부화·새끼 사망·독립을 굴린다. 단계 이벤트는 루틴의 칸마다 추첨해 관문(`event`)으로 멈춘다. 환경 카드는 아직 없다.
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
@@ -131,6 +132,7 @@ export function newRun(config: RunConfig, data: GameData): RunState {
 /** 지금 고를 수 있는 모든 선택. */
 export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gameOver) return [];
+  if (state.gate?.kind === 'seasonPolicy') return seasonChoices(state, data);
   if (state.gate?.kind === 'mateCandidate') return mateChoices(state.gate.candidates);
   if (state.gate?.kind === 'mateOrder') return orderChoices(state, data, state.gate.options);
   if (state.gate?.kind === 'nestSite') return nestChoices(state.gate.holes);
@@ -235,6 +237,7 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
 export function act(state: RunState, choiceId: string, data: GameData): ActResult {
   if (state.gameOver) throw new Error('이미 끝난 런이다');
   findChoice(state, choiceId, data);
+  if (state.gate?.kind === 'seasonPolicy') return pickSeason(state, choiceId, data);
   if (state.gate?.kind === 'mateCandidate') return pickMate(state, choiceId, data);
   if (state.gate?.kind === 'mateOrder') return pickOrder(state, choiceId, data);
   if (state.gate?.kind === 'nestSite') return pickNest(state, choiceId, data);
@@ -328,9 +331,22 @@ function endStep(state: RunState, routed: ActResult, hadNest: boolean, data: Gam
       log,
     };
   }
-  let survived = failed ? endBreeding(raised.state) : raised.state;
+  const survived = failed ? endBreeding(raised.state) : raised.state;
+  return endGates(state, survived, log, data);
+}
 
-  // 흐름의 마지막: 관문 (00-core-loop 4.6). 열리면 이 단계에 머문다
+/**
+ * 흐름의 마지막: 관문 (00-core-loop 4.6). 열리면 이 단계에 머문다. 계절 방침이 먼저, 고르면 이어서 나머지 관문.
+ * `state` = 이 단계를 시작한 상태(로그·달력 기준), `survived` = 단계 끝 처리를 마친 상태
+ */
+function endGates(state: RunState, done: RunState, log: LogEntry[], data: GameData): ActResult {
+  let survived = done;
+  if (seasonDue(survived, data)) {
+    return {
+      state: { ...survived, gate: { kind: 'seasonPolicy' }, log: [...state.log, ...log] },
+      log,
+    };
+  }
   if (isPhaseStart(state.calendar, state.at, 'pairing')) {
     // 관문 직전: 지난 짝과의 이혼 (04-breeding 2.1)
     const parted = divorce(survived, data);
@@ -398,7 +414,7 @@ function nextStep(state: RunState, data: GameData): ActResult {
     n > 1 ? [[id, n - 1] as const] : [],
   );
   if (cooling.length > 0) Object.assign(kept, { eventCooldown: Object.fromEntries(cooling) });
-  const year = yearStart({ ...kept, at }, data);
+  const year = yearStart(dropSeasonPolicy({ ...kept, at }, data), data);
   const moved = releaseNest(year.state);
   const { parenting, ...carried } = carryOrder(state, moved, data);
   const next: RunState = carried.nest && parenting ? { ...carried, parenting } : carried;
@@ -412,6 +428,13 @@ function nextStep(state: RunState, data: GameData): ActResult {
     state: parentingDue(next) ? { ...next, gate: { kind: 'parentingPolicy' } } : next,
     log: year.log,
   };
+}
+
+/** 계절 방침 관문을 닫고 이 단계의 나머지 관문으로 (11-season-policy 1장) */
+function pickSeason(state: RunState, choiceId: string, data: GameData): ActResult {
+  const chosen = chooseSeason(state, choiceId, data);
+  const { gate: _g, ...closed } = chosen.state;
+  return endGates(state, closed, chosen.log, data);
 }
 
 /** 짝 지시 관문을 닫는다 — 육아 방침 관문이 남았으면 열고, 아니면 같은 단계에서 이어 칸을 고른다 */
@@ -447,10 +470,15 @@ function pickInheritance(state: RunState, choiceId: string, data: GameData): Act
   return { state: { ...next.state, log: [...state.log, ...log] }, log };
 }
 
-/** 2차 번식 여부 관문을 닫고 다음 단계로 간다 (04-breeding 7장) */
+/** 2차 번식 여부 관문을 닫고 다음 단계로 간다 (04-breeding 7장). 계절 방침이 남았으면 연다 */
 function pickSecondBrood(state: RunState, choiceId: string, data: GameData): ActResult {
   const chosen = chooseSecondBrood(state, choiceId, data);
   const { gate: _g, ...closed } = chosen.state;
+  // 번식 실패 단계가 계절 첫 단계면 계절 방침은 그다음 (00-core-loop 4.6)
+  if (seasonDue(closed, data)) {
+    const opened: RunState = { ...closed, gate: { kind: 'seasonPolicy' } };
+    return { state: { ...opened, log: [...state.log, ...chosen.log] }, log: chosen.log };
+  }
   const next = nextStep(closed, data);
   const log = [...chosen.log, ...next.log];
   return { state: { ...next.state, log: [...state.log, ...log] }, log };
@@ -543,6 +571,9 @@ export function getView(state: RunState, data: GameData): ViewModel {
     ),
     totalBreeding: state.totalBreeding,
     gameOver: state.gameOver,
+    ...(state.gate?.kind === 'seasonPolicy'
+      ? { gate: { kind: state.gate.kind, cards: seasonCards(state, data) } }
+      : {}),
     ...(state.gate?.kind === 'mateCandidate'
       ? {
           gate: {

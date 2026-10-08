@@ -1,4 +1,4 @@
-import type { Phase, RiskTier, StatName } from '@wb/schema';
+import type { Phase, RiskTier, Season, SeasonPolicyEffect, StatName } from '@wb/schema';
 import type { FoodMod } from './formulas.ts';
 import type { RngState } from './rng.ts';
 
@@ -54,6 +54,12 @@ export interface ParentingItemChoice {
   current: string;
   /** `postFledge` 조정에서 못 바꾸는 항목 */
   locked?: boolean;
+}
+
+/** 계절 방침 카드 — 효과 숫자 그대로 (11-season-policy 3장). 이름은 선택의 `label` */
+export interface SeasonPolicyCard {
+  choiceId: string;
+  effects: SeasonPolicyEffect;
 }
 
 /** 선택의 예상 결과. **난수를 쓰지 않는다** (엔진 원칙 2) */
@@ -186,6 +192,7 @@ export type Gate =
   | { kind: 'mateOrder'; options: string[] }
   | { kind: 'nestSite'; holes: string[] }
   | { kind: 'clutchSize'; options: number[] }
+  | { kind: 'seasonPolicy' }
   | { kind: 'parentingPolicy' }
   | { kind: 'secondBrood' }
   | { kind: 'inheritance' }
@@ -385,6 +392,8 @@ export interface RunState {
   injury?: number;
   /** 이 단계의 이벤트로 걸린(늘어난) 부상 — 이 단계 끝에는 `injury`를 줄이지 않는다 (03-events 6.1 v0.1.2) */
   injuryFresh?: true;
+  /** 고른 계절 방침 (11-season-policy). 계절이 바뀌면 없어지고, 없으면 기본값(목록의 첫 방침) */
+  seasonPolicy?: { season: Season; id: string };
   /** 지금 걸린 육아 방침 — 항목 → 선택 (04-breeding 6장). 둥지가 없어지면 없어진다 */
   parenting?: Record<string, string>;
   /** 최근 `mate.reciprocityWindowSteps` 단계가 도움 단계였나 (04-breeding 3.3 상호성) */
@@ -421,6 +430,7 @@ export interface ViewModel {
     | { kind: 'mateOrder'; cards: MateOrderCard[] }
     | { kind: 'nestSite'; cards: NestSiteCard[] }
     | { kind: 'clutchSize'; cards: ClutchSizeCard[] }
+    | { kind: 'seasonPolicy'; cards: SeasonPolicyCard[] }
     | { kind: 'parentingPolicy'; cards: ParentingItemChoice[] }
     | { kind: 'secondBrood'; cards: SecondBroodCard[] }
     | { kind: 'event'; id: string; cards: EventOptionCard[] }

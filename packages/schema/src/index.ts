@@ -17,5 +17,6 @@ export * from './formulas.ts';
 export * from './load.ts';
 export * from './nodes.ts';
 export * from './predators.ts';
+export * from './season-policy.ts';
 export * from './species.ts';
 export * from './text.ts';

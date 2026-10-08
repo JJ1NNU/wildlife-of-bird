@@ -171,10 +171,18 @@ export function nextEnergy(
   return next <= 0 ? { energy: 0, starved: true } : { energy: next, starved: false };
 }
 
-/** 2.6 깃털 */
-export function nextFeather(f: Formulas, feather: number, phase: Phase, action: ActionId): number {
+/** 2.6 깃털. `moltMult` = 계절 방침 `moltRecoverMult` (11-season-policy 3장) */
+export function nextFeather(
+  f: Formulas,
+  feather: number,
+  phase: Phase,
+  action: ActionId,
+  moltMult = 1,
+): number {
   let next =
-    phase === 'molt' ? feather + f.feather.moltRecoverPerStep : feather - f.feather.decayPerStep;
+    phase === 'molt'
+      ? feather + f.feather.moltRecoverPerStep * moltMult
+      : feather - f.feather.decayPerStep;
   if (action === 'rest') next += f.actions.rest.featherRecover ?? 0;
   return clamp(next, 0, f.feather.max);
 }

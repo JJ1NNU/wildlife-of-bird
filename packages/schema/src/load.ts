@@ -9,6 +9,7 @@ import { GameEventFile, optionEffects } from './events.ts';
 import { Formulas } from './formulas.ts';
 import { MapNode } from './nodes.ts';
 import { Predator } from './predators.ts';
+import { SeasonPolicy } from './season-policy.ts';
 import { SpeciesBalance, SpeciesEcology } from './species.ts';
 import { TextFile } from './text.ts';
 
@@ -20,6 +21,8 @@ export interface GameData {
   formulas: Formulas;
   /** 번식 계수 (`04-breeding`) */
   breeding: Breeding;
+  /** 계절 방침 (`11-season-policy`). 파일이 없으면 빈 목록 — 관문이 열리지 않는다 */
+  seasonPolicy: SeasonPolicy;
   ecology: Map<string, SpeciesEcology>;
   balance: Map<string, SpeciesBalance>;
   /** 종별 연간 단계표 */
@@ -72,6 +75,7 @@ export interface RawGameData {
   effects?: RawFile;
   formulas?: RawFile;
   breeding?: RawFile;
+  seasonPolicy?: RawFile;
   ecology: RawFile[];
   balance: RawFile[];
   calendar: RawFile[];
@@ -197,12 +201,17 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
   if (breeding && raw.breeding)
     checkBreedingSpecies(breeding, raw.breeding.file, ecology, balance, issues);
 
-  if (issues.length > 0 || !effects || !formulas || !breeding) return { issues };
+  const seasonPolicy = raw.seasonPolicy
+    ? check(SeasonPolicy, raw.seasonPolicy, issues)
+    : { policies: {}, species: {} };
+
+  if (issues.length > 0 || !effects || !formulas || !breeding || !seasonPolicy) return { issues };
   return {
     data: {
       effects,
       formulas,
       breeding,
+      seasonPolicy,
       ecology,
       balance,
       calendar,
