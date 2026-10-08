@@ -660,7 +660,7 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
-  /** S-23 둥지 자리 카드: 구멍 이름 · 차지할 확률(경쟁 구멍만, 정수 %) — 04-breeding 4장 */
+  /** S-23 둥지 자리 카드: 구멍 이름 · 차지할 확률(경쟁 구멍만, 정수 %) · 둥지 손실 위험(단계마다, 행동 위험%와 같은 꼴) — 04-breeding 4장 */
   function nestRow(card: NestSiteCard) {
     const c = choices.find((x) => x.id === card.choiceId);
     return (
@@ -688,12 +688,17 @@ export function Game({ data }: { data: GameData }) {
                 .join(' · ')}
             </span>
           </span>
-          {card.contestChance !== undefined && (
-            <span className="vals">
-              <span>{t('gate.nestSite.chance')}</span>
-              <b>{roundHalfUp(card.contestChance * 100)}%</b>
+          <span className="vals">
+            {card.contestChance !== undefined && (
+              <span>
+                {t('gate.nestSite.chance')} <b>{roundHalfUp(card.contestChance * 100)}%</b>
+              </span>
+            )}
+            <span className="risk" data-testid={`nestLoss-${card.hole}`}>
+              <span className="ico s" style={iconStyle('icon.risk')} />
+              {t('gate.nestSite.nestLoss')} {formatRisk(data.formulas, card.nestLoss).text}
             </span>
-          )}
+          </span>
         </button>
       </li>
     );
