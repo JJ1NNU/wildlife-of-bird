@@ -263,6 +263,10 @@ export interface ClutchSizeCard {
   eggs: number;
   /** 관문 뒤 `laying` 단계마다 더 드는 소비 — 수컷이면 0 */
   layingCost: number;
+  /** 이소 기대 수 (04-breeding 6.4, 이벤트 없음 — 표시는 화면이 소수 첫째 자리) */
+  expectedFledged: number;
+  /** 은수저 지수 0~1 (01-formulas 6.1, 새끼 수 = 산란수 × `hatchRate` — 표시는 소수 셋째 자리) */
+  silverSpoon: number;
 }
 
 /** 2차 번식 여부 관문 카드 (04-breeding 7장) */

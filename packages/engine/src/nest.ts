@@ -121,7 +121,7 @@ export function buildNest(
  * 둥지 손실 확률 1단계분 (04-breeding 6.3): 3.2 × 구멍 · `guardNest` · 육아 방침 배율. 난수 없음.
  * 위험 보정은 지금 시기의 `riskMod` — S-23 카드(`nestSite` 국면)에서는 지시·방침 배율이 아직 1이다.
  */
-function nestLossChance(state: RunState, data: GameData, site: string): number {
+export function nestLossChance(state: RunState, data: GameData, site: string): number {
   const guard = data.breeding.orders.guardNest?.nestLossMult ?? 1;
   return (
     nestLoss(data.formulas, speciesBalance(data, state.config.speciesId), {
