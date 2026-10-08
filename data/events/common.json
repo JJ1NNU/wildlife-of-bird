@@ -1,0 +1,125 @@
+[
+  {
+    "id": "ev.common.heterospecific-alarm",
+    "species": ["parus-minor"],
+    "when": {},
+    "weight": "common",
+    "title": "다른 새의 경보음",
+    "body": "가까운 덤불에서 다른 종의 새가 짧고 날카로운 소리를 연달아 낸다. 무엇을 보았는지는 여기서 보이지 않는다.",
+    "options": [
+      {
+        "id": "hide",
+        "text": "곧바로 덤불 속으로 숨어 잠잠해질 때까지 기다린다",
+        "effects": [{ "type": "energy", "tier": "small", "sign": "loss" }]
+      },
+      {
+        "id": "keep-foraging",
+        "text": "먹이 찾기를 멈추지 않고 주위를 살핀다",
+        "check": { "stat": "vigilance", "difficulty": "medium" },
+        "onSuccess": [{ "type": "energy", "tier": "small", "sign": "gain" }],
+        "onFail": [{ "type": "deathRisk", "tier": "low", "cause": "predation" }]
+      }
+    ],
+    "ecologyBasis": "새를 비롯해 약 70종의 척추동물이 다른 종의 경보음을 엿듣고 반응한다는 것이 실험으로 확인되었다. 경보음을 들으면 곧바로 포식자를 피하는 반응을 보이며, 다른 종의 경보음을 알아듣는 것은 대개 배워서 익히는 것으로 보인다. 숨는 것과 계속 먹는 것의 득실은 게임의 선택이다.",
+    "sources": ["SRC-121"],
+    "factCheck": "verified"
+  },
+  {
+    "id": "ev.common.human-approach",
+    "species": ["parus-minor"],
+    "when": {},
+    "weight": "common",
+    "title": "다가오는 발소리",
+    "body": "길을 따라 사람이 천천히 다가온다. 손에 든 무언가를 이쪽으로 들어 올리고 걸음을 멈춘다.",
+    "options": [
+      {
+        "id": "leave-early",
+        "text": "일찍 자리를 뜨고 다른 곳에서 먹이를 찾는다",
+        "effects": []
+      },
+      {
+        "id": "watch-distance",
+        "text": "먹이를 계속 쪼며 거리를 가늠한다",
+        "check": { "stat": "vigilance", "difficulty": "low" },
+        "onSuccess": [{ "type": "energy", "tier": "small", "sign": "gain" }],
+        "onFail": [{ "type": "energy", "tier": "medium", "sign": "loss" }]
+      }
+    ],
+    "ecologyBasis": "사람이 다가오면 새는 먼저 경계하다가 어느 거리에서 날아가 피한다(경계 거리·도주 거리). 이 거리는 종과 상황(둥지가 있는지)에 따라 다르며, 650종이 넘는 새의 도주 거리 기록이 모여 있다. 늦게 놀라 멀리 달아나는 손해는 게임의 선택이다.",
+    "sources": ["SRC-122"],
+    "factCheck": "verified"
+  },
+  {
+    "id": "ev.common.feather-lice",
+    "species": ["parus-minor"],
+    "when": {},
+    "weight": "uncommon",
+    "title": "근질거리는 깃",
+    "body": "깃 사이가 자꾸 근질거린다. 부리로 훑을 때마다 작은 것이 깃 사이로 숨어든다.",
+    "options": [
+      {
+        "id": "preen",
+        "text": "한참 동안 부리로 깃을 하나하나 훑는다",
+        "effects": [
+          { "type": "feather", "tier": "small", "sign": "gain" },
+          { "type": "energy", "tier": "small", "sign": "loss" }
+        ]
+      },
+      {
+        "id": "ignore",
+        "text": "가려움을 참고 먹이 찾기를 이어 간다",
+        "effects": [{ "type": "feather", "tier": "small", "sign": "loss" }]
+      }
+    ],
+    "ecologyBasis": "새의 깃에는 깃털을 갉아 먹는 이를 비롯한 여러 외부 기생충이 살고, 이들은 새에게 해를 끼친다. 부리로 깃을 다듬는 행동이 깃털 이를 줄이는 주된 방어라는 것이 실험으로 확인되었다. 다듬는 데 드는 에너지는 게임의 선택이다.",
+    "sources": ["SRC-123"],
+    "factCheck": "verified"
+  },
+  {
+    "id": "ev.common.window-reflection",
+    "species": ["parus-minor"],
+    "when": { "habitatAny": ["settlement"] },
+    "weight": "uncommon",
+    "title": "하늘이 비친 유리",
+    "body": "건물 벽의 커다란 유리창에 나무와 하늘이 그대로 비친다. 그 너머로 숲이 이어지는 것처럼 보인다.",
+    "options": [
+      {
+        "id": "fly-straight",
+        "text": "가장 가까운 길로 빠르게 날아간다",
+        "check": { "stat": "vigilance", "difficulty": "medium" },
+        "onSuccess": [{ "type": "energy", "tier": "small", "sign": "gain" }],
+        "onFail": [
+          { "type": "injury", "tier": "medium" },
+          { "type": "deathRisk", "tier": "low", "cause": "accident" }
+        ]
+      },
+      {
+        "id": "detour",
+        "text": "건물을 멀리 돌아 나무 사이로 날아간다",
+        "effects": [{ "type": "energy", "tier": "small", "sign": "loss" }]
+      }
+    ],
+    "ecologyBasis": "건물 유리창 충돌은 새의 큰 사망 원인이다. 미국에서는 해마다 3억 6천5백만~9억 8천8백만 마리가 건물에 부딪혀 죽는 것으로 추산되었고 대부분 낮은 건물과 주택에서였다. 국내에서도 건물과 투명 방음벽에 해마다 약 800만 마리가 부딪혀 죽는 것으로 추산되며, 유리에 일정 간격의 무늬를 붙이면 대부분의 새가 그 사이로 지나가려 하지 않는다. 박새가 얼마나 자주 부딪히는지는 확인하지 않았다.",
+    "sources": ["SRC-124", "SRC-125"],
+    "factCheck": "verified"
+  },
+  {
+    "id": "ev.common.heat-wave",
+    "species": ["parus-minor"],
+    "draw": "periodStart",
+    "when": { "periodFrom": 14, "periodTo": 16 },
+    "weight": "uncommon",
+    "title": "폭염",
+    "body": "한낮의 볕이 뜨겁다. 그늘에 앉아 부리를 벌리고 숨을 고르는 사이 해가 기운다.",
+    "options": [
+      {
+        "id": "ok",
+        "text": "더운 날에는 먹이를 찾는 시간이 줄어든다",
+        "effects": [{ "type": "foodMod", "tier": "small", "sign": "loss" }]
+      }
+    ],
+    "ecologyBasis": "더운 날 새는 활동을 줄이거나 숨을 가쁘게 쉬어 몸을 식힌다. 남아프리카 건조지의 한 새(Southern Pied Babbler) 연구에서 더운 날에는 먹이를 찾는 효율이 떨어져 몸무게가 줄었고, 최고 기온이 35.5도를 넘으면 밤사이 빠지는 몸무게를 채우지 못했다. 사막의 작은 새는 극한 더위에 물이 크게 모자라 떼죽음을 맞기도 한다. 한국의 여름 더위가 박새에 미치는 영향은 확인하지 못했다.",
+    "sources": ["SRC-126", "SRC-127"],
+    "factCheck": "needs-review"
+  }
+]

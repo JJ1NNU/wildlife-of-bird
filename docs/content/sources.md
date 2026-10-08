@@ -198,6 +198,20 @@
 | SRC-067 | Mainwaring, M. C. (2011) "The use of nestboxes by roosting birds during the non-breeding season: a review of the costs and benefits", *Ardea* 99(2):167–176. doi:10.5253/078.099.0206 | [link](https://doi.org/10.5253/078.099.0206) | A | 리뷰: 번식기 밖에 둥지 상자·구멍에서 자는 새는 바깥에서 자는 새보다 **보온·에너지 절약**이 크다. 단점은 외부기생충, 포식 위험은 결론 없음. 좋은 상자는 크고 우세한 종이 차지 | 서지·초록까지 |
 | SRC-068 | Andreasson, F., Nord, A. & Nilsson, J.-Å. (2020) "Age differences in night-time metabolic rate and body temperature in a small passerine", *Journal of Comparative Physiology B* 190(3):349–359. doi:10.1007/s00360-020-01266-5 | [link](https://doi.org/10.1007/s00360-020-01266-5) | A | 푸른박새 겨울밤: 기온이 약 14 °C(하한 임계 온도) 아래로 내려가면 쉬는 동안의 대사가 **늘어난다** — 추운 밤일수록 더 쓴다. 첫 겨울 새가 6% 더 씀 | 서지·초록까지 |
 
+### 공통 이벤트 — M2 1차 (#394)
+
+> 공통 이벤트(`data/events/common.json`)는 종을 가리지 않는 **새 일반**의 사실만 쓴다. 여러 종을 묶은 총설·자료집이 그 일반 사실을 말하면 `verified`로 두고, 한 종·한 지역 연구에서 박새로 옮겨 오는 것은 위 규칙대로 `needs-review`로 둔다.
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-121 | Magrath, R. D., Haff, T. M., Fallow, P. M. & Radford, A. N. (2015) "Eavesdropping on heterospecific alarm calls: from mechanisms to consequences", *Biological Reviews* 90(2):560–586. doi:10.1111/brv.12122 | [link](https://doi.org/10.1111/brv.12122) | A | 총설: 약 70종의 척추동물이 다른 종의 경보음을 엿듣는 것이 실험으로 확인. 곧바로 포식자 회피 반응을 끌어내며, 알아듣는 것은 대개 배워서 익힘(증거는 대부분 간접) → heterospecific-alarm | 확인(초록) |
+| SRC-122 | Livezey, K. B., Fernández-Juricic, E. & Blumstein, D. T. (2016) "Database of bird flight initiation distances to assist in estimating effects from human disturbance and delineating buffer areas", *Journal of Fish and Wildlife Management* 7(1):181–191. doi:10.3996/082015-JFWM-078 | [link](https://doi.org/10.3996/082015-JFWM-078) | A | 사람이 다가올 때 새의 경계 거리·도주 거리 자료집(둥지 있음 49종, 둥지 없음 650종). 둥지가 있는지에 따라 나눠 적음 → human-approach | 확인(초록) |
+| SRC-123 | Clayton, D. H., Koop, J. A. H., Harbison, C. W., Moyer, B. R. & Bush, S. E. (2010) "How birds combat ectoparasites", *The Open Ornithology Journal* 3:41–71. doi:10.2174/1874453201003010041 | [link](https://doi.org/10.2174/1874453201003010041) | A | 총설: 깃털을 먹는 이부터 깃을 상하게 하는 세균까지 새의 외부 기생충과 방어. 부리 깃 다듬기가 깃털 이를 줄인다(저자들의 실험 포함) → feather-lice | 확인(초록) · 다듬기 실험은 서지·요지까지 |
+| SRC-124 | Loss, S. R., Will, T., Loss, S. S. & Marra, P. P. (2014) "Bird–building collisions in the United States: estimates of annual mortality and species vulnerability", *The Condor* 116(1):8–23. doi:10.1650/CONDOR-13-090.1 | [link](https://doi.org/10.1650/CONDOR-13-090.1) | A | 미국에서 해마다 3억 6500만~9억 8800만 마리(중앙값 5억 9900만)가 건물 충돌로 죽음. 낮은 건물 56%·주택 44%·고층 1% 미만 → window-reflection | 확인(초록) |
+| SRC-125 | (보도) "한 해 조류 800여만 마리 건물·방음벽 부딪쳐 폐사", 서울신문, 2020-03-11 — 환경부·국립생태원 추산 | [link](https://m.go.seoul.co.kr/news/2020/03/11/20200311013002) | D | 국내 투명창 충돌 연간 약 800만 마리(건물 765만·투명 방음벽 23만), 무늬 간격 높이 5cm·폭 10cm 미만이면 대부분의 새가 지나가려 하지 않음(환경부 지침) → window-reflection의 국내 규모. 일반 사실은 SRC-124(A)가 받침 | 검색 요지까지 |
+| SRC-126 | du Plessis, K. L., Martin, R. O., Hockey, P. A. R., Cunningham, S. J. & Ridley, A. R. (2012) "The costs of keeping cool in a warming world: implications of high temperatures for foraging, thermoregulation and body condition of an arid-zone bird", *Global Change Biology* 18(10):3063–3070. doi:10.1111/j.1365-2486.2012.02778.x | [link](https://doi.org/10.1111/j.1365-2486.2012.02778.x) | A | 남아프리카 건조지 *Turdoides bicolor*: 더운 날 먹이 찾기 노력은 같지만 효율이 떨어져 몸무게가 줆, 최고 기온 35.5℃ 넘으면 밤사이 감량을 채우지 못함 → heat-wave (박새로는 외삽) | 확인(초록) |
+| SRC-127 | McKechnie, A. E. & Wolf, B. O. (2010) "Climate change increases the likelihood of catastrophic avian mortality events during extreme heat waves", *Biology Letters* 6(2):253–256. doi:10.1098/rsbl.2009.0702 | [link](https://doi.org/10.1098/rsbl.2009.0702) | A | 사막의 작은 새: 극한 더위에 증발로 잃는 물이 커져 떼죽음이 일어남(모형) → heat-wave (사막 새, 박새로는 외삽) | 확인(초록) |
+
 ### 환경 변화 · 그 밖의 종
 
 | ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
