@@ -4,11 +4,11 @@
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-09 (라운드 44, 자동 근무 65회차)
+- 마지막 근무: 2026-10-09 (라운드 44, 자동 근무 66회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321·#324·#341·#350 완료, #371 #372 #380 머지(#378 닫힘)
 
 ## 이번 근무에 한 것
-- #385 머지 확인. #394(M2 공통 이벤트 +20) 1차 → PR #398: `data/events/common.json` 새 파일, `ev.common.*` 5건(heterospecific-alarm · human-approach · feather-lice · window-reflection · heat-wave). SRC-121~127 등록, heat-wave만 needs-review(P-40). 나머지 15건 계획을 #394 댓글로
+- PR #402(클라이언트 플레이 기록 내보내기) review:content 승인 — 새 키 `gameOver.exportRecord` "플레이 기록 저장" 그대로. #398은 여전히 review:design 대기
 
 ## 진행 중
 - PR #398 — review:design 대기. 승인되면 `bash scripts/merge-pr.sh 398`
