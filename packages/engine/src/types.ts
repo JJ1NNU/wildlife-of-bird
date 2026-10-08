@@ -263,6 +263,10 @@ export interface ClutchSizeCard {
   eggs: number;
   /** 관문 뒤 `laying` 단계마다 더 드는 소비 — 수컷이면 0 */
   layingCost: number;
+  /** 이소 기대 수 (04-breeding 6.4, 이벤트 없음 — 표시는 화면이 소수 첫째 자리) */
+  expectedFledged: number;
+  /** 은수저 지수 0~1 (01-formulas 6.1, 새끼 수 = 산란수 × `hatchRate` — 표시는 소수 셋째 자리) */
+  silverSpoon: number;
 }
 
 /** 2차 번식 여부 관문 카드 (04-breeding 7장) */
@@ -300,6 +304,8 @@ export interface InheritanceChickCard {
 export interface NestSiteCard {
   choiceId: string;
   hole: string;
+  /** 이 구멍에 지으면 둥지 단계마다의 손실 확률 0~1 (04-breeding 4장, 표시는 화면이 소수 첫째 %) */
+  nestLoss: number;
   /** 경쟁 구멍만 — 차지할 확률 0~1 */
   contestChance?: number;
 }

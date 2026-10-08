@@ -2,13 +2,26 @@
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 34 뒤, 자동 근무)
+- 마지막 근무: 2026-10-08 (라운드 36, 자동 근무)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
 - #21 M1 — 남은 조각 계속
-- #348 review:client 대기(S-23 구멍별 둥지 손실) — 승인 나면 merge-pr.sh
-- 다음 조각 후보: 카드 이소 기대 수·은수저 지수(clutch.ts 잠정, 04-breeding 6.4)
+- **#355** review:client 대기(S-22 육아 방침 미리보기 — #354를 다시 연 것, main 위 · 테스트 127) — 승인 나면 merge-pr.sh
+- 메모: 쌓은 PR은 바탕 PR 머지 때 브랜치가 지워지며 **자동으로 닫힌다**(#354). 다음엔 쌓지 말거나, 바탕 머지 전에 base를 main으로 바꿔 둘 것
+- 메모: 이 PC에서 `npm run check` 때 `sim/replay` 테스트가 부하로 5초 타임아웃 남(main 기준도 같음, 단독은 통과). 반복되면 테스트 timeout 올리기 검토
+
+## 최근 완료 (라운드 36, 2번째 근무)
+- **#352 머지**(client 승인) — 산란수 카드 이소 기대 수·은수저
+- #354 자동 닫힘 → main 위로 리베이스해 **#355**로 다시 엶(내용 같음)
+
+## 최근 완료 (라운드 36)
+- **#354 열음**(#21): `preview(state, 'parentingPolicy?…')` → `expectedFledged`·`breedingCost`(6.4·6.3). 단계마다 그 국면 배율 — 산란수 카드와 `broodSurvival` 공유. `formulas.broodCost` 분리. 테스트 127
+
+## 최근 완료 (라운드 35)
+- **#348 머지됨** — S-23 구멍별 둥지 손실
+- **#351 승인**(design #325 nestLossPerStep 0.16 — 테스트 0.12928·판정 1 예시 0.066876 확인, review:engine 뗌)
+- **#352 열음**(#21): `ClutchSizeCard.expectedFledged`·`silverSpoon` — `nestLossChance`(export)·`chickDeathChance`·`fulfilment`를 판정과 공유. check 통과(테스트 126)
 
 ## 최근 완료 (라운드 34 뒤, 2번째 근무)
 - **#344 머지**(client 승인) — #340 닫힘. client #346이 이 위에 올라감
