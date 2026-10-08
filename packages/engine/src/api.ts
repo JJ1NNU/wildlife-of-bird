@@ -332,6 +332,13 @@ function endStep(state: RunState, routed: ActResult, hadNest: boolean, data: Gam
 
   // 흐름의 마지막: 관문 (00-core-loop 4.6). 열리면 이 단계에 머문다
   if (isPhaseStart(state.calendar, state.at, 'pairing')) {
+    // 번식기 시작 — 지표 M-05(qa/metrics.md). 박새는 런 시작(1살)·계승 개체 모두 이때 1살 이상이라 늘 번식 가능
+    log.push({
+      at: state.at,
+      type: 'breedingSeason',
+      text: '번식기가 시작됐다',
+      deltas: { breedable: 1 },
+    });
     // 관문 직전: 지난 짝과의 이혼 (04-breeding 2.1)
     const parted = divorce(survived, data);
     log.push(...parted.log);
