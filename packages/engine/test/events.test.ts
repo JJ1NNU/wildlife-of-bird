@@ -215,6 +215,12 @@ describe('효과 (03-events 6.1 예시)', () => {
     const out = applyEffects(brood(5), [{ type: 'broodRisk', tier: 'low' }], sure);
     expect(out.state.nest).toBeUndefined();
     expect(out.log).toMatchObject([{ type: 'brood', cause: 'broodRisk' }]);
+    const marten = applyEffects(
+      brood(5),
+      [{ type: 'broodRisk', tier: 'low', predator: 'marten' }],
+      sure,
+    );
+    expect(marten.log).toMatchObject([{ type: 'brood', cause: 'broodRisk:marten' }]);
   });
 });
 
