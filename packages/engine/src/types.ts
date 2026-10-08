@@ -66,6 +66,10 @@ export interface Preview {
   statGains?: Partial<Record<StatName, number>>;
   /** 짝 지시 수락률 */
   mateAcceptance?: number;
+  /** 육아 방침 관문(S-22): 그 방침의 이소 기대 수 (04-breeding 6.4 — 표시는 소수 첫째 자리) */
+  expectedFledged?: number;
+  /** 육아 방침 관문(S-22): 그 방침의 지금 단계 번식 비용 (표시는 01-formulas 7.2 정수) */
+  breedingCost?: number;
   /** "배가 고파 위험한 곳을 골랐다" 같은 설명 */
   notes: string[];
 }
