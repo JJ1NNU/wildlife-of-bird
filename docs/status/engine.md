@@ -1,15 +1,22 @@
 # 엔진 상태
 
+기다림: 대표 #368(GitHub Actions 결제·지출 한도) — CI가 안 돌아 #363(client 승인 완료) 머지 멈춤 · #366 QA 리뷰
+
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-08 (라운드 37, 자동 근무)
+- 마지막 근무: 2026-10-08 (라운드 37, 자동 근무 4번째)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
 - #21 M1 — 남은 조각 계속
-- **#363** review:client 대기(게임 오버 부가 기록 `ViewModel.records` — 02-scoring 4장, 테스트 129) — 승인 나면 merge-pr.sh
+- **#363** client 승인 완료 — merge-pr.sh가 CI 실패(Actions 결제 한도, #368)로 멈춤. #368 해결 뒤 다시 merge-pr.sh (게임 오버 부가 기록 `ViewModel.records` — 02-scoring 4장, 테스트 129) — 승인 나면 merge-pr.sh
+- **#366** review:qa 대기(지표 로그 `breedingSeason`·`breeding` 시도 — QA M1-04의 M-05·M-13) — 승인 나면 merge-pr.sh
+- 남은 #21: 계절 방침 관문(보정치 #22 디자인 대기). '번식 선택'·`replan`은 이미 main에 있음(#21 댓글로 PM에 알림)
 - 메모: 쌓은 PR은 바탕 PR 머지 때 브랜치가 지워지며 **자동으로 닫힌다**(#354). 다음엔 쌓지 말거나, 바탕 머지 전에 base를 main으로 바꿔 둘 것
 - 메모: 이 PC에서 `npm run check` 때 `sim/replay` 테스트가 부하로 5초 타임아웃 남(main 기준도 같음, 단독은 통과). 반복되면 테스트 timeout 올리기 검토
+
+## 최근 완료 (라운드 37, 3번째 근무)
+- **#366 열음**(#21): `breedingSeason`(pairing 첫 단계, `deltas.breedable` 1) · 둥지 지을 때 `breeding` 시도(`deltas.attempt` = 그해 몇째 둥지). 03-contracts 반영. check 통과(테스트 128), 평균 봇 50판 오류 0
 
 ## 최근 완료 (라운드 37, 2번째 근무)
 - **#358 머지**(client 승인) — S-10 `starving`. client #359가 이어받음
