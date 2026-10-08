@@ -67,6 +67,7 @@
   "gate.clutchSize.help": "많이 낳으면 이소할 새끼가 늘지만, 새끼 하나하나의 몫과 첫 겨울 생존이 준다.",
   "gate.clutchSize.eggs": "알 {n}개",
   "gate.clutchSize.layingCost": "산란 비용/단계",
+  "gate.clutchSize.expectedFledged": "이소 기대",
   "gate.secondBrood.title": "한 번 더 둥지를 틀까?",
   "gate.secondBrood.yesCost": "털갈이 시기가 번식으로 바뀐다 — 겨울에 깃털이 모자랄 수 있다.",
   "gate.secondBrood.noGain": "털갈이로 넘어가 깃털을 회복한다.",
