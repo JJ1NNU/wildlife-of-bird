@@ -35,7 +35,7 @@
       {
         "id": "leave-early",
         "text": "일찍 자리를 뜨고 다른 곳에서 먹이를 찾는다",
-        "effects": [{ "type": "energy", "tier": "small", "sign": "loss" }]
+        "effects": []
       },
       {
         "id": "watch-distance",
