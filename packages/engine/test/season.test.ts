@@ -1,7 +1,7 @@
 import type { GameData, SeasonPolicyEffect } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
 import type { RunState } from '../src/index.ts';
-import { getChoices, getView, newRun } from '../src/index.ts';
+import { getChoices, getView, newRun, preview } from '../src/index.ts';
 import { nestLossChance } from '../src/nest.ts';
 import { judgeStep } from '../src/step.ts';
 import { actStep, seasonData } from './fixture.ts';
@@ -38,6 +38,16 @@ describe('계절 방침 관문 (11-season-policy 1장, 00-core-loop 4.6)', () =>
     expect(r.seasonPolicy).toEqual({ season: 'spring', id: 'selfCare' });
     expect(r.gate?.kind === 'mateCandidate' || r.at.period === 5).toBe(true);
     expect(r.gate?.kind).not.toBe('seasonPolicy');
+  });
+
+  it('미리보기는 방침을 건 다음 단계 위험·에너지 — 겨울 flock은 balanced보다 위험이 낮다 (4장)', () => {
+    const winter = actStep(at(23), 'action.forage', seasonData).state;
+    expect(winter.gate?.kind).toBe('seasonPolicy');
+    const p = (id: string) => preview(winter, `seasonPolicy.${id}`, seasonData);
+    expect(p('balanced').deathRisk).toBeGreaterThan(0);
+    expect(p('flock').deathRisk).toBeLessThan(p('balanced').deathRisk);
+    expect(p('territory').deathRisk).toBeGreaterThan(p('balanced').deathRisk);
+    expect(p('conserve').energyDelta[0]).not.toBe(p('balanced').energyDelta[0]);
   });
 
   it('계절 중간 시기에는 열리지 않고, 계절이 바뀌면 지난 방침을 거둔다', () => {

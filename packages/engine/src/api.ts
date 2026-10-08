@@ -194,6 +194,7 @@ function findChoice(state: RunState, choiceId: string, data: GameData): Choice {
  */
 export function preview(state: RunState, choiceId: string, data: GameData): Preview {
   findChoice(state, choiceId, data);
+  if (state.gate?.kind === 'seasonPolicy') return seasonPreview(state, choiceId, data);
   // 관문 고르기는 판정이 없다 — 위험·에너지 변화 없음. 짝 지시는 화면용 수락률(2.5)
   if (state.gate) {
     const p =
@@ -227,6 +228,39 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
     energyDelta: [delta, delta],
     statGains,
     notes: out.starved ? ['이대로면 굶어 죽는다'] : [],
+  };
+}
+
+/**
+ * 계절 방침 관문의 미리보기 (11-season-policy 4장): 방침을 건 지금 상태에서 다음 단계 루틴(제안값)을
+ * 위험·이벤트 없이 돌린 위험 합(1 − 칸마다 생존의 곱)·에너지 변화 (01-formulas 7장)
+ */
+function seasonPreview(state: RunState, choiceId: string, data: GameData): Preview {
+  const { gate: _g, ...open } = chooseSeason(state, choiceId, data).state;
+  const n = routineSlots(open, data);
+  let s: RunState = open;
+  let survive = 1;
+  let starved = false;
+  for (const id of suggestions(open, data)) {
+    if (!id) continue;
+    const out = judgeStep(s, id, data, n);
+    s = {
+      ...s,
+      node: out.node,
+      stay: out.stay,
+      player: { ...s.player, energy: out.energy, feather: out.feather, stats: out.stats },
+    };
+    if (out.starved) {
+      starved = true;
+      break;
+    }
+    survive *= 1 - out.risk;
+  }
+  const delta = s.player.energy - open.player.energy;
+  return {
+    deathRisk: starved ? 1 : 1 - survive,
+    energyDelta: [delta, delta],
+    notes: starved ? ['이대로면 굶어 죽는다'] : [],
   };
 }
 
