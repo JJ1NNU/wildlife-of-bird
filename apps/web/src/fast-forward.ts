@@ -1,6 +1,7 @@
-import { act, getChoices, getView, type Preview, preview, type RunState } from '@wb/engine';
+import { getChoices, getView, type Preview, preview, type RunState } from '@wb/engine';
 import type { GameData } from '@wb/schema';
 import avg from '../../../qa/bots/avg.ts';
+import { actRecorded } from './save.ts';
 
 /**
  * 개발용 빨리 감기(#24, client.md): QA 평균 봇(#26)이 사람 대신 고른다 — 대표 플레이테스트용.
@@ -23,7 +24,7 @@ export function fastForward(state: RunState, data: GameData): RunState {
       choices.filter((c) => !c.disabled).map((c) => [c.id, preview(s, c.id, data)]),
     );
     const id = avg.choose({ view: getView(s, data), choices, previews });
-    s = act(s, id, data).state;
+    s = actRecorded(s, id, data).state;
   }
   return s;
 }

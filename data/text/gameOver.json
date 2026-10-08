@@ -14,5 +14,6 @@
   "gameOver.records.span": "이어 온 기간",
   "gameOver.records.spanValue": "{generations}세대 · {years}년",
   "gameOver.records.fledged": "독립시킨 새끼",
-  "gameOver.records.oldestAge": "가장 오래 산 개체"
+  "gameOver.records.oldestAge": "가장 오래 산 개체",
+  "gameOver.exportRecord": "플레이 기록 저장"
 }
