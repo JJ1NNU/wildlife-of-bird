@@ -38,6 +38,7 @@
 | 08 | `08-environment.md` | 환경 변화(천이·홍수·해거리·매립)의 규칙 | M5 | 미작성 |
 | 09 | `09-titles.md` | 칭호·업적의 조건 | M5 | 미작성 |
 | 10 | `10-weekly-seed.md` | 주간 시드 규칙 | M6 | 미작성 |
+| 11 | `11-season-policy.md` | 계절 방침 — 박새 계절별 목록, 기본값, 효과 키와 공식 자리 | M1 | v0 (#369, 잠정 수치) |
 
 `data/` 쪽 산출물 (같은 부서, 같은 순서)
 
@@ -48,6 +49,7 @@
 | `data/balance/species/parus-minor.json` | 박새 밸런스·적성·노화 | M0 (#6) → M2 튜닝 |
 | `data/calendar/parus-minor.json` | 박새 연간 단계표 — 형식 `00-core-loop` 4.3 | M0 (#8) |
 | `data/balance/breeding.json` | 번식 계수(짝·지시·둥지 자리·육아 방침, 종별 산란수 등) — `04-breeding` | M1 (#22) |
+| `data/balance/season-policy.json` | 계절 방침 효과·종별 목록 — `11-season-policy` | M1 (#369) |
 
 ## 용어 (전 명세 공통)
 
