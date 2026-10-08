@@ -1,0 +1,36 @@
+{
+  "policies": {
+    "balanced": {},
+    "conserve": { "playerCostPerStep": -1.5, "intakeMult": 0.85 },
+    "flock": { "playerRiskMult": 0.85, "intakeMult": 0.9, "statGainMult": { "social": 1.3 } },
+    "territory": { "intakeMult": 1.1, "playerRiskMult": 1.15, "statGainMult": { "display": 1.3 } },
+    "nestFocus": { "nestLossMult": 0.9, "playerCostPerStep": 1, "playerRiskMult": 1.05 },
+    "selfCare": { "playerRiskMult": 0.9, "nestLossMult": 1.1 },
+    "moltFocus": { "moltRecoverMult": 1.25, "intakeMult": 0.95 },
+    "explore": {
+      "statGainMult": {
+        "flight": 1.2,
+        "foraging": 1.2,
+        "vigilance": 1.2,
+        "stamina": 1.2,
+        "display": 1.2,
+        "social": 1.2
+      },
+      "playerRiskMult": 1.1
+    },
+    "fatten": { "intakeMult": 1.1, "playerRiskMult": 1.08 },
+    "rank": {
+      "statGainMult": { "social": 1.25, "display": 1.25 },
+      "playerCostPerStep": 0.5,
+      "playerRiskMult": 1.05
+    }
+  },
+  "species": {
+    "parus-minor": {
+      "winter": ["balanced", "conserve", "flock", "territory"],
+      "spring": ["balanced", "nestFocus", "selfCare"],
+      "summer": ["balanced", "moltFocus", "explore"],
+      "autumn": ["balanced", "fatten", "rank"]
+    }
+  }
+}
