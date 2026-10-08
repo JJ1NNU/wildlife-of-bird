@@ -3,6 +3,7 @@ import { phaseAt } from './calendar.ts';
 import { layingCost } from './clutch.ts';
 import type { ActionId } from './formulas.ts';
 import {
+  broodCost,
   deathRisk,
   expenditure,
   fatCap,
@@ -169,6 +170,31 @@ function orderCost(state: RunState, data: GameData): number {
   return cost;
 }
 
+/** 소비(2.4)의 포란·급이 입력 — 지금 단계·둥지·방침 */
+function broodInput(state: RunState, data: GameData) {
+  const phase = phaseAt(state.calendar, state.at);
+  return {
+    phase,
+    // 박새는 암컷만 포란한다 (01-formulas 2.4)
+    incubating:
+      state.player.sex === 'female' && phase === 'incubation' && state.nest?.eggs !== undefined,
+    feeding: (state.nest?.chicks ?? 0) > 0,
+    feedIntensity: feedIntensity(state, data),
+    feedCostMult: feedCostMult(state, data),
+    chicks: state.nest?.chicks ?? 0,
+  };
+}
+
+/** 내 번식 비용 — 이 단계 소비의 번식 몫: 포란·급이 + 산란 + 지시·도움 + 방침 (04-breeding 6.3 '번식 비용 칸') */
+export function breedingCost(state: RunState, data: GameData): number {
+  return (
+    broodCost(data.formulas, broodInput(state, data)) +
+    layingCost(data, state) +
+    orderCost(state, data) +
+    parentingCost(state, data)
+  );
+}
+
 /** 그 시기에 걸린 `riskMod`의 곱 (01-formulas 3.1 · 3.2 위험 보정). 없으면 1 */
 export function periodRiskFactor(state: RunState, data: GameData): number {
   return riskModFactor(data.effects.riskMod, state.periodMods?.risk ?? []);
@@ -211,15 +237,9 @@ export function judgeStep(
   const spent =
     expenditure(f, species, {
       period: state.at.period,
-      phase,
       action,
       flight: stat('flight'),
-      // 박새는 암컷만 포란한다 (01-formulas 2.4)
-      incubating: p.sex === 'female' && phase === 'incubation' && state.nest?.eggs !== undefined,
-      feeding: (state.nest?.chicks ?? 0) > 0,
-      feedIntensity: feedIntensity(state, data),
-      feedCostMult: feedCostMult(state, data),
-      chicks: state.nest?.chicks ?? 0,
+      ...broodInput(state, data),
     }) +
     layingCost(data, state) +
     orderCost(state, data) +
