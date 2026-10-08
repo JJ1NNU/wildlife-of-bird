@@ -29,7 +29,15 @@ import { useEffect, useState } from 'react';
 import { birdUrl } from './art.ts';
 import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
-import { clearRun, loadRun, saveRun } from './save.ts';
+import {
+  actRecorded,
+  clearRun,
+  hasRecord,
+  loadRun,
+  runRecordLine,
+  saveRun,
+  startRecord,
+} from './save.ts';
 import { t } from './text.ts';
 
 /**
@@ -233,6 +241,7 @@ function lifeLine(r: LifeRecord, cause?: string): string {
 
 function startRun(data: GameData): RunState {
   const state = newRun({ speciesId: SPECIES, seed: Date.now().toString(36), mode: 'free' }, data);
+  startRecord();
   saveRun(state);
   return state;
 }
@@ -406,14 +415,14 @@ export function Game({ data }: { data: GameData }) {
       if (!gateId) return;
       // 계승은 되돌릴 수 없다 — 확인 시트를 거친다 (잔류는 바로)
       if (inheritChick && !confirming) return setConfirming(true);
-      commit(act(state, gateId, data).state);
+      commit(actRecorded(state, gateId, data).state);
       return;
     }
     // 칸마다 act — 마지막 칸을 채우면 엔진이 루틴을 실행한다
     if (!ready) return;
     let s = state;
     let log: LogEntry[] = [];
-    for (const slot of slots) ({ state: s, log } = act(s, slot.id as string, data));
+    for (const slot of slots) ({ state: s, log } = actRecorded(s, slot.id as string, data));
     // 마지막 칸의 act가 루틴을 실행한다 — 그 로그가 decision(replan) → slot… → event | death
     saveRun(s);
     const death = log.find((l) => l.type === 'death');
@@ -451,6 +460,25 @@ export function Game({ data }: { data: GameData }) {
     setEdited(next);
     setOpen(undefined);
     setCursor(k + 1 < plan.length ? k + 1 : undefined);
+  }
+
+  /** 플레이 기록 JSONL 파일로 저장(#395) — QA가 `npm run sim -- replay`로 다시 돌린다 */
+  async function exportRecord() {
+    const line = state && (await runRecordLine(state));
+    if (!state || !line) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(
+      new Blob(
+        [
+          `${line}
+`,
+        ],
+        { type: 'application/x-ndjson' },
+      ),
+    );
+    a.download = `wb-run-${state.config.seed}.jsonl`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
   function restart() {
@@ -1019,6 +1047,16 @@ export function Game({ data }: { data: GameData }) {
               <li key={logKey(l)}>{logLine(l)}</li>
             ))}
           </ul>
+          {hasRecord() && (
+            <button
+              type="button"
+              className="btn"
+              onClick={exportRecord}
+              data-testid="export-record"
+            >
+              {t('gameOver.exportRecord')}
+            </button>
+          )}
           <button type="button" className="btn prim" onClick={restart}>
             {t('title.new')}
           </button>
