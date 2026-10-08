@@ -10,13 +10,13 @@
 - **#360 1차 PR #365** — first-mixed-flock 해결(verified), first-moult · roost-hole · late-brood-moult · winter-feathers 정리(needs-review 유지, SRC-115~119 더함, winter-feathers 본문 한 문장 약하게)
 
 ## 진행 중
-- PR #365 — CI 끝나면 `bash scripts/merge-pr.sh 365`(리뷰 라벨 없음, dept:content만)
+- #360 — #365 머지됨(5건 정리·해결). 남은 몫 P-15 · P-29
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
-1. #365 머지 → #360 남은 몫: P-15 long-cold-night · P-29 dawn-feeding(2건 더 정리하면 #360 닫기)
+1. #360 남은 몫: P-15 long-cold-night · P-29 dawn-feeding(2건 더 정리하면 #360 닫기)
 2. 다음 SRC 번호 120, 다음 P 번호 P-38
 3. fact-check 열림: P-10(주식) · P-14 · P-15(long-cold-night) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-33 · P-35
 4. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155·#313(#21) 뒤
