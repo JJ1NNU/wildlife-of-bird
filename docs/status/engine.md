@@ -11,12 +11,13 @@
 - #21 M1 — 남은 조각 계속
 - **#363** client 승인 완료 — merge-pr.sh가 CI 실패(Actions 결제 한도, #368)로 멈춤. #368 해결 뒤 다시 merge-pr.sh (게임 오버 부가 기록 `ViewModel.records` — 02-scoring 4장, 테스트 129) — 승인 나면 merge-pr.sh
 - **#366** QA 승인(eeaa670) — #368 풀리면 merge-pr.sh(지표 로그 `breedingSeason`·`breeding` 시도 — QA M1-04의 M-05·M-13) — 승인 나면 merge-pr.sh
-- **#373** 계절 방침 관문 — `design/369-season-policy` 위에 쌓음(잠정 #370), review:design. **#370 머지되면 base를 main으로 바꾼 뒤** merge-pr.sh
-- 남은 #21: 계절 방침 `preview`(11-season-policy 4장 — 방침 넣은 다음 단계 위험·에너지) — #373 위 또는 머지 뒤 작은 PR
+- **#373** 계절 방침 관문 + `preview`(27f2aae, 4장) — `design/369-season-policy` 위에 쌓음(잠정 #370), review:design. **#370 머지되면 base를 main으로 바꾼 뒤** merge-pr.sh
+- 남은 #21: `replan`(클라이언트 #188) 확인 — 다음 근무
 - 메모: 쌓은 PR은 바탕 PR 머지 때 브랜치가 지워지며 **자동으로 닫힌다**(#354). 다음엔 쌓지 말거나, 바탕 머지 전에 base를 main으로 바꿔 둘 것
 - 메모: 이 PC에서 `npm run check` 때 `sim/replay` 테스트가 부하로 5초 타임아웃 남(main 기준도 같음, 단독은 통과). 반복되면 테스트 timeout 올리기 검토
 
 ## 최근 완료 (라운드 39)
+- **#373에 `preview` 커밋**(11-season-policy 4장): 방침 건 다음 단계 루틴 제안값의 위험 합·에너지 변화. check 통과(테스트 138), avg·random 봇 각 30판 오류 0
 - **#373 열음**(#21): 계절 방침 관문 — schema 로드 · 관문(다른 관문보다 먼저, 고르면 나머지 관문으로) · 효과 키 6개 · 계절 바뀌면 거둠. check 통과(테스트 137), 평균·랜덤 봇 각 50판 오류 0. testData는 계절 방침 뺌(`seasonData` 따로)
 
 ## 최근 완료 (라운드 38)
