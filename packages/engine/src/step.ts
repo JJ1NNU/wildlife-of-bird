@@ -20,6 +20,7 @@ import {
 import { nestLocked } from './nest.ts';
 import { orderValue } from './order.ts';
 import { feedCostMult, feedIntensity, parentingCost, playerRiskMult } from './parenting.ts';
+import { seasonEffect } from './season.ts';
 import type { Choice, RunState } from './types.ts';
 
 /**
@@ -222,32 +223,39 @@ export function judgeStep(
   const season = seasonOf(species, state.at.period);
   const tiers = mapNode(data, node).seasons[season];
   const stat = (s: StatName) => p.stats[s] ?? 0;
+  // 계절 방침 (11-season-policy 3장)
+  const sp = seasonEffect(state, data);
 
   // 판정 1 — 에너지 수지 (01-formulas 2장)
   const cap = fatCap(f, stat('stamina'));
-  const gained = intake(f, {
-    food: tiers.food,
-    competition: tiers.competition,
-    foodModFactor: foodModFactor(data.effects.foodMod, state.periodMods?.food ?? []),
-    efficiency: forageEfficiency(f, stat('foraging'), p.expYears),
-    action,
-    // 9.4: 고갈은 연속 체류 ÷ 칸 수 — 같은 시간 머물면 단계 때와 같은 만큼 준다
-    stay: stay / n,
-  });
-  const spent =
+  const gained =
+    intake(f, {
+      food: tiers.food,
+      competition: tiers.competition,
+      foodModFactor: foodModFactor(data.effects.foodMod, state.periodMods?.food ?? []),
+      efficiency: forageEfficiency(f, stat('foraging'), p.expYears),
+      action,
+      // 9.4: 고갈은 연속 체류 ÷ 칸 수 — 같은 시간 머물면 단계 때와 같은 만큼 준다
+      stay: stay / n,
+    }) * (sp.intakeMult ?? 1);
+  const spent = Math.max(
+    0,
     expenditure(f, species, {
       period: state.at.period,
       action,
       flight: stat('flight'),
       ...broodInput(state, data),
     }) +
-    layingCost(data, state) +
-    orderCost(state, data) +
-    parentingCost(state, data);
+      layingCost(data, state) +
+      orderCost(state, data) +
+      parentingCost(state, data) +
+      (sp.playerCostPerStep ?? 0),
+  );
   // 9.4: 에너지 변화 전체(잠 회복 포함)와 깃털 변화는 ÷ 칸 수
   const recover = species.sleepRecoverPerStep[season];
   const { energy, starved } = nextEnergy(cap, p.energy, gained / n, (spent - recover) / n);
-  const feather = p.feather + (nextFeather(f, p.feather, phase, action) - p.feather) / n;
+  const feather =
+    p.feather + (nextFeather(f, p.feather, phase, action, sp.moltRecoverMult) - p.feather) / n;
   if (starved) return { phase, node, stay, energy, starved, feather, stats: p.stats, risk: 0 };
 
   // 판정 2 — 스탯 상승 (01-formulas 1.3)
@@ -258,7 +266,9 @@ export function judgeStep(
     if (!s || base === undefined) continue;
     const potential = p.potential[s] ?? 0;
     const current = stats[s] ?? 0;
-    const gain = statGain(f, species, { stat: s, base, potential, current, growthMult: growth });
+    const gain =
+      statGain(f, species, { stat: s, base, potential, current, growthMult: growth }) *
+      (sp.statGainMult?.[s] ?? 1);
     stats[s] = Math.min(potential, current + gain);
   }
 
@@ -268,8 +278,9 @@ export function judgeStep(
     phase,
     season,
     action,
-    // 위험 보정 = 그 시기의 이벤트·환경 `riskMod` × 육아 방침 `quality`
-    riskModFactor: periodRiskFactor(state, data) * playerRiskMult(state, data),
+    // 위험 보정 = 그 시기의 이벤트·환경 `riskMod` × 육아 방침 `quality` × 계절 방침
+    riskModFactor:
+      periodRiskFactor(state, data) * playerRiskMult(state, data) * (sp.playerRiskMult ?? 1),
     vigilance: stats.vigilance ?? 0,
     flight: stats.flight ?? 0,
     expYears: p.expYears,

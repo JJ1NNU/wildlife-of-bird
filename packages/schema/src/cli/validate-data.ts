@@ -24,6 +24,7 @@ const counted = [
   ['효과 등급표 (data/balance/effects.json)', raw.effects ? 1 : 0],
   ['공식 계수 (data/balance/formulas.json)', raw.formulas ? 1 : 0],
   ['번식 계수 (data/balance/breeding.json)', raw.breeding ? 1 : 0],
+  ['계절 방침 (data/balance/season-policy.json)', raw.seasonPolicy ? 1 : 0],
 ] as const;
 
 for (const [label, count] of counted) {

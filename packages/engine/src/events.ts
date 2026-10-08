@@ -10,6 +10,7 @@ import type {
 import { phaseAt } from './calendar.ts';
 import { fatCap, statGain } from './formulas.ts';
 import { nextChance, nextFloat } from './rng.ts';
+import { seasonEffect } from './season.ts';
 import { growthNow, mapNode, speciesBalance } from './step.ts';
 import type { EffectPreview, LogEntry, RunState } from './types.ts';
 
@@ -229,13 +230,14 @@ export function applyEffects(
       case 'statGain': {
         const potential = p.potential[e.stat] ?? 0;
         const current = p.stats[e.stat] ?? 0;
-        const gain = statGain(f, speciesBalance(data, p.speciesId), {
-          stat: e.stat,
-          base: t.statGain[e.tier],
-          potential,
-          current,
-          growthMult: growthNow(f, p),
-        });
+        const gain =
+          statGain(f, speciesBalance(data, p.speciesId), {
+            stat: e.stat,
+            base: t.statGain[e.tier],
+            potential,
+            current,
+            growthMult: growthNow(f, p),
+          }) * (seasonEffect(s, data).statGainMult?.[e.stat] ?? 1);
         const stats = { ...p.stats, [e.stat]: Math.min(potential, current + gain) };
         s = { ...s, player: { ...p, stats } };
         break;
@@ -316,13 +318,14 @@ export function previewEffects(
       case 'statGain': {
         const potential = p.potential[e.stat] ?? 0;
         const current = p.stats[e.stat] ?? 0;
-        const gain = statGain(f, speciesBalance(data, p.speciesId), {
-          stat: e.stat,
-          base: t.statGain[e.tier],
-          potential,
-          current,
-          growthMult: growthNow(f, p),
-        });
+        const gain =
+          statGain(f, speciesBalance(data, p.speciesId), {
+            stat: e.stat,
+            base: t.statGain[e.tier],
+            potential,
+            current,
+            growthMult: growthNow(f, p),
+          }) * (seasonEffect(state, data).statGainMult?.[e.stat] ?? 1);
         return { type: 'statGain', stat: e.stat, gain: Math.min(potential - current, gain) };
       }
       case 'deathRisk':
