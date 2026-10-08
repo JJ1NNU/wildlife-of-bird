@@ -125,6 +125,7 @@ interface ViewModel {
   potentialRange: { [stat]: [아래, 위] }  // 플레이어 잠재력 등급 범위 — 숫자 대신 이것을 보인다 (05-inheritance 4장)
   totalBreeding: number          // 점수
   gameOver: boolean
+  records?: { yearsSurvived, generations, fledged, oldestAge }  // 게임 오버 때만 — 부가 기록(02-scoring 4장). yearsSurvived = 지난 시기 ÷ 24 소수 첫째 버림
   gate?: { kind: 'mateCandidate', cards: MateCandidateCard[], previousGone?: 'mateDeath' | 'divorce' }  // 열린 관문 — 짝 후보(S-20). previousGone = 지난 짝이 없어진 이유(2.1)
        | { kind: 'mateOrder', cards: { choiceId, acceptance?: 'high' | 'mid' | 'low' }[] }  // 짝 지시 — 수락률은 등급만
        | { kind: 'parentingPolicy', cards: Choice['items'] }  // 육아 방침 — 항목별 선택·현재값
@@ -218,6 +219,8 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 - **판 기록**(JSONL, 판 하나 = 한 줄): `config` · `bot {id, version}` · `gameVersion` · `commit` · `choices`(선택 id 순서) · `result {totalBreeding, gameOver, endAt}` · `error`(null 또는 `{message, at, stack}`) · `finalStateHash`(`serialize` 결과의 SHA-256) · `log`.
 - `replay`는 `config` + `choices`를 다시 재생한다. `resumeAt = k`면 k번째 선택 앞에서 `serialize` → `deserialize`로 끊었다 이어 간다. 명령은 `CLAUDE.md` "시뮬레이션 실행".
 - 지표용 로그 종류(`decision` `breedingSeason` `breeding` `inheritance` `death` `event`, #33 4절)는 그 규칙을 구현할 때(M1, #21) 더한다.
+  - `breedingSeason`: `pairing` 첫 단계(관문 직전)에 1건, `deltas.breedable` = 1(번식 가능)·0. 박새는 늘 1(런 시작 1살 · 계승 개체도 이때 1살 이상) — 지표 M-05
+  - `breeding`: 둥지를 지을 때 **시도** 1건 `deltas.attempt` = 그해 몇째 둥지(1 = 1차 — 지표 M-13), 독립 때 **성공** 1건 `deltas.totalBreeding: 1`·`fledged`. 둘은 `deltas`로 가른다
 
 ### 구현 상태 (M1 진행 중, #21)
 - 실제 규칙: 단계표(시기별 단계 수·국면) · 행동·훈련·옮기기 선택지 · 판정 1·2·3(에너지 → 스탯 → 위험, `00-core-loop` 3.1) · 아사(`starvation`)·포식(`predation`) 사망 · `period 1` 진입(나이·경험 +1, 노화, 단계표 초기화). 로그 `decision` · `death`. **짝 후보 관문**(`pairing` 첫 단계, 04-breeding 2.2~2.4 — 후보 생성·신호·상호 선택·1장이면 자동 진행), `RunState.mate`·`gate`, 로그 `mate`. 정규분포 표본은 `nextNormal`(Box–Muller, 균등 2개).

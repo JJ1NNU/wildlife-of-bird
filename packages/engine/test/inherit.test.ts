@@ -147,4 +147,29 @@ describe('독립 → 계승 관문 (00-core-loop 6.1 · 05-inheritance 5장)', (
       fledged: 0,
     });
   });
+
+  it('부가 기록(02-scoring 4장): 103시기 = 4.2년 · 세대 · 독립 합 · 최장 나이', () => {
+    const done = actStep(opened.state, 'inherit.chick.2', data).state;
+    const death = {
+      ...done.life,
+      end: { at: done.at, age: 3 },
+      reason: 'death' as const,
+      fledged: 4,
+    };
+    // 런 시작 시기에서 103시기 뒤(4년 7시기)
+    const p = start.at.period + 103 - 4 * 24;
+    const over: RunState = {
+      ...done,
+      at: { year: 5, period: p, step: 1 },
+      gameOver: true,
+      log: [...done.log, { at: done.at, type: 'death', text: '', life: death }],
+    };
+    expect(getView(over, data).records).toEqual({
+      yearsSurvived: 4.2,
+      generations: 2,
+      fledged: 6,
+      oldestAge: 3,
+    });
+    expect(getView(done, data).records).toBeUndefined();
+  });
 });

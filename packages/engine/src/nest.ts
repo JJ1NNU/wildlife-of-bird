@@ -114,8 +114,16 @@ export function buildNest(
   }
   if (site === chosen)
     log.push({ at: state.at, type: 'nest', text: `${HOLE_LABEL[site] ?? site}에 둥지를 지었다` });
+  // 둥지 하나 = 번식 시도 하나 — 지표 M-13(qa/metrics.md). 성공은 독립 때 `breeding`(`deltas.totalBreeding`)
+  const yearNests = (state.yearNests ?? 0) + 1;
+  log.push({
+    at: state.at,
+    type: 'breeding',
+    text: '번식을 시작했다',
+    deltas: { attempt: yearNests },
+  });
   const nest: Nest = { site, node: state.node };
-  return { state: { ...state, rng, nest, yearNests: (state.yearNests ?? 0) + 1 }, log };
+  return { state: { ...state, rng, nest, yearNests }, log };
 }
 
 /**

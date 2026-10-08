@@ -407,6 +407,18 @@ export interface RunState {
   log: LogEntry[];
 }
 
+/** 런 부가 기록 (02-scoring 4장). 리더보드는 `yearsSurvived`·`generations`를 싣는다 (03-contracts 7장) */
+export interface RunRecords {
+  /** 런 시작부터 게임 오버까지 지난 시기 수 ÷ 24, 소수 첫째 자리에서 버림 */
+  yearsSurvived: number;
+  /** 계승 횟수 + 1 */
+  generations: number;
+  /** 조작 개체가 독립시킨 새끼 수의 합 */
+  fledged: number;
+  /** 조작했던 개체 중 가장 오래 산 개체의 나이(조작 시작 전 나이 포함) */
+  oldestAge: number;
+}
+
 /** 화면이 그대로 그리는 형태. 화면은 확률·점수를 계산하지 않는다 (엔진 원칙, 03-contracts 1.5) */
 export interface ViewModel {
   at: CalendarAt;
@@ -424,6 +436,8 @@ export interface ViewModel {
   potentialRange: Partial<Record<StatName, [string, string]>>;
   totalBreeding: number;
   gameOver: boolean;
+  /** 게임 오버 때만 — 부가 기록(점수 아님, 02-scoring 4장) */
+  records?: RunRecords;
   /** 열려 있는 관문의 카드 — 짝 후보(S-20) · 짝 지시 · 둥지 자리(S-23) · 산란수 */
   gate?:
     | { kind: 'mateCandidate'; cards: MateCandidateCard[]; previousGone?: MateGone }
