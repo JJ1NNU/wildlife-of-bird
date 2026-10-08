@@ -1230,6 +1230,11 @@ export function Game({ data }: { data: GameData }) {
           </ul>
         ) : view.gate?.kind === 'event' ? (
           <ul className="list sheet" aria-label={t('gate.event.label')} data-testid="gate-event">
+            {/* 잠정(#188): 전용 장면 그림(asset-list scene.*)이 오기 전까지 새 + 위험 아이콘 (02-event 메모, art.md 7장) */}
+            <li className="scene" aria-hidden="true" data-testid="event-scene">
+              <img className="scene-bird" src={birdUrl(view.speciesId)} alt="" />
+              <span className="ico scene-risk" style={iconStyle('icon.risk')} />
+            </li>
             <li className="gate-title b">{gateEvent?.title ?? view.gate.id}</li>
             {gateEvent && <li className="gate-title muted small">{gateEvent.body}</li>}
             {view.nest?.chicks !== undefined && (
