@@ -36,7 +36,8 @@ import { t } from './text.ts';
  * M1 화면(#24): S-01 타이틀·이어하기 · S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
  * 배치는 아트 중충실도 와이어프레임(`docs/ux/wireframes/mid/01`, #123)과 #53(결정 영역 550)을 따른다.
  * 훈련 ▾ · 옮기기 ▾는 펼쳐서 고른다(와이어프레임 B, D-016) — 펼침은 화면만의 상태라 저장하지 않는다.
- * 개발용 빨리 감기(QA 평균 봇)는 피드 위에 둔다 — 결정 영역 배치를 건드리지 않고, 출시 빌드에서는 숨긴다.
+ * 개발용 빨리 감기(QA 평균 봇)·스탯 표는 피드 맨 아래에 둔다 — 피드 위쪽은 내리면 sticky 결정 영역에 덮여 안 눌리므로(#386)
+ * 끝까지 내리면 보이는 자리로. 결정 영역 배치를 건드리지 않고, 출시 빌드에서는 숨긴다.
  * 짝 후보(S-20) · 둥지 자리(S-23) 관문은 결정 영역을 통째로 쓴다(와이어프레임 mid/03 E·F) — 지난 짝 카드·구멍별 둥지 손실%는 엔진이 내면(#21).
  * 개발용 스탯 표 · 피드 줄마다 스탯 변화 · 게임 오버의 죽은 이유는 대표 플레이테스트용(#176).
  * 행동은 단계마다 칸 N개 루틴으로 짠다(#188, 와이어프레임 mid/06 A·B): 기본값 = 엔진 제안(전 단계 루틴), 칸 채우기는
@@ -1618,6 +1619,14 @@ export function Game({ data }: { data: GameData }) {
       </div>
 
       <section className="feed" aria-label={t('main.feed')}>
+        <ul className="feed-list">
+          {view.recentLog
+            .slice()
+            .reverse()
+            .map((l) => (
+              <li key={logKey(l)}>{logLine(l)}</li>
+            ))}
+        </ul>
         {SHOW_FAST_FORWARD && (
           <div className="dev small">
             <span className="muted">개발용 · 평균 봇으로</span>
@@ -1647,14 +1656,6 @@ export function Game({ data }: { data: GameData }) {
             </tbody>
           </table>
         )}
-        <ul className="feed-list">
-          {view.recentLog
-            .slice()
-            .reverse()
-            .map((l) => (
-              <li key={logKey(l)}>{logLine(l)}</li>
-            ))}
-        </ul>
       </section>
     </main>
   );

@@ -37,8 +37,17 @@ export const Effect = z.discriminatedUnion('type', [
       error: 'predator는 cause가 predation일 때만 쓴다',
       path: ['predator'],
     }),
-  z.object({ type: z.literal('broodRisk'), tier: RiskTier }).strict(),
-  z.object({ type: z.literal('chickLoss'), tier: Tier }).strict(),
+  /** `predator`: 둥지를 턴 포식자(`data/predators/`의 id) — 실패 로그 `cause`에 붙는다 */
+  z
+    .object({
+      type: z.literal('broodRisk'),
+      tier: RiskTier,
+      predator: z.string().min(1).optional(),
+    })
+    .strict(),
+  z
+    .object({ type: z.literal('chickLoss'), tier: Tier, predator: z.string().min(1).optional() })
+    .strict(),
   z.object({ type: z.literal('riskMod'), tier: RiskTier }).strict(),
   z.object({ type: z.literal('foodMod'), tier: Tier, sign: Sign }).strict(),
   z.object({ type: z.literal('fledgeEarly') }).strict(),
