@@ -216,3 +216,13 @@ describe('선택지 (03-contracts 3장 선택지 ID)', () => {
     expect(s.stay).toBe(slotsOf(start) - 1);
   });
 });
+
+describe('굶주림 경고 (01-formulas 2.1)', () => {
+  it('에너지가 지방 상한 × starvationWarnRatio 미만일 때만', () => {
+    const view = getView(start, testData);
+    const line = view.energyCap * testData.formulas.energy.starvationWarnRatio;
+    const withEnergy = (energy: number) => ({ ...start, player: { ...start.player, energy } });
+    expect(getView(withEnergy(line), testData).starving).toBe(false);
+    expect(getView(withEnergy(line - 0.01), testData).starving).toBe(true);
+  });
+});

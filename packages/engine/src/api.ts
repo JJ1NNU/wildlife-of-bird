@@ -526,13 +526,15 @@ function yearStart(state: RunState, data: GameData): ActResult {
  */
 export function getView(state: RunState, data: GameData): ViewModel {
   const nextIn = nextSlotIn(state, data);
+  const energyCap = fatCap(data.formulas, state.player.stats.stamina ?? 0);
   return structuredClone({
     at: state.at,
     phase: phaseAt(state.calendar, state.at),
     speciesId: state.config.speciesId,
     node: state.node,
     player: state.player,
-    energyCap: fatCap(data.formulas, state.player.stats.stamina ?? 0),
+    energyCap,
+    starving: state.player.energy < energyCap * data.formulas.energy.starvationWarnRatio,
     potentialRange: Object.fromEntries(
       Object.entries(state.player.potential).map(([stat, v]) => [
         stat,
