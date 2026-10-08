@@ -3,6 +3,7 @@ import {
   type CalendarAt,
   type Choice,
   type ClutchSizeCard,
+  type EffectPreview,
   type EventOptionCard,
   formatEnergyDelta,
   formatRisk,
@@ -736,6 +737,71 @@ export function Game({ data }: { data: GameData }) {
 
   /** 2차 번식 카드 (와이어프레임 mid/04-inherit C): 한다 = 에너지 −n → 남는 값 · 대가 한 줄, 안 한다 = 털갈이 */
   /** S-13 선택지 한 줄 — 판정형이면 스탯 판정 확률(정수 %, 와이어프레임 mid/02 A) */
+  /** 효과 한 덩이(03-events 5.3) — 내 사망 위험만 띠, 새끼·둥지는 숫자 + 낱말(와이어프레임 mid/02 B) */
+  function fxItem(e: EffectPreview, i: number) {
+    switch (e.type) {
+      case 'energy':
+      case 'feather':
+      case 'bond':
+        return (
+          <span key={i}>{t(`gate.event.fx.${e.type}`, { n: formatEnergyDelta(e.delta) })}</span>
+        );
+      case 'statGain':
+        return (
+          <span key={i}>
+            {t('gate.event.fx.statGain', { stat: STAT_WORD[e.stat], n: formatStatGain(e.gain) })}
+          </span>
+        );
+      case 'deathRisk': {
+        const r = formatRisk(data.formulas, e.chance);
+        return (
+          <span key={i} className={`risk ${r.band}`}>
+            <span className="ico s" style={iconStyle('icon.risk')} />
+            {t('gate.event.fx.deathRisk', { p: r.text })}
+          </span>
+        );
+      }
+      case 'broodRisk':
+        return (
+          <span key={i} className="danger">
+            {t('gate.event.fx.broodRisk', { p: formatRisk(data.formulas, e.chance).text })}
+          </span>
+        );
+      case 'chickLoss':
+        return (
+          <span key={i} className="danger">
+            {t('gate.event.fx.chickLoss', { n: e.chicks })}
+          </span>
+        );
+      case 'riskMod':
+      case 'foodMod':
+        return <span key={i}>{t(`gate.event.fx.${e.type}`, { n: roundHalfUp(e.factor, 1) })}</span>;
+      case 'injury':
+        return (
+          <span key={i} className="caution">
+            {t('gate.event.fx.injury', { n: e.checks })}
+          </span>
+        );
+      case 'fledgeEarly':
+        return null;
+    }
+  }
+
+  /** 효과 줄 — fledgeEarly가 있으면 그 위에 주의색 굵은 한 줄 */
+  function fxLine(effects: EffectPreview[] = [], label?: string) {
+    return (
+      <>
+        {effects.some((e) => e.type === 'fledgeEarly') && (
+          <span className="cap caution b">{t('gate.event.fx.fledgeEarly')}</span>
+        )}
+        <span className="cap fx">
+          {label && <span className="b">{label}</span>}
+          {effects.map(fxItem)}
+        </span>
+      </>
+    );
+  }
+
   function eventRow(card: EventOptionCard) {
     const c = choices.find((x) => x.id === card.choiceId);
     const option = gateEvent?.options.find((o) => `event.${o.id}` === card.choiceId);
@@ -758,6 +824,14 @@ export function Game({ data }: { data: GameData }) {
                   n: Math.round(card.chance * 100),
                 })}
               </span>
+            )}
+            {card.onSuccess ? (
+              <>
+                <span>{fxLine(card.onSuccess, t('gate.event.success'))}</span>
+                <span>{fxLine(card.onFail, t('gate.event.fail'))}</span>
+              </>
+            ) : (
+              fxLine(card.effects)
             )}
           </span>
         </button>
@@ -1088,6 +1162,11 @@ export function Game({ data }: { data: GameData }) {
           <ul className="list" aria-label={t('gate.event.label')} data-testid="gate-event">
             <li className="gate-title b">{gateEvent?.title ?? view.gate.id}</li>
             {gateEvent && <li className="gate-title muted small">{gateEvent.body}</li>}
+            {view.nest?.chicks !== undefined && (
+              <li className="gate-title small" data-testid="event-nest">
+                {t('main.nest')} · {t('main.nest.chicks', { n: view.nest.chicks })}
+              </li>
+            )}
             {view.gate.cards.map((card) => eventRow(card))}
           </ul>
         ) : view.gate?.kind === 'clutchSize' ? (

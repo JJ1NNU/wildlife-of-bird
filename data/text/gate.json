@@ -81,5 +81,18 @@
   "gate.secondBrood.label": "2차 번식",
   "gate.event.label": "이벤트",
   "gate.event.check": "{stat} 판정 {n}%",
+  "gate.event.success": "성공",
+  "gate.event.fail": "실패",
+  "gate.event.fx.energy": "에너지 {n}",
+  "gate.event.fx.feather": "깃털 {n}",
+  "gate.event.fx.bond": "유대 {n}",
+  "gate.event.fx.statGain": "{stat} {n}",
+  "gate.event.fx.deathRisk": "사망 위험 {p}",
+  "gate.event.fx.broodRisk": "둥지를 잃을 위험 {p}",
+  "gate.event.fx.chickLoss": "새끼 {n}마리를 잃는다",
+  "gate.event.fx.riskMod": "이 시기 위험 ×{n}",
+  "gate.event.fx.foodMod": "이 시기 먹이 ×{n}",
+  "gate.event.fx.injury": "부상 — 다음 위험 판정 {n}번 더 위험",
+  "gate.event.fx.fledgeEarly": "새끼들이 지금 둥지를 떠난다",
   "gate.clutchSize.label": "산란수"
 }

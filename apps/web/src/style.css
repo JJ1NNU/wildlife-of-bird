@@ -493,3 +493,16 @@ h1 {
   font-weight: normal;
   white-space: nowrap;
 }
+
+/* S-13 이벤트 선택지 효과 줄 (mid/02 A·B) — 효과마다 한 덩이, 새끼·둥지 손실은 위험색 + 낱말 */
+.opt .fx {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+}
+.opt .caution.b {
+  display: block;
+}
+.fx .danger {
+  color: var(--wb-color-danger);
+}
