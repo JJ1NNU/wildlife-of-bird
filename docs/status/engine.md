@@ -7,9 +7,13 @@
 
 ## 진행 중
 - #21 M1 — 남은 조각 계속
-- **#358** review:client 대기(S-10 `ViewModel.starving` 굶주림 경고 · 테스트 128) — 승인 나면 merge-pr.sh
+- **#363** review:client 대기(게임 오버 부가 기록 `ViewModel.records` — 02-scoring 4장, 테스트 129) — 승인 나면 merge-pr.sh
 - 메모: 쌓은 PR은 바탕 PR 머지 때 브랜치가 지워지며 **자동으로 닫힌다**(#354). 다음엔 쌓지 말거나, 바탕 머지 전에 base를 main으로 바꿔 둘 것
 - 메모: 이 PC에서 `npm run check` 때 `sim/replay` 테스트가 부하로 5초 타임아웃 남(main 기준도 같음, 단독은 통과). 반복되면 테스트 timeout 올리기 검토
+
+## 최근 완료 (라운드 37, 2번째 근무)
+- **#358 머지**(client 승인) — S-10 `starving`. client #359가 이어받음
+- **#363 열음**(#21): `ViewModel.records`(게임 오버 때만) — yearsSurvived(시기÷24 소수 첫째 버림)·generations·fledged·oldestAge. 03-contracts 반영
 
 ## 최근 완료 (라운드 37)
 - **#355 머지**(client 승인) — S-22 육아 방침 미리보기. client #24가 이어받음
