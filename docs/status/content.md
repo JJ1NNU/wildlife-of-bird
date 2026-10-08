@@ -19,7 +19,7 @@
 
 ## 다음 근무에서 할 일
 1. (미룸) #360 남은 needs-review 재확인 — 틀린 사실이 드러나면 그 건만 고침
-2. 다음 SRC 번호 121, 다음 P 번호 P-38
+2. 다음 SRC 번호 121, 다음 P 번호 P-39
 3. fact-check 열림: P-10(주식) · P-14 · P-15(long-cold-night) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-33 · P-35
 4. 담비 둥지 이벤트(`broodRisk.predator`)는 엔진 #155·#313(#21) 뒤
 5. 족제비 도감 — 출처 더 찾으면(M3). 올빼미 도감에 SRC-099 한 문장 넣을 수 있음(M3)
