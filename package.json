@@ -17,10 +17,12 @@
     "test": "vitest run",
     "validate:data": "node packages/schema/src/cli/validate-data.ts",
     "sim": "node packages/sim/src/cli/run-sim.ts",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run validate:data"
+    "check": "npm run typecheck && npm run lint && npm run test && npm run validate:data",
+    "e2e": "playwright test -c qa/e2e/playwright.config.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
+    "@playwright/test": "^1.64.0",
     "@types/node": "^24.19.1",
     "typescript": "^5.9.3",
     "vitest": "^5.0.3"

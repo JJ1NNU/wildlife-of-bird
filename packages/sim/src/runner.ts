@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import type { CalendarAt, LogEntry, RunConfig, RunState } from '@wb/engine';
+import type { CalendarAt, LogEntry, RunConfig, RunState, ViewModel } from '@wb/engine';
 import {
   act,
   deserialize,
@@ -22,7 +22,15 @@ export interface RunRecord {
   bot: { id: string; version: string };
   /** 고른 선택 id 순서대로. `config`와 함께 리플레이 입력이다 */
   choices: string[];
-  result: { totalBreeding: number; gameOver: boolean; endAt: CalendarAt };
+  result: {
+    totalBreeding: number;
+    gameOver: boolean;
+    endAt: CalendarAt;
+    /** 해마다 결정 수 — [i] = i+1년차 (M-11, 00-core-loop 5.1·5.4) */
+    decisionsByYear: number[];
+    /** 마지막 사망 로그의 `cause`. 사망 없이 끝났으면(오류) null */
+    deathCause: string | null;
+  };
   /** 오류로 끊긴 판이면 이유. 정상이면 null */
   error: { message: string; at: CalendarAt; stack?: string } | null;
   /** 마지막 상태 `serialize` 결과의 SHA-256 */
@@ -40,12 +48,23 @@ function periodIndex(at: CalendarAt): number {
 }
 
 /**
+ * 이 `act`가 결정 1회인가 (00-core-loop 5.1·5.4, qa/metrics 1장).
+ * 루틴은 짜기 시작하는 첫 칸에서 1회 — 나머지 칸·이벤트 뒤 다시 채우기는 세지 않는다.
+ * 그 밖(관문·이벤트)은 고를 수 있는 선택이 2개 이상일 때.
+ */
+function isDecision(view: ViewModel, enabled: number): boolean {
+  if (view.routine) return view.routine.filled.length === 0 && !view.routine.replan;
+  return enabled >= 2;
+}
+
+/**
  * 한 판을 게임 오버까지 돌린다. 봇 오류 · 엔진 예외 · 선택 0개 · 상한 도달은
  * 던지지 않고 `error`에 적는다 — 러너가 다음 판으로 넘어갈 수 있게.
  */
 export function runOne(config: RunConfig, data: GameData, bot: Bot): RunRecord {
   let state = newRun(config, data);
   const choices: string[] = [];
+  const decisionsByYear: number[] = [];
   let error: RunRecord['error'] = null;
 
   try {
@@ -56,10 +75,14 @@ export function runOne(config: RunConfig, data: GameData, bot: Bot): RunRecord {
       const previews = new Map(
         available.filter((c) => !c.disabled).map((c) => [c.id, preview(state, c.id, data)]),
       );
-      const choiceId = bot.choose({ view: getView(state, data), choices: available, previews });
+      const view = getView(state, data);
+      const choiceId = bot.choose({ view, choices: available, previews });
       // 조합 id(`parentingPolicy?intensity=high` 등)는 `?` 앞 id로 확인한다 — 잘못된 조합은 `act`가 던진다 (#224)
       if (!previews.has(choiceId.split('?')[0] as string)) {
         throw new Error(`봇 ${bot.id}이 고를 수 없는 선택을 돌려줬다: ${choiceId}`);
+      }
+      if (isDecision(view, previews.size)) {
+        decisionsByYear[state.at.year - 1] = (decisionsByYear[state.at.year - 1] ?? 0) + 1;
       }
       state = act(state, choiceId, data).state;
       choices.push(choiceId);
@@ -73,7 +96,13 @@ export function runOne(config: RunConfig, data: GameData, bot: Bot): RunRecord {
     config,
     bot: { id: bot.id, version: bot.version },
     choices,
-    result: { totalBreeding: state.totalBreeding, gameOver: state.gameOver, endAt: state.at },
+    result: {
+      totalBreeding: state.totalBreeding,
+      gameOver: state.gameOver,
+      endAt: state.at,
+      decisionsByYear: Array.from(decisionsByYear, (n) => n ?? 0),
+      deathCause: state.log.findLast((e) => e.type === 'death')?.cause ?? null,
+    },
     error,
     finalStateHash: stateHash(state),
     log: state.log,

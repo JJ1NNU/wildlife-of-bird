@@ -93,6 +93,7 @@ describe('짝 지시 관문 (04-breeding 3장)', () => {
       ...lastPairing,
       at: { year: 1, period: 8, step: 2 },
       nest: { site: 'deep', node: 'old-broadleaf-forest', eggs: 8 },
+      player: { ...lastPairing.player, energy: 20 },
     };
     const fed: RunState = {
       ...laying,

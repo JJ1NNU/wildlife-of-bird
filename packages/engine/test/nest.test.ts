@@ -106,7 +106,7 @@ describe('산란수 관문 (04-breeding 5장)', () => {
     at: { year: 1, period: 8, step: 1 },
     node: 'village-farmland',
     nest: { site: 'nestBox', node: 'village-farmland' },
-    player: { ...start.player, energy: 60 },
+    player: { ...start.player, energy: 20 },
   };
 
   it('첫 단계 흐름의 마지막에 열리고, 고른 뒤 laying 단계마다 암컷이 알 수 × 0.4를 더 쓴다', () => {
@@ -210,8 +210,11 @@ describe('새끼 급이·개별 사망 (01-formulas 2.4·3.3)', () => {
 
   it('새끼가 있으면 급이 비용(mid + 새끼당)을 낸다', () => {
     const data = withChickDeath(0);
-    const spent = (s: RunState) =>
-      s.player.energy - actStep(s, 'action.rest', data).state.player.energy;
+    // 에너지 상한 아래에서 재야 비용 차이가 남는다
+    const spent = (s: RunState) => {
+      const low = { ...s, player: { ...s.player, energy: 20 } };
+      return low.player.energy - actStep(low, 'action.rest', data).state.player.energy;
+    };
     const { nest: _n, ...noNest } = nestling;
     const e = testData.formulas.energy;
     expect(spent(nestling) - spent(noNest)).toBeCloseTo(

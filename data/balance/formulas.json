@@ -60,14 +60,14 @@
       }
     },
     "rest": {
-      "intakeMult": 0.3,
+      "intakeMult": 1.0,
       "cost": 0,
       "riskMult": 0.7,
       "gain": {},
       "featherRecover": 5
     },
     "train": {
-      "intakeMult": 0.3,
+      "intakeMult": 0.8,
       "cost": 4,
       "riskMult": 1.1,
       "gain": {
@@ -75,7 +75,7 @@
       }
     },
     "social": {
-      "intakeMult": 0.5,
+      "intakeMult": 1.0,
       "cost": 2,
       "riskMult": 0.9,
       "gain": {
@@ -84,7 +84,7 @@
       }
     },
     "explore": {
-      "intakeMult": 0.5,
+      "intakeMult": 0.8,
       "cost": 3,
       "riskMult": 1.3,
       "gain": {
@@ -109,11 +109,11 @@
       "rich": 16
     },
     "risk": {
-      "veryLow": 0.00136,
-      "low": 0.00272,
-      "medium": 0.00476,
-      "high": 0.00816,
-      "veryHigh": 0.0136
+      "veryLow": 0.00122,
+      "low": 0.00245,
+      "medium": 0.00428,
+      "high": 0.00734,
+      "veryHigh": 0.0122
     },
     "competition": {
       "none": 0.0,
@@ -141,7 +141,7 @@
       "high": 6
     },
     "feedCostPerChick": 0.3,
-    "runStartRatio": 0.7,
+    "runStartRatio": 1.0,
     "inheritStartRatio": 0.6,
     "starvationWarnRatio": 0.25
   },

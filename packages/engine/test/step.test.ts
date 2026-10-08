@@ -49,7 +49,7 @@ describe('런 시작 개체 (05-inheritance 2장)', () => {
     expect(p.stats.flight).toBeCloseTo(39.1, 9);
     expect(p.stats.foraging).toBeCloseTo(59.5, 9);
     expect(p.stats.stamina).toBeCloseTo(28.9, 9);
-    expect(p.energy).toBeCloseTo(45.115, 9);
+    expect(p.energy).toBeCloseTo(64.45, 9);
     expect(p.feather).toBe(80);
     expect(p.expYears).toBe(1);
   });
@@ -62,7 +62,7 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
     const slot = { ...example, stay: 11, player: { ...example.player, energy: 41.089 - slotGain } };
     const p = preview(slot, 'action.forage', data);
     expect(p.energyDelta[0]).toBeCloseTo(slotGain, 6);
-    expect(p.deathRisk).toBeCloseTo(1 - (1 - 0.0028257264) ** (1 / 6), 6);
+    expect(p.deathRisk).toBeCloseTo(1 - (1 - 0.0025407792) ** (1 / 6), 6);
   });
 
   it('칸 채우기는 판정·난수 없이 적어 두고, 마지막 칸이 루틴을 실행한다', () => {
@@ -88,7 +88,7 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
     const p = preview(before, 'action.explore', data);
     const gained = p.statGains?.vigilance ?? 0;
     expect(gained).toBeGreaterThan(0);
-    const unchanged = 0.00476 * 1.3 * (1 - 0.004 * 70) * 0.97 * 0.85;
+    const unchanged = 0.00428 * 1.3 * (1 - 0.004 * 70) * 0.97 * 0.85;
     expect(p.deathRisk).toBeLessThan(unchanged);
   });
 
@@ -107,7 +107,16 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
 
   it('B-1 에너지 0: 즉시 아사, 난수를 당기지 않는다', () => {
     const hungry = { ...example, player: { ...example.player, energy: 1 } };
-    const { state, log } = actStep(hungry, 'action.train.flight', data);
+    // 섭취 없는 훈련으로 첫 칸에 에너지가 바닥나게 한다
+    const actions = data.formulas.actions;
+    const noIntake: GameData = {
+      ...data,
+      formulas: {
+        ...data.formulas,
+        actions: { ...actions, train: { ...actions.train, intakeMult: 0 } },
+      },
+    };
+    const { state, log } = actStep(hungry, 'action.train.flight', noIntake);
     expect(state.gameOver).toBe(true);
     expect(state.player.energy).toBe(0);
     expect(state.rng).toBe(hungry.rng);
@@ -131,7 +140,7 @@ describe('시기 효과 riskMod·foodMod (03-events 6.1, 01-formulas 2.3·3.1)',
       preview({ ...slot, ...(m ? { periodMods: m } : {}) }, 'action.forage', data);
     const plain = energy();
     const hit = energy(mods);
-    expect(hit.deathRisk).toBeCloseTo(1 - (1 - 0.0028257264 * 2) ** (1 / 6), 6);
+    expect(hit.deathRisk).toBeCloseTo(1 - (1 - 0.0025407792 * 2) ** (1 / 6), 6);
     // 소비는 같고 섭취만 준다: 줄어든 에너지의 비 = (1 − 0.49) : (1 − 0.5)
     const half = energy({ risk: [], food: [{ tier: 'large', sign: 'loss' }] });
     const lost = (p: typeof plain) => (plain.energyDelta[0] ?? 0) - (p.energyDelta[0] ?? 0);
@@ -155,7 +164,7 @@ describe('부상 injury (03-events 6.1, 01-formulas 3.1)', () => {
 
   it('부상 중이면 단계 위험 × injuryMult', () => {
     const hit = preview({ ...slot, injury: 2 }, 'action.forage', data);
-    expect(hit.deathRisk).toBeCloseTo(1 - (1 - 0.0028257264 * 1.3) ** (1 / 6), 6);
+    expect(hit.deathRisk).toBeCloseTo(1 - (1 - 0.0025407792 * 1.3) ** (1 / 6), 6);
   });
 
   it('단계 k 판정 뒤 injury small(2) → k+1·k+2 판정에 배율, k+3부터 정상', () => {
