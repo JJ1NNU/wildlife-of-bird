@@ -12,6 +12,7 @@ import {
   clutchCards,
   clutchChoices,
   clutchOptions,
+  expectedFledged,
   feedChicks,
   hatchIfDue,
 } from './clutch.ts';
@@ -49,7 +50,14 @@ import {
 import { parentingChoices, parentingDue, setPolicy } from './parenting.ts';
 import { seedFromString } from './rng.ts';
 import { emptySlots, projected, routineSlots, runRoutine, suggestions } from './routine.ts';
-import { judgeStep, mapNode, nextSlotIn, speciesBalance, stepChoices } from './step.ts';
+import {
+  breedingCost,
+  judgeStep,
+  mapNode,
+  nextSlotIn,
+  speciesBalance,
+  stepChoices,
+} from './step.ts';
 import type {
   ActResult,
   Choice,
@@ -188,10 +196,19 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
   if (state.gate) {
     const p =
       state.gate.kind === 'mateOrder' ? orderAcceptance(state, data, choiceId, true) : undefined;
+    // S-22: 고를 방침을 걸었을 때의 이소 기대 수·내 번식 비용(04-breeding 6.4)
+    const policy =
+      state.gate.kind === 'parentingPolicy' ? setPolicy(state, choiceId, data).state : undefined;
     return {
       deathRisk: 0,
       energyDelta: [0, 0],
       ...(p === undefined ? {} : { mateAcceptance: p }),
+      ...(policy
+        ? {
+            expectedFledged: expectedFledged(policy, data),
+            breedingCost: breedingCost(policy, data),
+          }
+        : {}),
       notes: [],
     };
   }

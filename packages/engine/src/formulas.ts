@@ -128,21 +128,36 @@ export function expenditure(
     chicks: number;
   },
 ): number {
-  const e = f.energy;
-  let brood = 0;
-  if (input.incubating) brood = e.incubationCostPerStep;
-  else if (input.feeding && (input.phase === 'nestling' || input.phase === 'postFledge')) {
-    brood =
-      e.feedCostByIntensity[input.feedIntensity] * (input.feedCostMult ?? 1) +
-      e.feedCostPerChick * input.chicks;
-  }
-  const molt = input.phase === 'molt' ? e.moltCostPerStep : 0;
+  const molt = input.phase === 'molt' ? f.energy.moltCostPerStep : 0;
   return (
     species.basalPerStep[seasonOf(species, input.period)] +
     actionCost(f, input.action, input.flight) +
-    brood +
+    broodCost(f, input) +
     molt
   );
+}
+
+/** 2.4 소비의 포란·급이 몫 — 그 밖의 번식 비용(산란·지시·방침)은 엔진 `breedingCost`가 더한다 */
+export function broodCost(
+  f: Formulas,
+  input: {
+    phase: Phase;
+    incubating: boolean;
+    feeding: boolean;
+    feedIntensity: Intensity;
+    feedCostMult?: number;
+    chicks: number;
+  },
+): number {
+  const e = f.energy;
+  if (input.incubating) return e.incubationCostPerStep;
+  if (input.feeding && (input.phase === 'nestling' || input.phase === 'postFledge')) {
+    return (
+      e.feedCostByIntensity[input.feedIntensity] * (input.feedCostMult ?? 1) +
+      e.feedCostPerChick * input.chicks
+    );
+  }
+  return 0;
 }
 
 /** 2.5 에너지 갱신. 0 이하면 0으로 자르고 아사 (00-core-loop B-1) */
