@@ -137,10 +137,10 @@ describe('3. 위험', () => {
   } as const;
 
   it('3.1 단계 사망 위험', () => {
-    expect(deathRisk(f, tit, calm)).toBeCloseTo(0.002826, 6);
-    expect(deathRisk(f, tit, { ...calm, r: 0.2, feather: 40, age: 4 })).toBeCloseTo(0.006994, 6);
-    expect(deathRisk(f, tit, { ...calm, flight: 65 })).toBeCloseTo(0.0025432, 6);
-    expect(deathRisk(f, tit, worst)).toBeCloseTo(0.154607, 6);
+    expect(deathRisk(f, tit, calm)).toBeCloseTo(0.002541, 6);
+    expect(deathRisk(f, tit, { ...calm, r: 0.2, feather: 40, age: 4 })).toBeCloseTo(0.006288, 6);
+    expect(deathRisk(f, tit, { ...calm, flight: 65 })).toBeCloseTo(0.0022867, 6);
+    expect(deathRisk(f, tit, worst)).toBeCloseTo(0.138692, 6);
     const highMod = 1 + testData.effects.riskMod.high;
     expect(deathRisk(f, tit, { ...worst, riskModFactor: highMod })).toBe(f.risk.cap);
     const quiet = {

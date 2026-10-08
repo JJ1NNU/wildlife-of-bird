@@ -72,8 +72,11 @@ describe('육아 방침 관문 (04-breeding 6장)', () => {
   });
 
   it('예시 A·B의 내 번식 비용 — 9.6 / nestling 6.1 · postFledge 4.1', () => {
-    const spent = (s: RunState) =>
-      s.player.energy - actStep(s, 'action.rest', sure).state.player.energy;
+    // 에너지 상한 아래에서 재야 비용 차이가 남는다
+    const spent = (s: RunState) => {
+      const low = { ...s, player: { ...s.player, energy: 20 } };
+      return low.player.energy - actStep(low, 'action.rest', sure).state.player.energy;
+    };
     const brood = (choice: string, at: RunState['at']) => {
       const s = { ...act(opened, choice, sure).state, at };
       const { nest: _n, parenting: _p, ...none } = s;
