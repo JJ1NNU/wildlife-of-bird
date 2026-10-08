@@ -21,6 +21,7 @@ import {
   preview,
   type RunState,
   roundHalfUp,
+  type SeasonPolicyCard,
   type SecondBroodCard,
 } from '@wb/engine';
 import type { GameData, Season, StatName } from '@wb/schema';
@@ -705,6 +706,41 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
+  /** 계절 방침 카드(M1 기능 위주 — 화면 S-14는 M2): 이름 · 설명 · 방침을 건 다음 단계 위험·에너지(`preview`, 11-season-policy 4장) */
+  function seasonRow(card: SeasonPolicyCard) {
+    const c = choices.find((x) => x.id === card.choiceId);
+    const id = card.choiceId.slice('seasonPolicy.'.length);
+    const p = state && !c?.disabled ? preview(state, card.choiceId, data) : undefined;
+    return (
+      <li key={card.choiceId}>
+        <button
+          type="button"
+          className={`opt${card.choiceId === picked ? ' sel' : ''}`}
+          aria-pressed={card.choiceId === picked}
+          disabled={!!c?.disabled}
+          onClick={() => setPicked(card.choiceId)}
+          data-testid={`choice-${card.choiceId}`}
+        >
+          <span className="main">
+            <span className="b">{c?.label ?? id}</span>
+            <span className="cap">{t(`seasonPolicy.${id}.desc`)}</span>
+          </span>
+          {p && (
+            <span className="vals" data-testid={`season-preview-${id}`}>
+              <span>
+                {t('main.energy')} <b>{formatEnergyDelta(p.energyDelta[0])}</b>
+              </span>
+              <span className="risk">
+                <span className="ico s" style={iconStyle('icon.risk')} />
+                {formatRisk(data.formulas, p.deathRisk).text}
+              </span>
+            </span>
+          )}
+        </button>
+      </li>
+    );
+  }
+
   /** 산란수 카드: 알 수 · 산란 단계 비용(정수) — 04-breeding 5장. 이소 기대 수·은수저는 엔진이 더하면(#21) */
   function clutchRow(card: ClutchSizeCard) {
     const c = choices.find((x) => x.id === card.choiceId);
@@ -1201,6 +1237,16 @@ export function Game({ data }: { data: GameData }) {
               </li>
             )}
             {view.gate.cards.map((card) => eventRow(card))}
+          </ul>
+        ) : view.gate?.kind === 'seasonPolicy' ? (
+          <ul
+            className="list"
+            aria-label={t('gate.seasonPolicy.label')}
+            data-testid="gate-seasonPolicy"
+          >
+            <li className="gate-title b">{t('gate.seasonPolicy.title')}</li>
+            {view.gate.cards.map((card) => seasonRow(card))}
+            <li className="gate-title muted small">{t('gate.seasonPolicy.help')}</li>
           </ul>
         ) : view.gate?.kind === 'clutchSize' ? (
           <ul
