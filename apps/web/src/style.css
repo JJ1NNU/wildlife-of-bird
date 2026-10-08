@@ -104,6 +104,29 @@ h1 {
   background: var(--wb-color-paper);
   border-radius: var(--wb-radius-l) var(--wb-radius-l) 0 0;
 }
+/* S-13 잠정 장면(#188): 긴장은 배경 명도로(style-guide scene) — 어두운 띠 위 새 + 위험 아이콘 */
+.scene {
+  position: relative;
+  height: 88px;
+  flex: none;
+  margin-bottom: var(--wb-space-2);
+  border-radius: var(--wb-radius-l);
+  background: linear-gradient(rgb(31 36 33 / 0.35), rgb(31 36 33 / 0.35)), var(--wb-color-card);
+  overflow: hidden;
+}
+.scene-bird {
+  position: absolute;
+  left: 33%;
+  top: 6px;
+  height: calc(100% - 12px);
+  transform: translateX(-50%);
+}
+.scene-risk {
+  position: absolute;
+  right: var(--wb-space-4);
+  top: var(--wb-space-3);
+  color: var(--wb-color-danger);
+}
 .zone.ov > .actions {
   background: var(--wb-color-paper);
 }
@@ -283,7 +306,7 @@ h1 {
   display: flex;
   align-items: center;
   gap: var(--wb-space-3);
-  margin-bottom: var(--wb-space-3);
+  margin-top: var(--wb-space-3);
 }
 .dev .btn {
   flex: none;
