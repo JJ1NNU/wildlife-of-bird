@@ -126,7 +126,7 @@ export function runRoutine(
   const decision: LogEntry = {
     at: state.at,
     type: paused ? 'replan' : 'decision',
-    text: labels.join(' · '),
+    text: labels.join(', '),
     deltas: deltas(state.player, s.player),
   };
   // 가계도: 죽은 개체의 생애를 닫는다 (05-inheritance 8장)

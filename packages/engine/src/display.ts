@@ -24,7 +24,7 @@ export function formatRisk(f: Formulas, p: number): { text: string; band: 'low' 
 export function formatEnergyDelta(x: number): string {
   const n = roundHalfUp(x);
   if (n === 0) return '0';
-  return n > 0 ? `+${n}` : `−${-n}`;
+  return n > 0 ? `+${n}` : `-${-n}`;
 }
 
 /** 7.3 예상 스탯 상승 — 소수 첫째 자리 */
