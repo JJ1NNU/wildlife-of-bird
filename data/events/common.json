@@ -274,5 +274,30 @@
     "ecologyBasis": "곤충은 많은 새가 번식기에 새끼를 키우는 데 꼭 필요한 먹이다. 네덜란드에서는 1990년대 중반 네오니코티노이드 살충제(이미다클로프리드)가 쓰이기 시작한 뒤, 지표수 속 농도가 높은 지역일수록 곤충을 먹는 새의 지역 개체군이 더 크게 줄었고, 리터당 20나노그램이 넘는 곳에서는 해마다 평균 3.5%씩 줄어드는 경향이었다(농지 이용 변화를 보정해도 남음). 한 나라의 상관 연구이고, 약을 친 다음 날 애벌레가 줄어드는 장면, 우리 박새(*P. minor*)와 우리 농촌에 맞는지는 확인하지 않았다.",
     "sources": ["SRC-133"],
     "factCheck": "needs-review"
+  },
+  {
+    "id": "ev.common.nest-photographer",
+    "species": ["parus-minor"],
+    "when": { "phaseAny": ["nestling"], "hasBrood": true },
+    "weight": "uncommon",
+    "title": "둥지 앞의 사진가",
+    "body": "둥지 구멍에서 몇 걸음 떨어진 곳에 사람이 커다란 렌즈를 단 사진기를 세워 두고 몇 시간째 앉아 있다. 입에 문 애벌레가 점점 무거워지고, 구멍 안에서는 새끼들이 먹이를 조른다.",
+    "options": [
+      {
+        "id": "feed-anyway",
+        "text": "사람을 살피며 평소처럼 먹이를 나른다",
+        "check": { "stat": "vigilance", "difficulty": "low" },
+        "onSuccess": [{ "type": "energy", "tier": "small", "sign": "loss" }],
+        "onFail": [{ "type": "energy", "tier": "medium", "sign": "loss" }]
+      },
+      {
+        "id": "wait-out",
+        "text": "사람이 떠날 때까지 나뭇가지에서 기다린다",
+        "effects": [{ "type": "chickLoss", "tier": "small" }]
+      }
+    ],
+    "ecologyBasis": "중국 남부 열대림에서 42종의 둥지를 견줘 본 연구에서, 사진가가 찍은 둥지는 찍지 않은 둥지보다 오히려 포식을 덜 당했고(알 품기 때 2.4% 대 43.3%, 새끼 기를 때 11.1% 대 34.5%), 사진가가 있을 때와 없을 때 어미가 먹이를 나르는 횟수도 크게 다르지 않았다. 영향은 덤불·나무의 열린 둥지에서 가장 컸다. 스트레스 호르몬 같은 다른 영향은 아직 모른다고 저자들은 적었고, 구멍에 둥지를 트는 우리 박새(*P. minor*)는 확인하지 않았다. 선택지의 득실은 게임의 선택이다.",
+    "sources": ["SRC-135"],
+    "factCheck": "verified"
   }
 ]
