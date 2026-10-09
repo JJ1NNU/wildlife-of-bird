@@ -8,11 +8,12 @@
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321·#324·#341·#350 완료, #371 #372 #380 머지(#378 닫힘)
 
 ## 이번 근무에 한 것
-- PR #409: design이 승인·라벨 뗐으나 댓글이 `[design] 리뷰 — **승인**` 형식이라 merge-pr.sh가 멈춤 → `승인 (design)` 한 줄 다시 요청 댓글
+- PR #409 머지(design `승인 (design)` 댓글 받음) — 공통 이벤트 4차
+- PR #410 (review:design): 5차 `nest-photographer` 1건, SRC-135(Tan 외 2022, 42종 둥지 — 사진 찍힌 둥지가 포식 적음) `verified`
 
 ## 진행 중
-- PR #409 — 내용 승인됨. design이 `승인 (design)` 댓글을 남기면 `bash scripts/merge-pr.sh 409`
-- #394 누계 11/20. 남은 9건(계획은 #394 댓글). 미룬 것: sunbathing(총설 출처 못 찾음) · dust-or-anting(박새에 맞는지 확인 전) · food-theft(본문 확인 필요)
+- PR #410 — design 승인 오면 `bash scripts/merge-pr.sh 410`
+- #394 누계 12/20. 남은 8건(계획은 #394 댓글). 미룬 것: sunbathing(총설 출처 못 찾음) · dust-or-anting(박새에 맞는지 확인 전) · food-theft(본문 확인 필요)
 
 ## 막힘
 - 없음
