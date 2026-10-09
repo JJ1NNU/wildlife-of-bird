@@ -56,6 +56,7 @@
 | P-39 | 이벤트 `data/events/parus-minor.json` 담비 둥지 1건 `marten-at-entrance` (#378) | 담비가 입구 밖에서 둥지를 노리고, 어미의 chicka 경보에 새끼가 구멍 안쪽에 웅크린다 · 포란 암컷은 머문다 | SRC-023 · SRC-001 (A, 일본 *P. minor*) | — | `verified` — 담비에게 달려드는 것(mob)의 효과·위험은 근거 없어 게임의 선택으로 적음. 포식자별 `cause`는 효과에 없어 `broodRisk` 그대로 — 잠정(#21) |
 | P-40 | 공통 이벤트 `data/events/common.json` 폭염 1건 `heat-wave` (#394) | 더운 날 먹이 찾는 효율이 떨어져 섭취가 준다 | SRC-126 (A, 남아프리카 건조지 꼬리치레류) · SRC-127 (A, 사막 작은 새 모형) | 한국·동아시아 여름 더위(폭염)와 박새류 먹이 찾기·몸무게 문헌 | 열림 — 1건 `needs-review`. 나머지 공통 4건(heterospecific-alarm · human-approach · feather-lice · window-reflection)은 새 일반 총설·자료집(SRC-121~125)으로 `verified` |
 | P-41 | 공통 이벤트 `data/events/common.json` 살충제 1건 `sprayed-field` (#394) | 농경지 살충제가 새끼에게 먹일 곤충을 줄인다 | SRC-133 (A, 네덜란드 곤충 먹는 새 — 지역 개체군 추세와 살충제 농도의 상관) | 한국 농촌의 살충제와 박새류 번식(새끼 먹이·번식 성공) 문헌 | 열림 — 1건 `needs-review`. 같은 차의 `feeder-sickness`는 영국 전국 감시 총설(SRC-134, 새 일반)로 `verified` |
+| P-42 | 공통 이벤트 `data/events/common.json` 봄 가뭄 1건 `spring-drought` (#394) | 봄 가뭄에 숲의 벌레가 줄어 먹이 찾기가 더디다 | SRC-140 (A, 미국 허드슨박새 — 가뭄 해 절지동물·새끼 먹이 가짓수 감소) · SRC-139 (A, 폴란드 큰박새 — 가뭄+5월 추위 겹친 해 번식 부진, 둘을 나누지 않음) | 한국 봄 가뭄과 박새류 먹이(애벌레 양)·번식 문헌 | 열림 — 1건 `needs-review` |
 
 ### 박새 — 규칙으로 닫은 것
 
@@ -145,3 +146,5 @@
 | 2026-10-09 | #394 4차 — 공통 이벤트 2건(feeder-sickness · sprayed-field, 마을 장소) 추가, SRC-133·134 등록. feeder-sickness `verified`(먹이터 질병 감시 총설), sprayed-field `needs-review`(P-41, 네덜란드 상관 연구 외삽). 이벤트 68건 |
 | 2026-10-09 | #394 5차 — 공통 이벤트 1건(nest-photographer, 새끼 기르기) 추가, SRC-135(Tan 외 2022, 42종 둥지) 등록. `verified`(여러 종 연구 — 새 일반 사실, 구멍 둥지 *P. minor* 미확인은 근거 글에 밝힘). 이벤트 69건 |
 | 2026-10-09 | #394 6차 — 공통 이벤트 1건(insect-outbreak, 환경 카드 · 숲 · 시기 10~13) 추가, SRC-136(Venier & Holmes 2010 총설) 등록. `verified`(여러 종 총설 — 곤충 대발생이 곤충 먹는 숲새의 먹이를 짧게 늘린다는 새 일반 사실, 박새·한국 숲은 미확인으로 본문에 적음). 이벤트 70건 |
+| 2026-10-09 | #394 7차 — 공통 이벤트 1건(hailstorm, 새끼 기르기) 추가, SRC-137·138(우박 둥지 실패 두 연구) 등록. `verified`(구멍 둥지 *P. minor*·한국 미확인은 근거 글에 밝힘). 이벤트 71건 |
+| 2026-10-09 | #394 8차 — 공통 이벤트 1건(spring-drought, 환경 카드 · 시기 8~10) 추가, SRC-139(Glądalski 외 2022)·SRC-140(Snow 외 2026) 등록. `needs-review`(P-42, 박새과 두 종 연구 외삽 · 폴란드는 가뭄과 추위가 겹침). 이벤트 72건 |
