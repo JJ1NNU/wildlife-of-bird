@@ -115,7 +115,7 @@ export function stepChoices(state: RunState, data: GameData): Choice[] {
     choices.push({
       id: `move.${id}`,
       kind: 'node',
-      label: `옮기기 · ${mapNode(data, id).nameKo}`,
+      label: `옮기기: ${mapNode(data, id).nameKo}`,
       // 둥지 국면 동안 옮길 수 없다 (04-breeding 1장)
       ...(locked ? { disabled: { reason: '둥지를 떠날 수 없다' } } : {}),
     });

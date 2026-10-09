@@ -188,7 +188,7 @@ export function giveOrder(
   const label = ORDER_LABEL[key] ?? key;
   const text = rolled.value
     ? `짝이 지시를 받아들였다: ${label}`
-    : `짝이 다른 일을 했다: ${label} (효과 −${Math.round((1 - effect) * 100)}%)`;
+    : `짝이 다른 일을 했다: ${label} (효과 -${Math.round((1 - effect) * 100)}%)`;
   return {
     state: { ...state, rng, mate: nextMate, order },
     log: [
