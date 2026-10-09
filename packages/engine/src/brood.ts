@@ -29,8 +29,8 @@ export function secondBroodDue(state: RunState, data: GameData): boolean {
 
 export function secondBroodChoices(): Choice[] {
   return [
-    { id: 'secondBrood.yes', kind: 'secondBrood', label: '한 번 더 번식한다' },
-    { id: 'secondBrood.no', kind: 'secondBrood', label: '올해 번식을 마친다' },
+    { id: 'secondBrood.yes', kind: 'secondBrood', label: '한 번 더 번식하기' },
+    { id: 'secondBrood.no', kind: 'secondBrood', label: '올해 번식 마치기' },
   ];
 }
 

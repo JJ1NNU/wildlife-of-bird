@@ -228,7 +228,7 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
     deathRisk: out.starved ? 1 : out.risk,
     energyDelta: [delta, delta],
     statGains,
-    notes: out.starved ? ['이대로면 굶어 죽는다'] : [],
+    notes: out.starved ? ['이대로면 굶어 죽음'] : [],
   };
 }
 
@@ -261,7 +261,7 @@ function seasonPreview(state: RunState, choiceId: string, data: GameData): Previ
   return {
     deathRisk: starved ? 1 : 1 - survive,
     energyDelta: [delta, delta],
-    notes: starved ? ['이대로면 굶어 죽는다'] : [],
+    notes: starved ? ['이대로면 굶어 죽음'] : [],
   };
 }
 

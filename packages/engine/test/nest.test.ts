@@ -79,7 +79,7 @@ describe('둥지 자리 관문 (04-breeding 1·4장)', () => {
     ]);
     expect(built.at).toEqual({ year: 1, period: 7, step: 2 });
     const moves = getChoices(built, testData).filter((c) => c.kind === 'node');
-    expect(moves.every((c) => c.disabled?.reason === '둥지를 떠날 수 없다')).toBe(true);
+    expect(moves.every((c) => c.disabled?.reason === '둥지를 떠날 수 없음')).toBe(true);
 
     // postFledge(`period 11`)로 넘어가면 둥지를 거두고 다시 옮길 수 있다
     const late = actStep(
