@@ -318,5 +318,52 @@
     "ecologyBasis": "잎을 갉아먹는 나방 애벌레가 크게 불어나면 곤충을 먹는 숲새에게 짧은 기간 먹이가 크게 늘어난다. 북아메리카의 가문비나무 잎말이나방(spruce budworm) 대발생 연구들을 모은 총설에서, 이 나방을 먹는 숲새 무리 전체가 빠르고 크게 반응했고(특히 몇몇 솔새류는 번식 성공이 늘어난 것으로 보임) 여러 종에 걸친 증가가 나타났다. 다만 종마다 반응이 늘 같지는 않았고, 잎이 다 갉아먹혀 나무가 죽으면 길게는 서식지가 바뀐다. 우리 숲의 나방 대발생과 박새(*P. minor*)는 확인하지 않았다.",
     "sources": ["SRC-136"],
     "factCheck": "verified"
+  },
+  {
+    "id": "ev.common.hailstorm",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["nestling"],
+      "hasBrood": true
+    },
+    "weight": "rare",
+    "title": "쏟아지는 우박",
+    "body": "먹이를 물고 돌아오는 길에 하늘이 어두워지더니 콩알만 한 얼음 알갱이가 쏟아진다. 잎이 찢겨 떨어지고 가지가 후드득 울린다.",
+    "options": [
+      {
+        "id": "dash-home",
+        "text": "서둘러 둥지 구멍으로 날아든다",
+        "check": {
+          "stat": "flight",
+          "difficulty": "low"
+        },
+        "onSuccess": [],
+        "onFail": [
+          {
+            "type": "injury",
+            "tier": "medium"
+          },
+          {
+            "type": "deathRisk",
+            "tier": "low",
+            "cause": "accident"
+          }
+        ]
+      },
+      {
+        "id": "hunker-down",
+        "text": "가까운 굵은 가지 밑에 바짝 붙어 그치기를 기다린다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "우박은 작은 새를 직접 죽이기도 한다. 미국 펜실베이니아 숲에서 지름 약 2.5 cm 우박이 내린 뒤 지켜보던 황금날개솔새 둥지 9개 중 8개가 실패했고, 둥지 0.5 m 안에서 죽은 암컷 두 마리가 발견됐다. 와이오밍 덤불 초원의 명금류 3종에서는 우박이 가장 셌던 구역의 둥지 45%가 망가졌는데, 튼튼하게 짓고 덤불 깊숙이 숨긴 둥지가 더 잘 살아남았다. 두 연구 모두 땅이나 덤불의 열린 둥지였고, 나무 구멍에 둥지를 트는 우리 박새(*P. minor*)와 한국의 우박은 확인하지 않았다. 구멍 속 새끼는 무사하다고 두었고, 선택지의 득실은 게임의 선택이다.",
+    "sources": ["SRC-137", "SRC-138"],
+    "factCheck": "verified"
   }
 ]
