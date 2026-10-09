@@ -70,7 +70,7 @@ export function openInheritance(state: RunState): { state: RunState; log: LogEnt
       {
         at: state.at,
         type: 'breeding',
-        text: `새끼 ${chicks}마리가 독립했다 — 번식 성공 ${totalBreeding}번째`,
+        text: `새끼 ${chicks}마리가 독립했다 (번식 성공 ${totalBreeding}번째)`,
         deltas: { totalBreeding: 1, fledged: chicks },
       },
     ],
