@@ -126,9 +126,15 @@ function periodLabel(at: CalendarAt): { text: string; season: string } {
   };
 }
 
-/** 한 단계에 같은 종류·같은 칸·같은 글의 기록은 두 번 남지 않는다 */
-function logKey(l: LogEntry): string {
-  return `${l.at.year}.${l.at.period}.${l.at.step}.${l.type}.${l.slot ?? ''}.${l.text}`;
+/** 기록 목록의 key — 한 단계에 같은 글이 두 번 남을 수 있어(새끼를 두 번 잃음, #444) 겹치면 순번을 붙인다 */
+function withLogKeys(list: readonly LogEntry[]): [string, LogEntry][] {
+  const seen = new Map<string, number>();
+  return list.map((l) => {
+    const base = `${l.at.year}.${l.at.period}.${l.at.step}.${l.type}.${l.slot ?? ''}.${l.text}`;
+    const n = seen.get(base) ?? 0;
+    seen.set(base, n + 1);
+    return [n === 0 ? base : `${base}#${n}`, l];
+  });
 }
 
 /** 칸 단위 에너지 — 소수 첫째 자리(#206, 01-formulas 9.4). 0이면 부호 없이 */
@@ -1042,8 +1048,8 @@ export function Game({ data }: { data: GameData }) {
             )}
           </ol>
           <ul className="feed-list">
-            {view.recentLog.slice(-5).map((l) => (
-              <li key={logKey(l)}>{logLine(l)}</li>
+            {withLogKeys(view.recentLog.slice(-5)).map(([k, l]) => (
+              <li key={k}>{logLine(l)}</li>
             ))}
           </ul>
           {hasRecord() && (
@@ -1656,11 +1662,10 @@ export function Game({ data }: { data: GameData }) {
 
       <section className="feed" aria-label={t('main.feed')}>
         <ul className="feed-list">
-          {view.recentLog
-            .slice()
+          {withLogKeys(view.recentLog)
             .reverse()
-            .map((l) => (
-              <li key={logKey(l)}>{logLine(l)}</li>
+            .map(([k, l]) => (
+              <li key={k}>{logLine(l)}</li>
             ))}
         </ul>
         {SHOW_FAST_FORWARD && (
