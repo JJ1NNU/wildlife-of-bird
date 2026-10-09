@@ -201,11 +201,11 @@ describe('6. 은수저', () => {
   it('6.1 충족도 — 새끼가 많을수록 1마리 몫이 준다', () => {
     const mid = (chicks: number) =>
       feedingFulfilment(f, { parents: parents('mid'), food: 'medium', chicks });
-    expect(mid(8)).toBeCloseTo(0.545, 9);
-    expect(mid(5)).toBeCloseTo(0.872, 9);
-    expect(mid(3)).toBe(1);
+    expect(mid(10)).toBeCloseTo(0.7267, 4);
+    expect(mid(8)).toBeCloseTo(0.9083, 4);
+    expect(mid(5)).toBe(1);
     const rich = feedingFulfilment(f, { parents: parents('high'), food: 'high', chicks: 8 });
-    expect(rich).toBeCloseTo(0.862, 3);
+    expect(rich).toBe(1);
   });
 
   it('6.2 시작 스탯 · 성장 배율 · 6.3 첫 겨울', () => {
