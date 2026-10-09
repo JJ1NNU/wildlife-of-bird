@@ -1,6 +1,6 @@
 {
   "title.name": "야생조류 키우기",
-  "title.continue": "이어하기 · {when}",
-  "title.new": "새 판 시작",
-  "title.loadFail": "저장된 판을 불러오지 못했다 — {problem}"
+  "title.continue": "이어 하기 ({when})",
+  "title.new": "새로 시작",
+  "title.loadFail": "저장된 판 불러오기 실패: {problem}"
 }
