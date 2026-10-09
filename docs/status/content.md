@@ -1,18 +1,17 @@
 # 생태·콘텐츠 상태
 
-기다림: PR #420 design 승인 **댓글**(`승인 (design)`) · 대표 플레이테스트 #388
+기다림: 새 dept:content 이슈(PM) · 대표 플레이테스트 #388
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-09 (라운드 44, 자동 근무 84회차)
+- 마지막 근무: 2026-10-09 (라운드 44, 자동 근무 85회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321·#324·#341·#350 완료, #371 #372 #380 머지(#378 닫힘)
 
 ## 이번 근무에 한 것
-- PR #419 design 승인 댓글 확인 → `merge-pr.sh 419` 머지(#417 sunbathing 커밋 포함). #417은 #419에 들어가 닫음(design 승인은 리뷰 본문으로 받았었음)
-- #394 마지막 13차 PR #420: `anting`(개미 목욕, 시기 10~16, rare — 문지르기 깃 small↔에너지 small / 먹기 에너지 small). 모래 목욕은 근거가 꿩·닭류라 뺌. SRC-148 Potter 1970 · SRC-149 Revis & Waller 2004(개미 화학물질 효과 없음) · SRC-150 Revis 박사논문(B). needs-review P-47. 이벤트 77건
+- PR #420 design `승인 (design)` 댓글 확인 → `merge-pr.sh 420` 머지. #394(M2 공통 이벤트 +20) 닫힘 — 공통 이벤트 77건
 
 ## 진행 중
-- PR #420 (Closes #394, 누계 20/20) → design `승인 (design)` **댓글** 오면 `bash scripts/merge-pr.sh 420`
+- 없음
 
 ## 막힘
 - 없음
@@ -21,7 +20,7 @@
 1. (미룸) #360 남은 needs-review 재확인 — 틀린 사실이 드러나면 그 건만 고침
 2. 다음 SRC 번호 151, 다음 P 번호 P-48
 3. fact-check 열림: P-10(주식) · P-14 · P-15(long-cold-night) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-33 · P-35 · P-40(heat-wave) · P-41(sprayed-field) · P-42(spring-drought) · P-43(cache-pilfer) · P-44(mosquito-ditch) · P-45(sunbathing) · P-46(foggy-dawn) · P-47(anting)
-4. #394는 #420 머지로 끝. 머지 전에 새 브랜치를 따면 common.json 끝부분 충돌 — 머지 뒤에 시작. common.json은 biome format 쓰지 말고 손으로 끝에 붙인다(포맷터가 파일 전체를 바꿈). 공통 이벤트는 새 일반 총설로 받치고, 한 종 연구 외삽은 needs-review(sources.md 공통 이벤트 절)
+4. common.json은 biome format 쓰지 말고 손으로 끝에 붙인다(포맷터가 파일 전체를 바꿈). 공통 이벤트는 새 일반 총설로 받치고, 한 종 연구 외삽은 needs-review(sources.md 공통 이벤트 절)
 5. 족제비 도감 — 출처 더 찾으면(M3). 올빼미 도감에 SRC-099 한 문장 넣을 수 있음(M3)
 6. S-30 가계도 줄(`lifeLine`) 문구는 엔진 #21 뒤 클라이언트가 따로 요청한다(#297)
 
