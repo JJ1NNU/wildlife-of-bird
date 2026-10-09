@@ -1,27 +1,27 @@
 # 생태·콘텐츠 상태
 
-기다림: PR #417 design 승인 **댓글**(리뷰 본문으로 달려 merge-pr.sh가 못 읽음 — 재요청함) · 대표 플레이테스트 #388
+기다림: 없음 — #422 2차(UI 문구) 진행
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-09 (라운드 44, 자동 근무 82회차)
+- 마지막 근무: 2026-10-09 (라운드 45, 자동 근무 86회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321·#324·#341·#350 완료, #371 #372 #380 머지(#378 닫힘)
 
 ## 이번 근무에 한 것
-- PR #417 여전히 design 승인 **댓글** 없음(대기). #394 안개 카드 출처 찾음: **Bruni, Mennill & Foote 2014 *J. Ornithol.* 155(4):877–890 doi:10.1007/s10336-014-1071-7** (학위논문 Bruni 2013 UWindsor etd/4961 초록 확인 — 북온대 새 군집, 구름·비가 있으면 새벽 합창 시작이 유의하게 늦고 달빛·기온이 높으면 이르다). 안개 자체가 아니라 구름·강수 → 카드는 「흐리고 안개 낀 아침」 정도로 쓰고 needs-review 후보
+- #422 1차: 이벤트 77건을 문체 가이드와 대조 → PR #425 머지(박새 이벤트 10곳: 1인칭 '내' 제거, 이소한 새끼·어린 새·경보음 용어, nest-cleaning 2문장, hole-competition 추측 → 본 것). 공통 20건은 고칠 것 없음
 
 ## 진행 중
-- PR #417 — design `승인 (design)` **댓글** 오면 `bash scripts/merge-pr.sh 417`
-- #394 누계 18/20. 남은 2건: 안개 환경 카드(출처 얇음 — 흐림·구름이 새벽 노래·활동을 늦춘다는 쪽 후보: Ornis Fennica 2016 doi:10.51812/of.133905 멧비둘기 — 흐림이 아침 활동 시작에 영향, 초록 확인 · **Leopold & Eynon 1961 *Condor* 63:269 doi:10.2307/1365621** 「새벽·저녁 노래와 빛 세기」 고전 — 흐린 날 노래 시작이 늦다는 쪽 후보, OUP 403·SORA PDF 안 받힘, 본문 미확인 · Windsor 2013 학위논문 「날씨·빛과 북온대 새 새벽 합창 시작」 후보) · dust-or-anting(박새 확인 전 — Potter & Hauser 1974 Auk 91:537 doi:10.2307/4084474 "anting·sunbathing과 털갈이" 초록 없음, 후보)
+- #422 2차: UI 문구(data/text/ 8파일 260키) 대조 — 다음 근무
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
+0. **#422 2차** — data/text/ UI 문구 대조(UI는 2인칭 예외). 끝나면 #422에 결과 댓글 → 닫기
 1. (미룸) #360 남은 needs-review 재확인 — 틀린 사실이 드러나면 그 건만 고침
-2. 다음 SRC 번호 147, 다음 P 번호 P-46
-3. fact-check 열림: P-10(주식) · P-14 · P-15(long-cold-night) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-33 · P-35 · P-40(heat-wave) · P-41(sprayed-field) · P-42(spring-drought) · P-43(cache-pilfer) · P-44(mosquito-ditch) · P-45(sunbathing)
-4. PR #417 머지 뒤 #394 다음 차(환경 카드 안개 · dust-or-anting). #417 머지 전에 새 브랜치를 따면 common.json 끝부분 충돌 — 머지 뒤에 시작. common.json은 biome format 쓰지 말고 손으로 끝에 붙인다(포맷터가 파일 전체를 바꿈). 공통 이벤트는 새 일반 총설로 받치고, 한 종 연구 외삽은 needs-review(sources.md 공통 이벤트 절)
+2. 다음 SRC 번호 151, 다음 P 번호 P-48
+3. fact-check 열림: P-10(주식) · P-14 · P-15(long-cold-night) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-33 · P-35 · P-40(heat-wave) · P-41(sprayed-field) · P-42(spring-drought) · P-43(cache-pilfer) · P-44(mosquito-ditch) · P-45(sunbathing) · P-46(foggy-dawn) · P-47(anting)
+4. common.json은 biome format 쓰지 말고 손으로 끝에 붙인다(포맷터가 파일 전체를 바꿈). 공통 이벤트는 새 일반 총설로 받치고, 한 종 연구 외삽은 needs-review(sources.md 공통 이벤트 절)
 5. 족제비 도감 — 출처 더 찾으면(M3). 올빼미 도감에 SRC-099 한 문장 넣을 수 있음(M3)
 6. S-30 가계도 줄(`lifeLine`) 문구는 엔진 #21 뒤 클라이언트가 따로 요청한다(#297)
 
