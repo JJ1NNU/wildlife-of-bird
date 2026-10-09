@@ -3,9 +3,10 @@ import { expect, type Page, test } from '@playwright/test';
 /**
  * M1 핵심 흐름 스모크(T6, test-strategy 5장):
  * 새 게임 → (손 진행) 첫 번식 → 계승 화면에서 새끼로 계승 → 새로고침·이어 하기 → (빨리 감기) 게임 오버 기록.
- * 새 판 시드가 Date.now()라 시계를 고정한다 — 이 시각의 판은 1년차에 계승 관문이 온다.
+ * 새 판 시드가 Date.now()라 시계를 고정한다 — 이 시각의 판은 계승 관문이 온다.
+ * 밸런스가 바뀌어 관문 전에 죽으면 날짜를 바꿔 다시 고른다(#438: 1월 1일 → 3일).
  */
-const FIXED_TIME = Date.UTC(2026, 0, 1);
+const FIXED_TIME = Date.UTC(2026, 0, 3);
 
 /** 사람처럼 한 번 누른다: 다시 보기는 넘기고, 관문은 첫 선택지, 빈 칸은 채식 */
 async function press(page: Page) {
