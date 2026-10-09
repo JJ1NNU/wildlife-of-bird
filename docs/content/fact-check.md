@@ -144,3 +144,4 @@
 | 2026-10-09 | #394 3차 — 공통 이벤트 2건(traffic-noise-song · street-light-dawn, 마을 장소·짝 맺기 수컷) 추가, SRC-130~132 등록. 둘 다 `verified`(소음 총설·명금류 5종 연구 — 새 일반 사실, *P. minor* 미확인은 근거 글에 밝힘). 이벤트 66건 |
 | 2026-10-09 | #394 4차 — 공통 이벤트 2건(feeder-sickness · sprayed-field, 마을 장소) 추가, SRC-133·134 등록. feeder-sickness `verified`(먹이터 질병 감시 총설), sprayed-field `needs-review`(P-41, 네덜란드 상관 연구 외삽). 이벤트 68건 |
 | 2026-10-09 | #394 5차 — 공통 이벤트 1건(nest-photographer, 새끼 기르기) 추가, SRC-135(Tan 외 2022, 42종 둥지) 등록. `verified`(여러 종 연구 — 새 일반 사실, 구멍 둥지 *P. minor* 미확인은 근거 글에 밝힘). 이벤트 69건 |
+| 2026-10-09 | #394 6차 — 공통 이벤트 1건(insect-outbreak, 환경 카드 · 숲 · 시기 10~13) 추가, SRC-136(Venier & Holmes 2010 총설) 등록. `verified`(여러 종 총설 — 곤충 대발생이 곤충 먹는 숲새의 먹이를 짧게 늘린다는 새 일반 사실, 박새·한국 숲은 미확인으로 본문에 적음). 이벤트 70건 |
