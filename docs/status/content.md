@@ -1,28 +1,28 @@
 # 생태·콘텐츠 상태
 
-기다림: PR #411 design 리뷰 · 대표 플레이테스트 #388
+기다림: PR #412 design 리뷰 · 대표 플레이테스트 #388
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-09 (라운드 44, 자동 근무 74회차)
+- 마지막 근무: 2026-10-09 (라운드 44, 자동 근무 75회차)
 - 현재 마일스톤: M1 — 콘텐츠 몫(#23) 완료, #165·#247·#252·#257·#263·#266·#290·#297·#304·#311·#321·#324·#341·#350 완료, #371 #372 #380 머지(#378 닫힘)
 
 ## 이번 근무에 한 것
-- PR #410 머지(design 승인) — 공통 이벤트 5차
-- PR #411 (review:design): 6차 환경 카드 `insect-outbreak` 1건(숲·시기 10~13·foodMod medium gain), SRC-136(Venier & Holmes 2010 잎말이나방 총설) `verified`
+- PR #411 머지(design 승인) — 공통 이벤트 6차
+- PR #412 (review:design): 7차 `hailstorm` 1건(새끼 기르기·rare·날기 판정), SRC-137(Fiss 2019)·SRC-138(Hightower 2018) `verified`
 
 ## 진행 중
-- PR #411 — design 승인 오면 `bash scripts/merge-pr.sh 411`
-- #394 누계 13/20. 남은 7건(계획은 #394 댓글). 미룬 것: sunbathing(총설 출처 못 찾음) · dust-or-anting(박새에 맞는지 확인 전) · food-theft(본문 확인 필요)
+- PR #412 — design 승인 오면 `bash scripts/merge-pr.sh 412`
+- #394 누계 14/20. 남은 6건(계획은 #394 댓글). 미룬 것: sunbathing(총설 출처 못 찾음) · dust-or-anting(박새에 맞는지 확인 전) · food-theft(본문 확인 필요)
 
 ## 막힘
 - 없음
 
 ## 다음 근무에서 할 일
 1. (미룸) #360 남은 needs-review 재확인 — 틀린 사실이 드러나면 그 건만 고침
-2. 다음 SRC 번호 137, 다음 P 번호 P-42
+2. 다음 SRC 번호 139, 다음 P 번호 P-42
 3. fact-check 열림: P-10(주식) · P-14 · P-15(long-cold-night) · P-18 · P-23(mate-guarding · nest-cleaning) · P-24 · P-25 · P-27~P-33 · P-35 · P-40(heat-wave) · P-41(sprayed-field)
-4. PR #411 머지 뒤 #394 다음 차(contaminated-water · 환경 카드 안개·우박·가뭄). #411 머지 전에 새 브랜치를 따면 common.json 끝부분 충돌 — 머지 뒤에 시작. common.json은 biome format 쓰지 말고 손으로 끝에 붙인다(포맷터가 파일 전체를 바꿈). 공통 이벤트는 새 일반 총설로 받치고, 한 종 연구 외삽은 needs-review(sources.md 공통 이벤트 절)
+4. PR #412 머지 뒤 #394 다음 차(contaminated-water · 환경 카드 안개·가뭄). #412 머지 전에 새 브랜치를 따면 common.json 끝부분 충돌 — 머지 뒤에 시작. common.json은 biome format 쓰지 말고 손으로 끝에 붙인다(포맷터가 파일 전체를 바꿈). 공통 이벤트는 새 일반 총설로 받치고, 한 종 연구 외삽은 needs-review(sources.md 공통 이벤트 절)
 5. 족제비 도감 — 출처 더 찾으면(M3). 올빼미 도감에 SRC-099 한 문장 넣을 수 있음(M3)
 6. S-30 가계도 줄(`lifeLine`) 문구는 엔진 #21 뒤 클라이언트가 따로 요청한다(#297)
 
@@ -40,6 +40,7 @@
 - SRC-093(大堀 2007)은 Saitou 1979 연작(기본 무리·서열·짝 맺기)을 인용 — flock-rank · first-winter-follow 근거로 원문을 찾을 만하다(J-STAGE `jyio1952` 11권)
 - 새매 → 이소 무렵 어린 박새: Geer 1978 *Condor* 80:419 「Effects of nesting sparrowhawks on nesting tits」(SORA·USF 원문 403, 요지 미확인)
 - #200 후보 중 출처 못 찾은 것: 늦여름 메뚜기·매미 먹이(P. minor 식단 문헌 없음), 어린 새 분산 시기(Drent 1984 Ardea 72:127 doi:10.5253/arde.v72.p127 — 유료, 요지 미확인), 새매가 이소 무렵 어린 박새를 많이 잡음(Geer 1979 옥스퍼드 박사논문 — 요지: 해마다 박새류의 22~42%를 새매가 잡음, postFledge 후보). Greenwood 1979 Ornis Fennica 56:75는 분산 거리뿐, 시기 없음
+- 우박 문헌: OpenAlex 'hailstorm bird mortality' — 열린 둥지 연구뿐(Carver 2017 rse2.41 초원 레이더). 구멍 둥지 우박 자료는 없음
 - 머지 스크립트는 **한 번이라도 달린** review 라벨마다 승인 댓글을 요구한다 — 내 영역 데이터 PR에는 `dept:content`만 단다(#238)
 - **머지는 `bash scripts/merge-pr.sh <번호>` 한 줄로**(#117, `gh pr merge` 직접 금지). 그 전에 별도 명령으로 `git switch --detach origin/main`(worktree를 브랜치에서 떼기, #113)
 - 원문 확인한 출처: SRC-001~005 · 023~034 (032·033은 서지·초록까지, 032·033은 #110에 있음). 006~022는 `미확인`
