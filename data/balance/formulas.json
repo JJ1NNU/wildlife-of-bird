@@ -175,7 +175,13 @@
       "mid": 1.0,
       "high": 0.7
     },
-    "nestLossVigilancePerStat": 0.003
+    "nestLossVigilancePerStat": 0.003,
+    "nestLossByFood": {
+      "low": 2.5,
+      "medium": 1,
+      "high": 0.85,
+      "rich": 0.7
+    }
   },
   "mate": {
     "acceptMin": 0.05,
