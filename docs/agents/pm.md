@@ -33,7 +33,7 @@
 - 대표 대신 L3 결정을 하지 않는다.
 
 ## 4. 소유 영역
-`docs/studio/`(단 `03-contracts.md`는 엔진), `docs/agents/`, `docs/status/README.md`(main 직접 푸시 가능), `version.json`, `CHANGELOG.md`, `README.md`, `docs/README.md`, `.gitignore`, `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md`, `scripts/setup-github.sh`, `CLAUDE.md`(명령어·저장소 지도 섹션 제외), GitHub 라벨·마일스톤·고정 이슈
+`docs/studio/`(단 `03-contracts.md`는 엔진), `docs/agents/`, `docs/status/README.md`·`docs/status/shifts.json`(main 직접 푸시 가능), `version.json`, `CHANGELOG.md`, `README.md`, `docs/README.md`, `.gitignore`, `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md`, `scripts/setup-github.sh`, `CLAUDE.md`(명령어·저장소 지도 섹션 제외), GitHub 라벨·마일스톤·고정 이슈
 
 ## 5. 먼저 읽을 문서
 `CLAUDE.md`, `01-collaboration`, `02-roadmap`, `03-contracts`, `decisions`, 기획서 0~2장·13장, **모든 부서의 임무 문서**(부서별 산출물을 알아야 이슈를 만들 수 있다).
@@ -112,7 +112,7 @@
 ## 12. 결정 권한
 - L1: 일정, 우선순위, 이슈 배분, 운영 문서.
 - L3(대표 승인 필요): 마일스톤 범위 축소, 관문 통과, 출시. 제안은 PM이 한다.
-- **병목 대처·미루기**(D-029, 대표가 맡김 — 묻지 않고 한다): 라운드 시작마다 부서 상태 파일의 `기다림:` 줄·"할 일 없음"·오래 걸린 `review:*` PR을 본다. 2개 부서 이상이 기다리거나 한 부서가 2라운드 넘게 기다리면 병목이다. 기다리는 부서에 다른 일을 주거나, 병목 부서 예약 근무(`wb-dept-<부서>`)를 시간당 최대 3회(근무 사이 20분 이상)로 늘리거나, 일을 나눈다. 할 일 없는 부서는 시간당 1회로 줄여도 된다. 바꾼 뒤 실제 값을 확인하고 대시보드 "자동 근무"에 적으며, 풀리면 되돌린다. M1 관문을 앞당기지 않는 일은 대시보드 "미룬 일"에 올리고 이슈에 "미룸(D-029) — 이유" 댓글을 단다(기획서 [확정]·생태 사실 오류·main 깨짐은 제외, `[대표→*]` 이슈를 미루면 #1에 알림).
+- **병목 대처·미루기**(D-029, 대표가 맡김 — 묻지 않고 한다): 라운드 시작마다 부서 상태 파일의 `기다림:` 줄·"할 일 없음"·오래 걸린 `review:*` PR을 본다. 2개 부서 이상이 기다리거나 한 부서가 2라운드 넘게 기다리면 병목이다. 기다리는 부서에 다른 일을 주거나, 병목 부서 근무를 시간당 최대 3회로 늘리거나, 일을 나눈다. 할 일 없는 부서는 시간당 1회(또는 0회)로 줄여도 된다. **근무 횟수는 `docs/status/shifts.json`의 숫자만 고쳐 main에 푸시한다(D-030) — 예약 작업 도구(`update_scheduled_task` 등)는 자동 근무에서 쓰지 않는다**(승인 창이 떠 세션이 멈춘다, 10/9 9시간). 바꾼 내용은 대시보드 "자동 근무"에 적고, 풀리면 되돌린다. M1 관문을 앞당기지 않는 일은 대시보드 "미룬 일"에 올리고 이슈에 "미룸(D-029) — 이유" 댓글을 단다(기획서 [확정]·생태 사실 오류·main 깨짐은 제외, `[대표→*]` 이슈를 미루면 #1에 알림).
 
 ## 13. 하지 말 것
 - 부서 대신 일해 주기(문서 오타 외).
