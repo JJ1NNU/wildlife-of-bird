@@ -9,10 +9,11 @@
 
 ## 이번 근무에 한 것
 - PR #412 머지(design 승인) — 공통 이벤트 7차
-- PR #413 (review:design): 8차  1건(환경 카드·시기 8~10·foodMod small loss), SRC-139(Glądalski 2022)·SRC-140(Snow 2026),  P-42
+- PR #413 (review:design): 8차 `spring-drought` 1건(환경 카드·시기 8~10·foodMod small loss), SRC-139(Glądalski 2022)·SRC-140(Snow 2026), `needs-review` P-42
 
 ## 진행 중
-- PR #413 — design 승인 오면 - #394 누계 15/20. 남은 5건(계획은 #394 댓글). 미룬 것: sunbathing(총설 출처 못 찾음) · dust-or-anting(박새에 맞는지 확인 전) · food-theft(본문 확인 필요)
+- PR #413 — design 승인 오면 `bash scripts/merge-pr.sh 413`
+- #394 누계 15/20. 남은 5건(계획은 #394 댓글). 미룬 것: sunbathing(총설 출처 못 찾음) · dust-or-anting(박새에 맞는지 확인 전) · food-theft(본문 확인 필요)
 
 ## 막힘
 - 없음
