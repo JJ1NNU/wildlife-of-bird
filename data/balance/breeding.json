@@ -81,7 +81,7 @@
     "holes": {
       "deep": { "nestLossMult": 0.75, "contested": true },
       "shallow": { "nestLossMult": 1.15, "contested": false },
-      "nestBox": { "nestLossMult": 0.9, "contested": false, "habitatAny": ["settlement"] }
+      "nestBox": { "nestLossMult": 0.8, "contested": false, "habitatAny": ["settlement"] }
     },
     "contestStat": "display",
     "contestDifficulty": { "low": "low", "medium": "medium", "high": "high" }
