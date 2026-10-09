@@ -1,6 +1,6 @@
 # 엔진 상태
 
-기다림: design #431 리뷰(#427 nestLossByFood) · 대표 플레이테스트 #388 관문 버그
+기다림: 대표 플레이테스트 #388 관문 버그 · design nestLossByFood 값 PR(엔진 할 일 없음)
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
@@ -13,6 +13,7 @@
 - 메모: `sim/replay` 테스트 timeout 20초로 올림(#404 브랜치 93af09f, 판이 길어져 단독 3.2초)
 
 ## 최근 완료 (2026-10-10)
+- **#431 머지**(#427 닫힘): design 승인. 다음은 design이 formulas.json에 nestLossByFood 잠정 값
 - **#431 열음**(#427, P1·M2): 스키마 `brood.nestLossByFood`(선택 partialRecord, 없는 등급 1) · `nestLossChance()`에 둥지 장소(짓기 전이면 지금 장소) 그 시기 계절 먹이 등급 배율. 키 없으면 결과 그대로(기존 140 통과), 테스트 1개 추가. review:design. 머지 뒤 디자인이 값 PR
 
 ## 최근 완료 (라운드 45)
