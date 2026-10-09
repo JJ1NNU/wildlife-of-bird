@@ -1,17 +1,18 @@
 # QA·밸런스 상태
 
-기다림: 디자인 #408 답(평균 봇 옮기기 규칙) · 대표 플레이테스트 #388
+기다림: 대표 플레이테스트 #388(gate-M1 칸) · 새 M2 일(PM)
 
 > 이 파일은 QA·밸런스 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-10 04:10 (자동 근무 — #391 metrics v1.3 M-12 문구 → PR #452 머지)
+- 마지막 근무: 2026-10-10 04:30 (자동 근무 — 평균 봇 옮기기 규칙 안 넣음(잠정) · #391 닫음)
 - 현재 마일스톤: M1 박새 수직 슬라이스 — #26 완료(닫음), 관문은 #384(대표 플레이 #388 대기)
 
 ## 진행 중
-- **#391 M2 숙련 봇·M-12**: **다음: #408 디자인 답 보고 평균 봇 옮기기 규칙**(M-12 문구는 #452로 끝) · 1,000판 결과 `.scratch/m12k/sk1000.jsonl`·`sf1000.jsonl`(통계 `cd .scratch/m12k && node st.mjs sk1000 sf1000`, 쌍 `node pair.mjs sk1000 sf1000`) (sim-M2-02 #449 머지, 결과 `.scratch/m12k/`, 집계 `node .scratch/m12k/agg.mjs avg skilled …`, 쌍 `node .scratch/m12k/pair.mjs skilled safest`, 고정 전략 `BASE=skilled FIX=safest node .scratch/shard.ts .scratch/sk/fixed.ts qa-m2 1 200 <출력>`) — 이전 메모:(고정 전략 `BASE=skilled FIX=<이름> node .scratch/shard.ts .scratch/sk/fixed.ts …` — 로그는 조각마다 다른 파일로, 같은 파일에 `2>>` 하면 겹쳐 지워짐)(평균 봇 #416 뒤 확인 끝 — `.scratch/m12g/`). 숙련 v2(상황별 산란)는 늘 최소보다 낮아 채택 안 함 — 코드 `.scratch/m12f/skilled2.ts`, 결과 `.scratch/m12f/`(집계 `node .scratch/m12f/agg.mjs v1 skilled clutchMin clutchMax`, 쌍 비교 `pair.mjs a b`). v0(#397)·v1(#405) 머지, M-12 재측정(#404 뒤) #391 댓글. 남은 것: #407 결정 뒤 봇·M-12 다시 재고 sim-M2 리포트 PR. 결과 scratch `.scratch/m12c/`(avg 1000·skilled·고정 8종 200, 집계 `node .scratch/m12c/agg.mjs avg skilled …`). 고정 전략은 `BASE=skilled FIX=<이름> node .scratch/shard.ts .scratch/sk/fixed.ts qa-m2 1 200 <출력>`
+- (#391 닫음 — M-12 다시 잴 때: 숙련 `qa/bots/` v1.1, 쌍 `node .scratch/m12k/pair.mjs <a> <b>`, 고정 전략 `BASE=skilled FIX=<이름> node .scratch/shard.ts .scratch/sk/fixed.ts qa-m2 1 200 <출력>`)
 - **#388 결과 오면** gate-M1.md(#389 머지됨) 1번 칸·결론 채우는 PR
 
 ## 최근 완료
+- 2026-10-10: **평균 봇 옮기기 규칙 안 넣음(잠정)** — 디자인 3번 측정에서 번식 +0.03±0.50·런 +0.15년(잡음 안), M1 관문·회귀 기준이 v1 → 평균 봇 v1 유지, 옮기기는 숙련 봇 몫. #408 댓글. **#391 완료 조건 모두 체크·닫음**(숙련 v1.1 1,000판 6.63번식·6.59년, 남은 거리: 숙련 20년 목표는 M2 튜닝 디자인 판단)
 - 2026-10-10: **#391 `metrics.md` v1.3 M-12 → PR #452 머지** — F 기반 = 숙련 봇 · 실패 = 쌍 차이(F − 숙련) CI 하한 > 0 · 점추정만 넘으면 '미정' → 1,000판, 그래도 0 포함이면 동률 통과 · 평균 봇 기반 '경고' 뺌 · 숙련이 늘 쓰는 규칙의 F는 통과(반대 규칙이 검사). #391 댓글
 - 2026-10-10: **#391 safest vs 숙련 v1.1 1,000판 → PR #451 머지**(401~1,000 main 9171b7b, 12조각 병렬 약 15분, 1,200판 오류 0·다름 0) — 번식 숙련 **6.63±0.44** · safest **6.65±0.44**, 쌍 **+0.03±0.54**(숙련 이김 406·safest 367) → 동률, 지배 전략 아님(잠정). **숙련 v1.2 안 만듦.** 런 safest 8.65 vs 6.59년. #391·#408 댓글
 - 2026-10-10: **#391 safest vs 숙련 v1.1 400판 → PR #450 머지**(sim-M2-02에 절 추가, main 4a3fc98, `qa-m2` 1~400, 201~400 오류 0·다름 0) — 번식 safest **7.36±0.74** vs 숙련 6.76±0.68, 쌍 +0.60±0.87(0 포함, 미정) · 런 9.35 vs 6.67년(뚜렷) · 20년 초과 48 vs 21. ⚠ 이번 근무도 앞 근무(#449)와 겹쳐 같은 리포트를 다시 쓸 뻔함 — 시작할 때 `git fetch` 뒤 qa/reports·상태 파일을 먼저 볼 것
