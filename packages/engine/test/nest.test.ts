@@ -62,13 +62,13 @@ describe('둥지 자리 관문 (04-breeding 1·4장)', () => {
     expect(getView(opened, testData).gate?.cards[0]).toMatchObject({
       contestChance: expect.closeTo(0.9),
     });
-    // 구멍별 둥지 손실 = 같은 3.2 값 × 구멍 배율(deep 0.75 · shallow 1.15 · nestBox 0.9)
+    // 구멍별 둥지 손실 = 같은 3.2 값 × 구멍 배율(deep 0.75 · shallow 1.15 · nestBox 0.8)
     const [deep = 0, shallow = 0, box = 0] = (getView(opened, testData).gate?.cards ?? []).map(
       (c) => ('nestLoss' in c ? c.nestLoss : Number.NaN),
     );
     expect(shallow).toBeGreaterThan(0);
     expect(deep / 0.75).toBeCloseTo(shallow / 1.15, 10);
-    expect(box / 0.9).toBeCloseTo(shallow / 1.15, 10);
+    expect(box / 0.8).toBeCloseTo(shallow / 1.15, 10);
 
     const picked = act(opened, 'nestSite.nestBox', testData);
     const built = picked.state;
