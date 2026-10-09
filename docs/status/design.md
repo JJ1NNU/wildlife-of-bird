@@ -13,7 +13,7 @@
 - 측정법: 300판 seed `qa-m1`, run=(endAt.year−1)+(endAt.period−1)/24, `result.totalBreeding`. 변형은 data/ 파일을 잠깐 바꿔 돌리고 되돌림. 평균·무작위 봇은 같은 변형으로 동시에 돌려도 됨(다른 변형 동시 실행 금지)
 
 ## 최근 완료 (2026-10-09 19:30)
-- **#408 2번 risk.low 변형 측정 댓글**: 같아지는 곳 = low가 medium과 같을 때(쌍 차이 +0.22). risk.low·food.low 그대로(잠정 #408). 임시 봇 는 숙련 봇 감싸 data/nodes·species seasons를 fs로 읽어 만듦(지움)
+- **#408 2번 risk.low 변형 측정 댓글**: 같아지는 곳 = low가 medium과 같을 때(쌍 차이 +0.22). risk.low·food.low 그대로(잠정 #408). 임시 봇 `_tmp-food.ts`는 숙련 봇 감싸 data/nodes·species seasons를 fs로 읽어 만듦(지움)
 
 ## 이전 (2026-10-09 19:00)
 - **#408 2번 먹이 따라 옮기기 측정 댓글**: 같은 시드 쌍 옮김−머묾 −10.03(food.low 7)·−4.62(5). 지난 7·6 행 정정. 손잡이는 위험 차이
