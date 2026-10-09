@@ -230,7 +230,7 @@
     "rangeWithin": 5
   },
   "silverSpoon": {
-    "chickNeedPerStep": 0.5,
+    "chickNeedPerStep": 0.3,
     "nodeFoodDivisor": 10,
     "feedByIntensity": {
       "low": 0.6,
