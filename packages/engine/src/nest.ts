@@ -1,6 +1,6 @@
 import type { GameData, Phase } from '@wb/schema';
 import { phaseAt } from './calendar.ts';
-import { nestLoss } from './formulas.ts';
+import { nestLoss, seasonOf } from './formulas.ts';
 import { orderValue } from './order.ts';
 import { parentingNestLossMult } from './parenting.ts';
 import { nextChance } from './rng.ts';
@@ -129,6 +129,7 @@ export function buildNest(
 /**
  * 둥지 손실 확률 1단계분 (04-breeding 6.3): 3.2 × 구멍 · `guardNest` · 육아 방침 · 계절 방침 배율. 난수 없음.
  * 위험 보정은 지금 시기의 `riskMod` — S-23 카드(`nestSite` 국면)에서는 지시·방침 배율이 아직 1이다.
+ * 먹이 배율은 둥지 장소(짓기 전이면 지금 장소)의 그 시기 계절 먹이 등급 — 이벤트 `foodMod`는 넣지 않는다(3.2).
  */
 export function nestLossChance(state: RunState, data: GameData, site: string): number {
   const guard = data.breeding.orders.guardNest?.nestLossMult ?? 1;
@@ -141,8 +142,14 @@ export function nestLossChance(state: RunState, data: GameData, site: string): n
     (data.breeding.nestSite.holes[site]?.nestLossMult ?? 1) *
     orderValue(state, 'mateOrder.guardNest', 1, guard) *
     parentingNestLossMult(state, data) *
-    (seasonEffect(state, data).nestLossMult ?? 1)
+    (seasonEffect(state, data).nestLossMult ?? 1) *
+    (data.formulas.brood.nestLossByFood?.[nestFood(state, data)] ?? 1)
   );
+}
+
+function nestFood(state: RunState, data: GameData) {
+  const season = seasonOf(speciesBalance(data, state.config.speciesId), state.at.period);
+  return mapNode(data, state.nest?.node ?? state.node).seasons[season].food;
 }
 
 /**

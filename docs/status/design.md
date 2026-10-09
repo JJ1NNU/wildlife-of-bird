@@ -1,18 +1,21 @@
 # 게임디자인 상태
 
 > 이 파일은 게임디자인 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
-기다림: M1 관문(#384 QA·#388 대표 플레이) · 엔진 PR #431(nestLossByFood 구현, design 승인함) 머지 — 머지 뒤 값 넣는 PR·#408 남은 측정
+기다림: M1 관문(#384 QA·#388 대표 플레이) · PR #439(nestLossByFood 값) engine 리뷰 — 머지 뒤 #408 3번 남은 측정
 - 마지막 근무: 2026-10-10 (자동 근무)
 - 현재 마일스톤: M1 관문 대기 중 · M2 선행 #392 완료
 
 ## 진행 중
-- 열린 내 PR: 없음. #418 머지 → 후속 #427(엔진 구현) · #428(콘텐츠 생태) · #429(QA 봇 먹이 보기). #427 머지 뒤 formulas.json에 nestLossByFood 값(low 2.5·medium 1·high 0.85·rich 0.7) 넣는 PR. 남은 dept:design: **#408**(3번 — 후보 ② 끝: 봄+여름 medium 5.46년이 가장 깔끔(잠정), 남은 ≈0.7년은 #418 nestLossByFood 구현 뒤 함께 측정 — food.low 내리기는 오히려 런을 늘려 버림), #361(M2 — #408과 함께)
+- 열린 내 PR: **#439**(nestLossByFood 값 + 엔진 테스트 기준선 고침, review:engine). 머지 뒤 #408 3번(봄+여름 medium 옮기기 봇 + 이 배율) 측정. 남은 dept:design: **#408**(3번 — 후보 ② 끝: 봄+여름 medium 5.46년이 가장 깔끔(잠정), 남은 ≈0.7년은 #418 nestLossByFood 구현 뒤 함께 측정 — food.low 내리기는 오히려 런을 늘려 버림), #361(M2 — #408과 함께)
 - 데이터 변형은 `scratchpad\sub.cjs`식 node 치환으로(PowerShell Set-Content는 BOM을 넣어 sim이 데이터 오류로 멈춤). 노드 등급 `scarce`는 데이터 검증에서 막힘
 - 임시 봇 측정법: `qa/bots/_tmp-*.ts`로 숙련 봇 감싸기 → 120판 약 75초 → 파일 지움. **데이터 변형 런은 절대 동시에 돌리지 않는다**(10-09 18:30 food.low 7=12.23은 섞인 값이었음, 실제 15.67)
 - ⚠️ 상태 푸시는 반드시 main 기준(detached origin/main)에서
 - 측정법: 300판 seed `qa-m1`, run=(endAt.year−1)+(endAt.period−1)/24, `result.totalBreeding`. 변형은 data/ 파일을 잠깐 바꿔 돌리고 되돌림. 평균·무작위 봇은 같은 변형으로 동시에 돌려도 됨(다른 변형 동시 실행 금지)
 
-## 최근 완료 (2026-10-10)
+## 최근 완료 (2026-10-10 00:50)
+- **PR #439 올림**(#431 머지 뒤): formulas.json `brood.nestLossByFood` 값 · 01-formulas v0.3.8(3.2 "짓기 전엔 지금 장소") · 엔진 테스트가 실데이터에 키 없다고 가정해 깨져 기준선을 `nestLossByFood: undefined`로 명시. 평균 봇 300판 `qa-m1` **4.50번 · 4.77년**. #408 댓글
+
+## 이전 (2026-10-10)
 - **PR #431 리뷰 → `승인 (design)`·`review:design` 뗌**: 엔진 nestLossByFood 구현 — nest.node의 지금 시기 계절 먹이 등급, foodMod 제외, 짓기 전엔 지금 장소(buildNest가 state.node에 지으므로 맞음). 값 넣는 PR에서 3.2에 "짓기 전엔 지금 장소" 한 줄 덧붙일 것
 
 ## 이전 (2026-10-09 23:10)
