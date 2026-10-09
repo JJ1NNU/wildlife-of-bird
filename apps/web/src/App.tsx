@@ -14,7 +14,7 @@ export function App() {
       <h1>야생조류 키우기</h1>
       <p className="muted">개발 빌드 v{versionFile.gameVersion}</p>
       <p data-testid="data-status">
-        파일 {fileCount}개 ·{' '}
+        파일 {fileCount}개,{' '}
         {issues.length > 0
           ? `검증 문제 ${issues.length}건`
           : '효과 등급표·공식 계수가 아직 없어 게임 데이터를 묶지 못함'}
@@ -23,7 +23,7 @@ export function App() {
         <ul className="issues">
           {issues.map((i) => (
             <li key={`${i.file}:${i.at}:${i.reason}`}>
-              <code>{i.file}</code> {i.at} — {i.reason}
+              <code>{i.file}</code> {i.at}: {i.reason}
             </li>
           ))}
         </ul>
