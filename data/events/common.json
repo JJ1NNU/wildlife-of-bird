@@ -220,5 +220,59 @@
     "ecologyBasis": "밤의 인공 빛은 새의 하루 시각을 앞당긴다. 숲에서 번식하는 흔한 명금류 5종을 살핀 연구에서 4종의 수컷이 가로등 가까이에서 새벽 노래를 더 일찍 시작했고, 가로등 곁 영역의 푸른박새는 암컷이 평균 1.5일 일찍 알을 낳았으며 수컷은 짝 밖 새끼를 두 배 많이 얻었다. 우리 박새(*P. minor*)는 확인하지 않았고, 선택지의 득실은 게임의 선택이다.",
     "sources": ["SRC-132"],
     "factCheck": "verified"
+  },
+  {
+    "id": "ev.common.feeder-sickness",
+    "species": ["parus-minor"],
+    "when": { "phaseAny": ["winter"], "habitatAny": ["settlement"] },
+    "weight": "uncommon",
+    "title": "먹이통의 아픈 새",
+    "body": "먹이통 둘레에 여러 종의 새가 북적인다. 그 틈에 깃을 잔뜩 부풀린 새 한 마리가 눈을 반쯤 감은 채 먹이통 가장자리에 꼼짝 않고 앉아 있다.",
+    "options": [
+      {
+        "id": "eat-here",
+        "text": "그래도 여기서 배를 채운다",
+        "effects": [
+          { "type": "energy", "tier": "medium", "sign": "gain" },
+          { "type": "deathRisk", "tier": "low", "cause": "disease" }
+        ]
+      },
+      {
+        "id": "forage-away",
+        "text": "먹이통을 떠나 덤불에서 먹이를 찾는다",
+        "effects": [{ "type": "energy", "tier": "small", "sign": "gain" }]
+      }
+    ],
+    "ecologyBasis": "사람이 놓은 먹이통에는 새들이 같은 자리에 되풀이해 빽빽하게 모이고, 평소 가까이 지내지 않는 종끼리도 섞이기 때문에 병이 옮기 쉽다. 영국의 25년 전국 감시에서는 정원 먹이터를 따라 원충병(핀치류 트리코모나스증)·바이러스병(박새과 조류두창)·세균병(참새목 살모넬라증)이 돌았고, 먹이통에 남은 먹이의 곰팡이 독소도 위험으로 꼽혔다. 우리 박새(*P. minor*)가 먹이통에서 얼마나 병에 걸리는지는 확인하지 않았고, 선택지의 득실은 게임의 선택이다.",
+    "sources": ["SRC-134"],
+    "factCheck": "verified"
+  },
+  {
+    "id": "ev.common.sprayed-field",
+    "species": ["parus-minor"],
+    "when": { "phaseAny": ["nestling"], "hasBrood": true, "habitatAny": ["settlement"] },
+    "weight": "uncommon",
+    "title": "약을 친 들판",
+    "body": "둥지 아래 논밭에 어제 약을 쳤다. 늘 애벌레를 물어 오던 풀숲이 오늘은 조용하고, 둥지 안에서는 새끼들이 쉬지 않고 보챈다.",
+    "options": [
+      {
+        "id": "fly-far",
+        "text": "멀리 숲 가장자리까지 애벌레를 찾으러 간다",
+        "check": { "stat": "stamina", "difficulty": "medium" },
+        "onSuccess": [{ "type": "energy", "tier": "small", "sign": "loss" }],
+        "onFail": [
+          { "type": "energy", "tier": "medium", "sign": "loss" },
+          { "type": "chickLoss", "tier": "small" }
+        ]
+      },
+      {
+        "id": "near",
+        "text": "가까운 풀숲에서 남은 벌레를 긁어모은다",
+        "effects": [{ "type": "chickLoss", "tier": "small" }]
+      }
+    ],
+    "ecologyBasis": "곤충은 많은 새가 번식기에 새끼를 키우는 데 꼭 필요한 먹이다. 네덜란드에서는 1990년대 중반 네오니코티노이드 살충제(이미다클로프리드)가 쓰이기 시작한 뒤, 지표수 속 농도가 높은 지역일수록 곤충을 먹는 새의 지역 개체군이 더 크게 줄었고, 리터당 20나노그램이 넘는 곳에서는 해마다 평균 3.5%씩 줄어드는 경향이었다(농지 이용 변화를 보정해도 남음). 한 나라의 상관 연구이고, 약을 친 다음 날 애벌레가 줄어드는 장면, 우리 박새(*P. minor*)와 우리 농촌에 맞는지는 확인하지 않았다.",
+    "sources": ["SRC-133"],
+    "factCheck": "needs-review"
   }
 ]
