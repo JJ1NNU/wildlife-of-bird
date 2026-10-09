@@ -542,3 +542,19 @@ h1 {
 .fx .danger {
   color: var(--wb-color-danger);
 }
+
+/* #423 B: 겹침 색을 토큰으로 — color-mix() 없는 브라우저(Safari 16.2 전)는 위 rgb 값(같은 색)을 쓴다.
+   var()가 든 선언은 앞 선언으로 되돌아가지 않으므로 @supports로 나눈다 */
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .zone.ov {
+    --ov: color-mix(in srgb, var(--wb-color-ink) 55%, transparent);
+    background: linear-gradient(var(--ov), var(--ov)), var(--wb-color-paper);
+  }
+  .scene {
+    --ov: color-mix(in srgb, var(--wb-color-ink) 35%, transparent);
+    background: linear-gradient(var(--ov), var(--ov)), var(--wb-color-card);
+  }
+  .plate {
+    background: color-mix(in srgb, var(--wb-color-paper) 92%, transparent);
+  }
+}
