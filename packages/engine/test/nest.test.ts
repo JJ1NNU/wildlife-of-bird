@@ -327,13 +327,12 @@ describe('독립 — 시작 스탯 · 첫 겨울 (05-inheritance 3장 예시)', 
 });
 
 describe('둥지 손실 × 장소 먹이 배율 (01-formulas 3.2, #408)', () => {
-  const byFood: GameData = {
+  const withFood = (nestLossByFood?: { low: number; medium: number }): GameData => ({
     ...testData,
-    formulas: {
-      ...testData.formulas,
-      brood: { ...testData.formulas.brood, nestLossByFood: { low: 2.5, medium: 1 } },
-    },
-  };
+    formulas: { ...testData.formulas, brood: { ...testData.formulas.brood, nestLossByFood } },
+  });
+  const byFood = withFood({ low: 2.5, medium: 1 });
+  const noKey = withFood(undefined);
   // 둥지는 농촌 마을(먹이 low), 새는 지금 숲에 있다 — 둥지 장소의 등급을 쓴다
   const s: RunState = {
     ...start,
@@ -344,7 +343,7 @@ describe('둥지 손실 × 장소 먹이 배율 (01-formulas 3.2, #408)', () => 
 
   it('둥지 장소의 먹이 등급 배율을 곱하고, 키가 없으면 1', () => {
     expect(nestLossChance(s, byFood, 'nestBox')).toBeCloseTo(
-      nestLossChance(s, testData, 'nestBox') * 2.5,
+      nestLossChance(s, noKey, 'nestBox') * 2.5,
       12,
     );
   });
