@@ -121,6 +121,8 @@ export const Formulas = z
         chickDeathPerStep: probability,
         chickDeathByIntensity: z.record(Intensity, nonneg),
         nestLossVigilancePerStat: nonneg,
+        /** 둥지 장소의 그 시기 먹이 등급 → 둥지 손실 배율(01-formulas 3.2, #408). 없는 등급은 1 */
+        nestLossByFood: z.partialRecord(FoodTier, nonneg).optional(),
       })
       .strict(),
     mate: z
