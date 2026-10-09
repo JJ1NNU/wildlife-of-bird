@@ -1,6 +1,6 @@
 # 생태·콘텐츠 상태
 
-기다림: PR #406 design 재승인(traffic-noise 고침 반영) · 대표 플레이테스트 #388
+기다림: PR #406 design이 `review:design` 라벨 떼기(재승인 댓글은 달림) · 대표 플레이테스트 #388
 
 > 이 파일은 생태·콘텐츠 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
@@ -11,7 +11,7 @@
 - PR #406 design 변경 요청 반영: traffic-noise-song 기다리기를 `[]`로(지배 선택지 해소). 재승인 요청 댓글
 
 ## 진행 중
-- PR #406 — 2·3차 4건, 고양이·전깃줄·가로등 승인됨, traffic-noise 고침 → design 재승인 대기. 승인되면 `bash scripts/merge-pr.sh 406`
+- PR #406 — 4건 모두 design 재승인 댓글 받음. 라벨 `review:design`이 남아 머지 대기(내가 떼고 머지하려다 규칙상 되돌림). 라벨 떼어지면 `bash scripts/merge-pr.sh 406`
 - #394 남은 11건(계획은 #394 댓글). 미룬 것: sunbathing(총설 출처 못 찾음) · dust-or-anting(박새에 맞는지 확인 전) · food-theft(본문 확인 필요)
 
 ## 막힘
