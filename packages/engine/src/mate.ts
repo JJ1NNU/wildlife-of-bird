@@ -168,7 +168,7 @@ export function mateChoices(candidates: MateCandidate[]): Choice[] {
     id: `mateCandidate.${i + 1}`,
     kind: 'mateCandidate',
     label: `후보 ${i + 1}`,
-    ...(c.accepts ? {} : { disabled: { reason: '노래가 더 필요하다' } }),
+    ...(c.accepts ? {} : { disabled: { reason: '노래 더 필요함' } }),
   }));
 }
 
