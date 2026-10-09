@@ -1,17 +1,18 @@
 # QA·밸런스 상태
 
-기다림: 대표 플레이테스트 #388 (그 사이 #391 safest vs 숙련 v1.1 1,000판)
+기다림: 대표 플레이테스트 #388 (그 사이 #391 safest vs 숙련 v1.1 1,000판 — 400판까지 됨)
 
 > 이 파일은 QA·밸런스 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-10 (자동 근무 — #391 M-12 재측정 숙련 v1.1 기준 → PR #449 머지)
+- 마지막 근무: 2026-10-10 (자동 근무 — #391 safest vs 숙련 v1.1 400판 → PR #450 머지)
 - 현재 마일스톤: M1 박새 수직 슬라이스 — #26 완료(닫음), 관문은 #384(대표 플레이 #388 대기)
 
 ## 진행 중
-- **#391 M2 숙련 봇·M-12**: **다음: `safest`(숙련이 옮길 때 deathRisk 최소) vs 숙련 v1.1 1,000판 쌍 비교 → safest가 이기면 숙련 v1.2 PR. 그 뒤 metrics.md M-12 F 기반(평균→숙련) 문구 정리** (sim-M2-02 #449 머지, 결과 `.scratch/m12k/`, 집계 `node .scratch/m12k/agg.mjs avg skilled …`, 쌍 `node .scratch/m12k/pair.mjs skilled safest`, 고정 전략 `BASE=skilled FIX=safest node .scratch/shard.ts .scratch/sk/fixed.ts qa-m2 1 200 <출력>`) — 이전 메모:(고정 전략 `BASE=skilled FIX=<이름> node .scratch/shard.ts .scratch/sk/fixed.ts …` — 로그는 조각마다 다른 파일로, 같은 파일에 `2>>` 하면 겹쳐 지워짐)(평균 봇 #416 뒤 확인 끝 — `.scratch/m12g/`). 숙련 v2(상황별 산란)는 늘 최소보다 낮아 채택 안 함 — 코드 `.scratch/m12f/skilled2.ts`, 결과 `.scratch/m12f/`(집계 `node .scratch/m12f/agg.mjs v1 skilled clutchMin clutchMax`, 쌍 비교 `pair.mjs a b`). v0(#397)·v1(#405) 머지, M-12 재측정(#404 뒤) #391 댓글. 남은 것: #407 결정 뒤 봇·M-12 다시 재고 sim-M2 리포트 PR. 결과 scratch `.scratch/m12c/`(avg 1000·skilled·고정 8종 200, 집계 `node .scratch/m12c/agg.mjs avg skilled …`). 고정 전략은 `BASE=skilled FIX=<이름> node .scratch/shard.ts .scratch/sk/fixed.ts qa-m2 1 200 <출력>`
+- **#391 M2 숙련 봇·M-12**: **다음: `safest` vs 숙련 v1.1 — 1~400 끝(`.scratch/m12k/sk400.jsonl`·`sf400.jsonl`), 401~1,000만 더 돌려 합쳐 1,000판 쌍 비교(조각 `node .scratch/shard.ts qa/bots/skilled.ts qa-m2 401 550 <출력>` 식, 100판 약 5분/프로세스) → safest가 이기면 숙련 v1.2 PR. 그 뒤 metrics.md M-12 F 기반(평균→숙련) 문구 정리** (sim-M2-02 #449 머지, 결과 `.scratch/m12k/`, 집계 `node .scratch/m12k/agg.mjs avg skilled …`, 쌍 `node .scratch/m12k/pair.mjs skilled safest`, 고정 전략 `BASE=skilled FIX=safest node .scratch/shard.ts .scratch/sk/fixed.ts qa-m2 1 200 <출력>`) — 이전 메모:(고정 전략 `BASE=skilled FIX=<이름> node .scratch/shard.ts .scratch/sk/fixed.ts …` — 로그는 조각마다 다른 파일로, 같은 파일에 `2>>` 하면 겹쳐 지워짐)(평균 봇 #416 뒤 확인 끝 — `.scratch/m12g/`). 숙련 v2(상황별 산란)는 늘 최소보다 낮아 채택 안 함 — 코드 `.scratch/m12f/skilled2.ts`, 결과 `.scratch/m12f/`(집계 `node .scratch/m12f/agg.mjs v1 skilled clutchMin clutchMax`, 쌍 비교 `pair.mjs a b`). v0(#397)·v1(#405) 머지, M-12 재측정(#404 뒤) #391 댓글. 남은 것: #407 결정 뒤 봇·M-12 다시 재고 sim-M2 리포트 PR. 결과 scratch `.scratch/m12c/`(avg 1000·skilled·고정 8종 200, 집계 `node .scratch/m12c/agg.mjs avg skilled …`). 고정 전략은 `BASE=skilled FIX=<이름> node .scratch/shard.ts .scratch/sk/fixed.ts qa-m2 1 200 <출력>`
 - **#388 결과 오면** gate-M1.md(#389 머지됨) 1번 칸·결론 채우는 PR
 
 ## 최근 완료
+- 2026-10-10: **#391 safest vs 숙련 v1.1 400판 → PR #450 머지**(sim-M2-02에 절 추가, main 4a3fc98, `qa-m2` 1~400, 201~400 오류 0·다름 0) — 번식 safest **7.36±0.74** vs 숙련 6.76±0.68, 쌍 +0.60±0.87(0 포함, 미정) · 런 9.35 vs 6.67년(뚜렷) · 20년 초과 48 vs 21. ⚠ 이번 근무도 앞 근무(#449)와 겹쳐 같은 리포트를 다시 쓸 뻔함 — 시작할 때 `git fetch` 뒤 qa/reports·상태 파일을 먼저 볼 것
 - 2026-10-10: **#391 M-12 재측정(숙련 v1.1 기준) → PR #449 sim-M2-02 머지** — main `ccf94c3` `qa-m2` 1~200, 2,000판 오류 0·다름 0. 숙련 7.07·평균 4.43. **safest 7.51 점추정 실패**(쌍 +0.45 ± 1.33, 미정) · 최대 산란 6.61 · 잔류 5.09 · 2차 번식 안 함 2.40 · 옮기기 안 함 6.09. 최소 산란·계승·2차 번식 함은 숙련과 같은 판. #391·#408 댓글
 - 2026-10-10: **#429 숙련 봇 v1.1 → PR #448 머지**(#429 닫힘) — 둥지 짓기 전 봄 먹이 low 장소 피함. main 3cf2344(+#439 값) `qa-m2` 1~200, 오류 0·리플레이 다름 0: **번식 7.07±1.02·7.031년** — #429 잠정 측정과 200/200 같음. 쌍 번식차 v1.1−v1 +2.02±1.00, v1.1−평균 +2.63±0.99. 결과 `.scratch/m12j/`
 - 2026-10-10: **#438 e2e 스모크 main 실패 → PR #443 머지**(고정 시각 1월 1일 → 3일) — 1월 1일 판이 밸런스 변경 뒤 계승 관문 전에 죽음. 후보 2~7일: 3~7일 통과, PR #439를 로컬로 합쳐도 3~7일 통과. 다음에 깨지면 날짜만 다시 고를 것. 1월 2일 판에서 React 중복 key 콘솔 오류 → 클라이언트 **#444**
