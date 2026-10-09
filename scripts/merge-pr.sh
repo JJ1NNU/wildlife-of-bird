@@ -5,7 +5,8 @@
 #   --keep-branch: 쌓인 PR의 아래 PR을 머지할 때(브랜치를 지우면 위 PR이 닫힌다)
 # 확인하는 것:
 #   1. 남은 review:* 라벨이 없다
-#   2. 한 번이라도 달렸던 review:<부서> 라벨마다 "승인 (<부서>" 댓글이 있다
+#   2. 한 번이라도 달렸던 review:<부서> 라벨마다 승인 댓글(또는 리뷰 본문)이 있다
+#      인식하는 줄 머리(굵게 ** 무시): "승인 (<부서>" · "[<부서>] 승인" · "[<부서>] 리뷰 — 승인"
 #   3. 최신 main 기준 CI가 모두 통과했다 (뒤처져 있으면 update-branch 후 다시 돌린다)
 set -euo pipefail
 
@@ -25,10 +26,10 @@ left="$(gh pr view "$pr" --json labels --jq '[.labels[].name|select(startswith("
 
 asked="$(gh api "repos/$repo/issues/$pr/timeline" --paginate \
   --jq '.[]|select(.event=="labeled" and (.label.name|startswith("review:")))|.label.name' | sort -u)"
-comments="$(gh pr view "$pr" --json comments --jq '.comments[].body')"
+comments="$(gh pr view "$pr" --json comments,reviews --jq '(.comments[].body),(.reviews[].body)' | tr -d '*')"
 for label in $asked; do
   dept="${label#review:}"
-  grep -q "^승인 ($dept" <<<"$comments" || { echo "중단: $label 승인 댓글 없음"; exit 1; }
+  grep -qE "^(승인 \($dept|\[$dept\] (리뷰 — )?승인)" <<<"$comments" || { echo "중단: $label 승인 댓글 없음"; exit 1; }
   echo "리뷰 확인: $dept 승인"
 done
 [ -n "$asked" ] || echo "리뷰 확인: 필수 리뷰 없음(소유 부서 PR)"
