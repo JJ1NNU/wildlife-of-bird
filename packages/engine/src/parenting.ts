@@ -99,7 +99,7 @@ export function setPolicy(
   if (extra.length > 0) throw new Error(`없는 육아 방침 항목이다: ${extra.join(', ')}`);
   const text = Object.entries(parenting)
     .map(([item, v]) => `${ITEM_LABEL[item] ?? item} ${v}`)
-    .join(' · ');
+    .join(', ');
   return {
     state: { ...state, parenting },
     log: [{ at: state.at, type: 'parenting', text: `육아 방침: ${text}` }],

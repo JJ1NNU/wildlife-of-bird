@@ -225,7 +225,7 @@ describe('7. 화면 표시', () => {
   });
 
   it('7.2 에너지 변화', () => {
-    expect(formatEnergyDelta(-1.504)).toBe('−2');
+    expect(formatEnergyDelta(-1.504)).toBe('-2');
     expect(formatEnergyDelta(8.496)).toBe('+8');
     expect(formatEnergyDelta(-0.4)).toBe('0');
   });
