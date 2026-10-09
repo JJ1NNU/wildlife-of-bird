@@ -99,7 +99,7 @@ const ORDINAL = [
   'ninth',
   'tenth',
 ].map((k) => t(`inheritance.ordinal.${k}`));
-const SEX_MARK = { female: '♀', male: '♂' } as const;
+const SEX_WORD = { female: 'gameOver.life.female', male: 'gameOver.life.male' } as const;
 const SEASON = [
   'winter',
   'winter',
@@ -135,7 +135,7 @@ function logKey(l: LogEntry): string {
 function energy1(x: number): string {
   const n = roundHalfUp(x, 1);
   if (n === 0) return '0';
-  return `${n > 0 ? '+' : '−'}${Math.abs(n).toFixed(1)}`;
+  return `${n > 0 ? '+' : '-'}${Math.abs(n).toFixed(1)}`;
 }
 
 /** 칸 줄의 아이콘 — 훈련·옮기기는 묶음 아이콘 */
@@ -175,14 +175,14 @@ function deltaText(deltas: Record<string, number> = {}, perSlot = false): string
     if (k.startsWith('stat.')) {
       const n = roundHalfUp(x, 1);
       const name = STAT_WORD[k.slice('stat.'.length) as StatName] ?? k;
-      if (n !== 0) stats.push(`${name} ${n > 0 ? '+' : '−'}${Math.abs(n).toFixed(1)}`);
+      if (n !== 0) stats.push(`${name} ${n > 0 ? '+' : '-'}${Math.abs(n).toFixed(1)}`);
     } else if (k in RES_WORD) {
       // 그 밖의 키(짝 지시 `acceptance`·`effect` 등)는 로그 글에 이미 있다
       const t = perSlot ? energy1(x) : formatEnergyDelta(x);
       if (t !== '0') res.push(`${RES_WORD[k]} ${t}`);
     }
   }
-  return [...stats, ...res].join(' · ');
+  return [...stats, ...res].join(', ');
 }
 
 /** S-12 재생 한 줄: 칸의 예상(진행 전 `preview`)과 실제(루틴 로그의 `slot` 줄) */
@@ -214,7 +214,7 @@ function reducedMotion(): boolean {
 function logLine(l: LogEntry): string {
   const d = deltaText(l.deltas, l.slot !== undefined);
   const where = `${periodLabel(l.at).text} ${t('main.step', { n: l.at.step })}${l.slot ? ` ${t('routine.slot', { n: l.slot })}` : ''}`;
-  return `${where} — ${l.text}${d ? ` · ${d}` : ''}`;
+  return `${where}: ${l.text}${d ? `, ${d}` : ''}`;
 }
 
 /** S-30 가계도 한 줄 (05-inheritance 8장) — 문구 data/text/gameOver.json */
@@ -339,7 +339,7 @@ export function Game({ data }: { data: GameData }) {
   const inheritIndex = inherit?.cards.findIndex((c) => c.choiceId === picked) ?? -1;
   const inheritChick = inherit?.cards[inheritIndex];
   const chickName = (i: number, card: InheritanceChickCard) =>
-    `${ORDINAL[i] ?? `${i + 1}째`} ${SEX_MARK[card.sex]}`;
+    `${ORDINAL[i] ?? `${i + 1}째`} ${t(SEX_WORD[card.sex])}`;
   // S-13: 지금 이벤트의 글(제목·본문·선택지)은 data/events
   const eventGate = view.gate?.kind === 'event' ? view.gate : undefined;
   const gateEvent = eventGate && data.events.find((e) => e.id === eventGate.id);
@@ -495,7 +495,7 @@ export function Game({ data }: { data: GameData }) {
     const [lo, hi] = p?.energyDelta ?? [0, 0];
     const gains = Object.entries(p?.statGains ?? {})
       .map(([stat, x]) => `${STAT_WORD[stat as StatName]} ${formatStatGain(x)}`)
-      .join(' · ');
+      .join(', ');
     const dest = group === 'move' ? data.nodes.get(c.id.slice('move.'.length)) : undefined;
     const destSeason = dest && season ? dest.seasons[season] : undefined;
     const name =
@@ -513,7 +513,7 @@ export function Game({ data }: { data: GameData }) {
       ...(p?.notes ?? []),
     ]
       .filter(Boolean)
-      .join(' · ');
+      .join(', ');
     return (
       <li key={c.id}>
         <button
@@ -552,7 +552,7 @@ export function Game({ data }: { data: GameData }) {
    */
   function mateRow(card: MateCandidateCard, n: number) {
     const c = choices.find((x) => x.id === card.choiceId);
-    const sex = view.player.sex === 'female' ? '♂' : '♀';
+    const sex = view.player.sex === 'female' ? t('gameOver.life.male') : t('gameOver.life.female');
     const age = (
       <span className="muted small">
         {t(card.age <= 1 ? 'gate.age.yearling' : 'gate.age.adult')}
@@ -575,8 +575,7 @@ export function Game({ data }: { data: GameData }) {
                 {sex} {t('gate.mateCandidate.previous')} {age}
                 {card.bond && (
                   <span className="muted small">
-                    {' '}
-                    ·{' '}
+                    {', '}
                     {t('gate.mateCandidate.bond', {
                       now: card.bond.now,
                       reunion: card.bond.reunion,
@@ -625,11 +624,11 @@ export function Game({ data }: { data: GameData }) {
               {sex} {t('gate.mateCandidate.candidate', { n })} {age}
             </span>
             <span className="cap">
-              {t('gate.mateCandidate.plumage')} <b>{card.plumage}</b> ·{' '}
+              {t('gate.mateCandidate.plumage')} <b>{card.plumage}</b>,{' '}
               {t('gate.mateCandidate.song')} <b>{card.song}</b>
             </span>
             <span className="cap">
-              {[t(`gate.mateHint.${card.hint}`), c?.disabled?.reason].filter(Boolean).join(' · ')}
+              {[t(`gate.mateHint.${card.hint}`), c?.disabled?.reason].filter(Boolean).join(', ')}
             </span>
           </span>
           <span className="vals">
@@ -677,8 +676,8 @@ export function Game({ data }: { data: GameData }) {
           <span className="main">
             <span className="b">{chickName(i, card)}</span>
             <span className="cap">
-              {t('inheritance.chick.silverSpoon')} <b>{card.silverSpoon.toFixed(2)}</b> ·{' '}
-              {t('inheritance.chick.firstWinter')} <b>×{card.firstWinter.toFixed(2)}</b>
+              {t('inheritance.chick.silverSpoon')} <b>{card.silverSpoon.toFixed(2)}</b>,{' '}
+              {t('inheritance.chick.firstWinter')} <b>{card.firstWinter.toFixed(2)}배</b>
             </span>
             {potentialRanges(card, sel ? undefined : 2)}
           </span>
@@ -716,7 +715,7 @@ export function Game({ data }: { data: GameData }) {
                 c?.disabled?.reason,
               ]
                 .filter(Boolean)
-                .join(' · ')}
+                .join(', ')}
             </span>
           </span>
           <span className="vals">
@@ -787,7 +786,7 @@ export function Game({ data }: { data: GameData }) {
             <span className="b">{c?.label ?? t('gate.clutchSize.eggs', { n: card.eggs })}</span>
             {/* 04-breeding 5장: 이소 기대 수 소수 첫째 · 은수저 소수 셋째 (이벤트 없는 값) */}
             <span className="cap" data-testid={`clutch-forecast-${card.eggs}`}>
-              {t('gate.clutchSize.expectedFledged')} <b>{card.expectedFledged.toFixed(1)}</b> ·{' '}
+              {t('gate.clutchSize.expectedFledged')} <b>{card.expectedFledged.toFixed(1)}</b>,{' '}
               {t('inheritance.chick.silverSpoon')} <b>{card.silverSpoon.toFixed(3)}</b>
             </span>
             {c?.disabled && <span className="cap">{c.disabled.reason}</span>}
@@ -934,7 +933,7 @@ export function Game({ data }: { data: GameData }) {
             <span>{t('main.energy')}</span>
             <b>
               {yes
-                ? `${formatEnergyDelta(-card.energyCost)} → ${Math.max(0, roundHalfUp(view.player.energy - card.energyCost))}`
+                ? `${formatEnergyDelta(-card.energyCost)} > ${Math.max(0, roundHalfUp(view.player.energy - card.energyCost))}`
                 : t('gate.none')}
             </b>
           </span>
@@ -992,7 +991,7 @@ export function Game({ data }: { data: GameData }) {
         <div className="over">
           <h1>{t('gameOver.title')}</h1>
           <p className="muted">
-            {when.text} · {t('main.age', { n: view.player.age })}
+            {when.text}, {t('main.age', { n: view.player.age })}
           </p>
           {death && (
             <p className="cause" data-testid="death-cause">
@@ -1000,7 +999,7 @@ export function Game({ data }: { data: GameData }) {
             </p>
           )}
           <p className="muted small">
-            {last && `${t('gameOver.lastAction', { text: last.text })} · `}
+            {last && `${t('gameOver.lastAction', { text: last.text })}, `}
             {t('gameOver.energyLeft')} {roundHalfUp(view.player.energy)} /{' '}
             {roundHalfUp(view.energyCap)}
           </p>
@@ -1072,7 +1071,7 @@ export function Game({ data }: { data: GameData }) {
           <div className="row small">
             <span className="ico s" style={iconStyle(`icon.season.${when.season}`)} />
             <span className="b">{when.text}</span>
-            <span className="muted">· {t('main.step', { n: view.at.step })}</span>
+            <span className="muted">{t('main.step', { n: view.at.step })}</span>
             <span className="sp" />
             <span>
               {t('main.totalBreeding')} <b>{view.totalBreeding}</b>
@@ -1131,9 +1130,7 @@ export function Game({ data }: { data: GameData }) {
               <li key={it.item} className={`pol${it.locked ? ' lock' : ''}`}>
                 <span className="lab small b">
                   {i + 1} {it.label}
-                  {it.locked && (
-                    <span className="muted"> · {t('gate.parentingPolicy.locked')}</span>
-                  )}
+                  {it.locked && <span className="muted">, {t('gate.parentingPolicy.locked')}</span>}
                 </span>
                 <fieldset className="seg" aria-label={it.label}>
                   {it.options.map((o) => (
@@ -1200,8 +1197,8 @@ export function Game({ data }: { data: GameData }) {
                   <th>{t('inheritance.confirm.rowSurvival')}</th>
                   <td>{Math.round(inherit.stay.yearSurvival * 100)}%</td>
                   <td>
-                    {Math.round(inheritChick.yearSurvival * 100)}% ·{' '}
-                    {t('inheritance.chick.firstWinter')} ×{inheritChick.firstWinter.toFixed(2)}
+                    {Math.round(inheritChick.yearSurvival * 100)}%,{' '}
+                    {t('inheritance.chick.firstWinter')} {inheritChick.firstWinter.toFixed(2)}배
                   </td>
                 </tr>
               </tbody>
@@ -1232,16 +1229,16 @@ export function Game({ data }: { data: GameData }) {
               >
                 <span className="main">
                   <span className="b">
-                    {t('inheritance.stay.label')} {SEX_MARK[view.player.sex]}{' '}
+                    {t('inheritance.stay.label')} {t(SEX_WORD[view.player.sex])}{' '}
                     {t('inheritance.confirm.stayAge', { age: inherit.stay.age })}{' '}
                     <span className="muted small">{t('inheritance.stay.tag')}</span>
                   </span>
                   <span className="cap">
-                    {t('inheritance.stay.aging')} <b>×{inherit.stay.agingMult.toFixed(2)}</b>
+                    {t('inheritance.stay.aging')} <b>{inherit.stay.agingMult.toFixed(2)}배</b>
                     {inherit.stay.bond !== undefined && (
                       <>
-                        {' '}
-                        · {t('inheritance.stay.bond')} <b>{inherit.stay.bond}</b>
+                        {', '}
+                        {t('inheritance.stay.bond')} <b>{inherit.stay.bond}</b>
                       </>
                     )}
                   </span>
@@ -1277,7 +1274,7 @@ export function Game({ data }: { data: GameData }) {
             {gateEvent && <li className="gate-title muted small">{gateEvent.body}</li>}
             {view.nest?.chicks !== undefined && (
               <li className="gate-title small" data-testid="event-nest">
-                {t('main.nest')} · {t('main.nest.chicks', { n: view.nest.chicks })}
+                {t('main.nest')}, {t('main.nest.chicks', { n: view.nest.chicks })}
               </li>
             )}
             {view.gate.cards.map((card) => eventRow(card))}
@@ -1308,12 +1305,12 @@ export function Game({ data }: { data: GameData }) {
               <img className="art-bird" src={birdUrl(view.speciesId)} alt="" />
               <div className="plate small">
                 {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
-                {view.player.sex === 'female' ? '♀' : '♂'} {t('main.age', { n: view.player.age })}
-                {' · '}
+                {t(`gameOver.life.${view.player.sex}`)} {t('main.age', { n: view.player.age })}
+                {', '}
                 {data.nodes.get(view.node)?.nameKo ?? view.node}
                 {view.nest && (
                   <div className="b" data-testid="nest-band">
-                    {t('main.nest')} ·{' '}
+                    {t('main.nest')},{' '}
                     {view.nest.chicks !== undefined
                       ? t('main.nest.chicks', { n: view.nest.chicks })
                       : view.nest.eggs !== undefined
@@ -1341,7 +1338,7 @@ export function Game({ data }: { data: GameData }) {
                     <span>{t('routine.slots.count', { n: slots.length + done })}</span>
                   )}
                   {view.routine?.nextSlotIn !== undefined && (
-                    <span> · {t('routine.slots.nextIn', { n: view.routine.nextSlotIn })}</span>
+                    <span>, {t('routine.slots.nextIn', { n: view.routine.nextSlotIn })}</span>
                   )}
                 </div>
               )}
@@ -1363,7 +1360,7 @@ export function Game({ data }: { data: GameData }) {
                       <span className="n">{done + k + 1}</span>
                       {s.id && <span className="ico s" style={iconStyle(slotIcon(s.id))} />}
                       <span className="e">
-                        {s.preview ? energy1(s.preview.energyDelta[0]) : '—'}
+                        {s.preview ? energy1(s.preview.energyDelta[0]) : '-'}
                       </span>
                     </button>
                   );
@@ -1371,8 +1368,9 @@ export function Game({ data }: { data: GameData }) {
               </div>
               <div className="sum">
                 <span>
-                  {t('main.energy')} {roundHalfUp(view.player.energy)} →{' '}
-                  <b>{ready ? roundHalfUp(energyAfter.at(-1) ?? 0) : '—'}</b>
+                  {t('main.energy')} {roundHalfUp(view.player.energy)}
+                  {' > '}
+                  <b>{ready ? roundHalfUp(energyAfter.at(-1) ?? 0) : '-'}</b>
                 </span>
                 <span className="sp" />
                 <span>{t('routine.sum', { n: slots.length })}</span>
@@ -1407,11 +1405,11 @@ export function Game({ data }: { data: GameData }) {
                           <td>{r.slot}</td>
                           <td>
                             {r.label}
-                            {seen && r.event && ` · ${r.event.text}`}
+                            {seen && r.event && `, ${r.event.text}`}
                           </td>
                           <td>{r.expect !== undefined && energy1(r.expect)}</td>
                           <td>
-                            {seen ? (r.actual ? energy1(r.actual.deltas?.energy ?? 0) : '—') : '…'}
+                            {seen ? (r.actual ? energy1(r.actual.deltas?.energy ?? 0) : '-') : '-'}
                           </td>
                           <td className={seen && r.dead ? 'danger' : ''}>
                             {seen ? (r.dead ? '✕' : r.event ? '!' : r.actual ? '✓' : '') : ''}
@@ -1454,13 +1452,13 @@ export function Game({ data }: { data: GameData }) {
                         </td>
                         <td>
                           {s.preview &&
-                            `${energy1(s.preview.energyDelta[0])} → ${roundHalfUp(energyAfter[k] ?? 0, 1).toFixed(1)}`}
+                            `${energy1(s.preview.energyDelta[0])} > ${roundHalfUp(energyAfter[k] ?? 0, 1).toFixed(1)}`}
                         </td>
                         <td>{s.preview && formatRisk(data.formulas, s.preview.deathRisk).text}</td>
                         <td>
                           {Object.entries(s.preview?.statGains ?? {})
                             .map(([st, x]) => `${STAT_WORD[st as StatName]} ${formatStatGain(x)}`)
-                            .join(' · ')}
+                            .join(', ')}
                         </td>
                       </tr>
                     ))}
@@ -1667,7 +1665,7 @@ export function Game({ data }: { data: GameData }) {
         </ul>
         {SHOW_FAST_FORWARD && (
           <div className="dev small">
-            <span className="muted">개발용 · 평균 봇으로</span>
+            <span className="muted">개발용, 평균 봇으로</span>
             <button
               type="button"
               className="btn"
@@ -1680,7 +1678,7 @@ export function Game({ data }: { data: GameData }) {
         )}
         {SHOW_FAST_FORWARD && (
           <table className="stats small" data-testid="stats">
-            <caption className="muted">개발용 · 스탯 현재 / 잠재력</caption>
+            <caption className="muted">개발용, 스탯 현재 / 잠재력</caption>
             <tbody>
               {(Object.keys(view.player.potential) as StatName[]).map((s) => (
                 <tr key={s}>
