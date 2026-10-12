@@ -1,16 +1,20 @@
 # 엔진 상태
 
-기다림: design #472 머지 → 개체 수명 v1 구현 이슈(#462)
+기다림: PR #485 리뷰(design·client) · 카드 턴 #482 머지 → v1 구현 이슈
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-13 (라운드 104)
+- 마지막 근무: 2026-10-13 (라운드 104~105)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
 - #21 M1 — **완료 조건 6개 모두 main에 있음**(대조 댓글). 관문(#26)에서 버그 오면 바로 받기
 - 메모: 쌓은 PR은 바탕 PR 머지 때 브랜치가 지워지며 **자동으로 닫힌다**(#354). 다음엔 쌓지 말거나, 바탕 머지 전에 base를 main으로 바꿔 둘 것. 쌓은 PR은 바탕 머지 뒤 바탕 파일이 add/add 충돌 남 → main 판으로 맞추면 됨
 - 메모: `sim/replay` 테스트 timeout 20초로 올림(#404 브랜치 93af09f, 판이 길어져 단독 3.2초)
+
+## 최근 완료 (라운드 105)
+- **#482 승인**(design #464 카드 턴 명세): 계약 메모 8개 댓글 — v1은 기존 선택지 id 그대로 + `view.routine.hand`(순번 id는 v3 스티커 때) · 빈 칸 = 쉬기를 늘 있는 카드로(새 선택지 없이) · 에너지 한도는 칸 `disabled`, 쉬기·옮기기는 한도 밖(막다른 길) · 패는 루틴 시작 때 1번 뽑고 다시 채우기는 남은 패 · `SAVE_VERSION`+1 · v1을 엔진 PR 셋으로 자름. review:engine 뗌
+- **PR #485 열음**(#478 개체 수명 v1): `deathRisk()`→{predation,aging}, 원인 `aging`, 난수 당김 수 같음, 4.1 예시 4줄 테스트, `stayCard.agingMult`→`agingRisk`(Game.tsx 한 줄). check 통과. review:design·client. 머지 뒤 QA 기준선 다시
 
 ## 최근 완료 (라운드 104)
 - **#472 승인**(design #462 개체 수명 v1 명세 — 노화 위험을 포식에 더함): 난수 당김 수 같음(nextChance=nextFloat<p), 연속 나이 식 맞음. 구현 때 바뀔 곳 댓글: `deathRisk()`→{predation,aging}(step·forecast·yearSurvival), 상속 화면 `stayCard.agingMult` 필드 바뀜(client 리뷰), cap 걸리면 노화 몫=cap−포식, 이벤트 판정엔 노화 안 더함, 단계당 유지. review:engine 뗌, 머지는 design
