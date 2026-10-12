@@ -3,7 +3,6 @@
   "handExpCap": 3,
   "pool": {
     "forage": { "weight": 1 },
-    "rest": { "weight": 1 },
     "social": { "weight": 1 },
     "explore": { "weight": 1 },
     "train-flight": { "weight": 1 },
