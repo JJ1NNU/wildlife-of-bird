@@ -237,6 +237,25 @@
 | SRC-151 | Seress, G., Hammer, T., Bókony, V., Vincze, E., Preiszner, B., Pipoly, I., Sinkovics, C., Evans, K. L. & Liker, A. (2018) "Impact of urbanization on abundance and phenology of caterpillars and consequences for breeding in an insectivorous bird", *Ecological Applications* 28(5):1143-1156. doi:10.1002/eap.1730 | [link](https://doi.org/10.1002/eap.1730) | A | 헝가리 도시 2곳·숲 2곳 박새(*P. major*) 4년: 첫 번식 육추기 애벌레 양이 숲이 도시의 **8.5~24배**. 도시 박새는 한배가 작고, **새끼가 굶어 죽는 일이 더 잦고**, 이소 새끼 수가 적고, 이소 새끼가 가벼움 — 먹이(애벌레) 부족이 낮은 번식 성공의 원인으로 봄 → nestLossByFood(#428) | 확인(초록, Europe PMC) |
 | SRC-152 | Seress, G., Sándor, K., Evans, K. L. & Liker, A. (2020) "Food availability limits avian reproduction in the city: An experimental study on great tits *Parus major*", *Journal of Animal Ecology* 89(7):1570-1580. doi:10.1111/1365-2656.13211 | [link](https://doi.org/10.1111/1365-2656.13211) | A | 박새(*P. major*) 실험: 도시·숲 둥지에 곤충 먹이를 보태 줌(필요량의 40~50%). 보태지 않은 도시 둥지는 숲보다 새끼 몸이 작고 **새끼 생존율이 낮았고**, 보태 준 도시 둥지는 숲 수준까지 올라옴 — 육추기 먹이 부족이 번식 성공을 크게 낮춘다는 실험 증거 → nestLossByFood(#428) | 확인(초록, Europe PMC) |
 
+### 박새 개체 수명 — 생존율 · 노화 · 최장 기록 (#467)
+
+> 디자인 #462(개체 수명 분포) 감 잡기용. 모두 유럽 *P. major* 수치다. *P. minor*는 일본 최장 기록(SRC-025, 7년 11개월)만 있고 생존율·노화 연구는 찾지 못했다 — 게임에 옮길 때는 방향·크기 감으로만 쓴다.
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-153 | British Trust for Ornithology (BTO), *BirdFacts: Great Tit* (영국 가락지·둥지 기록 요약 페이지, 2026-10-13 열람) | [link](https://www.bto.org/understanding-birds/birdfacts/great-tit) | B | 영국 박새(*P. major*): **성조 연생존율 0.542±0.011**(암 0.555, 수 0.583), **첫해 생존율 0.38±0.014**, 번식 나이에 이른 새의 **보통 기대 수명 3년**(번식은 보통 1살부터), 영국 가락지 최장 10년 5개월 18일(2006) | 확인(페이지) |
+| SRC-154 | EURING (2023-09-01) *Longevity list* (유럽 가락지 조사 종별 최장 생존 기록) | [link](https://euring.org/files/documents/EURING_longevity_list_20230901.pdf) | A | 박새(*P. major*) 유럽 최장: 네덜란드 **16년 7개월**·16년 5개월(둘 다 가락지 조사자 재포획). 극단 기록일 뿐 평균이 아니다 | 확인(PDF) |
+| SRC-155 | Bouwhuis, S., Sheldon, B. C., Verhulst, S. & Charmantier, A. (2009) "Great tits growing old: selective disappearance and the partitioning of senescence to stages within the breeding cycle", *Proceedings of the Royal Society B* 276(1668):2769–2777. doi:10.1098/rspb.2009.0457 | [link](https://doi.org/10.1098/rspb.2009.0457) | A | 영국 위덤 숲 암컷 박새 49년: 개체 안에서 본 **번식 노화는 2.8살부터** 시작하고 해마다 암컷의 21%에 영향(횡단 분석만 보면 3.5살부터·9% — 질 낮은 새가 먼저 사라져 가려짐). 갑작스러운 '마지막 해' 효과는 없음. 한배 크기는 안 줄고 새끼·이소 수가 준다 | 서지·초록까지(OpenAlex) |
+| SRC-156 | Bouwhuis, S., Choquet, R., Sheldon, B. C. & Verhulst, S. (2012) "The forms and fitness cost of senescence: age-specific recapture, survival, reproduction, and reproductive value in a wild bird population", *The American Naturalist* 179(1):E15–E27. doi:10.1086/663194 | [link](https://doi.org/10.1086/663194) | A | 같은 박새 개체군: **생존 확률도 나이에 따라 떨어지고** 새끼(가입 개체) 생산과 나란히 준다. 번식 가치는 1살→9살에 87% 줄지만 노화의 적합도 비용은 **4%뿐**(대부분 노화 전에 죽기 때문). 생존 노화가 몇 살부터인지 수치는 초록에 없음 | 서지·초록까지(OpenAlex) |
+
+### 박새 짝 바뀜 빈도 — 짝 유지율 (#470)
+
+> QA #470(플레이테스트 "짝이 해마다 바뀜"). 게임 값(`breeding.json` parus-minor: 짝 1년 생존 0.5 · 이혼 성공 뒤 0.1 / 실패 뒤 0.35)이면 다음 해 같은 짝일 확률 = 0.5×0.9≈0.45(성공 뒤) · 0.5×0.65≈0.33(실패 뒤) → **해마다 55~68% 꼴로 짝이 바뀐다**. 성조 연생존 약 0.54(SRC-153)라 짝 한쪽이 해마다 절반 가까이 죽는 것만으로도 짝 바뀜이 흔하다. 위덤 30년 자료도 같은 방향이다(SRC-157·SRC-080·SRC-035) → 데이터 고칠 것 없음. *P. minor* 짝 유지율 문헌은 못 찾음.
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-157 | Culina, A., Lachish, S., Pradel, R., Choquet, R. & Sheldon, B. C. (2013) "A multievent approach to estimating pair fidelity and heterogeneity in state transitions", *Ecology and Evolution* 3(13):4326–4338. doi:10.1002/ece3.729 | [link](https://doi.org/10.1002/ece3.729) | A | 영국 위덤 숲 박새(*P. major*) 30년 번식 기록(암 4,784·수 4,430마리, 번식 7,837회): **지난해 짝과 다시 번식한 새가 짝을 바꾼 새보다 생존율이 높고 다음 해에도 같은 짝으로 남을 확률이 높다**. **첫 번식(1살) 새가 나이 든 새보다 짝을 더 잘 바꾼다**. 짝 유지율 수치는 그림(Fig. 2)에만 있어 여기 옮기지 않음 → #470 "짝 바뀜은 박새에서 흔함" | 확인(본문, Europe PMC PMC3856734) |
+
 ### 환경 변화 · 그 밖의 종
 
 | ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
