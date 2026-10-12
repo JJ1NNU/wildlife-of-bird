@@ -507,6 +507,9 @@ h1 {
 .actions .btn + .btn {
   margin-left: var(--wb-space-2);
 }
+.actions .btn.side {
+  flex: none;
+}
 .slot-table .danger {
   color: var(--wb-color-danger);
   font-weight: var(--wb-font-weight-bold);

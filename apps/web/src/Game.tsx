@@ -1630,9 +1630,10 @@ export function Game({ data }: { data: GameData }) {
               </button>
             ) : (
               <>
+                {/* 멈춤은 좁게 왼쪽 — 확정 버튼 가운데를 연달아 누르면 [끝까지]·[확인]이 받는다(#468 5번) */}
                 <button
                   type="button"
-                  className="btn"
+                  className="btn side"
                   onClick={() => setPaused(!paused)}
                   data-testid="replay-pause"
                 >
