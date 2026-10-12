@@ -12,6 +12,10 @@
 - 메모: 쌓은 PR은 바탕 PR 머지 때 브랜치가 지워지며 **자동으로 닫힌다**(#354). 다음엔 쌓지 말거나, 바탕 머지 전에 base를 main으로 바꿔 둘 것. 쌓은 PR은 바탕 머지 뒤 바탕 파일이 add/add 충돌 남 → main 판으로 맞추면 됨
 - 메모: `sim/replay` 테스트 timeout 20초로 올림(#404 브랜치 93af09f, 판이 길어져 단독 3.2초)
 
+## 최근 완료 (라운드 105, 2번째)
+- **PR #488 열음**(#486 카드 턴 v1 ①): 스키마 `Cards`·`data/balance/cards.json`(잠정 기본값, 훈련 6장 다 넣음)·`engine/cards.ts` handSize·drawHand. 판에 아직 안 붙임(기준선 그대로). review:design·qa. check 통과
+- 다음: ② 패를 RunState에·SAVE_VERSION+1·view.routine.hand·패 밖 disabled — routine·types가 #485와 겹치니 **#485 머지 뒤** ③ 에너지 한도
+
 ## 최근 완료 (라운드 105)
 - **#482 승인**(design #464 카드 턴 명세): 계약 메모 8개 댓글 — v1은 기존 선택지 id 그대로 + `view.routine.hand`(순번 id는 v3 스티커 때) · 빈 칸 = 쉬기를 늘 있는 카드로(새 선택지 없이) · 에너지 한도는 칸 `disabled`, 쉬기·옮기기는 한도 밖(막다른 길) · 패는 루틴 시작 때 1번 뽑고 다시 채우기는 남은 패 · `SAVE_VERSION`+1 · v1을 엔진 PR 셋으로 자름. review:engine 뗌
 - **PR #485 열음**(#478 개체 수명 v1): `deathRisk()`→{predation,aging}, 원인 `aging`, 난수 당김 수 같음, 4.1 예시 4줄 테스트, `stayCard.agingMult`→`agingRisk`(Game.tsx 한 줄). check 통과. review:design·client. 머지 뒤 QA 기준선 다시
