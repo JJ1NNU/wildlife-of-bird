@@ -57,4 +57,23 @@ describe('패로 칸 고르기 (11장 v1)', () => {
     for (let i = 0; i < slots - 1; i++) s = act(s, 'action.social', data).state;
     expect(routine(s)?.hand).toEqual({ social: 2 });
   });
+
+  it('에너지 한도: 넣으면 바닥나는 카드는 막히고, 쉬기·옮기기는 열려 있다 (3장)', () => {
+    // 섭취 없는 사회 카드를 에너지 바닥에서
+    const actions = data.formulas.actions;
+    const noIntake: GameData = {
+      ...data,
+      formulas: {
+        ...data.formulas,
+        actions: { ...actions, social: { ...actions.social, intakeMult: 0 } },
+      },
+    };
+    const hungry = { ...start, player: { ...start.player, energy: 0.001 } };
+    const choices = getChoices(hungry, noIntake);
+    const disabled = (id: string) => choices.find((c) => c.id === id)?.disabled;
+    expect(disabled('action.social')).toEqual({ reason: '에너지 부족' });
+    expect(disabled('action.explore')).toEqual({ reason: '패에 없음' });
+    expect(disabled('action.rest')).toBeUndefined();
+    expect(choices.filter((c) => c.kind === 'node').every((c) => !c.disabled)).toBe(true);
+  });
 });
