@@ -3,9 +3,9 @@
   "perHour": {
     "engine": 2,
     "design": 2,
-    "content": 2,
-    "client": 1,
-    "qa": 1,
+    "content": 1,
+    "client": 2,
+    "qa": 2,
     "art": 1
   }
 }
