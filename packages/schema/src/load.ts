@@ -211,7 +211,7 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
 
   const cards = raw.cards
     ? check(Cards, raw.cards, issues)
-    : { handBase: 0, handExpCap: 0, pool: {} };
+    : { handBase: 0, handExpCap: 0, energyFloor: 0, pool: {} };
   if (cards && raw.cards) checkCardNodes(cards, raw.cards.file, nodes, issues);
 
   if (issues.length > 0 || !effects || !formulas || !breeding || !seasonPolicy || !cards)

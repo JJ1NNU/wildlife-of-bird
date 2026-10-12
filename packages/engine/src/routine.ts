@@ -1,7 +1,7 @@
 import type { CardId, GameData, GameEvent, StatName } from '@wb/schema';
 import { drawHand, type Hand } from './cards.ts';
 import { drawStepEvent } from './events.ts';
-import { seasonOf } from './formulas.ts';
+import { fatCap, seasonOf } from './formulas.ts';
 import { endLife } from './inherit.ts';
 import { nextFloat, seedFromString } from './rng.ts';
 import { judgeStep, slotCount, speciesBalance, stepChoices } from './step.ts';
@@ -78,6 +78,7 @@ export function limitToHand(choices: Choice[], hand: Hand): Choice[] {
 
 /**
  * 에너지 한도 (12-card-turn 3장): 이 칸을 넣은 뒤 예상 에너지가 바닥(굶주림 판정)이면 고를 수 없다.
+ * 에너지를 줄이는 칸은 넣은 뒤 지방 상한 × `cards.energyFloor` 미만이어도 막는다 — 늘리는 칸(회복 길)은 열어 둔다.
  * 쉬기·옮기기는 한도에서 뺀다 — 먹이 고갈 장소에서 모든 선택이 막혀 판이 멈추지 않게.
  * `state`는 앞 칸들을 적용한 예상 상태(`projected`), `n`은 이 단계 칸 수
  */
@@ -87,10 +88,14 @@ export function limitToEnergy(
   data: GameData,
   n: number,
 ): Choice[] {
+  const before = state.player.energy;
+  // 선은 그 칸 전 상한 기준 — 판정 1의 cap과 같다
+  const floor = fatCap(data.formulas, state.player.stats.stamina ?? 0) * data.cards.energyFloor;
   return choices.map((c) => {
     const card = cardOf(c.id);
-    if (c.disabled || !card || card === 'rest' || !judgeStep(state, c.id, data, n).starved)
-      return c;
+    if (c.disabled || !card || card === 'rest') return c;
+    const out = judgeStep(state, c.id, data, n);
+    if (!out.starved && !(out.energy < before && out.energy < floor)) return c;
     return { ...c, disabled: { reason: '에너지 부족' } };
   });
 }
