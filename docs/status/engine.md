@@ -1,6 +1,6 @@
 # 엔진 상태
 
-기다림: PR #485 리뷰(design·client) · PR #488 리뷰(design·qa)
+기다림: PR #485 리뷰(client) · PR #490 리뷰(design·qa)
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
@@ -11,6 +11,11 @@
 - #21 M1 — **완료 조건 6개 모두 main에 있음**(대조 댓글). 관문(#26)에서 버그 오면 바로 받기
 - 메모: 쌓은 PR은 바탕 PR 머지 때 브랜치가 지워지며 **자동으로 닫힌다**(#354). 다음엔 쌓지 말거나, 바탕 머지 전에 base를 main으로 바꿔 둘 것. 쌓은 PR은 바탕 머지 뒤 바탕 파일이 add/add 충돌 남 → main 판으로 맞추면 됨
 - 메모: `sim/replay` 테스트 timeout 20초로 올림(#404 브랜치 93af09f, 판이 길어져 단독 3.2초)
+
+## 최근 완료 (라운드 105, 3번째)
+- **#488 머지**(design·qa 승인). design 메모: cards.json에서 `rest` 빼는 건 design 값 PR(#464)에서
+- **PR #490 열음**(#486 ②): 칸 선택을 패로 제한(패 밖 `disabled` '패에 없음', 옮기기·채식·쉬기 늘 열림) · `view.routine.hand` · 멈춘 루틴 `paused.hand` · SAVE_VERSION 7. **패 난수는 본 난수열과 따로**(런 시드+단계) — 관문·판정 난수 순서 그대로. #485와 routine·types 겹침은 작음(머지 순서 상관없이 손으로 맞추면 됨). review:design·qa
+- 다음: ③ 에너지 한도(이 칸 넣은 뒤 예상 에너지 < 0 → disabled '에너지 부족', 쉬기·옮기기 예외) + sim 로그 `{hand, blocked[], picked}`(M-16·M-17)
 
 ## 최근 완료 (라운드 105, 2번째)
 - **PR #488 열음**(#486 카드 턴 v1 ①): 스키마 `Cards`·`data/balance/cards.json`(잠정 기본값, 훈련 6장 다 넣음)·`engine/cards.ts` handSize·drawHand. 판에 아직 안 붙임(기준선 그대로). review:design·qa. check 통과
