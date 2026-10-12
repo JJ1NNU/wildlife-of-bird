@@ -1,12 +1,12 @@
 import type { GameData, Phase } from '@wb/schema';
 import { phaseAt } from './calendar.ts';
-import { nestLoss, seasonOf } from './formulas.ts';
+import { feedingFulfilment, forageEfficiency, nestLoss, seasonOf } from './formulas.ts';
 import { orderValue } from './order.ts';
-import { parentingNestLossMult } from './parenting.ts';
+import { feedIntensity, parentingNestLossMult, policy } from './parenting.ts';
 import { nextChance } from './rng.ts';
 import { seasonEffect } from './season.ts';
 import { mapNode, periodRiskFactor, speciesBalance } from './step.ts';
-import type { Choice, LogEntry, Nest, NestSiteCard, RunState } from './types.ts';
+import type { CalendarAt, Choice, LogEntry, Nest, NestSiteCard, RunState } from './types.ts';
 
 /**
  * 둥지 자리 관문 `nestSite` — 04-breeding 4장. `nestSite` 첫 단계, 흐름의 마지막에 열린다.
@@ -127,11 +127,65 @@ export function buildNest(
 }
 
 /**
+ * 새끼 `chicks`마리일 때 `at` 시기의 단계 충족도(0~1, 01-formulas 6.1). 은수저와 먹이 모자람 배율(#501)이 같이 쓴다.
+ * 부모 = 플레이어(육아 방침의 급이 강도)와 짝(`mid`, 지시 `feedHigh`면 그 값 — 거절이면 사이 값, 04-breeding 3.5).
+ * 먹이 등급은 둥지 장소의 그 계절 값. 먹이 질 `quality`면 `× fulfilmentMult`(상한 1, 04-breeding 6.3)
+ */
+export function fulfilment(
+  state: RunState,
+  data: GameData,
+  chicks: number,
+  at: CalendarAt,
+): number {
+  const f = data.formulas;
+  const feed = f.silverSpoon.feedByIntensity;
+  const season = seasonOf(speciesBalance(data, state.config.speciesId), at.period);
+  const food = mapNode(data, state.nest?.node ?? state.node).seasons[season].food;
+  const parents = [
+    {
+      feed: feed[feedIntensity(state, data)],
+      efficiency: forageEfficiency(f, state.player.stats.foraging ?? 0, state.player.expYears),
+    },
+  ];
+  if (state.mate) {
+    parents.push({
+      feed: orderValue(state, 'mateOrder.feedHigh', feed.mid, feed.high),
+      efficiency: forageEfficiency(f, state.mate.stats.foraging ?? 0, state.mate.expYears),
+    });
+  }
+  const quality = data.breeding.parenting.foodQuality[policy(state, data, 'foodQuality')];
+  return Math.min(
+    1,
+    feedingFulfilment(f, { parents, food, chicks }) * (quality?.fulfilmentMult ?? 1),
+  );
+}
+
+/**
+ * 먹이 모자람 배율 `1 + k × (1 − 충족도)` — 01-formulas 3.2·3.3(#501). 새끼 `chicks`마리 기준(그 단계 시작의 수).
+ * 새끼가 없으면(`laying` `incubation`) 충족도 1 → 1. 키가 없으면 1
+ */
+export function shortfallMult(
+  state: RunState,
+  data: GameData,
+  chicks: number,
+  k: number | undefined,
+): number {
+  if (!k || chicks <= 0) return 1;
+  return 1 + k * (1 - fulfilment(state, data, chicks, state.at));
+}
+
+/**
  * 둥지 손실 확률 1단계분 (04-breeding 6.3): 3.2 × 구멍 · `guardNest` · 육아 방침 · 계절 방침 배율. 난수 없음.
  * 위험 보정은 지금 시기의 `riskMod` — S-23 카드(`nestSite` 국면)에서는 지시·방침 배율이 아직 1이다.
  * 먹이 배율은 둥지 장소(짓기 전이면 지금 장소)의 그 시기 계절 먹이 등급 — 이벤트 `foodMod`는 넣지 않는다(3.2).
+ * 먹이 모자람 배율은 새끼 `chicks`마리(기본 지금 둥지의 새끼 수)로 계산한다(#501).
  */
-export function nestLossChance(state: RunState, data: GameData, site: string): number {
+export function nestLossChance(
+  state: RunState,
+  data: GameData,
+  site: string,
+  chicks: number = state.nest?.chicks ?? 0,
+): number {
   const guard = data.breeding.orders.guardNest?.nestLossMult ?? 1;
   return (
     nestLoss(data.formulas, speciesBalance(data, state.config.speciesId), {
@@ -143,7 +197,8 @@ export function nestLossChance(state: RunState, data: GameData, site: string): n
     orderValue(state, 'mateOrder.guardNest', 1, guard) *
     parentingNestLossMult(state, data) *
     (seasonEffect(state, data).nestLossMult ?? 1) *
-    (data.formulas.brood.nestLossByFood?.[nestFood(state, data)] ?? 1)
+    (data.formulas.brood.nestLossByFood?.[nestFood(state, data)] ?? 1) *
+    shortfallMult(state, data, chicks, data.formulas.brood.nestLossByShortfall)
   );
 }
 
