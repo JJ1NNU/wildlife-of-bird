@@ -291,8 +291,8 @@ export interface SecondBroodCard {
 export interface InheritanceStayCard {
   choiceId: 'inherit.stay';
   age: number;
-  /** 노화 위험 배율 (01-formulas 4장) */
-  agingMult: number;
+  /** 지금 단계의 노화 위험 0~1 (01-formulas 4.1) — 포식 위험에 더해진다 */
+  agingRisk: number;
   /** 짝 유대 — 짝이 있을 때만 */
   bond?: number;
   /** 1년 생존 예상 0~1, 사건 제외 (05-inheritance 6장) */

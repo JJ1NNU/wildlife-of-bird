@@ -150,8 +150,10 @@ export interface StepOutcome {
   starved: boolean;
   feather: number;
   stats: RunState['player']['stats'];
-  /** 판정 3의 사망 확률. 굶어 죽었으면 계산하지 않는다(0) */
+  /** 판정 3의 사망 확률(포식 + 노화). 굶어 죽었으면 계산하지 않는다(0) */
   risk: number;
+  /** `risk` 가운데 노화 몫 (01-formulas 4.1) — `u < risk − agingRisk`면 포식, 그 위는 노화 */
+  agingRisk: number;
 }
 
 /**
@@ -256,7 +258,8 @@ export function judgeStep(
   const { energy, starved } = nextEnergy(cap, p.energy, gained / n, (spent - recover) / n);
   const feather =
     p.feather + (nextFeather(f, p.feather, phase, action, sp.moltRecoverMult) - p.feather) / n;
-  if (starved) return { phase, node, stay, energy, starved, feather, stats: p.stats, risk: 0 };
+  if (starved)
+    return { phase, node, stay, energy, starved, feather, stats: p.stats, risk: 0, agingRisk: 0 };
 
   // 판정 2 — 스탯 상승 (01-formulas 1.3)
   const stats = { ...p.stats };
@@ -287,10 +290,15 @@ export function judgeStep(
     r: energy / cap,
     feather,
     age: p.age,
+    period: state.at.period,
+    stamina: stats.stamina ?? 0,
     silverSpoon: p.silverSpoon ?? 0,
     injured: (state.injury ?? 0) > 0,
   });
-  // 9.4: 칸 위험 = 1 − (1 − 단계 위험)^(1/n) — 모든 칸이 같은 행동이면 단계 위험과 같다
-  const risk = 1 - (1 - stepRisk) ** (1 / n);
-  return { phase, node, stay, energy, starved, feather, stats, risk };
+  // 9.4: 칸 위험 = 1 − (1 − 단계 위험)^(1/n) — 모든 칸이 같은 행동이면 단계 위험과 같다.
+  // 노화 몫은 단계에서의 비율 그대로 나눈다 (4.1)
+  const total = stepRisk.predation + stepRisk.aging;
+  const risk = 1 - (1 - total) ** (1 / n);
+  const agingRisk = total > 0 ? (risk * stepRisk.aging) / total : 0;
+  return { phase, node, stay, energy, starved, feather, stats, risk, agingRisk };
 }

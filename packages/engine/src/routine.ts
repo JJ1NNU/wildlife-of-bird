@@ -1,7 +1,7 @@
 import type { GameData, GameEvent, StatName } from '@wb/schema';
 import { drawStepEvent } from './events.ts';
 import { endLife } from './inherit.ts';
-import { nextChance } from './rng.ts';
+import { nextFloat } from './rng.ts';
 import { judgeStep, slotCount, stepChoices } from './step.ts';
 import type { LogEntry, RunState } from './types.ts';
 
@@ -101,10 +101,13 @@ export function runRoutine(
       death = { at: state.at, type: 'death', text: '굶어 죽었다', cause: 'starvation', slot };
       break;
     }
-    const rolled = nextChance(s.rng, out.risk);
+    const rolled = nextFloat(s.rng);
     s = { ...s, rng: rolled.state };
-    if (rolled.value) {
-      death = { at: state.at, type: 'death', text: '포식자에게 잡혔다', cause: 'predation', slot };
+    if (rolled.value < out.risk) {
+      death =
+        rolled.value < out.risk - out.agingRisk
+          ? { at: state.at, type: 'death', text: '포식자에게 잡혔다', cause: 'predation', slot }
+          : { at: state.at, type: 'death', text: '늙어서 죽었다', cause: 'aging', slot };
       break;
     }
     if (paused) continue;
