@@ -1,4 +1,4 @@
-import type { Phase, RiskTier, Season, SeasonPolicyEffect, StatName } from '@wb/schema';
+import type { CardId, Phase, RiskTier, Season, SeasonPolicyEffect, StatName } from '@wb/schema';
 import type { FoodMod } from './formulas.ts';
 import type { RngState } from './rng.ts';
 
@@ -207,6 +207,8 @@ export interface PausedRoutine {
   done: number;
   /** 원래 계획 — 다시 채우기의 제안값은 `plan.slice(done)` */
   plan: string[];
+  /** 남은 패 — 다시 채우기는 이 패에서 (12-card-turn 11장) */
+  hand: Partial<Record<CardId, number>>;
   /** 단계를 시작할 때 둥지가 있었나 — 이벤트로 둥지를 잃어도 B-5 흐름을 탄다 */
   nest: boolean;
 }
@@ -468,6 +470,8 @@ export interface ViewModel {
     suggested: (string | null)[];
     /** 이벤트 뒤 남은 칸 다시 채우기 (결정으로 세지 않는다) */
     replan: boolean;
+    /** 남은 패 — 카드 id → 장수, 0장은 없음. 늘 있는 카드(옮기기·채식·쉬기)는 패와 따로 늘 고를 수 있다 (12-card-turn 2장) */
+    hand: Partial<Record<CardId, number>>;
   };
   /** 최근 판정 기록 — 이야기 피드 */
   recentLog: LogEntry[];

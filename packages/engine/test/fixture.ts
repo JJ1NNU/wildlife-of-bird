@@ -1,4 +1,4 @@
-import type { GameData } from '@wb/schema';
+import type { CardId, GameData } from '@wb/schema';
 import { loadGameData } from '@wb/schema';
 import { readDataDir } from '@wb/schema/cli/read-data';
 import type { ActResult, RunState } from '../src/index.ts';
@@ -34,6 +34,11 @@ if (!species) throw new Error('data/balance/species/parus-minor.json 이 없다'
 /** 박새 밸런스 */
 export const tit = species;
 export const f = testData.formulas;
+
+/** 카드 풀이 한 장뿐인 데이터 — 패가 그 카드로만 차서 칸마다 고를 수 있다 (12-card-turn 2.2) */
+export function onlyCard(data: GameData, card: CardId): GameData {
+  return { ...data, cards: { ...data.cards, pool: { [card]: { weight: 1 } } } };
+}
 
 /** 루틴의 남은 칸을 모두 같은 선택으로 채워 단계 하나를 진행한다 (03-contracts 3장 '행동 루틴'). 관문 선택은 한 번 */
 export function actStep(state: RunState, choiceId: string, data: GameData = testData): ActResult {

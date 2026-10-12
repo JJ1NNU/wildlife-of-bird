@@ -1,7 +1,8 @@
-import type { Cards } from '@wb/schema';
+import type { Cards, GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
 import { drawHand, handSize } from '../src/cards.ts';
-import { seedFromString } from '../src/index.ts';
+import type { RunState } from '../src/index.ts';
+import { act, getChoices, getView, newRun, seedFromString } from '../src/index.ts';
 import { testData } from './fixture.ts';
 
 const cards = testData.cards;
@@ -26,5 +27,34 @@ describe('패 뽑기 (2.2)', () => {
       pool: { ...cards.pool, 'train-display': { weight: 1, seasonMult: { winter: 1e6 } } },
     };
     expect(drawHand(skewed, at, seedFromString('hand')).hand).toEqual({ 'train-display': 7 });
+  });
+});
+
+describe('패로 칸 고르기 (11장 v1)', () => {
+  // 사회 카드만 1장 + handBase로 한 장 더 → 사회 2장
+  const data: GameData = {
+    ...testData,
+    cards: { ...cards, handBase: 1, handExpCap: 0, pool: { social: { weight: 1 } } },
+  };
+  const start = newRun({ speciesId: 'parus-minor', seed: 'hand', mode: 'free' }, data);
+  const routine = (s: RunState) => getView(s, data).routine;
+
+  it('패 밖 카드는 막히고, 늘 있는 카드(옮기기·채식·쉬기)는 열려 있다', () => {
+    expect(start.gate).toBeUndefined();
+    const choices = getChoices(start, data);
+    const disabled = (id: string) => choices.find((c) => c.id === id)?.disabled;
+    expect(disabled('action.explore')).toEqual({ reason: '패에 없음' });
+    expect(disabled('action.train.flight')).toEqual({ reason: '패에 없음' });
+    expect(disabled('action.forage')).toBeUndefined();
+    expect(disabled('action.rest')).toBeUndefined();
+    expect(choices.filter((c) => c.kind === 'node').every((c) => !c.disabled)).toBe(true);
+  });
+
+  it('고른 만큼 패가 준다', () => {
+    const slots = routine(start)?.slots ?? 0;
+    expect(routine(start)?.hand).toEqual({ social: slots + 1 });
+    let s = start;
+    for (let i = 0; i < slots - 1; i++) s = act(s, 'action.social', data).state;
+    expect(routine(s)?.hand).toEqual({ social: 2 });
   });
 });

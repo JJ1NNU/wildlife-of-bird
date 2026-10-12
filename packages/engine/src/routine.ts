@@ -1,9 +1,11 @@
-import type { GameData, GameEvent, StatName } from '@wb/schema';
+import type { CardId, GameData, GameEvent, StatName } from '@wb/schema';
+import { drawHand, type Hand } from './cards.ts';
 import { drawStepEvent } from './events.ts';
+import { seasonOf } from './formulas.ts';
 import { endLife } from './inherit.ts';
-import { nextChance } from './rng.ts';
-import { judgeStep, slotCount, stepChoices } from './step.ts';
-import type { LogEntry, RunState } from './types.ts';
+import { nextChance, seedFromString } from './rng.ts';
+import { judgeStep, slotCount, speciesBalance, stepChoices } from './step.ts';
+import type { Choice, LogEntry, RunState } from './types.ts';
 
 /**
  * 행동 루틴 — 칸 하나 = `act` 하나 (00-core-loop 3.5, 03-contracts 3장 '행동 루틴').
@@ -19,6 +21,59 @@ export function routineSlots(state: RunState, data: GameData): number {
 /** 지금 채워야 하는 칸 수 — 다시 채우기면 남은 칸 수 */
 export function emptySlots(state: RunState, data: GameData): number {
   return routineSlots(state, data) - (state.paused?.done ?? 0);
+}
+
+/**
+ * 이 단계의 패 (12-card-turn 2.2·11장). 이벤트로 멈췄으면 멈출 때 남은 패.
+ * 루틴을 짜기 시작한 상태(칸 수·경험·장소·계절)로 뽑고, 난수는 본 난수열이 아니라 런 시드 + 단계에서 따로 만든다 —
+ * 관문·판정의 난수 순서가 그대로이고, 같은 시드 = 같은 패
+ */
+export function stepHand(state: RunState, data: GameData): Hand {
+  if (state.paused) return state.paused.hand;
+  const { speciesId, seed } = state.config;
+  const { year, period, step } = state.at;
+  const at = {
+    slots: slotCount(state, data),
+    expYears: state.player.expYears,
+    node: state.node,
+    season: seasonOf(speciesBalance(data, speciesId), period),
+  };
+  const rng = seedFromString(`${speciesId}:${seed}:hand:${year}.${period}.${step}`);
+  return drawHand(data.cards, at, rng).hand;
+}
+
+/** 선택 id의 카드. 옮기기는 없음 */
+function cardOf(choiceId: string): CardId | undefined {
+  const [head, action, stat] = choiceId.split('.');
+  if (head !== 'action') return undefined;
+  return (action === 'train' ? `train-${stat}` : action) as CardId;
+}
+
+/** 늘 있는 카드 — 옮기기와 함께 패에 없어도 고를 수 있다 (2.3). 패에 있으면 패의 것을 먼저 쓴다 */
+const ALWAYS: ReadonlySet<CardId> = new Set(['forage', 'rest']);
+
+/** 패에서 고른 칸들을 뺀 남은 패 */
+function spend(hand: Hand, ids: string[]): Hand {
+  const left = { ...hand };
+  for (const id of ids) {
+    const card = cardOf(id);
+    if (card && left[card]) left[card] -= 1;
+  }
+  return left;
+}
+
+/** 지금 남은 패 — 채운 칸을 뺀다 (`view.routine.hand`) */
+export function handLeft(state: RunState, data: GameData): Hand {
+  return spend(stepHand(state, data), state.routine ?? []);
+}
+
+/** 패에 남지 않은 카드의 칸 선택을 막는다 (12-card-turn 11장 v1: 선택지 id 그대로, 패 밖은 `disabled`) */
+export function limitToHand(choices: Choice[], hand: Hand): Choice[] {
+  return choices.map((c) => {
+    const card = cardOf(c.id);
+    if (c.disabled || !card || ALWAYS.has(card) || (hand[card] ?? 0) > 0) return c;
+    return { ...c, disabled: { reason: '패에 없음' } };
+  });
 }
 
 /** 칸 하나의 판정 결과를 상태에 적용한다 (위험은 굴리지 않는다) */
@@ -40,8 +95,8 @@ export function projected(state: RunState, data: GameData): RunState {
 }
 
 /** 고를 수 있는 칸 선택인가 */
-function choosable(state: RunState, choiceId: string, data: GameData): boolean {
-  return stepChoices(state, data).some((c) => c.id === choiceId && !c.disabled);
+function choosable(state: RunState, choiceId: string, data: GameData, hand: Hand): boolean {
+  return limitToHand(stepChoices(state, data), hand).some((c) => c.id === choiceId && !c.disabled);
 }
 
 /**
@@ -54,11 +109,13 @@ export function suggestions(state: RunState, data: GameData): (string | null)[] 
   const out: (string | null)[] = [];
   let s = projected(state, data);
   const n = routineSlots(state, data);
+  let hand = handLeft(state, data);
   for (let i = state.routine?.length ?? 0; i < emptySlots(state, data); i++) {
     const id = last[i] ?? last.at(-1);
-    if (id && choosable(s, id, data)) {
+    if (id && choosable(s, id, data, hand)) {
       out.push(id);
       s = applySlot(s, id, data, n);
+      hand = spend(hand, [id]);
     } else out.push(null);
   }
   return out;
@@ -116,7 +173,13 @@ export function runRoutine(
       s = {
         ...s,
         eventCooldown: cooldown,
-        paused: { slots: n, done: slot, plan, nest: state.nest !== undefined },
+        paused: {
+          slots: n,
+          done: slot,
+          plan,
+          hand: spend(stepHand(state, data), filled.slice(0, i + 1)),
+          nest: state.nest !== undefined,
+        },
         gate: { kind: 'event', id: event.id },
       };
       slots.push({ at: state.at, type: 'event', text: event.title, event: event.id, slot });
