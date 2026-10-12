@@ -50,7 +50,15 @@ import {
 } from './order.ts';
 import { parentingChoices, parentingDue, setPolicy } from './parenting.ts';
 import { seedFromString } from './rng.ts';
-import { emptySlots, projected, routineSlots, runRoutine, suggestions } from './routine.ts';
+import {
+  emptySlots,
+  handLeft,
+  limitToHand,
+  projected,
+  routineSlots,
+  runRoutine,
+  suggestions,
+} from './routine.ts';
 import { chooseSeason, dropSeasonPolicy, seasonCards, seasonChoices, seasonDue } from './season.ts';
 import {
   breedingCost,
@@ -79,7 +87,7 @@ import type {
  */
 
 /** 저장 형식 버전. 형식이 바뀌면 올린다 (03-contracts 6장) */
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 
 /** 새 런을 시작한다. 같은 설정이면 언제나 같은 초기 상태. */
 export function newRun(config: RunConfig, data: GameData): RunState {
@@ -148,7 +156,8 @@ export function getChoices(state: RunState, data: GameData): Choice[] {
       label: o.text,
     }));
   // 루틴의 다음 빈 칸 — 앞 칸에 옮기기를 넣었으면 그 장소 기준 (03-contracts 3장 '행동 루틴')
-  return stepChoices(projected(state, data), data);
+  // 패 밖의 카드는 막는다 (12-card-turn 11장 v1)
+  return limitToHand(stepChoices(projected(state, data), data), handLeft(state, data));
 }
 
 /** 열려 있는 이벤트 관문의 이벤트 */
@@ -664,6 +673,9 @@ export function getView(state: RunState, data: GameData): ViewModel {
             filled: state.routine ?? [],
             suggested: suggestions(state, data),
             replan: state.paused !== undefined,
+            hand: Object.fromEntries(
+              Object.entries(handLeft(state, data)).filter(([, n]) => n > 0),
+            ),
           },
         }),
     recentLog: state.log.slice(-20),
