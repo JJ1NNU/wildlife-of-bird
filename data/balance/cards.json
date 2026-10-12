@@ -1,0 +1,15 @@
+{
+  "handBase": 1,
+  "handExpCap": 3,
+  "pool": {
+    "forage": { "weight": 1 },
+    "social": { "weight": 1 },
+    "explore": { "weight": 1 },
+    "train-flight": { "weight": 1 },
+    "train-foraging": { "weight": 1 },
+    "train-vigilance": { "weight": 1 },
+    "train-stamina": { "weight": 1 },
+    "train-display": { "weight": 1 },
+    "train-social": { "weight": 1 }
+  }
+}

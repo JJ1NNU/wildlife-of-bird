@@ -387,6 +387,13 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 - `species.<종>`: 종마다 다른 번식 계수. 생태 파일이 있는 종이어야 하고, 종 밸런스가 있는 종은 여기에도 있어야 한다.
 - `GameData.breeding`: 이 파일 그대로.
 
+### 4.3.4 카드 턴 — design
+
+`data/balance/cards.json` · 스키마 `Cards` · 의미: `docs/design/specs/12-card-turn.md` 2장·8장 (#486, v1 키만).
+- 최상위 키: `handBase` `handExpCap`(0 이상 정수) · `pool`. 엄격히 검사한다.
+- `pool.<카드 id>`: 카드 id = 행동 `forage` `rest` `social` `explore` · 훈련 `train-<스탯>`. 값 `weight`(양수) · `nodeMult`(장소 id → 배율, 있는 장소여야 함) · `seasonMult`(계절 → 배율). 없는 장소·계절은 1.
+- 파일이 없으면 빈 풀(`handBase`·`handExpCap` 0). `GameData.cards`: 이 파일 그대로.
+
 ### 4.4 장소·포식자·도감 — content
 - 장소(`data/nodes/<id>.json`, 스키마 `MapNode`): `id`(소문자-하이픈), `nameKo`, `species`(해당 종, 생태 파일 필요), `habitats`(서식지 태그), `links`(연결된 장소 — **양방향**, 자기 자신·없는 장소 금지), `seasons.<계절>`의 `food`·`risk`·`competition` 등급(이름은 `formulas.json` `nodeTiers`의 키, 숫자는 design), `basis`(등급 방향의 출처 · `factCheck` · `note`).
 - 시작 장소는 장소 파일이 아니라 종 밸런스 `runStart.node`(design). 그 종의 장소여야 한다.
