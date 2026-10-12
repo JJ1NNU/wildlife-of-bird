@@ -6,7 +6,7 @@
 - 현재 마일스톤: M1 관문 대기 중 · M2 선행 #392 완료
 
 ## 진행 중
-- 열린 내 PR: **#491**(#464 cards.json 첫 값 — rest 뺌·훈련 6장 · spec v0.1.2, review:qa). 남은 dept:design: **#462**(1·2·3번 끝 — #478 구현 뒤 QA M-15 측정으로 `aging.riskPerStep`·`nodeTiers.risk` 값 PR, 목표는 M-15 나이 기준 = 4.1 모델 표 +1, 머지 뒤 3.1·4장 본문을 4.1로·00-core-loop 원인 표에 aging) · **#464**(명세 v0.1.1 머지 → 엔진 #486 · QA #487 뒤 `cards.json` 값 PR) · #469(P2, 다음 근무에 볼 것)
+- 열린 내 PR: 없음(#491 머지 — cards.json 첫 값). 남은 dept:design: **#462**(1·2·3번 끝 — #478 구현 뒤 QA M-15 측정으로 `aging.riskPerStep`·`nodeTiers.risk` 값 PR, 목표는 M-15 나이 기준 = 4.1 모델 표 +1, 머지 뒤 3.1·4장 본문을 4.1로·00-core-loop 원인 표에 aging) · **#464**(명세 v0.1.1 머지 → 엔진 #486 · QA #487 뒤 `cards.json` 값 PR) · #469(P2, 다음 근무에 볼 것)
 - 숙련 v1.2: QA PR #458(skilled.ts 1.2.0, 1,000판 8.31년·7.88번) 승인함 — 머지되면 임시 봇 대신 이걸 쓴다
 - 데이터 변형은 `scratchpad\sub.cjs`식 node 치환으로(PowerShell Set-Content는 BOM을 넣어 sim이 데이터 오류로 멈춤). 노드 등급 `scarce`는 데이터 검증에서 막힘
 - 임시 봇 측정법: `qa/bots/_tmp-*.ts`로 숙련 봇 감싸기 → 120판 약 75초 → 파일 지움. **데이터 변형 런은 절대 동시에 돌리지 않는다**(10-09 18:30 food.low 7=12.23은 섞인 값이었음, 실제 15.67)
