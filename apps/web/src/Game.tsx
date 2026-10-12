@@ -543,6 +543,14 @@ export function Game({ data }: { data: GameData }) {
           aria-pressed={selected}
           disabled={!!c.disabled}
           onClick={() => fill(slot.k, c.id)}
+          aria-label={[
+            name,
+            cap,
+            p && `${t('main.energy')} ${lo === hi ? energy1(lo) : `${energy1(lo)}~${energy1(hi)}`}`,
+            risk?.text,
+          ]
+            .filter(Boolean)
+            .join(', ')}
           data-testid={`choice-${c.id}`}
         >
           {!group && <span className="ico" style={iconStyle(`icon.${c.id}`)} />}
@@ -895,6 +903,14 @@ export function Game({ data }: { data: GameData }) {
   function eventRow(card: EventOptionCard) {
     const c = choices.find((x) => x.id === card.choiceId);
     const option = gateEvent?.options.find((o) => `event.${o.id}` === card.choiceId);
+    const text = option?.text ?? c?.label ?? card.choiceId;
+    const check =
+      option?.check &&
+      card.chance !== undefined &&
+      t('gate.event.check', {
+        stat: STAT_WORD[option.check.stat],
+        n: Math.round(card.chance * 100),
+      });
     return (
       <li key={card.choiceId}>
         <button
@@ -903,18 +919,12 @@ export function Game({ data }: { data: GameData }) {
           aria-pressed={card.choiceId === picked}
           disabled={!!c?.disabled}
           onClick={() => setPicked(card.choiceId)}
+          aria-label={check ? `${text}, ${check}` : text}
           data-testid={`choice-${card.choiceId}`}
         >
           <span className="main">
-            <span className="b">{option?.text ?? c?.label ?? card.choiceId}</span>
-            {option?.check && card.chance !== undefined && (
-              <span className="cap">
-                {t('gate.event.check', {
-                  stat: STAT_WORD[option.check.stat],
-                  n: Math.round(card.chance * 100),
-                })}
-              </span>
-            )}
+            <span className="b">{text}</span>
+            {check && <span className="cap">{check}</span>}
             {card.onSuccess ? (
               <>
                 <span>{fxLine(card.onSuccess, t('gate.event.success'))}</span>
@@ -1376,6 +1386,7 @@ export function Game({ data }: { data: GameData }) {
                       aria-pressed={k === cursor}
                       disabled={Boolean(replay)}
                       onClick={() => setCursor(k === cursor ? undefined : k)}
+                      aria-label={`${t('routine.slot', { n: done + k + 1 })}, ${s.id ? labelOf(s) : t('routine.empty')}`}
                       data-testid={`slot-${done + k + 1}`}
                     >
                       {place && <span className="pl">{place}</span>}
@@ -1532,6 +1543,11 @@ export function Game({ data }: { data: GameData }) {
                       if (members.length === 0) return null;
                       const isOpen = open === g.key;
                       const pickedHere = members.find((c) => c.id === plan[cursor]);
+                      const hint = pickedHere
+                        ? pickedHere.label
+                        : g.key === 'move'
+                          ? t('routine.group.moveHint', { n: members.length })
+                          : t('routine.group.trainHint');
                       return [
                         <li key={g.key}>
                           <button
@@ -1545,6 +1561,7 @@ export function Game({ data }: { data: GameData }) {
                               if (!isOpen)
                                 requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
                             }}
+                            aria-label={`${g.label}, ${hint}`}
                             data-testid={`group-${g.key}`}
                           >
                             <span className="ico" style={iconStyle(g.icon)} />
@@ -1552,13 +1569,7 @@ export function Game({ data }: { data: GameData }) {
                               <span className="b">
                                 {g.label} {isOpen ? '▴' : '▾'}
                               </span>
-                              <span className="cap">
-                                {pickedHere
-                                  ? pickedHere.label
-                                  : g.key === 'move'
-                                    ? t('routine.group.moveHint', { n: members.length })
-                                    : t('routine.group.trainHint')}
-                              </span>
+                              <span className="cap">{hint}</span>
                             </span>
                           </button>
                         </li>,
