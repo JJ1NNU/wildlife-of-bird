@@ -268,6 +268,20 @@
 - 습격 대응 비율 정리: 맹금 한 번 공격의 성공(=죽음)은 작은 새 상대로 **약 3~20%**, 숲 혼성 무리 새매는 9.6%(SRC-158 — 가장 가까운 조건) → `cards.encounter.die` 0.10은 자료 안이다. **부상(`hurt` 0.25)**은 '공격받고 다친 채 도망'의 비율 자료를 못 찾음 — 게임 값으로 둔다
 - 박새는 먹이를 저장하지 않는다(SRC-120 총설), 다른 종 저장물을 훔친다(SRC-141) → '먹이 감추기' 카드는 박새에서 뺀다. 곤줄박이 등 저장 종의 카드로는 쓸 수 있다
 
+### 박새 한배 크기 — 새끼 1마리 몫 · 한배 줄이기 · 둥지째 실패 (#505)
+
+> 디자인 #501 · PR #504(`01-formulas` 3.2·3.3 먹이 모자람 배율)의 생태 확인. 모두 유럽 박새(*P. major*) — *P. minor* 한배 조작 실험은 못 찾음(OpenAlex). *P. minor*는 부화 뒤 먹이 양과 한배 크기가 상관(SRC-090)까지.
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-162 | Smith, H. G., Källander, H. & Nilsson, J.-Å. (1989) "The trade-off between offspring number and quality in the great tit *Parus major*", *Journal of Animal Ecology* 58(2):383– (끝 쪽 미확인). doi:10.2307/4837 | [link](https://doi.org/10.2307/4837) | A | 스웨덴 박새(*P. major*) 221둥지 한배 크기 조작: 한배가 클수록 **새끼 몸무게·날개·부척이 작고**, 한배 안 크기 차이가 커지고, **새끼 생존율이 낮았다**(작은 새끼가 더 죽음). 이소 뒤 가을·다음 번식기까지 생존도 줄인 한배 > 그대로 > 늘린 한배. 가장 많이 남긴 쪽은 조작하지 않은 한배 → #505 1·2 | 확인(초록, OpenAlex) |
+| SRC-163 | Tinbergen, J. M. & Boerlijst, M. C. (1990) "Nestling weight and survival in individual great tits (*Parus major*)", *Journal of Animal Ecology* 59(3):1113– (끝 쪽 미확인). doi:10.2307/5035 | [link](https://doi.org/10.2307/5035) | A | 네덜란드 박새(*P. major*): 2주 된 새끼 몸무게가 **이소까지의 생존**과 이소~겨울 재포획률을 예측한다(성조 몸무게의 약 70%면 거의 0). 한배 크기 조작으로 몸무게를 바꿔 **인과 관계**로 봄 → #505 1 | 확인(초록, OpenAlex) |
+| SRC-164 | Boyce, M. S. & Perrins, C. M. (1987) "Optimizing great tit clutch size in a fluctuating environment", *Ecology* 68(1):142–153. doi:10.2307/1938814 | [link](https://doi.org/10.2307/1938814) | A | 영국 위덤 숲 박새 24년 4,489한배(조작 603): 평균 한배 8.53, 가장 생산적인 한배는 12. **새끼 생존이 나쁜 해는 큰 한배를 작은 한배보다 훨씬 크게 깎는다**('나쁜 해 효과') — 그래서 평균 한배가 최적보다 작다. 둥지 유기·둥지째 실패인지는 초록에 없음 → #505 3(간접) | 확인(초록, OpenAlex) |
+| SRC-165 | Tinbergen, J. M. (2004) "Strong evidence for selection for larger brood size in a great tit population", *Behavioral Ecology* 15(4):525–533. doi:10.1093/beheco/arh045 | [link](https://doi.org/10.1093/beheco/arh045) | A | 네덜란드 북부 새 개체군 박새 3년 한배 조작(51·66·51둥지): **늘린 한배의 적합도가 가장 높았고** 부모 생존은 같았다(둘째배만 늦어짐) — 큰 한배의 비용이 늘 나타나지는 않는다(반대 사례) → #505 1 | 확인(초록, OpenAlex) |
+| SRC-166 | Satarkar, D., López-Idiáquez, D., Sepil, I. & Sheldon, B. C. (2026) "Developmental stage-specific responses to extreme climatic events and environmental variability in great tit nestlings", *Global Change Biology* 32(3):e70794. doi:10.1111/gcb.70794 | [link](https://doi.org/10.1111/gcb.70794) | A | 위덤 박새 60년 8만 3천여 마리: 발달 첫 주 극한 추위는 이소 몸무게를, 극한 비는 새끼가 클수록(먹이 요구가 클수록) 더 크게 깎는다. 더위+큰비가 겹치면 이소 몸무게 최대 27%↓, 늦은 한배일수록 더 가볍다. 한배 크기와의 상호작용은 초록에 없음 → #505 3(악천후는 둥지째보다 새끼 몸무게로 나타남) | 확인(초록, OpenAlex) |
+
+- 판정(#505): **1 근거 있음**(SRC-162·163, 반대 사례 SRC-165 — 개체군·해마다 다름) · **2 근거 있음**(SRC-162 한배 클수록 작은 새끼가 더 죽음 · SRC-151 먹이 적은 도시에서 굶어 죽는 새끼가 더 잦음) · **3 근거 약함** — '큰 한배일수록 둥지째 실패(유기·전멸)가 잦다'는 직접 자료를 못 찾음. 가까운 것은 SRC-164(나쁜 해는 큰 한배의 **새끼 수**를 더 깎음)뿐 → 생태로는 새끼 사망 배율만 받쳐진다. 둥지 손실 배율을 남기면 게임 값(점수 구조 때문)으로 적는다
+
 ### 환경 변화 · 그 밖의 종
 
 | ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
