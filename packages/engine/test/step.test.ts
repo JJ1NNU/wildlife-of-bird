@@ -2,7 +2,7 @@ import type { GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
 import type { RunState } from '../src/index.ts';
 import { act, getChoices, getView, newRun, preview } from '../src/index.ts';
-import { actStep, testData } from './fixture.ts';
+import { actStep, onlyCard, testData } from './fixture.ts';
 
 /** 그 단계의 칸 수 = 6 ÷ 그 시기의 단계 수 */
 const slotsOf = (s: RunState) => 6 / (s.calendar[s.at.period - 1]?.length ?? 1);
@@ -85,7 +85,7 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
 
   it('살피기: 같은 단계에 오른 경계가 그 단계의 위험을 낮춘다', () => {
     const before = { ...example, player: { ...example.player, potential: { vigilance: 100 } } };
-    const p = preview(before, 'action.explore', data);
+    const p = preview(before, 'action.explore', onlyCard(data, 'explore'));
     const gained = p.statGains?.vigilance ?? 0;
     expect(gained).toBeGreaterThan(0);
     const unchanged = 0.00428 * 1.3 * (1 - 0.004 * 70) * 0.97 * 0.85;
@@ -97,7 +97,7 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
       preview(
         { ...example, player: { ...example.player, potential: { vigilance: 100 }, ...player } },
         'action.explore',
-        data,
+        onlyCard(data, 'explore'),
       ).statGains?.vigilance ?? 0;
     const plain = gainAt({});
     // 은수저 지수 1 → 0.8 + 0.4 × 1 = 1.2
@@ -110,7 +110,7 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
     // 섭취 없는 훈련으로 첫 칸에 에너지가 바닥나게 한다
     const actions = data.formulas.actions;
     const noIntake: GameData = {
-      ...data,
+      ...onlyCard(data, 'train-flight'),
       formulas: {
         ...data.formulas,
         actions: { ...actions, train: { ...actions.train, intakeMult: 0 } },
@@ -233,5 +233,18 @@ describe('굶주림 경고 (01-formulas 2.1)', () => {
     const withEnergy = (energy: number) => ({ ...start, player: { ...start.player, energy } });
     expect(getView(withEnergy(line), testData).starving).toBe(false);
     expect(getView(withEnergy(line - 0.01), testData).starving).toBe(true);
+  });
+});
+
+describe('노화 사망 (01-formulas 4.1)', () => {
+  it('아주 늙은 개체는 노화 몫이 커서 원인 aging으로 죽는다', () => {
+    let s: RunState = { ...example, player: { ...example.player, age: 20 } };
+    const causes: string[] = [];
+    for (let i = 0; i < 40 && causes.length === 0; i++) {
+      const r = actStep(s, 'action.rest', data);
+      causes.push(...r.log.flatMap((e) => (e.type === 'death' && e.cause ? [e.cause] : [])));
+      s = r.state;
+    }
+    expect(causes).toEqual(['aging']);
   });
 });

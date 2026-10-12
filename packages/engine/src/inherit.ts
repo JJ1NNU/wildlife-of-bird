@@ -3,7 +3,7 @@ import { endBreeding } from './brood.ts';
 import { advance, PERIODS_PER_YEAR, phaseAt } from './calendar.ts';
 import { fledgling } from './clutch.ts';
 import { yearSurvival } from './forecast.ts';
-import { agingRiskMult, fatCap } from './formulas.ts';
+import { agingRisk, fatCap } from './formulas.ts';
 import { potentialRange } from './mate.ts';
 import { speciesBalance } from './step.ts';
 import type {
@@ -96,13 +96,18 @@ export function stayCard(state: RunState, data: GameData): InheritanceStayCard {
   return {
     choiceId: 'inherit.stay',
     age: p.age,
-    agingMult: agingRiskMult(data.formulas, species, p.age),
+    agingRisk: agingRisk(data.formulas, species, {
+      age: p.age,
+      period: state.at.period,
+      stamina: p.stats.stamina ?? 0,
+    }),
     ...(state.mate ? { bond: state.mate.bond } : {}),
     yearSurvival: yearSurvival(data, state.config.speciesId, state.node, state.at, {
       age: p.age,
       expYears: p.expYears,
       vigilance: p.stats.vigilance ?? 0,
       flight: p.stats.flight ?? 0,
+      stamina: p.stats.stamina ?? 0,
       silverSpoon: 0,
     }),
   };
@@ -128,6 +133,7 @@ export function chickCards(state: RunState, data: GameData): InheritanceChickCar
           expYears: 0,
           vigilance: c.stats.vigilance ?? 0,
           flight: c.stats.flight ?? 0,
+          stamina: c.stats.stamina ?? 0,
           silverSpoon: c.silverSpoon,
         }),
       },

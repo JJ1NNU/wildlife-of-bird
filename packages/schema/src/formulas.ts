@@ -174,7 +174,10 @@ export const Formulas = z
       .strict(),
     aging: z
       .object({
-        riskPerYear: nonneg,
+        riskPerStep: nonneg,
+        riskExponent: z.number().positive(),
+        startShiftPerStat: nonneg,
+        staminaRef: nonneg,
         statDeclinePerYear: nonneg,
         declineStats: z.array(StatName),
       })
