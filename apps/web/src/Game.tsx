@@ -1250,7 +1250,8 @@ export function Game({ data }: { data: GameData }) {
                     <span className="muted small">{t('inheritance.stay.tag')}</span>
                   </span>
                   <span className="cap">
-                    {t('inheritance.stay.aging')} <b>{inherit.stay.agingMult.toFixed(2)}배</b>
+                    {t('inheritance.stay.aging')}{' '}
+                    <b>{formatRisk(data.formulas, inherit.stay.agingRisk).text}</b>
                     {inherit.stay.bond !== undefined && (
                       <>
                         {', '}

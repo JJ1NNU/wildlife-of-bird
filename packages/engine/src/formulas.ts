@@ -1,4 +1,5 @@
 import type { Formulas, Phase, RiskTier, SpeciesBalance, StatName, Tier } from '@wb/schema';
+import { PERIODS_PER_YEAR } from './calendar.ts';
 
 /**
  * `docs/design/specs/01-formulas.md` v0의 공식. 모두 순수 함수이고 난수를 쓰지 않는다 —
@@ -197,13 +198,25 @@ export function riskModFactor(
   return mods.reduce((m, tier) => m * (1 + riskMod[tier]), 1);
 }
 
-/** 4장 노화 보정 */
-export function agingRiskMult(f: Formulas, species: SpeciesBalance, age: number): number {
-  if (age < species.agingStartAge) return 1;
-  return 1 + f.aging.riskPerYear * (age - species.agingStartAge + 1);
+/**
+ * 4.1 노화 위험 — `riskPerStep × max(0, 연속 나이 − 노화 시작)^riskExponent`.
+ * 연속 나이 = 나이 + (period − 1) / 24, 노화 시작은 체력으로 옮긴다
+ */
+export function agingRisk(
+  f: Formulas,
+  species: SpeciesBalance,
+  input: { age: number; period: number; stamina: number },
+): number {
+  const a = f.aging;
+  const start = species.agingStartAge + a.startShiftPerStat * (input.stamina - a.staminaRef);
+  const over = input.age + (input.period - 1) / PERIODS_PER_YEAR - start;
+  return over > 0 ? a.riskPerStep * over ** a.riskExponent : 0;
 }
 
-/** 3.1 조작 개체의 단계 사망 위험 */
+/**
+ * 3.1 + 4.1 조작 개체의 단계 사망 위험 = clamp(포식 + 노화, floor, cap).
+ * 잘린 몫은 노화에서(cap) · 포식에(floor) 맞춘다 — 판정은 `u < predation`이면 포식, `u < 합`이면 노화
+ */
 export function deathRisk(
   f: Formulas,
   species: SpeciesBalance,
@@ -220,11 +233,14 @@ export function deathRisk(
     r: number;
     feather: number;
     age: number;
+    /** 시기(1~24) — 연속 나이 (4.1) */
+    period: number;
+    stamina: number;
     /** 은수저 지수 — 나이 0일 때의 첫 겨울 보정에 쓴다 */
     silverSpoon: number;
     injured: boolean;
   },
-): number {
+): { predation: number; aging: number } {
   const k = f.risk;
   const flock = species.flockPhases.includes(input.phase) ? k.flockMult : 1;
   const fat = 1 + k.fatHeavySlope * Math.max(0, input.r - k.fatHeavyFrom);
@@ -246,10 +262,12 @@ export function deathRisk(
     fat *
     hunger *
     feather *
-    agingRiskMult(f, species, input.age) *
     firstWinter *
     (input.injured ? k.injuryMult : 1);
-  return clamp(risk, k.floor, k.cap);
+  const aging = agingRisk(f, species, input);
+  const total = clamp(risk + aging, k.floor, k.cap);
+  const predation = Math.max(Math.min(risk, total), total - aging);
+  return { predation, aging: total - predation };
 }
 
 /** 3.2 둥지 손실. `mateVigilance`가 없으면 플레이어 경계만 */
