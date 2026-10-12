@@ -107,16 +107,11 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
 
   it('B-1 에너지 0: 즉시 아사, 난수를 당기지 않는다', () => {
     const hungry = { ...example, player: { ...example.player, energy: 1 } };
-    // 섭취 없는 훈련으로 첫 칸에 에너지가 바닥나게 한다
-    const actions = data.formulas.actions;
-    const noIntake: GameData = {
-      ...onlyCard(data, 'train-flight'),
-      formulas: {
-        ...data.formulas,
-        actions: { ...actions, train: { ...actions.train, intakeMult: 0 } },
-      },
-    };
-    const { state, log } = actStep(hungry, 'action.train.flight', noIntake);
+    // 섭취 없는 옮기기로 첫 칸에 에너지가 바닥나게 한다 — 훈련 등은 에너지 한도로 막힌다 (12-card-turn 3장)
+    const move = getChoices(hungry, data).find((c) => c.kind === 'node' && !c.disabled);
+    const first = act(hungry, move?.id ?? '', data);
+    const { state, log: rest } = actStep(first.state, 'action.rest', data);
+    const log = [...first.log, ...rest];
     expect(state.gameOver).toBe(true);
     expect(state.player.energy).toBe(0);
     expect(state.rng).toBe(hungry.rng);
