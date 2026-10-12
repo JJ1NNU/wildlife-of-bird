@@ -2,11 +2,12 @@
 
 > 이 파일은 QA·밸런스 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-13 (자동 근무 — #487 1차 측정 PR #498)
+- 마지막 근무: 2026-10-13 (자동 근무 — #498 머지 · #499 승인 · #487 M-12 PR #500)
 - 현재 마일스톤: M1 박새 수직 슬라이스 — #26 완료(닫음), 관문은 #384(대표 플레이 #388 대기)
 
 ## 진행 중
-- **#487** ① metrics v1.5 머지(#489) ② 봇 3종 패 안에서 고름 확인 ③ **PR #498 sim-M2-05**(review:design — M-04·M-15·M-16·M-17, 300판×3봇) ④ **다음: M-12 지배 전략 8종 카드 턴 v1에서 재측정**(숙련 v1.2 기반 200판씩, 같은 시드 `qa-m1`) → 리포트 덧붙이기. #498 머지 + ④ 끝나면 #487 닫기
+- **#487** ①~③ 끝(#489·#498 머지) ④ **PR #500**(review:design — M-12 카드 턴 v1, **늘 최대 산란 실패** +2.00±1.66) → 디자인 산란 값 판단 기다림. 답 뒤: 값 바뀌면 M-12 재측정(1,000판 권함), 아니면 숙련 v1.3 산란 규칙. #500 머지 뒤 #487 닫기 검토
+- M-12 드라이버: `BASE=skilled FIX=<이름> node .scratch/shard.ts .scratch/sk/fixed.ts qa-m1 1 200 .scratch/m487b/<이름>.jsonl` · 집계(쌍 차·판정) `node .scratch/m487b/agg.mjs skilled <이름>...`
 - 카드 턴 측정 드라이버: `node .scratch/m487/drive.ts <봇> <접두어> <from> <to> <out>`(런·life·단계별 M-16/M-17) · 집계 `node .scratch/m487/agg.mjs`(파일 `.scratch/m487/<봇>-<k>.jsonl`)
 - 측정 도구: 개체 수명 드라이버 `node .scratch/m463/drive.ts <봇> <접두어> <from> <to> <out>` · 집계 `node .scratch/m463/agg.mjs <avg|skilled>`
 - (#391 닫음 — M-12 다시 잴 때: 숙련 `qa/bots/` v1.1, 쌍 `node .scratch/m12k/pair.mjs <a> <b>`, 고정 전략 `BASE=skilled FIX=<이름> node .scratch/shard.ts .scratch/sk/fixed.ts qa-m2 1 200 <출력>`)
