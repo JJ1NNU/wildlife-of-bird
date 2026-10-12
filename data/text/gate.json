@@ -12,6 +12,7 @@
   "gate.seasonPolicy.go": "계절 방침: {label}",
   "gate.seasonPolicy.none": "이번 계절을 어떻게 지낼지 고르기",
   "gate.secondBrood.none": "한 번 더 번식할지 고르기",
+  "gate.event.none": "어떻게 할지 고르기",
   "gate.policy.low": "적게",
   "gate.policy.mid": "보통",
   "gate.policy.high": "많이",

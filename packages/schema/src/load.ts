@@ -2,6 +2,7 @@ import './locale.ts';
 import type { z } from 'zod';
 import { Breeding } from './breeding.ts';
 import { Calendar, calendarPhases } from './calendar.ts';
+import { Cards } from './cards.ts';
 import { CodexEntry } from './codex.ts';
 import { EffectsTable } from './effects.ts';
 import type { GameEvent } from './events.ts';
@@ -23,6 +24,8 @@ export interface GameData {
   breeding: Breeding;
   /** 계절 방침 (`11-season-policy`). 파일이 없으면 빈 목록 — 관문이 열리지 않는다 */
   seasonPolicy: SeasonPolicy;
+  /** 카드 턴 (`12-card-turn`). 파일이 없으면 빈 풀 */
+  cards: Cards;
   ecology: Map<string, SpeciesEcology>;
   balance: Map<string, SpeciesBalance>;
   /** 종별 연간 단계표 */
@@ -76,6 +79,7 @@ export interface RawGameData {
   formulas?: RawFile;
   breeding?: RawFile;
   seasonPolicy?: RawFile;
+  cards?: RawFile;
   ecology: RawFile[];
   balance: RawFile[];
   calendar: RawFile[];
@@ -205,13 +209,20 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
     ? check(SeasonPolicy, raw.seasonPolicy, issues)
     : { policies: {}, species: {} };
 
-  if (issues.length > 0 || !effects || !formulas || !breeding || !seasonPolicy) return { issues };
+  const cards = raw.cards
+    ? check(Cards, raw.cards, issues)
+    : { handBase: 0, handExpCap: 0, pool: {} };
+  if (cards && raw.cards) checkCardNodes(cards, raw.cards.file, nodes, issues);
+
+  if (issues.length > 0 || !effects || !formulas || !breeding || !seasonPolicy || !cards)
+    return { issues };
   return {
     data: {
       effects,
       formulas,
       breeding,
       seasonPolicy,
+      cards,
       ecology,
       balance,
       calendar,
@@ -223,6 +234,22 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
     },
     issues,
   };
+}
+
+/** 카드 풀의 `nodeMult` 장소가 실제로 있는지 */
+function checkCardNodes(
+  cards: Cards,
+  file: string,
+  nodes: Map<string, unknown>,
+  issues: DataIssue[],
+): void {
+  for (const [id, card] of Object.entries(cards.pool)) {
+    for (const node of Object.keys(card?.nodeMult ?? {})) {
+      if (!nodes.has(node)) {
+        issues.push({ file, at: `pool.${id}.nodeMult.${node}`, reason: `없는 장소다: ${node}` });
+      }
+    }
+  }
 }
 
 /**
