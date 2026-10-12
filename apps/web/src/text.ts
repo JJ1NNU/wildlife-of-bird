@@ -15,5 +15,21 @@ const strings: Record<string, string> = Object.assign(
 export function t(key: string, vars: Record<string, string | number> = {}): string {
   const s = strings[key];
   if (s === undefined) return key;
-  return s.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m));
+  // `{name}로`는 받침 따라 으로/로 (받침 없음·ㄹ → 로)
+  return s.replace(/\{(\w+)\}(로)?/g, (m, k: string, ro?: string) =>
+    k in vars ? `${vars[k]}${ro ? roAfter(String(vars[k])) : ''}` : m,
+  );
+}
+
+/** 숫자는 읽는 소리의 받침: 0 영 · 3 삼 · 6 육만 받침(ㄹ 아님) */
+const DIGIT_BATCHIM = '036';
+
+/** 조사 으로/로 — 마지막 글자가 ㄹ 아닌 받침이면 `으로` */
+export function roAfter(word: string): string {
+  const c = word.at(-1) ?? '';
+  if (/\d/.test(c)) return DIGIT_BATCHIM.includes(c) ? '으로' : '로';
+  const code = c.charCodeAt(0) - 0xac00;
+  if (code < 0 || code > 11171) return '로';
+  const jong = code % 28;
+  return jong === 0 || jong === 8 ? '로' : '으로';
 }
