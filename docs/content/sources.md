@@ -256,6 +256,18 @@
 |---|---|---|---|---|---|
 | SRC-157 | Culina, A., Lachish, S., Pradel, R., Choquet, R. & Sheldon, B. C. (2013) "A multievent approach to estimating pair fidelity and heterogeneity in state transitions", *Ecology and Evolution* 3(13):4326–4338. doi:10.1002/ece3.729 | [link](https://doi.org/10.1002/ece3.729) | A | 영국 위덤 숲 박새(*P. major*) 30년 번식 기록(암 4,784·수 4,430마리, 번식 7,837회): **지난해 짝과 다시 번식한 새가 짝을 바꾼 새보다 생존율이 높고 다음 해에도 같은 짝으로 남을 확률이 높다**. **첫 번식(1살) 새가 나이 든 새보다 짝을 더 잘 바꾼다**. 짝 유지율 수치는 그림(Fig. 2)에만 있어 여기 옮기지 않음 → #470 "짝 바뀜은 박새에서 흔함" | 확인(본문, Europe PMC PMC3856734) |
 
+### 카드 턴 — 습격 성공률 · 기회 카드 · 스티커 (#483)
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-158 | Krams, I., Krama, T., Freeberg, T. M., Krams, R. & Sieving, K. E. (2020) "Attacks of songbirds in mixed-species flocks by Eurasian Sparrowhawks: strategies of predators and potential prey", *Journal of Field Ornithology* 91(4):367–374. doi:10.1111/jofo.12350 | [link](https://doi.org/10.1111/jofo.12350) | A | 라트비아 침엽수림, 번식기 밖 36년(1985~2020): 새매가 작은 숲새 혼성 무리를 덮친 **199번 중 19번만 성공(9.6%)**. 아래쪽 가지 습격의 성공이 많고(17) 위쪽 가지는 드묾(2) — 잡힌 19마리 중 14마리는 상모솔새·북방쇠박새·진박새(우세한 큰 종에 밀려 아래층에 있는 작은 종). 위층 새는 가려지고 다가오는 포식자를 먼저 본다 → 12-card-turn 5장 `cards.encounter.die` · 기회 카드 '높은 가지 망보기' | 확인(초록, OpenAlex) |
+| SRC-159 | Cresswell, W. (1996) "Surprise as a winter hunting strategy in Sparrowhawks *Accipiter nisus*, Peregrines *Falco peregrinus* and Merlins *F. columbarius*", *Ibis* 138(4):684–692. doi:10.1111/j.1474-919x.1996.tb04770.x | [link](https://doi.org/10.1111/j.1474-919x.1996.tb04770.x) | A | 스코틀랜드 하구 겨울 3년: 맹금 세 종의 붉은발도요·민물도요 포획률은 **약 10%**, 종다리는 새매 3%·쇠황조롱이 12%·매 0%. 기습일수록 성공이 높다. 박새가 아닌 물가·초지 새 → 5장 습격 성공률(소형 조류 일반) | 확인(초록, OpenAlex) |
+| SRC-160 | Roth, T. C. & Lima, S. L. (2003) "Hunting behavior and diet of Cooper's Hawks: an urban view of the small-bird-in-winter paradigm", *The Condor* 105(3):474– (끝 쪽 미확인). doi:10.1093/condor/105.3.474 | [link](https://doi.org/10.1093/condor/105.3.474) | A | 미국 도시 겨울 쿠퍼매 8마리 무선 추적: 179번 공격 중 35번 성공(**20%**). 기습·혼자 있는 새를 노린 공격이 더 성공. 70 g 밑 작은 새는 드물게 노려짐 → 5장(습격 대부분은 도망으로 끝남) | 확인(초록, OpenAlex) |
+| SRC-161 | Björklund, M. & Westman, B. (1986) "Mate-guarding in the Great Tit: tactics of a territorial forest-living species", *Ornis Scandinavica* 17(2):99– (끝 쪽 미확인). doi:10.2307/3676858 | [link](https://doi.org/10.2307/3676858) | A | 스웨덴 박새(*P. major*): 암컷 수정 가능기에 짝 사이 거리가 줄고 수컷이 암컷을 따라다닌다(짝 지키기). 이 시기 **수컷이 암컷에게 먹이를 주는 일은 드물었다** — 가까이 붙는 까닭이 구애 먹이는 아님 → 스티커 '짝과 먹이 나눔'은 산란 전 아닌 포란기로(포란기 급이는 미확인) · P-23 mate-guarding | 확인(초록, OpenAlex) |
+
+- 습격 대응 비율 정리: 맹금 한 번 공격의 성공(=죽음)은 작은 새 상대로 **약 3~20%**, 숲 혼성 무리 새매는 9.6%(SRC-158 — 가장 가까운 조건) → `cards.encounter.die` 0.10은 자료 안이다. **부상(`hurt` 0.25)**은 '공격받고 다친 채 도망'의 비율 자료를 못 찾음 — 게임 값으로 둔다
+- 박새는 먹이를 저장하지 않는다(SRC-120 총설), 다른 종 저장물을 훔친다(SRC-141) → '먹이 감추기' 카드는 박새에서 뺀다. 곤줄박이 등 저장 종의 카드로는 쓸 수 있다
+
 ### 환경 변화 · 그 밖의 종
 
 | ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
