@@ -26,7 +26,7 @@ import {
 } from '@wb/engine';
 import type { GameData, Season, StatName } from '@wb/schema';
 import { useEffect, useState } from 'react';
-import { birdUrl } from './art.ts';
+import { birdUrl, placeholderBirdUrl } from './art.ts';
 import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
 import {
@@ -217,10 +217,20 @@ function reducedMotion(): boolean {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
+/** 육아 방침 줄의 선택 id(`high` `even` …)를 화면 글(`gate.policy.*`)로 (#468) */
+function policyText(text: string): string {
+  return text.replace(/ ([a-zA-Z]+)(?=,|$)/g, (m, id: string) => {
+    const key = `gate.policy.${id}`;
+    const s = t(key);
+    return s === key ? m : ` ${s}`;
+  });
+}
+
 function logLine(l: LogEntry): string {
   const d = deltaText(l.deltas, l.slot !== undefined);
   const where = `${periodLabel(l.at).text} ${t('main.step', { n: l.at.step })}${l.slot ? ` ${t('routine.slot', { n: l.slot })}` : ''}`;
-  return `${where}: ${l.text}${d ? `, ${d}` : ''}`;
+  const text = l.type === 'parenting' ? policyText(l.text) : l.text;
+  return `${where}: ${text}${d ? `, ${d}` : ''}`;
 }
 
 /** S-30 가계도 한 줄 (05-inheritance 8장) — 문구 data/text/gameOver.json */
@@ -1240,7 +1250,8 @@ export function Game({ data }: { data: GameData }) {
                     <span className="muted small">{t('inheritance.stay.tag')}</span>
                   </span>
                   <span className="cap">
-                    {t('inheritance.stay.aging')} <b>{inherit.stay.agingMult.toFixed(2)}배</b>
+                    {t('inheritance.stay.aging')}{' '}
+                    <b>{formatRisk(data.formulas, inherit.stay.agingRisk).text}</b>
                     {inherit.stay.bond !== undefined && (
                       <>
                         {', '}
@@ -1273,7 +1284,7 @@ export function Game({ data }: { data: GameData }) {
           <ul className="list sheet" aria-label={t('gate.event.label')} data-testid="gate-event">
             {/* 잠정(#188): 전용 장면 그림(asset-list scene.*)이 오기 전까지 새 + 위험 아이콘 (02-event 메모, art.md 7장) */}
             <li className="scene" aria-hidden="true" data-testid="event-scene">
-              <img className="scene-bird" src={birdUrl(view.speciesId)} alt="" />
+              <img className="scene-bird" src={placeholderBirdUrl(view.speciesId)} alt="" />
               <span className="ico scene-risk" style={iconStyle('icon.risk')} />
             </li>
             <li className="gate-title b">{gateEvent?.title ?? view.gate.id}</li>
@@ -1308,7 +1319,7 @@ export function Game({ data }: { data: GameData }) {
         ) : (
           <>
             <div className="art short">
-              <img className="art-bird" src={birdUrl(view.speciesId)} alt="" />
+              <img className="art-bird" src={birdUrl(view)} alt="" />
               <div className="plate small">
                 {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
                 {t(`gameOver.life.${view.player.sex}`)} {t('main.age', { n: view.player.age })}

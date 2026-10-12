@@ -230,3 +230,16 @@ describe('굶주림 경고 (01-formulas 2.1)', () => {
     expect(getView(withEnergy(line - 0.01), testData).starving).toBe(true);
   });
 });
+
+describe('노화 사망 (01-formulas 4.1)', () => {
+  it('아주 늙은 개체는 노화 몫이 커서 원인 aging으로 죽는다', () => {
+    let s: RunState = { ...example, player: { ...example.player, age: 20 } };
+    const causes: string[] = [];
+    for (let i = 0; i < 40 && causes.length === 0; i++) {
+      const r = actStep(s, 'action.rest', data);
+      causes.push(...r.log.flatMap((e) => (e.type === 'death' && e.cause ? [e.cause] : [])));
+      s = r.state;
+    }
+    expect(causes).toEqual(['aging']);
+  });
+});
