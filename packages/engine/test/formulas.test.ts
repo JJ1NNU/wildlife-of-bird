@@ -3,7 +3,7 @@ import { acceptanceBand, formatEnergyDelta, formatRisk } from '../src/display.ts
 import {
   actionCost,
   agedStats,
-  agingRiskMult,
+  agingRisk,
   chickDeath,
   childPotential,
   deathRisk,
@@ -117,6 +117,8 @@ describe('3. 위험', () => {
     r: 0.575,
     feather: 60,
     age: 1,
+    period: 1,
+    stamina: 30,
     silverSpoon: 0,
     injured: false,
   } as const;
@@ -132,17 +134,28 @@ describe('3. 위험', () => {
     r: 0.1,
     feather: 10,
     age: 6,
+    period: 1,
+    stamina: 30,
     silverSpoon: 0,
     injured: true,
   } as const;
+  const total = (input: Parameters<typeof deathRisk>[2]) => {
+    const r = deathRisk(f, tit, input);
+    return r.predation + r.aging;
+  };
 
-  it('3.1 단계 사망 위험', () => {
-    expect(deathRisk(f, tit, calm)).toBeCloseTo(0.002541, 6);
-    expect(deathRisk(f, tit, { ...calm, r: 0.2, feather: 40, age: 4 })).toBeCloseTo(0.006288, 6);
-    expect(deathRisk(f, tit, { ...calm, flight: 65 })).toBeCloseTo(0.0022867, 6);
-    expect(deathRisk(f, tit, worst)).toBeCloseTo(0.138692, 6);
+  it('3.1 단계 사망 위험 (노화는 4.1에서 더한다)', () => {
+    expect(total(calm)).toBeCloseTo(0.002541, 6);
+    expect(total({ ...calm, r: 0.2, feather: 40 })).toBeCloseTo(0.002541 * 1.5 * 1.1, 6);
+    expect(total({ ...calm, flight: 65 })).toBeCloseTo(0.0022867, 6);
+    // worst: 포식 0.138692 ÷ 옛 노화 2.0 + 노화 0.0026 × 3³
+    expect(deathRisk(f, tit, worst).predation).toBeCloseTo(0.069346, 6);
+    expect(deathRisk(f, tit, worst).aging).toBeCloseTo(0.0702, 9);
     const highMod = 1 + testData.effects.riskMod.high;
-    expect(deathRisk(f, tit, { ...worst, riskModFactor: highMod })).toBe(f.risk.cap);
+    // cap에 잘리면 노화 몫 = cap − 포식
+    const capped = deathRisk(f, tit, { ...worst, riskModFactor: highMod ** 2 });
+    expect(capped.predation + capped.aging).toBe(f.risk.cap);
+    expect(capped.aging).toBeCloseTo(f.risk.cap - capped.predation, 12);
     const quiet = {
       ...calm,
       nodeRisk: 'veryLow',
@@ -154,7 +167,7 @@ describe('3. 위험', () => {
       r: 0.6,
       feather: 90,
     } as const;
-    expect(deathRisk(f, tit, quiet)).toBe(f.risk.floor);
+    expect(deathRisk(f, tit, quiet)).toEqual({ predation: f.risk.floor, aging: 0 });
   });
 
   it('3.2 둥지 손실 · 3.3 새끼 사망', () => {
@@ -165,10 +178,14 @@ describe('3. 위험', () => {
 });
 
 describe('4. 노화', () => {
-  it('위험 보정과 period 1의 스탯 하락', () => {
-    expect(agingRiskMult(f, tit, 2)).toBe(1);
-    expect(agingRiskMult(f, tit, 3)).toBe(1.25);
-    expect(agingRiskMult(f, tit, 5)).toBe(1.75);
+  it('4.1 노화 위험 예시와 period 1의 스탯 하락', () => {
+    expect(agingRisk(f, tit, { age: 3, period: 1, stamina: 30 })).toBe(0);
+    expect(agingRisk(f, tit, { age: 4, period: 13, stamina: 30 })).toBeCloseTo(0.008775, 9);
+    expect(agingRisk(f, tit, { age: 4, period: 13, stamina: 80 })).toBeCloseTo(0.000325, 9);
+    expect(0.0013 + agingRisk(f, tit, { age: 5, period: 13, stamina: 30 })).toBeCloseTo(
+      0.041925,
+      9,
+    );
     expect(agedStats(f, tit, 3, { flight: 50, stamina: 40, foraging: 70 })).toEqual({
       flight: 47,
       stamina: 37,

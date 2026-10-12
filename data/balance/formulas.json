@@ -251,7 +251,10 @@
     "firstWinterRelief": 0.6
   },
   "aging": {
-    "riskPerYear": 0.25,
+    "riskPerStep": 0.0026,
+    "riskExponent": 3,
+    "startShiftPerStat": 0.02,
+    "staminaRef": 30,
     "statDeclinePerYear": 3,
     "declineStats": ["flight", "stamina"]
   },

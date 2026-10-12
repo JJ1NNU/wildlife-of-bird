@@ -10,6 +10,8 @@ export interface ForecastSubject {
   expYears: number;
   vigilance: number;
   flight: number;
+  /** 노화 시작을 옮긴다 (01-formulas 4.1) */
+  stamina: number;
   /** 첫 겨울 보정에 쓴다(나이 0일 때만) */
   silverSpoon: number;
 }
@@ -17,7 +19,7 @@ export interface ForecastSubject {
 /**
  * 05-inheritance 6장 1년 생존 예상 — `from` 다음 단계부터 24시기를 **기본 단계표**대로,
  * 지금 장소의 기준 위험(행동 `forage`)으로 곱한다. 난수 없음.
- * `riskMod`·지방·배고픔·깃털·부상은 1, 스탯(경계·비행)은 지금 값, `period 1`을 지나면 나이·경험 +1.
+ * `riskMod`·지방·배고픔·깃털·부상은 1, 스탯(경계·비행·체력)은 지금 값, `period 1`을 지나면 나이·경험 +1.
  */
 export function yearSurvival(
   data: GameData,
@@ -58,10 +60,12 @@ export function yearSurvival(
         r: f.risk.hungerFrom,
         feather: f.risk.featherFrom,
         age,
+        period,
+        stamina: subject.stamina,
         silverSpoon: subject.silverSpoon,
         injured: false,
       });
-      survival *= 1 - risk;
+      survival *= 1 - risk.predation - risk.aging;
     }
   }
   return survival;
