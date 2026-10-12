@@ -217,10 +217,20 @@ function reducedMotion(): boolean {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
+/** 육아 방침 줄의 선택 id(`high` `even` …)를 화면 글(`gate.policy.*`)로 (#468) */
+function policyText(text: string): string {
+  return text.replace(/ ([a-zA-Z]+)(?=,|$)/g, (m, id: string) => {
+    const key = `gate.policy.${id}`;
+    const s = t(key);
+    return s === key ? m : ` ${s}`;
+  });
+}
+
 function logLine(l: LogEntry): string {
   const d = deltaText(l.deltas, l.slot !== undefined);
   const where = `${periodLabel(l.at).text} ${t('main.step', { n: l.at.step })}${l.slot ? ` ${t('routine.slot', { n: l.slot })}` : ''}`;
-  return `${where}: ${l.text}${d ? `, ${d}` : ''}`;
+  const text = l.type === 'parenting' ? policyText(l.text) : l.text;
+  return `${where}: ${text}${d ? `, ${d}` : ''}`;
 }
 
 /** S-30 가계도 한 줄 (05-inheritance 8장) — 문구 data/text/gameOver.json */
