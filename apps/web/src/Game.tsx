@@ -38,7 +38,7 @@ import {
   saveRun,
   startRecord,
 } from './save.ts';
-import { t } from './text.ts';
+import { roAfter, t } from './text.ts';
 
 /**
  * M1 화면(#24): S-01 타이틀·이어하기 · S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
@@ -229,7 +229,12 @@ function policyText(text: string): string {
 function logLine(l: LogEntry): string {
   const d = deltaText(l.deltas, l.slot !== undefined);
   const where = `${periodLabel(l.at).text} ${t('main.step', { n: l.at.step })}${l.slot ? ` ${t('routine.slot', { n: l.slot })}` : ''}`;
-  const text = l.type === 'parenting' ? policyText(l.text) : l.text;
+  const text =
+    l.type === 'parenting'
+      ? policyText(l.text)
+      : l.type === 'inheritance'
+        ? l.text.replace(/(\d+)로 /, (_m, n: string) => `${n}${roAfter(n)} `)
+        : l.text;
   return `${where}: ${text}${d ? `, ${d}` : ''}`;
 }
 
