@@ -4,7 +4,7 @@
     "engine": 1,
     "design": 2,
     "content": 1,
-    "client": 1,
+    "client": 0,
     "qa": 2,
     "art": 0
   }
