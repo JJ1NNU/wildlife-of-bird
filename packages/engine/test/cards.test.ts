@@ -1,7 +1,6 @@
 import type { Cards, GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
 import { drawHand, handSize } from '../src/cards.ts';
-import { fatCap } from '../src/formulas.ts';
 import type { RunState } from '../src/index.ts';
 import { act, getChoices, getView, newRun, seedFromString } from '../src/index.ts';
 import { testData } from './fixture.ts';
@@ -78,24 +77,15 @@ describe('패로 칸 고르기 (11장 v1)', () => {
     expect(choices.filter((c) => c.kind === 'node').every((c) => !c.disabled)).toBe(true);
   });
 
-  it('에너지 한도 선: 에너지를 줄이는 카드는 상한 × energyFloor 아래로 못 간다 (3장)', () => {
-    const cap = fatCap(data.formulas, start.player.stats.stamina ?? 0);
-    const low = { ...start, player: { ...start.player, energy: cap * 0.1 } };
-    const under = (floor: number) => {
-      const actions = data.formulas.actions;
-      const d: GameData = {
-        ...data,
-        // 섭취 없는 사회 카드 = 에너지를 줄이는 카드
-        formulas: {
-          ...data.formulas,
-          actions: { ...actions, social: { ...actions.social, intakeMult: 0 } },
-        },
-        cards: { ...data.cards, energyFloor: floor },
-      };
-      const choices = getChoices(low, d);
-      return (id: string) => choices.find((c) => c.id === id)?.disabled;
-    };
-    expect(under(0)('action.social')).toBeUndefined();
-    expect(under(0.2)('action.social')).toEqual({ reason: '에너지 부족' });
+  it('단계 예산: 비용 합이 stepBudget × 칸 수 안이면 열리고, 넘으면 막힌다 (3장)', () => {
+    const slots = routine(start)?.slots ?? 0;
+    // 사회 비용 2 — 한 장만 들어가는 예산
+    const tight: GameData = { ...data, cards: { ...data.cards, stepBudget: 2 / slots } };
+    const disabled = (s: RunState, id: string) =>
+      getChoices(s, tight).find((c) => c.id === id)?.disabled;
+    expect(disabled(start, 'action.social')).toBeUndefined();
+    const s = act(start, 'action.social', tight).state;
+    expect(disabled(s, 'action.social')).toEqual({ reason: '에너지 부족' });
+    expect(disabled(s, 'action.rest')).toBeUndefined();
   });
 });

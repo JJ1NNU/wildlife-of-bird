@@ -53,10 +53,10 @@ import { seedFromString } from './rng.ts';
 import {
   emptySlots,
   handLeft,
+  nextSlotChoices,
   projected,
   routineSlots,
   runRoutine,
-  slotChoices,
   suggestions,
 } from './routine.ts';
 import { chooseSeason, dropSeasonPolicy, seasonCards, seasonChoices, seasonDue } from './season.ts';
@@ -150,12 +150,7 @@ export function getChoices(state: RunState, data: GameData): Choice[] {
     }));
   // 루틴의 다음 빈 칸 — 앞 칸에 옮기기를 넣었으면 그 장소 기준 (03-contracts 3장 '행동 루틴')
   // 패 밖의 카드와 에너지 한도를 넘는 카드는 막는다 (12-card-turn 3장·11장 v1)
-  return slotChoices(
-    projected(state, data),
-    data,
-    routineSlots(state, data),
-    handLeft(state, data),
-  );
+  return nextSlotChoices(state, data);
 }
 
 /** 열려 있는 이벤트 관문의 이벤트 */

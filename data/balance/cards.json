@@ -1,7 +1,7 @@
 {
   "handBase": 1,
   "handExpCap": 3,
-  "energyFloor": 0.2,
+  "stepBudget": 3,
   "pool": {
     "forage": { "weight": 1 },
     "social": { "weight": 1 },

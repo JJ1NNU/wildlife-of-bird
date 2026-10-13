@@ -33,8 +33,8 @@ export const Cards = z
     /** 나오는 장수 = 칸 수 + handBase + min(handExpCap, floor(경험 연수)) (2.2) */
     handBase: z.number().int().nonnegative(),
     handExpCap: z.number().int().nonnegative(),
-    /** 3장 한도 선: 에너지를 줄이는 카드는 넣은 뒤 에너지가 지방 상한 × 이 몫 미만이면 막힘 */
-    energyFloor: z.number().min(0).max(1),
+    /** 3장 단계 예산: 칸당 평균 행동 비용 상한 — 비용 합이 이 값 × 칸 수를 넘는 카드는 막힘 */
+    stepBudget: z.number().positive(),
     pool: z.partialRecord(CardId, PoolCard),
   })
   .strict();
