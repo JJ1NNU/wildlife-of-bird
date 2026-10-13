@@ -7,6 +7,7 @@
 #   1. 남은 review:* 라벨이 없다
 #   2. 한 번이라도 달렸던 review:<부서> 라벨마다 승인 댓글(또는 리뷰 본문)이 있다
 #      인식하는 줄 머리(굵게 ** 무시): "승인 (<부서>" · "[<부서>] 승인" · "[<부서>] 리뷰 — 승인"
+#      · 제목 "## <부서 이름> 리뷰 — 승인"(예: "## 엔진 리뷰 — 승인", "## QA 리뷰 — 승인 (…)"), "승인 보류" 같은 뒷말은 안 됨
 #   3. 최신 main 기준 CI가 모두 통과했다 (뒤처져 있으면 update-branch 후 다시 돌린다)
 set -euo pipefail
 
@@ -29,7 +30,11 @@ asked="$(gh api "repos/$repo/issues/$pr/timeline" --paginate \
 comments="$(gh pr view "$pr" --json comments,reviews --jq '(.comments[].body),(.reviews[].body)' | tr -d '*')"
 for label in $asked; do
   dept="${label#review:}"
-  grep -qE "^(승인 \($dept|\[$dept\] (리뷰 — )?승인)" <<<"$comments" || { echo "중단: $label 승인 댓글 없음"; exit 1; }
+  case "$dept" in
+    engine) name="엔진" ;; design) name="(게임)?디자인" ;; content) name="(생태·)?콘텐츠" ;;
+    client) name="클라이언트" ;; art) name="아트" ;; qa) name="QA" ;; pm) name="PM" ;; *) name="$dept" ;;
+  esac
+  grep -qE "^(승인 \($dept|\[$dept\] (리뷰 — )?승인|#+ ($name|$dept) 리뷰 — 승인( \(.*)?$)" <<<"$comments" || { echo "중단: $label 승인 댓글 없음"; exit 1; }
   echo "리뷰 확인: $dept 승인"
 done
 [ -n "$asked" ] || echo "리뷰 확인: 필수 리뷰 없음(소유 부서 PR)"
