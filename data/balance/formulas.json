@@ -109,11 +109,11 @@
       "rich": 16
     },
     "risk": {
-      "veryLow": 0.00122,
-      "low": 0.00245,
-      "medium": 0.00428,
-      "high": 0.00734,
-      "veryHigh": 0.0122
+      "veryLow": 0.000366,
+      "low": 0.000735,
+      "medium": 0.001284,
+      "high": 0.002202,
+      "veryHigh": 0.00366
     },
     "competition": {
       "none": 0.0,
@@ -253,7 +253,7 @@
     "firstWinterRelief": 0.6
   },
   "aging": {
-    "riskPerStep": 0.0026,
+    "riskPerStep": 0.0007,
     "riskExponent": 3,
     "startShiftPerStat": 0.02,
     "staminaRef": 30,
