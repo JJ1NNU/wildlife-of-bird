@@ -181,7 +181,9 @@
       "medium": 1,
       "high": 0.85,
       "rich": 0.7
-    }
+    },
+    "chickDeathByShortfall": 3,
+    "nestLossByShortfall": 2
   },
   "mate": {
     "acceptMin": 0.05,
