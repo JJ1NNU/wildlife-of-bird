@@ -223,7 +223,6 @@ export function deathRisk(
   input: {
     nodeRisk: NodeRiskTier;
     phase: Phase;
-    season: Season;
     action: ActionId;
     riskModFactor: number;
     vigilance: number;
@@ -236,7 +235,7 @@ export function deathRisk(
     /** 시기(1~24) — 연속 나이 (4.1) */
     period: number;
     stamina: number;
-    /** 은수저 지수 — 나이 0일 때의 첫 겨울 보정에 쓴다 */
+    /** 은수저 지수 — 나이 0일 때의 첫해 보정에 쓴다 */
     silverSpoon: number;
     injured: boolean;
   },
@@ -246,10 +245,8 @@ export function deathRisk(
   const fat = 1 + k.fatHeavySlope * Math.max(0, input.r - k.fatHeavyFrom);
   const hunger = 1 + k.hungerSlope * Math.max(0, k.hungerFrom - input.r);
   const feather = 1 + k.featherSlope * Math.max(0, k.featherFrom - input.feather);
-  const firstWinter =
-    input.age === 0 && input.season === 'winter'
-      ? firstWinterRiskMult(f, species, input.silverSpoon)
-      : 1;
+  // 첫해 보정: 나이 0이면 계절 상관없이 (#515). 키 이름은 예전 '첫 겨울' 그대로
+  const firstYear = input.age === 0 ? firstWinterRiskMult(f, species, input.silverSpoon) : 1;
   const risk =
     f.nodeTiers.risk[input.nodeRisk] *
     (species.predatorActivity[input.phase] ?? 1) *
@@ -262,7 +259,7 @@ export function deathRisk(
     fat *
     hunger *
     feather *
-    firstWinter *
+    firstYear *
     (input.injured ? k.injuryMult : 1);
   const aging = agingRisk(f, species, input);
   const total = clamp(risk + aging, k.floor, k.cap);
@@ -362,7 +359,7 @@ export function growthMult(f: Formulas, silverSpoon: number): number {
   return f.silverSpoon.growthBase + f.silverSpoon.growthPerIndex * silverSpoon;
 }
 
-/** 6.3 첫 겨울 보정 */
+/** 6.3 첫해 보정 (키 이름은 예전 '첫 겨울') */
 export function firstWinterRiskMult(
   f: Formulas,
   species: SpeciesBalance,

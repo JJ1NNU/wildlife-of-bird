@@ -279,7 +279,6 @@ export function judgeStep(
   const stepRisk = deathRisk(f, species, {
     nodeRisk: tiers.risk,
     phase,
-    season,
     action,
     // 위험 보정 = 그 시기의 이벤트·환경 `riskMod` × 육아 방침 `quality` × 계절 방침
     riskModFactor:
