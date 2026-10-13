@@ -225,8 +225,8 @@ describe('6. 은수저', () => {
   it('6.2 시작 스탯 · 성장 배율 · 6.3 첫해', () => {
     expect(startStat(f, 76.4, 0.545)).toBeCloseTo(27.77, 2);
     expect(growthMult(f, 0.545)).toBeCloseTo(1.018, 9);
-    expect(firstWinterRiskMult(f, tit, 0.545)).toBeCloseTo(1.473, 9);
-    expect(firstWinterRiskMult(f, tit, 1)).toBeCloseTo(1.2, 9);
+    expect(firstWinterRiskMult(f, tit, 0.545)).toBeCloseTo(3.173, 9);
+    expect(firstWinterRiskMult(f, tit, 1)).toBeCloseTo(2.9, 9);
   });
 });
 
