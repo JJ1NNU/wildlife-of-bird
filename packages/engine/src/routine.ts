@@ -76,28 +76,68 @@ export function limitToHand(choices: Choice[], hand: Hand): Choice[] {
   });
 }
 
+/** 한 칸이 단계 예산에서 쓰는 행동 비용 (12-card-turn 3장). 쉬기·옮기기는 0 */
+function budgetCost(choiceId: string, data: GameData): number {
+  const card = cardOf(choiceId);
+  if (!card || card === 'rest') return 0;
+  const action = choiceId.split('.')[1] as keyof GameData['formulas']['actions'];
+  return data.formulas.actions[action]?.cost ?? 0;
+}
+
+/** 칸들이 쓴 단계 예산 */
+function spentOf(ids: string[], data: GameData): number {
+  return ids.reduce((sum, id) => sum + budgetCost(id, data), 0);
+}
+
+/** 이 단계에 이미 넣은 칸 — 이벤트로 멈췄으면 실행한 칸 + 다시 채운 칸 */
+function stepIds(state: RunState): string[] {
+  const p = state.paused;
+  return [...(p ? p.plan.slice(0, p.done) : []), ...(state.routine ?? [])];
+}
+
 /**
- * 에너지 한도 (12-card-turn 3장): 이 칸을 넣은 뒤 예상 에너지가 바닥(굶주림 판정)이면 고를 수 없다.
+ * 에너지 한도 (12-card-turn 3장 v0.1.5): 넣으면 행동 비용 합이 `cards.stepBudget × n`을 넘는 카드와,
+ * 넣은 뒤 예상 에너지가 바닥(굶주림 판정)인 카드는 고를 수 없다.
  * 쉬기·옮기기는 한도에서 뺀다 — 먹이 고갈 장소에서 모든 선택이 막혀 판이 멈추지 않게.
- * `state`는 앞 칸들을 적용한 예상 상태(`projected`), `n`은 이 단계 칸 수
+ * `state`는 앞 칸들을 적용한 예상 상태(`projected`), `n`은 이 단계 칸 수, `spent`는 이 단계에 이미 쓴 예산
  */
 export function limitToEnergy(
   choices: Choice[],
   state: RunState,
   data: GameData,
   n: number,
+  spent: number,
 ): Choice[] {
+  const budget = data.cards.stepBudget * n;
   return choices.map((c) => {
     const card = cardOf(c.id);
-    if (c.disabled || !card || card === 'rest' || !judgeStep(state, c.id, data, n).starved)
+    if (c.disabled || !card || card === 'rest') return c;
+    if (spent + budgetCost(c.id, data) <= budget && !judgeStep(state, c.id, data, n).starved)
       return c;
     return { ...c, disabled: { reason: '에너지 부족' } };
   });
 }
 
 /** 루틴 칸의 선택지 — 패 밖·에너지 한도를 막는다. `state`는 예상 상태, `hand`는 남은 패 */
-export function slotChoices(state: RunState, data: GameData, n: number, hand: Hand): Choice[] {
-  return limitToEnergy(limitToHand(stepChoices(state, data), hand), state, data, n);
+export function slotChoices(
+  state: RunState,
+  data: GameData,
+  n: number,
+  hand: Hand,
+  spent: number,
+): Choice[] {
+  return limitToEnergy(limitToHand(stepChoices(state, data), hand), state, data, n, spent);
+}
+
+/** 루틴의 다음 빈 칸 선택지 (`getChoices`) — 앞 칸에 옮기기를 넣었으면 그 장소 기준 */
+export function nextSlotChoices(state: RunState, data: GameData): Choice[] {
+  return slotChoices(
+    projected(state, data),
+    data,
+    routineSlots(state, data),
+    handLeft(state, data),
+    spentOf(stepIds(state), data),
+  );
 }
 
 /** 칸 하나의 판정 결과를 상태에 적용한다 (위험은 굴리지 않는다) */
@@ -125,8 +165,9 @@ function choosable(
   data: GameData,
   n: number,
   hand: Hand,
+  spent: number,
 ): boolean {
-  return slotChoices(state, data, n, hand).some((c) => c.id === choiceId && !c.disabled);
+  return slotChoices(state, data, n, hand, spent).some((c) => c.id === choiceId && !c.disabled);
 }
 
 /**
@@ -140,12 +181,14 @@ export function suggestions(state: RunState, data: GameData): (string | null)[] 
   let s = projected(state, data);
   const n = routineSlots(state, data);
   let hand = handLeft(state, data);
+  let spent = spentOf(stepIds(state), data);
   for (let i = state.routine?.length ?? 0; i < emptySlots(state, data); i++) {
     const id = last[i] ?? last.at(-1);
-    if (id && choosable(s, id, data, n, hand)) {
+    if (id && choosable(s, id, data, n, hand, spent)) {
       out.push(id);
       s = applySlot(s, id, data, n);
       hand = spend(hand, [id]);
+      spent += budgetCost(id, data);
     } else out.push(null);
   }
   return out;

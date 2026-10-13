@@ -76,4 +76,16 @@ describe('패로 칸 고르기 (11장 v1)', () => {
     expect(disabled('action.rest')).toBeUndefined();
     expect(choices.filter((c) => c.kind === 'node').every((c) => !c.disabled)).toBe(true);
   });
+
+  it('단계 예산: 비용 합이 stepBudget × 칸 수 안이면 열리고, 넘으면 막힌다 (3장)', () => {
+    const slots = routine(start)?.slots ?? 0;
+    // 사회 비용 2 — 한 장만 들어가는 예산
+    const tight: GameData = { ...data, cards: { ...data.cards, stepBudget: 2 / slots } };
+    const disabled = (s: RunState, id: string) =>
+      getChoices(s, tight).find((c) => c.id === id)?.disabled;
+    expect(disabled(start, 'action.social')).toBeUndefined();
+    const s = act(start, 'action.social', tight).state;
+    expect(disabled(s, 'action.social')).toEqual({ reason: '에너지 부족' });
+    expect(disabled(s, 'action.rest')).toBeUndefined();
+  });
 });
