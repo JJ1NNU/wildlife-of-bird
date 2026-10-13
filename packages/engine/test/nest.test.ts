@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { fledgling, silverSpoonIndex } from '../src/clutch.ts';
 import type { RunState } from '../src/index.ts';
 import { act, contestChance, getChoices, getView, nestHoles, newRun } from '../src/index.ts';
-import { nestLossChance } from '../src/nest.ts';
+import { fulfilment, nestLossChance } from '../src/nest.ts';
 import { actStep, testData } from './fixture.ts';
 
 const start = newRun({ speciesId: 'parus-minor', seed: 'nest', mode: 'free' }, testData);
@@ -346,5 +346,26 @@ describe('둥지 손실 × 장소 먹이 배율 (01-formulas 3.2, #408)', () => 
       nestLossChance(s, noKey, 'nestBox') * 2.5,
       12,
     );
+  });
+});
+
+describe('먹이 모자람 배율 (01-formulas 3.2·3.3, #501)', () => {
+  const k = { ...testData.formulas.brood, nestLossByShortfall: 2, chickDeathByShortfall: 3 };
+  const short: GameData = { ...testData, formulas: { ...testData.formulas, brood: k } };
+  // 둥지는 농촌 마을(먹이 low) — 새끼 9마리면 1마리 몫이 모자란다
+  const s: RunState = {
+    ...start,
+    at: { year: 1, period: 8, step: 2 },
+    nest: { site: 'nestBox', node: 'village-farmland', eggs: 10, chicks: 9 },
+  };
+
+  it('둥지 손실 × (1 + k × (1 − 충족도)), 새끼가 없으면 1', () => {
+    const f = fulfilment(s, testData, 9, s.at);
+    expect(f).toBeLessThan(1);
+    expect(nestLossChance(s, short, 'nestBox')).toBeCloseTo(
+      nestLossChance(s, testData, 'nestBox') * (1 + 2 * (1 - f)),
+      12,
+    );
+    expect(nestLossChance(s, short, 'nestBox', 0)).toBe(nestLossChance(s, testData, 'nestBox', 0));
   });
 });
