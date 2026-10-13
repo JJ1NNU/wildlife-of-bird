@@ -9,7 +9,7 @@ import {
   seasonOf,
   startStat,
 } from './formulas.ts';
-import { nestLossChance } from './nest.ts';
+import { fulfilment, nestLossChance, shortfallMult } from './nest.ts';
 import { orderValue } from './order.ts';
 import { chickDeathMult, feedIntensity, policy } from './parenting.ts';
 import { nextChance, nextFloat, nextNormal, type RngState } from './rng.ts';
@@ -60,12 +60,13 @@ export function layingCost(data: GameData, state: RunState): number {
 /**
  * `from`부터 이 번식이 끝날 때까지 새끼 1마리가 이소하는 확률(04-breeding 6.4) — 둥지 단계(`laying`~`nestling`)마다
  * `1 − 둥지 손실`, 급이 단계(`nestling` `postFledge`)마다 `1 − 새끼 사망`. 단계마다 그 국면의 방침·지시 배율. 난수 없음.
- * 함께 첫 급이 단계(은수저 계산용).
+ * 먹이 모자람 배율(#501)은 급이 단계에서 새끼 수를 `chicks`로 고정해 계산한다(조금 비관적). 함께 첫 급이 단계(은수저 계산용).
  */
 function broodSurvival(
   state: RunState,
   data: GameData,
   from: CalendarAt,
+  chicks: number,
 ): { survival: number; firstFeed?: CalendarAt } {
   const site = state.nest?.site;
   if (site === undefined) return { survival: 0 };
@@ -75,9 +76,10 @@ function broodSurvival(
     const phase = phaseAt(state.calendar, at);
     if (!['laying', 'incubation', 'nestling', 'postFledge'].includes(phase)) break;
     const s = { ...state, at };
-    if (phase !== 'postFledge') survival *= 1 - nestLossChance(s, data, site);
-    if (phase === 'nestling' || phase === 'postFledge') {
-      survival *= 1 - chickDeathChance(s, data);
+    const feeding = phase === 'nestling' || phase === 'postFledge';
+    if (phase !== 'postFledge') survival *= 1 - nestLossChance(s, data, site, feeding ? chicks : 0);
+    if (feeding) {
+      survival *= 1 - chickDeathChance(s, data, chicks);
       firstFeed ??= at;
     }
   }
@@ -86,15 +88,17 @@ function broodSurvival(
 
 /** 이소 기대 수 — 지금 둥지의 새끼 수 × 이 단계부터의 생존(6.4, S-22). 이벤트 없음 */
 export function expectedFledged(state: RunState, data: GameData): number {
-  return (state.nest?.chicks ?? 0) * broodSurvival(state, data, state.at).survival;
+  const chicks = state.nest?.chicks ?? 0;
+  return chicks * broodSurvival(state, data, state.at, chicks).survival;
 }
 
 /** 화면 카드 — 산란 단계 비용 · 이소 기대 수(6.4, 관문 다음 단계부터) · 은수저 지수(새끼 수 = 산란수 × `hatchRate`) */
 export function clutchCards(data: GameData, state: RunState, options: number[]): ClutchSizeCard[] {
   const hatchRate = breedingSpecies(data, state.config.speciesId).hatchRate;
-  const { survival, firstFeed } = broodSurvival(state, data, advance(state.at, state.calendar));
+  const from = advance(state.at, state.calendar);
   return options.map((eggs) => {
     const chicks = eggs * hatchRate;
+    const { survival, firstFeed } = broodSurvival(state, data, from, chicks);
     return {
       choiceId: `clutchSize.${eggs}`,
       eggs,
@@ -180,11 +184,15 @@ export function hatchIfDue(state: RunState, data: GameData): { state: RunState; 
   };
 }
 
-/** 새끼 1마리의 단계당 사망 확률 — 급이 강도 · 육아 방침 배율(6.3) · 짝 지시 `splitBrood` */
-function chickDeathChance(state: RunState, data: GameData): number {
+/**
+ * 새끼 1마리의 단계당 사망 확률 — 급이 강도 · 먹이 모자람 배율(3.3, #501 — 새끼 `chicks`마리 기준) ·
+ * 육아 방침 배율(6.3) · 짝 지시 `splitBrood`
+ */
+function chickDeathChance(state: RunState, data: GameData, chicks: number): number {
   const split = data.breeding.orders.splitBrood?.chickDeathMult ?? 1;
   return (
     chickDeath(data.formulas, feedIntensity(state, data)) *
+    shortfallMult(state, data, chicks, data.formulas.brood.chickDeathByShortfall) *
     chickDeathMult(state, data) *
     orderValue(state, 'mateOrder.splitBrood', 1, split)
   );
@@ -206,7 +214,7 @@ export function chicksSurvive(
   if (!nest || chicks === 0 || (phase !== 'nestling' && phase !== 'postFledge')) {
     return { state, log: [] };
   }
-  const p = chickDeathChance(state, data);
+  const p = chickDeathChance(state, data, chicks);
   let rng = state.rng;
   let alive = 0;
   const young: Chick[] = [];
@@ -247,31 +255,6 @@ export function feedChicks(state: RunState, data: GameData): RunState {
   const value = fulfilment(state, data, chicks, state.at);
   const spoon = { sum: (nest.spoon?.sum ?? 0) + value, steps: (nest.spoon?.steps ?? 0) + 1 };
   return { ...state, nest: { ...nest, spoon } };
-}
-
-/** 새끼 `chicks`마리일 때 `at` 시기의 단계 충족도(0~1). 둥지가 있어야 한다 */
-function fulfilment(state: RunState, data: GameData, chicks: number, at: CalendarAt): number {
-  const f = data.formulas;
-  const feed = f.silverSpoon.feedByIntensity;
-  const season = seasonOf(speciesBalance(data, state.config.speciesId), at.period);
-  const food = mapNode(data, state.nest?.node ?? state.node).seasons[season].food;
-  const parents = [
-    {
-      feed: feed[feedIntensity(state, data)],
-      efficiency: forageEfficiency(f, state.player.stats.foraging ?? 0, state.player.expYears),
-    },
-  ];
-  if (state.mate) {
-    parents.push({
-      feed: orderValue(state, 'mateOrder.feedHigh', feed.mid, feed.high),
-      efficiency: forageEfficiency(f, state.mate.stats.foraging ?? 0, state.mate.expYears),
-    });
-  }
-  const quality = data.breeding.parenting.foodQuality[policy(state, data, 'foodQuality')];
-  return Math.min(
-    1,
-    feedingFulfilment(f, { parents, food, chicks }) * (quality?.fulfilmentMult ?? 1),
-  );
 }
 
 /**

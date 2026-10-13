@@ -123,6 +123,9 @@ export const Formulas = z
         nestLossVigilancePerStat: nonneg,
         /** 둥지 장소의 그 시기 먹이 등급 → 둥지 손실 배율(01-formulas 3.2, #408). 없는 등급은 1 */
         nestLossByFood: z.partialRecord(FoodTier, nonneg).optional(),
+        /** 먹이 모자람 배율 `1 + k × (1 − 충족도)`의 k — 새끼 사망 3.3 · 둥지 손실 3.2(#501). 없으면 0 */
+        chickDeathByShortfall: nonneg.optional(),
+        nestLossByShortfall: nonneg.optional(),
       })
       .strict(),
     mate: z
