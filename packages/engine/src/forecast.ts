@@ -12,7 +12,7 @@ export interface ForecastSubject {
   flight: number;
   /** 노화 시작을 옮긴다 (01-formulas 4.1) */
   stamina: number;
-  /** 첫 겨울 보정에 쓴다(나이 0일 때만) */
+  /** 첫해 보정에 쓴다(나이 0일 때만) */
   silverSpoon: number;
 }
 
@@ -51,7 +51,6 @@ export function yearSurvival(
       const risk = deathRisk(f, species, {
         nodeRisk: node.seasons[season].risk,
         phase,
-        season,
         action: 'forage',
         riskModFactor: 1,
         vigilance: subject.vigilance,

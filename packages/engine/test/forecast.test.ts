@@ -19,7 +19,7 @@ describe('1년 생존 예상 (05-inheritance 6장)', () => {
     ).toBeCloseTo(0.8883, 4);
   });
 
-  it('새끼 — 첫 겨울 보정은 그 새끼의 은수저로, 낮은 비행은 회피 보정으로', () => {
+  it('새끼 — 첫해 보정(나이 0 전체, #515)은 그 새끼의 은수저로, 낮은 비행은 회피 보정으로', () => {
     expect(
       forecast({
         age: 0,
@@ -29,9 +29,9 @@ describe('1년 생존 예상 (05-inheritance 6장)', () => {
         stamina: 30,
         silverSpoon: 0.545,
       }),
-    ).toBeCloseTo(0.8474, 4);
+    ).toBeCloseTo(0.829, 4);
     expect(
       forecast({ age: 0, expYears: 0, vigilance: 36.2, flight: 23, stamina: 30, silverSpoon: 1 }),
-    ).toBeCloseTo(0.8583, 4);
+    ).toBeCloseTo(0.8509, 4);
   });
 });

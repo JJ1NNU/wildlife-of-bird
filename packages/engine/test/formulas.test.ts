@@ -108,7 +108,6 @@ describe('3. 위험', () => {
   const calm = {
     nodeRisk: 'medium',
     phase: 'winter',
-    season: 'winter',
     action: 'forage',
     riskModFactor: 1,
     vigilance: 70,
@@ -125,7 +124,6 @@ describe('3. 위험', () => {
   const worst = {
     nodeRisk: 'veryHigh',
     phase: 'nestling',
-    season: 'spring',
     action: 'explore',
     riskModFactor: 1,
     vigilance: 10,
@@ -160,7 +158,6 @@ describe('3. 위험', () => {
       ...calm,
       nodeRisk: 'veryLow',
       phase: 'autumnFlock',
-      season: 'autumn',
       action: 'rest',
       vigilance: 100,
       expYears: 5,
@@ -225,7 +222,7 @@ describe('6. 은수저', () => {
     expect(rich).toBe(1);
   });
 
-  it('6.2 시작 스탯 · 성장 배율 · 6.3 첫 겨울', () => {
+  it('6.2 시작 스탯 · 성장 배율 · 6.3 첫해', () => {
     expect(startStat(f, 76.4, 0.545)).toBeCloseTo(27.77, 2);
     expect(growthMult(f, 0.545)).toBeCloseTo(1.018, 9);
     expect(firstWinterRiskMult(f, tit, 0.545)).toBeCloseTo(1.473, 9);
