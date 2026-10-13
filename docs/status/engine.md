@@ -1,6 +1,6 @@
 # 엔진 상태
 
-기다림: 열린 dept:engine·review:engine 없음 — #512 머지됨, QA 재측정(#508)·#516 쪽에서 요청 오면 받기
+기다림: 열린 dept:engine·review:engine 없음 — #508은 PR #517 (review:design) 쪽, 엔진 요청 오면 받기
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
