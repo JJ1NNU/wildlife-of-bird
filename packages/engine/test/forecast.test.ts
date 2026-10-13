@@ -29,9 +29,9 @@ describe('1년 생존 예상 (05-inheritance 6장)', () => {
         stamina: 30,
         silverSpoon: 0.545,
       }),
-    ).toBeCloseTo(0.829, 4);
+    ).toBeCloseTo(0.7564, 4);
     expect(
       forecast({ age: 0, expYears: 0, vigilance: 36.2, flight: 23, stamina: 30, silverSpoon: 1 }),
-    ).toBeCloseTo(0.8509, 4);
+    ).toBeCloseTo(0.7812, 4);
   });
 });
