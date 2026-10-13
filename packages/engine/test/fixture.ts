@@ -21,6 +21,7 @@ export const fullData: GameData = loaded.data;
  * 단계 이벤트·계절 방침을 뺀 데이터 — 다른 규칙의 테스트가 이벤트·계절 방침 관문에 멈추지 않게.
  * 추첨 u₁은 그대로 쓰므로 난수 순서는 실제와 같다 (03-events 3.1). 계절 방침은 난수를 쓰지 않는다.
  * 먹이 모자람 배율(01-formulas 3.2·3.3, #501)도 끈다 — 명세 예시는 배율 1로 계산했고, 배율은 nest.test가 따로 잰다
+ * 장소 위험 등급·노화 위험은 명세 예시의 값(#462 전)으로 둔다 — 3.1·4.1 예시가 그 값으로 계산돼 있다
  */
 export const testData: GameData = {
   ...loaded.data,
@@ -29,6 +30,11 @@ export const testData: GameData = {
   formulas: {
     ...loaded.data.formulas,
     brood: { ...loaded.data.formulas.brood, chickDeathByShortfall: 0, nestLossByShortfall: 0 },
+    nodeTiers: {
+      ...loaded.data.formulas.nodeTiers,
+      risk: { veryLow: 0.00122, low: 0.00245, medium: 0.00428, high: 0.00734, veryHigh: 0.0122 },
+    },
+    aging: { ...loaded.data.formulas.aging, riskPerStep: 0.0026 },
   },
 };
 /** 계절 방침만 넣은 데이터 (11-season-policy) */
