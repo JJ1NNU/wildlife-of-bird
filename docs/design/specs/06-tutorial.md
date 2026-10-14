@@ -24,7 +24,7 @@
 | 저장 | 클라이언트 기기 저장(본 팁 id 목록). 게임 저장과 따로 — 저장 버전 정책(엔진 #534)과 무관 |
 | 숫자 | 문구(`text`)에 숫자를 쓰지 않는다(`screens.md` 2장). 숫자가 필요하면 화면이 가리키는 자리의 엔진 값을 그대로 가리킨다 |
 
-문구 키: `tutorial.<팁 id>.title` · `tutorial.<팁 id>.body` (콘텐츠 #537, 파일 위치는 콘텐츠가 `data/text/`에서 정한다).
+문구 키: `tutorial.<키>.title` · `tutorial.<키>.body` — `<키>`는 팁 id에서 하이픈을 빼고 소문자(`T-01` → `t01`, 스키마가 camelCase만 받음). T-00은 `title` + `line1`~`line3`, T-30은 경고 줄 `caution`을 더한다. 파일 `data/text/tutorial.json`(콘텐츠 #537 · PR #547).
 
 ## 3. 런 시작 전 — 온보딩 3줄
 
