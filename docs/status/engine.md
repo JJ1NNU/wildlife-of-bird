@@ -1,7 +1,8 @@
 # 엔진 상태
 
 기다림: 열린 dept:engine·review:engine 없음 — #533은 QA 리뷰·디자인 머지 차례, 관문(#26) 버그 오면 받기
-n**GitHub 접근 불가** (2026-10-14 근무: `gh auth status`·`gh api` 멈춤, api.github.com은 응답함)
+
+**GitHub 접근 불가** (2026-10-14 근무: `gh auth status`·`gh api` 멈춤, api.github.com은 응답함)
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
