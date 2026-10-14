@@ -57,9 +57,9 @@ describe('런 시작 개체 (05-inheritance 2장)', () => {
 
 describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
   it('채식 칸: 단계 값 ÷ 6, 위험은 1 − (1 − p)^(1/6) — 3.1 예시를 칸으로 나눈 값', () => {
-    // 연속 체류 12칸 ÷ 6 = 2단계, 칸 뒤 에너지가 3.1 예시의 41.089가 되게 맞춘 입력
-    const slotGain = (41.089 - 40 + 1) / 6;
-    const slot = { ...example, stay: 11, player: { ...example.player, energy: 41.089 - slotGain } };
+    // 연속 체류 12칸 ÷ 6 = 2단계, 칸 뒤 에너지가 3.1 예시(겨울 소비 11)의 39.089가 되게 맞춘 입력
+    const slotGain = (39.089 - 40 + 1) / 6;
+    const slot = { ...example, stay: 11, player: { ...example.player, energy: 39.089 - slotGain } };
     const p = preview(slot, 'action.forage', data);
     expect(p.energyDelta[0]).toBeCloseTo(slotGain, 6);
     expect(p.deathRisk).toBeCloseTo(1 - (1 - 0.0025407792) ** (1 / 6), 6);

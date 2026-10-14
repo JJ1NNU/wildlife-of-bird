@@ -32,7 +32,7 @@
     "autumn": [17, 18, 19, 20, 21, 22]
   },
   "basalPerStep": {
-    "winter": 7,
+    "winter": 9,
     "spring": 5,
     "summer": 5,
     "autumn": 5

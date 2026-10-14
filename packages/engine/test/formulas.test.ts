@@ -72,7 +72,7 @@ describe('2. 에너지', () => {
       feedIntensity: 'mid',
       chicks: 0,
     } as const;
-    expect(expenditure(f, tit, { ...base, period: 2, phase: 'winter', action: 'forage' })).toBe(9);
+    expect(expenditure(f, tit, { ...base, period: 2, phase: 'winter', action: 'forage' })).toBe(11);
     expect(actionCost(f, 'move', 46)).toBeCloseTo(2.048, 9);
     const feeding = {
       ...base,
