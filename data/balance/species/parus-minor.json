@@ -55,7 +55,7 @@
     "autumnFlock": 0.9
   },
   "flockPhases": ["winter", "autumnFlock"],
-  "nestLossPerStep": 0.16,
+  "nestLossPerStep": 0.2,
   "agingStartAge": 3,
   "firstWinterRiskMult": 3.5,
   "secondBrood": {
