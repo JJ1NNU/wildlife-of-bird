@@ -438,6 +438,7 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 ```
 - `serialize`가 만들고 `deserialize`가 읽는다. 화면은 이 문자열을 그대로 보관만 한다(예: `localStorage`).
 - `saveVersion`: 저장 형식이 바뀌면 엔진이 올린다. 친구 알파(M3) 전에는 버전이 다르면 `deserialize`가 던지고, 화면이 "새 게임 시작"을 안내하면 충분하다. 알파 이후 형식이 바뀔 때부터 마이그레이션을 제공한다.
+- 알파 뒤 규칙은 [ADR-003](../adr/0003-save-version-policy.md): **알파 기준 버전**(알파 첫 배포 때 엔진이 여기 적는다) 이후 형식을 바꾸는 PR은 `SAVE_VERSION` +1과 `vN → vN+1` 마이그레이션 + fixture 테스트 1개를 함께 넣는다. 저장에 들어가는 데이터 id(이벤트·장소·종·칭호 등)를 지우거나 바꾸는 데이터 PR도 형식 변경이다 — `review:engine`. 수치·문구만 바뀌면 버전을 올리지 않는다.
 - v0 초안의 `gameVersion` 필드는 **뺐다** — 저장 파일에서 읽는 곳이 없다(01-collaboration 15장). 게임 버전은 루트 `version.json`에 있고(PM이 관문 통과 때 올린다, 02-roadmap 5장), 리더보드 기록(7장)에는 클라이언트가 `version.json`에서 읽어 넣는다. 데이터 버전은 따로 두지 않는다.
 
 ## 7. 리더보드 기록 — client (서버 설계는 ADR-002)
