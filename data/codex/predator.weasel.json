@@ -1,0 +1,16 @@
+{
+  "id": "cx.predator.weasel",
+  "kind": "predator",
+  "target": "weasel",
+  "nameKo": "족제비",
+  "body": "족제비는 박새 둥지를 노리는 동물이다. 일본 규슈의 숲에서는 박새 둥지를 노리는 동물로 뱀과 함께 족제비가 기록되었다. 유럽의 박새 연구는 족제비 무리인 산족제비를 알을 품는 암컷과 둥지 속 새끼를 노리는 포식자로 보았다. 알을 품는 둥지 곁에 산족제비 박제를 두자 암컷은 둥지를 드나드는 횟수를 줄였다.",
+  "unlock": {
+    "on": "predator-met",
+    "predator": "weasel"
+  },
+  "basis": {
+    "sources": ["SRC-091", "SRC-041"],
+    "factCheck": "verified",
+    "note": "일본 규슈 박새 둥지 포식자로 뱀과 족제비(Mustela sibirica itatsi)(SRC-091, 원문) · 스위스 박새(P. major) 실험에서 산족제비(short-tailed weasel, M. erminea) 박제는 포란 암컷·새끼 포식자로 쓰였고, 박제를 두자 품기·외출 횟수가 줄었다(SRC-041 초록 — 새매 박제도 같은 효과). 유럽 연구의 족제비는 국내 족제비와 다른 종이라 '산족제비'로 밝혔다. 사냥 방식·국내 둥지 조사는 출처가 없어 쓰지 않았다."
+  }
+}
