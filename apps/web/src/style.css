@@ -435,6 +435,12 @@ h1 {
 .slot-head b {
   color: var(--wb-color-sage-strong);
 }
+/* 단계 예산 막대 (12-card-turn 3장) */
+.slot-head .budget {
+  display: block;
+  width: 100%;
+  height: 6px;
+}
 .cell .n {
   color: var(--wb-color-ink-muted);
   line-height: 12px;

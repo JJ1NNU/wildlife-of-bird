@@ -173,6 +173,16 @@ function planSlots(base: RunState, plan: (string | null)[], data: GameData): Slo
   });
 }
 
+/**
+ * 한 칸이 단계 예산에서 쓰는 행동 비용 — 엔진 routine.ts `budgetCost`와 같은 규칙(12-card-turn 3장).
+ * 계획한 칸은 아직 엔진 상태에 없어서 화면이 더한다. 쉬기·옮기기는 0
+ */
+function budgetCost(id: string, data: GameData): number {
+  const [head, action] = id.split('.');
+  if (head !== 'action' || action === 'rest') return 0;
+  return data.formulas.actions[action as keyof GameData['formulas']['actions']]?.cost ?? 0;
+}
+
 /** 기록 한 줄의 변화: 스탯(소수 첫째) 먼저, 에너지·깃털(정수, 칸 줄은 소수 첫째 #206) 뒤 — 0으로 반올림되면 뺀다 (#176) */
 function deltaText(deltas: Record<string, number> = {}, perSlot = false): string {
   const stats: string[] = [];
@@ -377,6 +387,14 @@ export function Game({ data }: { data: GameData }) {
   // 칸 번호는 단계 안의 절대값 — 이벤트 뒤 다시 채우기면 이미 한 칸(`paused.done`)부터 (03-contracts 3장)
   const done = (state.paused?.done ?? 0) + (view.routine?.filled.length ?? 0);
   const ready = slots.length > 0 && slots.every((s) => s.id);
+  // 단계 예산 막대(12-card-turn 3장): 이미 넣은 칸(엔진) + 계획한 칸
+  const budget = view.routine && {
+    spent: slots.reduce(
+      (sum, s) => sum + (s.id ? budgetCost(s.id, data) : 0),
+      view.routine.budget.spent,
+    ),
+    limit: view.routine.budget.limit,
+  };
   // 요약 줄: 루틴 합 위험 1 − Π(1 − pₖ) — 띠는 합에만(#206)
   const sumRisk = 1 - slots.reduce((q, s) => q * (1 - (s.preview?.deathRisk ?? 0)), 1);
   // 칸마다 끝난 뒤 에너지 (preview의 변화는 앞 칸까지 채운 상태 기준이라 더하면 된다)
@@ -1372,6 +1390,18 @@ export function Game({ data }: { data: GameData }) {
                   {view.routine?.nextSlotIn !== undefined && (
                     <span>, {t('routine.slots.nextIn', { n: view.routine.nextSlotIn })}</span>
                   )}
+                </div>
+              )}
+              {budget && Number.isFinite(budget.limit) && (
+                <div className="slot-head" data-testid="budget">
+                  <span>{t('routine.budget', { limit: budget.limit, spent: budget.spent })}</span>
+                  <meter
+                    className="budget"
+                    min={0}
+                    max={budget.limit}
+                    value={budget.spent}
+                    aria-label={t('routine.budget', { limit: budget.limit, spent: budget.spent })}
+                  />
                 </div>
               )}
               <div className={`cells${slots.length + done > 6 ? ' many' : ''}`}>
