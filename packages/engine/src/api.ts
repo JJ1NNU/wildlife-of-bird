@@ -57,6 +57,7 @@ import {
   projected,
   routineSlots,
   runRoutine,
+  stepBudget,
   suggestions,
 } from './routine.ts';
 import { chooseSeason, dropSeasonPolicy, seasonCards, seasonChoices, seasonDue } from './season.ts';
@@ -604,6 +605,7 @@ export function getView(state: RunState, data: GameData): ViewModel {
     phase: phaseAt(state.calendar, state.at),
     speciesId: state.config.speciesId,
     node: state.node,
+    stay: state.stay,
     player: state.player,
     energyCap,
     starving: state.player.energy < energyCap * data.formulas.energy.starvationWarnRatio,
@@ -666,6 +668,7 @@ export function getView(state: RunState, data: GameData): ViewModel {
             filled: state.routine ?? [],
             suggested: suggestions(state, data),
             replan: state.paused !== undefined,
+            budget: stepBudget(state, data),
             hand: Object.fromEntries(
               Object.entries(handLeft(state, data)).filter(([, n]) => n > 0),
             ),

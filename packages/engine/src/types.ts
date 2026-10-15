@@ -429,6 +429,8 @@ export interface ViewModel {
   speciesId: string;
   /** 지금 장소 id — 이름은 `data.nodes` */
   node: string;
+  /** 지금 장소 연속 체류 칸 수 — 도착한 칸이 0 (S-11 고갈 표시, 01-formulas 2.3) */
+  stay: number;
   player: Bird;
   /** 에너지의 상한(지방 상한, 01-formulas 2.1) */
   energyCap: number;
@@ -470,6 +472,8 @@ export interface ViewModel {
     suggested: (string | null)[];
     /** 이벤트 뒤 남은 칸 다시 채우기 (결정으로 세지 않는다) */
     replan: boolean;
+    /** 단계 예산 막대 "에너지 limit 중 spent" — 행동 비용 합 / `cards.stepBudget × 칸 수`. 쉬기·옮기기는 0 (12-card-turn 3장, S-10) */
+    budget: { spent: number; limit: number };
     /** 남은 패 — 카드 id → 장수, 0장은 없음. 늘 있는 카드(옮기기·채식·쉬기)는 패와 따로 늘 고를 수 있다 (12-card-turn 2장) */
     hand: Partial<Record<CardId, number>>;
   };

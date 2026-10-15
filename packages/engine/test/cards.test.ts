@@ -87,5 +87,8 @@ describe('패로 칸 고르기 (11장 v1)', () => {
     const s = act(start, 'action.social', tight).state;
     expect(disabled(s, 'action.social')).toEqual({ reason: '에너지 부족' });
     expect(disabled(s, 'action.rest')).toBeUndefined();
+    // 화면 막대 = 같은 합 (쉬기는 0)
+    const rested = act(s, 'action.rest', tight).state;
+    expect(getView(rested, tight).routine?.budget).toEqual({ spent: 2, limit: 2 });
   });
 });

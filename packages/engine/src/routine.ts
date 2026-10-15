@@ -95,6 +95,14 @@ function stepIds(state: RunState): string[] {
   return [...(p ? p.plan.slice(0, p.done) : []), ...(state.routine ?? [])];
 }
 
+/** 단계 예산 막대 (`view.routine.budget`, S-10): 이 단계에 넣은 칸의 행동 비용 합 / `cards.stepBudget × n` */
+export function stepBudget(state: RunState, data: GameData): { spent: number; limit: number } {
+  return {
+    spent: spentOf(stepIds(state), data),
+    limit: data.cards.stepBudget * routineSlots(state, data),
+  };
+}
+
 /**
  * 에너지 한도 (12-card-turn 3장 v0.1.5): 넣으면 행동 비용 합이 `cards.stepBudget × n`을 넘는 카드와,
  * 넣은 뒤 예상 에너지가 바닥(굶주림 판정)인 카드는 고를 수 없다.
