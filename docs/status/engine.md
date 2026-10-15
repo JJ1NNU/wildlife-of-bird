@@ -1,6 +1,6 @@
 # 엔진 상태
 
-기다림: PR #554 클라이언트 리뷰 · 대표 #542
+기다림: 대표 #542 · 알파 첫 배포 PR(#535 — 그때 contracts 6장 기준 저장 버전, #534)
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
@@ -14,7 +14,7 @@
 
 ## 최근 완료 (2026-10-15 낮)
 - **PR #554 열음**(#534 2번, 잠정 #542): 클라이언트 요청 두 필드 — `view.routine.budget {spent, limit}`(막힘과 같은 함수로 셈) · `view.stay`. contracts 3장. 저장 형식 변경 없음. check 통과. review:client
-- 다음: #554 승인 받으면 `merge-pr.sh 554` · #534 남은 일 = 알파 첫 배포 PR에서 기준 버전을 contracts 6장에 적기
+- #554 머지됨(10/15). 다음: #534 남은 일 = 알파 첫 배포 PR에서 기준 버전을 contracts 6장에 적기
 
 ## 최근 완료 (2026-10-15 밤)
 - **PR #550 승인 댓글**(design screens.md v2): 4장 새 값 넷이 #534 범위. 사실 정정 — 세대 기록은 이미 로그 `life: LifeRecord`로 나옴(쌓을 곳만 클라이언트가 고르기), 예산은 `view.routine`에 `{spent, limit}`만 내면 됨, `stay`는 ViewModel에 없음, 살아남은 습격의 포식자 id는 습격 구현 PR에서 로그에. review:engine 뗌
