@@ -10,22 +10,42 @@ function files(modules: Record<string, unknown>): RawFile[] {
     .map(([path, json]) => ({ file: path.replace(/^(\.\.\/)+/, ''), json }));
 }
 
-const one = (modules: Record<string, unknown>) => files(modules)[0];
+/**
+ * 파일 하나짜리 묶음. 빠지면 loadGameData가 오류 없이 기본값(빈 카드 풀 등)을 써서
+ * 화면이 조용히 틀리므로(#555) 여기서 바로 멈춘다.
+ */
+function one(name: string, modules: Record<string, unknown>): RawFile {
+  const file = files(modules)[0];
+  if (!file) throw new Error(`data/balance/${name}.json을 빌드에 넣지 못했다`);
+  return file;
+}
 const effects = one(
+  'effects',
   import.meta.glob('../../../data/balance/effects.json', { eager: true, import: 'default' }),
 );
 const formulas = one(
+  'formulas',
   import.meta.glob('../../../data/balance/formulas.json', { eager: true, import: 'default' }),
 );
-
 const breeding = one(
+  'breeding',
   import.meta.glob('../../../data/balance/breeding.json', { eager: true, import: 'default' }),
+);
+const seasonPolicy = one(
+  'season-policy',
+  import.meta.glob('../../../data/balance/season-policy.json', { eager: true, import: 'default' }),
+);
+const cards = one(
+  'cards',
+  import.meta.glob('../../../data/balance/cards.json', { eager: true, import: 'default' }),
 );
 
 const raw: RawGameData = {
-  ...(effects ? { effects } : {}),
-  ...(formulas ? { formulas } : {}),
-  ...(breeding ? { breeding } : {}),
+  effects,
+  formulas,
+  breeding,
+  seasonPolicy,
+  cards,
   ecology: files(
     import.meta.glob('../../../data/species/*.ecology.json', { eager: true, import: 'default' }),
   ),
@@ -42,6 +62,8 @@ const raw: RawGameData = {
   events: files(
     import.meta.glob('../../../data/events/*.json', { eager: true, import: 'default' }),
   ),
+  codex: files(import.meta.glob('../../../data/codex/*.json', { eager: true, import: 'default' })),
+  text: files(import.meta.glob('../../../data/text/*.json', { eager: true, import: 'default' })),
 };
 
 export const loaded = loadGameData(raw);

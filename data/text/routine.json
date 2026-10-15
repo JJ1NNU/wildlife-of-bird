@@ -5,6 +5,7 @@
   "routine.slots.nextIn": "다음 칸까지 스탯 합 +{n}",
   "routine.slots.gained": "칸 {n}개로 늘어남",
   "routine.slots.lost": "칸 {n}개로 줄어듦",
+  "routine.budget": "에너지 {limit} 중 {spent}",
   "routine.go": "이 루틴으로 진행",
   "routine.fillEmpty": "빈 칸 채우기",
   "routine.undo": "되돌리기",
