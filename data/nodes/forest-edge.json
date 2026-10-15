@@ -27,8 +27,8 @@
     }
   },
   "basis": {
-    "sources": ["SRC-004"],
+    "sources": ["SRC-004", "SRC-168"],
     "factCheck": "needs-review",
-    "note": "지도의 가운데(00-core-loop 3.4). 모든 계절 중간. 가장자리·덤불이 박새 서식지라는 것은 E등급 단독(SRC-004 '산림 … 농촌 부근'). fact-check P-14."
+    "note": "지도의 가운데(00-core-loop 3.4). 모든 계절 중간. 숲 가장자리에 박새가 번식한다는 것은 SRC-168(A, 영국 P. major — 가장자리일수록 밀도가 높고 번식 성과는 낮음)로 받침. 값 자체는 게임 값. fact-check P-14."
   }
 }
