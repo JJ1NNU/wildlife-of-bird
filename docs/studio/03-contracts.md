@@ -180,7 +180,9 @@ interface ViewModel {
     suggested: (string | null)[] // 남은 빈 칸마다 제안 id. null = 제안 없음
     replan: boolean              // true = 이벤트 뒤 남은 칸 다시 채우기 (결정으로 세지 않는다)
     hand: Partial<Record<CardId, number>> // 남은 패 — 카드 id(forage·rest·social·explore·train-<스탯>) → 장수, 0장은 없음 (12-card-turn)
+    budget: { spent: number; limit: number } // 단계 예산 막대(S-10) — 이 단계에 넣은 칸의 행동 비용 합 / cards.stepBudget × 칸 수. 쉬기·옮기기는 0, 다시 채우기면 실행한 칸도 셈 (#534)
   }
+  stay: number                   // 지금 장소 연속 체류 칸 수, 도착한 칸이 0 — S-11 고갈 표시 (01-formulas 2.3, #534)
 }
 
 interface LogEntry {
