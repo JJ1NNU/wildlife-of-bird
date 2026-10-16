@@ -43,6 +43,7 @@ import {
   startRecord,
 } from './save.ts';
 import { roAfter, t } from './text.ts';
+import { loadSeenTips, nextTip, saveSeenTips, type TipId, tipKey } from './tips.ts';
 
 /**
  * M1 화면(#24): S-01 타이틀·이어하기 · S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
@@ -323,6 +324,9 @@ export function Game({ data }: { data: GameData }) {
   const [paused, setPaused] = useState(false);
   /** 평시 칸 수가 바뀐 직후 한 줄 알림(01-formulas 9.6). 다음 결정에서 사라진다 */
   const [slotNote, setSlotNote] = useState<{ from: number; to: number }>();
+  /** 튜토리얼: 이 기기에서 본 팁 · 이번 단계에 닫은 팁 수 (06-tutorial 2장) */
+  const [seenTips, setSeenTips] = useState(loadSeenTips);
+  const [tipStep, setTipStep] = useState({ key: '', n: 0 });
   /** S-40 판 지우기 확인 한 번 더 */
   const [clearing, setClearing] = useState(false);
 
@@ -515,6 +519,57 @@ export function Game({ data }: { data: GameData }) {
       : undefined;
   const cursorChoices = cursorSlot ? getChoices(cursorSlot.before, data) : [];
 
+  // 튜토리얼 팁: 조건은 모두 지금 화면 값으로 (06-tutorial 4장). 팁은 act를 부르지 않는다
+  const stepKey = `${view.at.year}.${view.at.period}.${view.at.step}`;
+  const gateKind = view.gate?.kind;
+  const tipConditions: [TipId, boolean][] = [
+    ['T-00', true],
+    ['T-01', !!view.routine],
+    ['T-02', !!view.routine && seenTips.has('T-01')],
+    ['T-03', !!view.routine && seenTips.has('T-02')],
+    // 잠정: 에너지 부족은 엔진 `disabled.reason` 글로 판단
+    ['T-04', [...choices, ...cursorChoices].some((c) => c.disabled?.reason === '에너지 부족')],
+    ['T-05', open === 'move'],
+    ['T-06', view.starving],
+    ['T-07', !!replay],
+    ['T-08', gateKind === 'event'],
+    ['T-10', gateKind === 'mateCandidate'],
+    ['T-11', gateKind === 'mateOrder'],
+    ['T-12', gateKind === 'nestSite'],
+    ['T-13', gateKind === 'clutchSize'],
+    ['T-14', gateKind === 'parentingPolicy'],
+    ['T-15', view.recentLog.some((l) => l.cause === 'nestLoss' || l.cause === 'chickDeath')],
+    ['T-30', gateKind === 'inheritance'],
+    ['T-31', gateKind === 'secondBrood'],
+    ['T-40', !!view.gameOver],
+  ];
+  const tipDue = new Set(tipConditions.filter(([, on]) => on).map(([id]) => id));
+  const tip = nextTip(tipDue, seenTips, tipStep.key === stepKey ? tipStep.n : 0);
+
+  function closeTip(id: TipId) {
+    const next = new Set(seenTips).add(id);
+    saveSeenTips(next);
+    setSeenTips(next);
+    if (id !== 'T-00') setTipStep((s) => ({ key: stepKey, n: s.key === stepKey ? s.n + 1 : 1 }));
+  }
+
+  // 팁 카드 전체를 한 번 누르면 닫힌다 (06-tutorial 2장). 뒤 화면은 막지 않는다
+  const tipCard = tip && (
+    <button
+      type="button"
+      className="tip"
+      onClick={() => closeTip(tip)}
+      data-testid="tip"
+      data-tip={tip}
+    >
+      <span className="b">{t(`${tipKey(tip)}.title`)}</span>
+      {(tip === 'T-00' ? ['line1', 'line2', 'line3'] : ['body']).map((k) => (
+        <span key={k}>{t(`${tipKey(tip)}.${k}`)}</span>
+      ))}
+      {tip === 'T-30' && <span className="risk high">{t(`${tipKey(tip)}.caution`)}</span>}
+    </button>
+  );
+
   /** 칸 k 앞에 옮기기가 있으면 그 칸의 장소 이름 — 다음 칸부터 새 장소(3.5) */
   function placeBefore(k: number): string | undefined {
     const move = plan
@@ -551,6 +606,8 @@ export function Game({ data }: { data: GameData }) {
     if (!state) return;
     if (view.gate) {
       if (!gateId) return;
+      // 계승 팁은 먼저 닫아야 한다 — 되돌릴 수 없는 선택 (06-tutorial 2장 T-30)
+      if (tip === 'T-30') return;
       // 계승은 되돌릴 수 없다 — 확인 시트를 거친다 (잔류는 바로)
       if (inheritChick && !confirming) return setConfirming(true);
       commit(actRecorded(state, gateId, data).state);
@@ -1143,6 +1200,7 @@ export function Game({ data }: { data: GameData }) {
       .find((l) => l.type === 'decision');
     return (
       <main className="game" data-testid="game-over">
+        {tipCard}
         <div className="over">
           <h1>{t('gameOver.title')}</h1>
           <p className="muted">
@@ -1237,6 +1295,7 @@ export function Game({ data }: { data: GameData }) {
 
   return (
     <main className="game" data-testid="main-turn">
+      {tipCard}
       <div className={`zone${eventGate ? ' ov' : ''}`}>
         <header className="status">
           <div className="row small">
