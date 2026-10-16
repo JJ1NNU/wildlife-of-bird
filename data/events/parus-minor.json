@@ -1189,6 +1189,56 @@
     "factCheck": "needs-review"
   },
   {
+    "id": "ev.parus-minor.weasel-below-nest",
+    "species": ["parus-minor"],
+    "when": {
+      "phaseAny": ["incubation"],
+      "habitatAny": ["forest"],
+      "sex": "female",
+      "hasBrood": true
+    },
+    "weight": "uncommon",
+    "title": "나무 밑의 털짐승",
+    "body": "알을 품다 잠깐 나와 가지에 앉았다. 둥지 나무 아래 덤불에서 작은 털짐승이 오간다.",
+    "options": [
+      {
+        "id": "stay-in",
+        "text": "둥지로 돌아가 알 위에 오래 머문다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "loss"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "low",
+            "predator": "weasel"
+          }
+        ]
+      },
+      {
+        "id": "keep-feeding",
+        "text": "평소처럼 먹이를 찾으러 다녀온다",
+        "effects": [
+          {
+            "type": "energy",
+            "tier": "small",
+            "sign": "gain"
+          },
+          {
+            "type": "broodRisk",
+            "tier": "medium",
+            "predator": "weasel"
+          }
+        ]
+      }
+    ],
+    "ecologyBasis": "족제비는 일본 규슈 숲에서 박새 둥지를 노리는 동물로 기록되었다(SRC-091). 스위스 박새 실험에서 족제비 무리인 산족제비 박제를 둥지 곁에 두자 알을 품는 암컷은 둥지를 드나드는 횟수를 줄였다(SRC-041, 초록). 머무는 데 드는 기운과 알이 지켜지는 정도는 게임의 선택이다.",
+    "sources": ["SRC-091", "SRC-041"],
+    "factCheck": "verified"
+  },
+  {
     "id": "ev.parus-minor.snake-at-nest",
     "species": ["parus-minor"],
     "when": {
