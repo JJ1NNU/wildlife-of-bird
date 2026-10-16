@@ -1346,7 +1346,6 @@ export function Game({ data }: { data: GameData }) {
 
   return (
     <main className="game" data-testid="main-turn">
-      {tipCard}
       <div className={`zone${eventGate ? ' ov' : ''}`}>
         <header className="status">
           <div className="row small">
@@ -1375,6 +1374,7 @@ export function Game({ data }: { data: GameData }) {
             </span>
           </div>
         </header>
+        {tipCard}
 
         {view.gate?.kind === 'mateCandidate' ? (
           <ul
