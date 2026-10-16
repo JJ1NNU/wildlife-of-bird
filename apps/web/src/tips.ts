@@ -27,6 +27,21 @@ export const TIP_ORDER = [
 ] as const;
 export type TipId = (typeof TIP_ORDER)[number];
 
+/**
+ * 팁이 가리키는 대상(06-tutorial 4장 "가리키는 곳") — 첫 번째로 맞는 요소에 `.tip-target` 테두리(ui-kit 3.2).
+ * 대상이 여럿이면 첫 카드만. 없는 팁(T-00)·아직 안 정한 관문 팁은 테두리 없이 카드만 뜬다
+ */
+export const TIP_TARGET: Partial<Record<TipId, string>> = {
+  'T-01': '[data-testid="hand"]',
+  'T-02': '[data-testid="hand"] .pcard .val',
+  'T-03': '[data-testid="hand"] .pcard .risk',
+  'T-04': '[data-testid="budget"]',
+  'T-05': '[data-testid^="choice-move."]',
+  'T-06': '[data-testid="starving"]',
+  'T-07': '[data-testid="replay"]',
+  'T-40': '[data-testid="death-cause"]',
+};
+
 /** 한 단계에 띄우는 팁 수 한도 — 넘치면 다음 단계로. T-30은 미루지 않는다(4장) */
 const PER_STEP = 3;
 

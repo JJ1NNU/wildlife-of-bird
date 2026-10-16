@@ -783,6 +783,11 @@ h1 {
   text-align: left;
   box-shadow: 0 4px 12px rgb(31 36 33 / 0.25);
 }
+/* 팁이 가리키는 대상(ui-kit 3.2): 카드 테두리와 같은 색. 레이아웃을 밀지 않게 outline */
+.tip-target {
+  outline: 3px solid var(--wb-color-ochre-strong);
+  outline-offset: 2px;
+}
 
 /* S-33 도감 */
 .codex-kind ul {
