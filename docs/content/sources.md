@@ -302,6 +302,16 @@
 | SRC-168 | Wilkin, T. A., Garant, D., Gosler, A. G. & Sheldon, B. C. (2007) "Edge effects in the Great Tit: analyses of long-term data with GIS techniques", *Conservation Biology* 21(5):1207–1217. doi:10.1111/j.1523-1739.2007.00767.x | [link](https://doi.org/10.1111/j.1523-1739.2007.00767.x) | A | 영국 위덤 숲 박새(*P. major*) 8,308쌍(1965~2005): 숲 가장자리일수록 **번식 밀도가 높고 다른 곳에서 옮겨 온 새가 많다**. 밀도·서식지 질을 통제해도 가장자리 새는 **늦게, 적게(알은 더 크게) 낳고**, 번식 개체로 자라는 새끼 수가 적다. 같은 암컷 안에서도 나타나고 **가장자리에서 500 m 안쪽까지** 미친다 → 장소 도감 `forest-edge` | 확인(초록, OpenAlex) |
 | SRC-169 | Park, C.-R., Suk, S. & Choi, S. (2020) "The functional traits of breeding bird communities at traditional folk villages in Korea", *Sustainability* 12(22):9344. doi:10.3390/su12229344 | [link](https://doi.org/10.3390/su12229344) | A | 한국 전통 마을 5곳(하회·왕곡·낙안·양동·한개) 번식기 선조사 60종: 박새(*P. minor*)가 **다섯 마을 모두에서** 기록됨(0.7~2.7마리/km/시, 부록 표 A1), 둥지 유형 '구멍'·먹이 유형 '곤충식'. 집·논밭·둘레 경관이 섞인 마을은 둥지 유형이 다양한 새들이 산다 → 장소 도감 `village-farmland` · 농촌 부근 서식(SRC-004 교차 확인) | 확인(본문, MDPI) |
 
+### 뱀(구렁이) — 그림 식별 특징 (#566)
+
+> `field-marks.md` 5장(뱀)의 근거. 먹이·생김새는 국가기관 종 정보(B), 둥지 포식은 새집 영상 연구(A).
+
+| ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
+|---|---|---|---|---|---|
+| SRC-170 | 국립생태원, 「구렁이(*Elaphe schrenckii*)」, 국가보호종 지정현황(상세) — 멸종위기 야생생물 II급 | [link](https://www.nie.re.kr/nie/pgm/edSpecies/view.do?menuNo=200121&speciesSn=85) | B | **한국 파충류 중 가장 큰 종**, 몸길이 1.1~2m. 등면은 검은색·암갈색·황갈색 등 다양, 배면은 황백색·회백색에 흑갈색 반점이 흩어짐. 윗·아랫입술판 가장자리에 흑색·황갈색 가는 세로줄. 숲·하천·경작지·민가 둘레에 살고 **다람쥐·쥐·청설모와 새의 알·새끼**를 먹는다. 4월~10월 활동, 제주 밖 전국 → field-marks 5장 | 확인(페이지 본문) |
+| SRC-171 | 张雷·李东来·马锐强·奚长海·万冬梅 (Zhang, L., Li, D., Ma, R., Xi, C. & Wan, D.) (2014) 「人工巢箱繁殖鸟类的主要巢捕食者及其影响因素」(The main nest predators of birds breeding in artificial nest-boxes and its influencing factors), 『生态学报』(*Acta Ecologica Sinica*) 34(5):1235–1243. doi:10.5846/stxb201210151431 | [link](https://doi.org/10.5846/stxb201210151431) | A | **중국** 랴오닝 셴런둥 자연보호구 2009~2012 새집 238둥지(박새류 3종·흰눈썹황금새): 35둥지(14.7%) 포식, 91.4%가 새끼 시기. 눈·카메라로 본 포식자 7건 = **구렁이 무리**(Korean rat-snake, *Elaphe anomala* — 구렁이와 같은 무리, 분류는 문헌마다 다름) 4 · **누룩뱀**(*E. dione*) 3 → **锦蛇(Elaphe) 뱀이 둥지 포식의 94.3%**. 둥지 높이·나무 굵기는 포식과 상관없음 → field-marks 5장(그릴 뱀·나무 타고 새집에 들어감) | 서지·초록까지(OpenAlex) |
+| SRC-172 | Zhang, Y., Jiang, H., Li, Y., Mayo, K. H., Liu, D. & E, M. (2026) "An enclosed nest can increase the risk of predation on adults", *Ecology and Evolution* 16(8):e74168. doi:10.1002/ece3.74168 | [link](https://doi.org/10.1002/ece3.74168) | A | 중국 관찰 1건: **구렁이**(Amur rat snake, *E. schrenckii*)가 새집 안의 딱새 새끼를 먹은 뒤 **새집 안에 숨어 있다가** 돌아온 수컷 어미를 잡았다 → field-marks 5장(구멍 안 장면) · rat-snake 대상 adult 보강 | 서지·초록까지(OpenAlex) |
+
 ### 환경 변화 · 그 밖의 종
 
 | ID | 서지 | 링크 | 등급 | 무엇의 근거 | 검증 |
