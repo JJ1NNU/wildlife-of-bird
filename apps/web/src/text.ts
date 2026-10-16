@@ -1,3 +1,5 @@
+import { roundHalfUp } from '@wb/engine';
+
 /**
  * 화면 문구 — 콘텐츠의 data/text/*.json(평평한 `"화면.항목.용도": "문구"`)을 빌드에 넣는다.
  * 자리 표시 `{n}`은 vars로 채운다. 키가 없으면 키를 그대로 보여 빠진 문구가 눈에 띄게 한다.
@@ -32,4 +34,11 @@ export function roAfter(word: string): string {
   if (code < 0 || code > 11171) return '로';
   const jong = code % 28;
   return jong === 0 || jong === 8 ? '로' : '으로';
+}
+
+/** 칸 단위 에너지 — 소수 첫째 자리(#206, 01-formulas 9.4). 0이면 부호 없이 */
+export function energy1(x: number): string {
+  const n = roundHalfUp(x, 1);
+  if (n === 0) return '0';
+  return `${n > 0 ? '+' : '-'}${Math.abs(n).toFixed(1)}`;
 }
