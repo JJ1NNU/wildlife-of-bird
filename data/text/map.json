@@ -9,7 +9,7 @@
   "map.risk.medium": "보통",
   "map.risk.high": "높음",
   "map.risk.veryHigh": "아주 높음",
-  "map.stay": "머문 지 {n}칸째, 먹이 {food}%만 남음",
+  "map.stay": "머문 지 {n}칸째, 남은 먹이 {food}%",
   "map.move": "옮기면 에너지 {energy}, 위험 {risk}",
   "map.far": "옮길 수 있을 때 숫자가 보입니다"
 }
