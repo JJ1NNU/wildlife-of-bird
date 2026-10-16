@@ -748,3 +748,24 @@ h1 {
     box-shadow: 0 4px 8px color-mix(in srgb, var(--wb-color-ink) 25%, transparent);
   }
 }
+
+/* S-33 도감 */
+.codex-kind ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-2);
+}
+.codex-kind summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-1);
+  cursor: pointer;
+}
+.codex-kind p {
+  line-height: var(--wb-line-height-body);
+  margin: var(--wb-space-1) 0;
+}
