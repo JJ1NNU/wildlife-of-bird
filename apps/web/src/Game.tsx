@@ -31,6 +31,8 @@ import { Codex } from './Codex.tsx';
 import { recordCodex } from './codex.ts';
 import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
+import { Lineage } from './Lineage.tsx';
+import { type Lineage as LineageData, lineageOf, loadLineage, saveLineage } from './lineage.ts';
 import {
   actRecorded,
   clearRun,
@@ -306,6 +308,8 @@ export function Game({ data }: { data: GameData }) {
   const [onTitle, setOnTitle] = useState(true);
   /** S-33 도감을 보는 중 — 타이틀·게임 오버에서 연다 */
   const [onCodex, setOnCodex] = useState(false);
+  /** S-31 가계도를 보는 중 — 게임 오버에서는 이 판, 타이틀에서는 기기에 둔 지난 판 */
+  const [onLineage, setOnLineage] = useState<LineageData>();
   const [picked, setPicked] = useState<string>();
   const [open, setOpen] = useState<GroupKey>();
   /** 고친 루틴(남은 칸). 없으면 엔진 제안 그대로 */
@@ -333,9 +337,12 @@ export function Game({ data }: { data: GameData }) {
   }, [replay, paused, shown]);
 
   if (onCodex) return <Codex data={data} onBack={() => setOnCodex(false)} />;
+  if (onLineage)
+    return <Lineage lineage={onLineage} line={lifeLine} onBack={() => setOnLineage(undefined)} />;
 
   if (onTitle || !state) {
     const saved = state && !state.gameOver ? state : undefined;
+    const lastLineage = loadLineage();
     return (
       <main className="game" data-testid="title">
         <div className="over">
@@ -375,6 +382,16 @@ export function Game({ data }: { data: GameData }) {
           >
             {t('codex.open')}
           </button>
+          {lastLineage && (
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setOnLineage(lastLineage)}
+              data-testid="open-lineage"
+            >
+              {t('lineage.last')}
+            </button>
+          )}
           {state && (
             <details className="settings" data-testid="settings">
               <summary>{t('title.settings')}</summary>
@@ -575,6 +592,7 @@ export function Game({ data }: { data: GameData }) {
     setSlotNote(from && to && from >= 6 && to >= 6 && from !== to ? { from, to } : undefined);
     saveRun(next);
     recordCodex(state, next, data);
+    if (next.gameOver && !state?.gameOver) saveLineage(lineageOf(next));
     setState(next);
     setPicked(undefined);
     setOpen(undefined);
@@ -1236,6 +1254,14 @@ export function Game({ data }: { data: GameData }) {
                 : [],
             )}
           </ol>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setOnLineage(lineageOf(state))}
+            data-testid="open-lineage"
+          >
+            {t('lineage.open')}
+          </button>
           <ul className="feed-list">
             {withLogKeys(view.recentLog.slice(-5)).map(([k, l]) => (
               <li key={k}>{logLine(l)}</li>
