@@ -66,3 +66,23 @@ export function saveSeenTips(seen: ReadonlySet<string>): void {
     // 저장 못 하면 다음에 다시 뜰 뿐이다
   }
 }
+
+/** S-40 도움말 켜기/끄기 — 기본 켜짐(06-tutorial 2장). 본 팁 목록과 따로 저장 */
+const OFF_KEY = 'wb.tipsOff';
+
+export function loadTipsOn(): boolean {
+  try {
+    return localStorage.getItem(OFF_KEY) !== '1';
+  } catch {
+    return true;
+  }
+}
+
+export function saveTipsOn(on: boolean): void {
+  try {
+    if (on) localStorage.removeItem(OFF_KEY);
+    else localStorage.setItem(OFF_KEY, '1');
+  } catch {
+    // 저장 못 하면 다음에 켜진 채로 시작할 뿐이다
+  }
+}

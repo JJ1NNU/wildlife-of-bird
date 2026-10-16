@@ -8,8 +8,10 @@ import { expect, type Page, test } from '@playwright/test';
  */
 const FIXED_TIME = Date.UTC(2026, 0, 1);
 
-/** 사람처럼 한 번 누른다: 다시 보기는 넘기고, 관문은 첫 선택지, 빈 칸은 채식 */
+/** 사람처럼 한 번 누른다: 팁은 닫고, 다시 보기는 넘기고, 관문은 첫 선택지, 빈 칸은 채식 */
 async function press(page: Page) {
+  const tip = page.getByTestId('tip');
+  if (await tip.isVisible()) return tip.click();
   for (const id of ['replay-skip', 'replay-ok']) {
     const b = page.getByTestId(id);
     if (await b.isVisible()) return b.click();
@@ -44,6 +46,8 @@ test('새 게임 → 번식 → 계승 → 이어 하기 → 게임 오버', asy
   }
   await expect(gate).toBeVisible();
 
+  // 계승 확인은 팁(T-30)을 먼저 닫아야 한다(06-tutorial 2장)
+  if (await page.getByTestId('tip').isVisible()) await page.getByTestId('tip').click();
   // 첫 새끼로 계승: 고르기 → 진행 → 확인 화면 → 진행
   await gate.locator('[data-testid^="choice-"]').nth(1).click();
   await page.getByTestId('go').click();

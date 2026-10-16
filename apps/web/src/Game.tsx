@@ -33,6 +33,7 @@ import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
 import { Lineage } from './Lineage.tsx';
 import { type Lineage as LineageData, lineageOf, loadLineage, saveLineage } from './lineage.ts';
+import { MapScreen } from './Map.tsx';
 import {
   actRecorded,
   clearRun,
@@ -42,8 +43,16 @@ import {
   saveRun,
   startRecord,
 } from './save.ts';
-import { roAfter, t } from './text.ts';
-import { loadSeenTips, nextTip, saveSeenTips, type TipId, tipKey } from './tips.ts';
+import { energy1, roAfter, t } from './text.ts';
+import {
+  loadSeenTips,
+  loadTipsOn,
+  nextTip,
+  saveSeenTips,
+  saveTipsOn,
+  type TipId,
+  tipKey,
+} from './tips.ts';
 
 /**
  * M1 화면(#24): S-01 타이틀·이어하기 · S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
@@ -140,13 +149,6 @@ function withLogKeys(list: readonly LogEntry[]): [string, LogEntry][] {
     seen.set(base, n + 1);
     return [n === 0 ? base : `${base}#${n}`, l];
   });
-}
-
-/** 칸 단위 에너지 — 소수 첫째 자리(#206, 01-formulas 9.4). 0이면 부호 없이 */
-function energy1(x: number): string {
-  const n = roundHalfUp(x, 1);
-  if (n === 0) return '0';
-  return `${n > 0 ? '+' : '-'}${Math.abs(n).toFixed(1)}`;
 }
 
 /** 칸 줄의 아이콘 — 훈련·옮기기는 묶음 아이콘 */
@@ -308,6 +310,7 @@ export function Game({ data }: { data: GameData }) {
   const [onTitle, setOnTitle] = useState(true);
   /** S-33 도감을 보는 중 — 타이틀·게임 오버에서 연다 */
   const [onCodex, setOnCodex] = useState(false);
+  const [onMap, setOnMap] = useState(false);
   /** S-31 가계도를 보는 중 — 게임 오버에서는 이 판, 타이틀에서는 기기에 둔 지난 판 */
   const [onLineage, setOnLineage] = useState<LineageData>();
   const [picked, setPicked] = useState<string>();
@@ -327,6 +330,10 @@ export function Game({ data }: { data: GameData }) {
   /** 튜토리얼: 이 기기에서 본 팁 · 이번 단계에 닫은 팁 수 (06-tutorial 2장) */
   const [seenTips, setSeenTips] = useState(loadSeenTips);
   const [tipStep, setTipStep] = useState({ key: '', n: 0 });
+  /** S-40 도움말 켜기/끄기 — 기본 켜짐 */
+  const [tipsOn, setTipsOn] = useState(loadTipsOn);
+  /** S-40 "처음부터 다시"를 누른 뒤 한 줄 확인 */
+  const [tipsReset, setTipsReset] = useState(false);
   /** S-40 판 지우기 확인 한 번 더 */
   const [clearing, setClearing] = useState(false);
 
@@ -392,20 +399,45 @@ export function Game({ data }: { data: GameData }) {
               {t('lineage.last')}
             </button>
           )}
-          {state && (
-            <details className="settings" data-testid="settings">
-              <summary>{t('title.settings')}</summary>
-              {hasRecord() && (
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => exportRecord(state)}
-                  data-testid="export-record"
-                >
-                  {t('gameOver.exportRecord')}
-                </button>
-              )}
-              {clearing ? (
+          <details className="settings" data-testid="settings">
+            <summary>{t('title.settings')}</summary>
+            <button
+              type="button"
+              className="btn"
+              aria-pressed={tipsOn}
+              onClick={() => {
+                saveTipsOn(!tipsOn);
+                setTipsOn(!tipsOn);
+              }}
+              data-testid="tips-toggle"
+            >
+              {t(tipsOn ? 'title.tipsOn' : 'title.tipsOff')}
+            </button>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => {
+                saveSeenTips(new Set());
+                setSeenTips(new Set());
+                setTipsReset(true);
+              }}
+              data-testid="tips-reset"
+            >
+              {t('title.tipsReset')}
+            </button>
+            {tipsReset && <p className="small">{t('title.tipsResetDone')}</p>}
+            {state && hasRecord() && (
+              <button
+                type="button"
+                className="btn"
+                onClick={() => exportRecord(state)}
+                data-testid="export-record"
+              >
+                {t('gameOver.exportRecord')}
+              </button>
+            )}
+            {state &&
+              (clearing ? (
                 <>
                   <p className="small">{t('title.clearConfirm')}</p>
                   <div className="row">
@@ -430,9 +462,8 @@ export function Game({ data }: { data: GameData }) {
                 <button type="button" className="btn" onClick={() => setClearing(true)}>
                   {t('title.clear')}
                 </button>
-              )}
-            </details>
-          )}
+              ))}
+          </details>
         </div>
       </main>
     );
@@ -544,7 +575,9 @@ export function Game({ data }: { data: GameData }) {
     ['T-40', !!view.gameOver],
   ];
   const tipDue = new Set(tipConditions.filter(([, on]) => on).map(([id]) => id));
-  const tip = nextTip(tipDue, seenTips, tipStep.key === stepKey ? tipStep.n : 0);
+  const tip = tipsOn
+    ? nextTip(tipDue, seenTips, tipStep.key === stepKey ? tipStep.n : 0)
+    : undefined;
 
   function closeTip(id: TipId) {
     const next = new Set(seenTips).add(id);
@@ -569,6 +602,24 @@ export function Game({ data }: { data: GameData }) {
       {tip === 'T-30' && <span className="risk high">{t(`${tipKey(tip)}.caution`)}</span>}
     </button>
   );
+
+  // S-11 지도: 옮기기를 넣을 칸(커서) 기준 — 목적지를 누르면 그 칸의 옮기기 펼침으로
+  if (onMap)
+    return (
+      <MapScreen
+        data={data}
+        state={cursorSlot?.before ?? state}
+        season={season}
+        onBack={() => setOnMap(false)}
+        onMove={
+          cursorSlot &&
+          (() => {
+            setOpen('move');
+            setOnMap(false);
+          })
+        }
+      />
+    );
 
   /** 칸 k 앞에 옮기기가 있으면 그 칸의 장소 이름 — 다음 칸부터 새 장소(3.5) */
   function placeBefore(k: number): string | undefined {
@@ -1554,7 +1605,17 @@ export function Game({ data }: { data: GameData }) {
                 {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
                 {t(`gameOver.life.${view.player.sex}`)} {t('main.age', { n: view.player.age })}
                 {', '}
-                {data.nodes.get(view.node)?.nameKo ?? view.node}
+                {data.nodes.get(view.node)?.nameKo ?? view.node}{' '}
+                {!replay && (
+                  <button
+                    type="button"
+                    className="link"
+                    onClick={() => setOnMap(true)}
+                    data-testid="open-map"
+                  >
+                    {t('map.open')}
+                  </button>
+                )}
                 {view.nest && (
                   <div className="b" data-testid="nest-band">
                     {t('main.nest')},{' '}

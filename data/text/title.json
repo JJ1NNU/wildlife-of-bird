@@ -7,5 +7,9 @@
   "title.clear": "판 지우기",
   "title.clearConfirm": "지금 판을 지울까? (지우면 되돌릴 수 없음)",
   "title.clearNo": "지우지 않기",
-  "title.clearYes": "지우기"
+  "title.clearYes": "지우기",
+  "title.tipsOn": "도움말: 켜짐",
+  "title.tipsOff": "도움말: 꺼짐",
+  "title.tipsReset": "도움말 처음부터 다시",
+  "title.tipsResetDone": "다음 화면부터 도움말이 처음부터 다시 나옴"
 }
