@@ -1,12 +1,12 @@
 // 서비스워커(#535) — PWA 설치 판정과 오프라인 플레이.
 // 늘 네트워크 먼저(새 배포가 바로 보인다), 네트워크가 안 되면 마지막으로 받은 것을 캐시에서 준다.
-const CACHE = 'wb-v1';
+const CACHE = 'wb-v2';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(precache().then(() => self.skipWaiting()));
 });
 
-/** 첫 방문에 페이지와 그 페이지가 바로 부르는 파일(/assets/…)을 받아 둔다 — 다음엔 오프라인으로 열린다 */
+/** 첫 방문에 페이지와 그 페이지가 바로 부르는 파일(/assets/…), 빌드에 든 그림(precache.json, #577)을 받아 둔다 — 다음엔 오프라인으로 열린다 */
 async function precache() {
   const cache = await caches.open(CACHE);
   const res = await fetch('/', { cache: 'no-store' });
@@ -14,7 +14,10 @@ async function precache() {
   const html = await res.clone().text();
   await cache.put('/', res);
   const urls = [...html.matchAll(/(?:src|href)="(\/[^"]+)"/g)].map((m) => m[1]);
-  await Promise.allSettled(urls.map((u) => cache.add(u)));
+  const art = await fetch('/precache.json', { cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : []))
+    .catch(() => []);
+  await Promise.allSettled([...urls, ...art].map((u) => cache.add(u)));
 }
 
 self.addEventListener('activate', (e) => {
