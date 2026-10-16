@@ -50,9 +50,23 @@ import {
   nextTip,
   saveSeenTips,
   saveTipsOn,
+  TIP_TARGET,
   type TipId,
   tipKey,
 } from './tips.ts';
+
+/**
+ * 팁 대상에 `.tip-target` 테두리 — 대상은 여러 화면 조각에 흩어져 있어 렌더 뒤 DOM에서 찾는다.
+ * 의존성 없이 매 렌더 다시 붙인다(React가 className을 덮어써도 되살아남)
+ */
+function TipTarget({ selector }: { selector: string | undefined }) {
+  useEffect(() => {
+    const el = selector ? document.querySelector(selector) : null;
+    el?.classList.add('tip-target');
+    return () => el?.classList.remove('tip-target');
+  });
+  return null;
+}
 
 /**
  * M1 화면(#24): S-01 타이틀·이어하기 · S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
@@ -588,19 +602,22 @@ export function Game({ data }: { data: GameData }) {
 
   // 팁 카드 전체를 한 번 누르면 닫힌다 (06-tutorial 2장). 뒤 화면은 막지 않는다
   const tipCard = tip && (
-    <button
-      type="button"
-      className="tip"
-      onClick={() => closeTip(tip)}
-      data-testid="tip"
-      data-tip={tip}
-    >
-      <span className="b">{t(`${tipKey(tip)}.title`)}</span>
-      {(tip === 'T-00' ? ['line1', 'line2', 'line3'] : ['body']).map((k) => (
-        <span key={k}>{t(`${tipKey(tip)}.${k}`)}</span>
-      ))}
-      {tip === 'T-30' && <span className="risk high">{t(`${tipKey(tip)}.caution`)}</span>}
-    </button>
+    <>
+      <TipTarget selector={TIP_TARGET[tip]} />
+      <button
+        type="button"
+        className="tip"
+        onClick={() => closeTip(tip)}
+        data-testid="tip"
+        data-tip={tip}
+      >
+        <span className="b">{t(`${tipKey(tip)}.title`)}</span>
+        {(tip === 'T-00' ? ['line1', 'line2', 'line3'] : ['body']).map((k) => (
+          <span key={k}>{t(`${tipKey(tip)}.${k}`)}</span>
+        ))}
+        {tip === 'T-30' && <span className="risk high">{t(`${tipKey(tip)}.caution`)}</span>}
+      </button>
+    </>
   );
 
   // S-11 지도: 옮기기를 넣을 칸(커서) 기준 — 목적지를 누르면 그 칸의 옮기기 펼침으로
