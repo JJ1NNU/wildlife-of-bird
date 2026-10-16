@@ -27,6 +27,8 @@ import {
 import type { GameData, Season, StatName } from '@wb/schema';
 import { useEffect, useState } from 'react';
 import { birdUrl, placeholderBirdUrl } from './art.ts';
+import { Codex } from './Codex.tsx';
+import { recordCodex } from './codex.ts';
 import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
 import {
@@ -274,6 +276,7 @@ function startRun(data: GameData): RunState {
   const state = newRun({ speciesId: SPECIES, seed: Date.now().toString(36), mode: 'free' }, data);
   startRecord();
   saveRun(state);
+  recordCodex(undefined, state, data);
   return state;
 }
 
@@ -300,6 +303,8 @@ export function Game({ data }: { data: GameData }) {
   const [boot] = useState(() => loadRun(data));
   const [state, setState] = useState<RunState | undefined>(boot.state);
   const [onTitle, setOnTitle] = useState(true);
+  /** S-33 도감을 보는 중 — 타이틀·게임 오버에서 연다 */
+  const [onCodex, setOnCodex] = useState(false);
   const [picked, setPicked] = useState<string>();
   const [open, setOpen] = useState<GroupKey>();
   /** 고친 루틴(남은 칸). 없으면 엔진 제안 그대로 */
@@ -322,6 +327,8 @@ export function Game({ data }: { data: GameData }) {
     const t = setTimeout(() => setShown((n) => n + 1), REPLAY_MS);
     return () => clearTimeout(t);
   }, [replay, paused, shown]);
+
+  if (onCodex) return <Codex data={data} onBack={() => setOnCodex(false)} />;
 
   if (onTitle || !state) {
     const saved = state && !state.gameOver ? state : undefined;
@@ -355,6 +362,14 @@ export function Game({ data }: { data: GameData }) {
             data-testid="new-run"
           >
             {t('title.new')}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setOnCodex(true)}
+            data-testid="open-codex"
+          >
+            {t('codex.open')}
           </button>
           {state && (
             <details className="settings" data-testid="settings">
@@ -504,6 +519,7 @@ export function Game({ data }: { data: GameData }) {
     const to = getView(next, data).routine?.slots;
     setSlotNote(from && to && from >= 6 && to >= 6 && from !== to ? { from, to } : undefined);
     saveRun(next);
+    recordCodex(state, next, data);
     setState(next);
     setPicked(undefined);
     setOpen(undefined);
@@ -1177,6 +1193,14 @@ export function Game({ data }: { data: GameData }) {
               {t('gameOver.exportRecord')}
             </button>
           )}
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setOnCodex(true)}
+            data-testid="open-codex"
+          >
+            {t('codex.open')}
+          </button>
           <button type="button" className="btn prim" onClick={restart}>
             {t('title.new')}
           </button>
