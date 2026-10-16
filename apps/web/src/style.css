@@ -224,7 +224,7 @@ h1 {
   color: var(--wb-color-ink-muted);
 }
 
-/* 패 카드(#557 잠정 — 아트 명세 전): 세로 2:3 카드를 한 줄로, 넘치면 가로로 넘긴다.
+/* 패 카드(#557, ui-kit 3.1): 세로 2:3 카드를 한 줄로, 넘치면 가로로 넘긴다.
    360 폭에서 3장 + 다음 장 끝이 보인다. 선택됨은 들어 올림 + 진한 테두리 */
 .hand {
   list-style: none;
@@ -358,8 +358,9 @@ h1 {
   }
 }
 
-/* 위험: 색 + 아이콘 + 숫자 + 낱말 (style-guide 3장) */
-.risk {
+/* 위험: 색 + 아이콘 + 숫자 + 낱말 (style-guide 3장). .val은 아이콘 + 숫자 모양만 같은 다른 값 */
+.risk,
+.val {
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -705,5 +706,11 @@ h1 {
   }
   .plate {
     background: color-mix(in srgb, var(--wb-color-paper) 92%, transparent);
+  }
+  .pcard {
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--wb-color-ink) 15%, transparent);
+  }
+  .pcard.sel {
+    box-shadow: 0 4px 8px color-mix(in srgb, var(--wb-color-ink) 25%, transparent);
   }
 }
