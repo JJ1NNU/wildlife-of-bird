@@ -43,7 +43,15 @@ import {
   startRecord,
 } from './save.ts';
 import { roAfter, t } from './text.ts';
-import { loadSeenTips, nextTip, saveSeenTips, type TipId, tipKey } from './tips.ts';
+import {
+  loadSeenTips,
+  loadTipsOn,
+  nextTip,
+  saveSeenTips,
+  saveTipsOn,
+  type TipId,
+  tipKey,
+} from './tips.ts';
 
 /**
  * M1 화면(#24): S-01 타이틀·이어하기 · S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
@@ -327,6 +335,10 @@ export function Game({ data }: { data: GameData }) {
   /** 튜토리얼: 이 기기에서 본 팁 · 이번 단계에 닫은 팁 수 (06-tutorial 2장) */
   const [seenTips, setSeenTips] = useState(loadSeenTips);
   const [tipStep, setTipStep] = useState({ key: '', n: 0 });
+  /** S-40 도움말 켜기/끄기 — 기본 켜짐 */
+  const [tipsOn, setTipsOn] = useState(loadTipsOn);
+  /** S-40 "처음부터 다시"를 누른 뒤 한 줄 확인 */
+  const [tipsReset, setTipsReset] = useState(false);
   /** S-40 판 지우기 확인 한 번 더 */
   const [clearing, setClearing] = useState(false);
 
@@ -392,20 +404,45 @@ export function Game({ data }: { data: GameData }) {
               {t('lineage.last')}
             </button>
           )}
-          {state && (
-            <details className="settings" data-testid="settings">
-              <summary>{t('title.settings')}</summary>
-              {hasRecord() && (
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => exportRecord(state)}
-                  data-testid="export-record"
-                >
-                  {t('gameOver.exportRecord')}
-                </button>
-              )}
-              {clearing ? (
+          <details className="settings" data-testid="settings">
+            <summary>{t('title.settings')}</summary>
+            <button
+              type="button"
+              className="btn"
+              aria-pressed={tipsOn}
+              onClick={() => {
+                saveTipsOn(!tipsOn);
+                setTipsOn(!tipsOn);
+              }}
+              data-testid="tips-toggle"
+            >
+              {t(tipsOn ? 'title.tipsOn' : 'title.tipsOff')}
+            </button>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => {
+                saveSeenTips(new Set());
+                setSeenTips(new Set());
+                setTipsReset(true);
+              }}
+              data-testid="tips-reset"
+            >
+              {t('title.tipsReset')}
+            </button>
+            {tipsReset && <p className="small">{t('title.tipsResetDone')}</p>}
+            {state && hasRecord() && (
+              <button
+                type="button"
+                className="btn"
+                onClick={() => exportRecord(state)}
+                data-testid="export-record"
+              >
+                {t('gameOver.exportRecord')}
+              </button>
+            )}
+            {state &&
+              (clearing ? (
                 <>
                   <p className="small">{t('title.clearConfirm')}</p>
                   <div className="row">
@@ -430,9 +467,8 @@ export function Game({ data }: { data: GameData }) {
                 <button type="button" className="btn" onClick={() => setClearing(true)}>
                   {t('title.clear')}
                 </button>
-              )}
-            </details>
-          )}
+              ))}
+          </details>
         </div>
       </main>
     );
@@ -544,7 +580,9 @@ export function Game({ data }: { data: GameData }) {
     ['T-40', !!view.gameOver],
   ];
   const tipDue = new Set(tipConditions.filter(([, on]) => on).map(([id]) => id));
-  const tip = nextTip(tipDue, seenTips, tipStep.key === stepKey ? tipStep.n : 0);
+  const tip = tipsOn
+    ? nextTip(tipDue, seenTips, tipStep.key === stepKey ? tipStep.n : 0)
+    : undefined;
 
   function closeTip(id: TipId) {
     const next = new Set(seenTips).add(id);
