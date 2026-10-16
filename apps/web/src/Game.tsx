@@ -27,6 +27,8 @@ import {
 import type { GameData, Season, StatName } from '@wb/schema';
 import { useEffect, useState } from 'react';
 import { birdUrl, placeholderBirdUrl } from './art.ts';
+import { Codex } from './Codex.tsx';
+import { recordCodex } from './codex.ts';
 import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
 import {
@@ -275,13 +277,35 @@ function startRun(data: GameData): RunState {
   const state = newRun({ speciesId: SPECIES, seed: Date.now().toString(36), mode: 'free' }, data);
   startRecord();
   saveRun(state);
+  recordCodex(undefined, state, data);
   return state;
+}
+
+/** 플레이 기록 JSONL 파일로 저장(#395) — QA가 `npm run sim -- replay`로 다시 돌린다 */
+async function exportRecord(state: RunState) {
+  const line = await runRecordLine(state);
+  if (!line) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(
+    new Blob(
+      [
+        `${line}
+`,
+      ],
+      { type: 'application/x-ndjson' },
+    ),
+  );
+  a.download = `wb-run-${state.config.seed}.jsonl`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 export function Game({ data }: { data: GameData }) {
   const [boot] = useState(() => loadRun(data));
   const [state, setState] = useState<RunState | undefined>(boot.state);
   const [onTitle, setOnTitle] = useState(true);
+  /** S-33 도감을 보는 중 — 타이틀·게임 오버에서 연다 */
+  const [onCodex, setOnCodex] = useState(false);
   const [picked, setPicked] = useState<string>();
   const [open, setOpen] = useState<GroupKey>();
   /** 고친 루틴(남은 칸). 없으면 엔진 제안 그대로 */
@@ -299,6 +323,8 @@ export function Game({ data }: { data: GameData }) {
   /** 튜토리얼: 이 기기에서 본 팁 · 이번 단계에 닫은 팁 수 (06-tutorial 2장) */
   const [seenTips, setSeenTips] = useState(loadSeenTips);
   const [tipStep, setTipStep] = useState({ key: '', n: 0 });
+  /** S-40 판 지우기 확인 한 번 더 */
+  const [clearing, setClearing] = useState(false);
 
   useEffect(() => {
     if (!replay || paused || shown >= replay.rows.length) return;
@@ -306,14 +332,18 @@ export function Game({ data }: { data: GameData }) {
     return () => clearTimeout(t);
   }, [replay, paused, shown]);
 
+  if (onCodex) return <Codex data={data} onBack={() => setOnCodex(false)} />;
+
   if (onTitle || !state) {
     const saved = state && !state.gameOver ? state : undefined;
     return (
       <main className="game" data-testid="title">
         <div className="over">
           <h1>{t('title.name')}</h1>
-          {boot.problem && (
-            <p className="notice small">{t('title.loadFail', { problem: boot.problem })}</p>
+          {boot.problem && !state && (
+            <p className="notice small" title={boot.problem}>
+              {t('title.loadFail')}
+            </p>
           )}
           {saved && (
             <button
@@ -337,6 +367,55 @@ export function Game({ data }: { data: GameData }) {
           >
             {t('title.new')}
           </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setOnCodex(true)}
+            data-testid="open-codex"
+          >
+            {t('codex.open')}
+          </button>
+          {state && (
+            <details className="settings" data-testid="settings">
+              <summary>{t('title.settings')}</summary>
+              {hasRecord() && (
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => exportRecord(state)}
+                  data-testid="export-record"
+                >
+                  {t('gameOver.exportRecord')}
+                </button>
+              )}
+              {clearing ? (
+                <>
+                  <p className="small">{t('title.clearConfirm')}</p>
+                  <div className="row">
+                    <button type="button" className="btn" onClick={() => setClearing(false)}>
+                      {t('title.clearNo')}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => {
+                        clearRun();
+                        setState(undefined);
+                        setClearing(false);
+                      }}
+                      data-testid="clear-run"
+                    >
+                      {t('title.clearYes')}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button type="button" className="btn" onClick={() => setClearing(true)}>
+                  {t('title.clear')}
+                </button>
+              )}
+            </details>
+          )}
         </div>
       </main>
     );
@@ -495,6 +574,7 @@ export function Game({ data }: { data: GameData }) {
     const to = getView(next, data).routine?.slots;
     setSlotNote(from && to && from >= 6 && to >= 6 && from !== to ? { from, to } : undefined);
     saveRun(next);
+    recordCodex(state, next, data);
     setState(next);
     setPicked(undefined);
     setOpen(undefined);
@@ -557,25 +637,6 @@ export function Game({ data }: { data: GameData }) {
     setEdited(next);
     setOpen(undefined);
     setCursor(k + 1 < plan.length ? k + 1 : undefined);
-  }
-
-  /** 플레이 기록 JSONL 파일로 저장(#395) — QA가 `npm run sim -- replay`로 다시 돌린다 */
-  async function exportRecord() {
-    const line = state && (await runRecordLine(state));
-    if (!state || !line) return;
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(
-      new Blob(
-        [
-          `${line}
-`,
-        ],
-        { type: 'application/x-ndjson' },
-      ),
-    );
-    a.download = `wb-run-${state.config.seed}.jsonl`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
   function restart() {
@@ -1184,12 +1245,20 @@ export function Game({ data }: { data: GameData }) {
             <button
               type="button"
               className="btn"
-              onClick={exportRecord}
+              onClick={() => exportRecord(state)}
               data-testid="export-record"
             >
               {t('gameOver.exportRecord')}
             </button>
           )}
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setOnCodex(true)}
+            data-testid="open-codex"
+          >
+            {t('codex.open')}
+          </button>
           <button type="button" className="btn prim" onClick={restart}>
             {t('title.new')}
           </button>
