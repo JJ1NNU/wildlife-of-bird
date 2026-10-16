@@ -6,5 +6,6 @@
   "cause.brood.chickDeath": "새끼들이 하나씩 버티지 못했다",
   "cause.death.predation": "포식자에게 잡혔다",
   "cause.death.predation.predator": "{predator}에게 잡혔다",
-  "cause.death.accident": "사고로 목숨을 잃었다"
+  "cause.death.accident": "사고로 목숨을 잃었다",
+  "cause.death.disease": "병에 걸려 목숨을 잃었다"
 }
