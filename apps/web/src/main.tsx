@@ -13,3 +13,10 @@ createRoot(root).render(
     <App />
   </StrictMode>,
 );
+
+// PWA 설치·오프라인(#535). 개발 서버에서는 캐시가 고친 화면을 가리지 않게 등록하지 않는다
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {
+    // 못 해도 게임은 그대로 돈다
+  });
+}
