@@ -40,7 +40,9 @@ export function codexSeen(): Record<string, CodexRecord> {
 function predatorsOf(eventId: string, data: GameData): string[] {
   const event = data.events.find((e) => e.id === eventId);
   if (!event) return [];
-  return [...JSON.stringify(event.options).matchAll(/"predator":"([^"]+)"/g)].map((m) => m[1] as string);
+  return [...JSON.stringify(event.options).matchAll(/"predator":"([^"]+)"/g)].map(
+    (m) => m[1] as string,
+  );
 }
 
 /** `prev`(없으면 새 판) → `next`에서 만난 도감 항목 id. 같은 항목이 여러 번 나오면 그만큼 센다 */

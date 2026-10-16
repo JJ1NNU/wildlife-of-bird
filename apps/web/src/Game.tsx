@@ -280,6 +280,25 @@ function startRun(data: GameData): RunState {
   return state;
 }
 
+/** 플레이 기록 JSONL 파일로 저장(#395) — QA가 `npm run sim -- replay`로 다시 돌린다 */
+async function exportRecord(state: RunState) {
+  const line = await runRecordLine(state);
+  if (!line) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(
+    new Blob(
+      [
+        `${line}
+`,
+      ],
+      { type: 'application/x-ndjson' },
+    ),
+  );
+  a.download = `wb-run-${state.config.seed}.jsonl`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
 export function Game({ data }: { data: GameData }) {
   const [boot] = useState(() => loadRun(data));
   const [state, setState] = useState<RunState | undefined>(boot.state);
@@ -300,6 +319,8 @@ export function Game({ data }: { data: GameData }) {
   const [paused, setPaused] = useState(false);
   /** 평시 칸 수가 바뀐 직후 한 줄 알림(01-formulas 9.6). 다음 결정에서 사라진다 */
   const [slotNote, setSlotNote] = useState<{ from: number; to: number }>();
+  /** S-40 판 지우기 확인 한 번 더 */
+  const [clearing, setClearing] = useState(false);
 
   useEffect(() => {
     if (!replay || paused || shown >= replay.rows.length) return;
@@ -315,8 +336,10 @@ export function Game({ data }: { data: GameData }) {
       <main className="game" data-testid="title">
         <div className="over">
           <h1>{t('title.name')}</h1>
-          {boot.problem && (
-            <p className="notice small">{t('title.loadFail', { problem: boot.problem })}</p>
+          {boot.problem && !state && (
+            <p className="notice small" title={boot.problem}>
+              {t('title.loadFail')}
+            </p>
           )}
           {saved && (
             <button
@@ -348,6 +371,47 @@ export function Game({ data }: { data: GameData }) {
           >
             {t('codex.open')}
           </button>
+          {state && (
+            <details className="settings" data-testid="settings">
+              <summary>{t('title.settings')}</summary>
+              {hasRecord() && (
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => exportRecord(state)}
+                  data-testid="export-record"
+                >
+                  {t('gameOver.exportRecord')}
+                </button>
+              )}
+              {clearing ? (
+                <>
+                  <p className="small">{t('title.clearConfirm')}</p>
+                  <div className="row">
+                    <button type="button" className="btn" onClick={() => setClearing(false)}>
+                      {t('title.clearNo')}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => {
+                        clearRun();
+                        setState(undefined);
+                        setClearing(false);
+                      }}
+                      data-testid="clear-run"
+                    >
+                      {t('title.clearYes')}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button type="button" className="btn" onClick={() => setClearing(true)}>
+                  {t('title.clear')}
+                </button>
+              )}
+            </details>
+          )}
         </div>
       </main>
     );
@@ -516,25 +580,6 @@ export function Game({ data }: { data: GameData }) {
     setEdited(next);
     setOpen(undefined);
     setCursor(k + 1 < plan.length ? k + 1 : undefined);
-  }
-
-  /** 플레이 기록 JSONL 파일로 저장(#395) — QA가 `npm run sim -- replay`로 다시 돌린다 */
-  async function exportRecord() {
-    const line = state && (await runRecordLine(state));
-    if (!state || !line) return;
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(
-      new Blob(
-        [
-          `${line}
-`,
-        ],
-        { type: 'application/x-ndjson' },
-      ),
-    );
-    a.download = `wb-run-${state.config.seed}.jsonl`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
   function restart() {
@@ -1142,7 +1187,7 @@ export function Game({ data }: { data: GameData }) {
             <button
               type="button"
               className="btn"
-              onClick={exportRecord}
+              onClick={() => exportRecord(state)}
               data-testid="export-record"
             >
               {t('gameOver.exportRecord')}

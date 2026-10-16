@@ -466,6 +466,21 @@ h1 {
   margin: 0;
 }
 
+/* S-40 설정(#535 잠정) — 타이틀 아래 접힘 */
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-2);
+  margin-top: var(--wb-space-4);
+}
+.settings > summary {
+  color: var(--wb-color-ink-muted);
+  cursor: pointer;
+}
+.settings .row > .btn {
+  flex: 1;
+}
+
 /* 개발용 빨리 감기 — 출시 빌드에서는 없음 */
 .dev {
   display: flex;
