@@ -29,7 +29,7 @@ export type TipId = (typeof TIP_ORDER)[number];
 
 /**
  * 팁이 가리키는 대상(06-tutorial 4장 "가리키는 곳") — 첫 번째로 맞는 요소에 `.tip-target` 테두리(ui-kit 3.2).
- * 대상이 여럿이면 첫 카드만. 없는 팁(T-00)·아직 안 정한 관문 팁은 테두리 없이 카드만 뜬다
+ * 대상이 여럿이면 첫 카드만. 없는 팁(T-00)·가리킬 숫자가 화면에 없는 팁(T-14 이소 기대 수)은 테두리 없이 카드만 뜬다
  */
 export const TIP_TARGET: Partial<Record<TipId, string>> = {
   'T-01': '[data-testid="hand"]',
@@ -39,6 +39,14 @@ export const TIP_TARGET: Partial<Record<TipId, string>> = {
   'T-05': '[data-testid^="choice-move."]',
   'T-06': '[data-testid="starving"]',
   'T-07': '[data-testid="replay"]',
+  'T-08': '[data-testid="gate-event"] .pcard .fxs',
+  'T-10': '[data-testid="gate-mateCandidate"] .opt .vals',
+  'T-11': '[data-testid="gate-mateOrder"] .opt .vals',
+  'T-12': '[data-testid^="nestLoss-"]',
+  'T-13': '[data-testid^="clutch-forecast-"]',
+  'T-15': '[data-testid="nest-band"]',
+  'T-30': '[data-testid="gate-inheritance"] .opt .vals',
+  'T-31': '[data-testid="gate-secondBrood"] .opt .vals',
   'T-40': '[data-testid="death-cause"]',
 };
 

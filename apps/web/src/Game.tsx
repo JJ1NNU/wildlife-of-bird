@@ -604,6 +604,8 @@ export function Game({ data }: { data: GameData }) {
   const tipCard = tip && (
     <>
       <TipTarget selector={TIP_TARGET[tip]} />
+      {/* 막는 팁(T-30)만 뒤를 어둡게 — 팁 카드·대상은 그 위(ui-kit 3.2) */}
+      {tip === 'T-30' && <div className="tip-dim" aria-hidden="true" />}
       <button
         type="button"
         className="tip"

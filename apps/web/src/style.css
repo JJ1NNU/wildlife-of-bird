@@ -788,6 +788,26 @@ h1 {
   outline: 3px solid var(--wb-color-ochre-strong);
   outline-offset: 2px;
 }
+/* 막는 팁(T-30): 겹침 시트처럼 뒤를 ink 55%로(.zone.ov와 같은 값). 팁 카드·대상만 위로 */
+.tip-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: rgb(31 36 33 / 0.55);
+}
+.zone:has(> .tip-dim) .tip,
+.zone:has(> .tip-dim) .tip-target {
+  position: relative;
+  z-index: 3;
+}
+.zone:has(> .tip-dim) .tip-target {
+  background: var(--wb-color-card);
+}
+@supports (color: color-mix(in srgb, red 50%, transparent)) {
+  .tip-dim {
+    background: color-mix(in srgb, var(--wb-color-ink) 55%, transparent);
+  }
+}
 
 /* S-33 도감 */
 .codex-kind ul {
