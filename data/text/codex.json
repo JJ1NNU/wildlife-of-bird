@@ -2,12 +2,12 @@
   "codex.title": "도감",
   "codex.open": "도감",
   "codex.back": "돌아가기",
-  "codex.progress": "{total}종류 중 {seen}종류 만남",
+  "codex.progress": "만난 항목 {seen}개 (전체 {total}개)",
   "codex.kind.species": "새",
   "codex.kind.predator": "포식자",
-  "codex.kind.phenomenon": "먹이·현상",
+  "codex.kind.phenomenon": "먹이와 현상",
   "codex.kind.node": "장소",
-  "codex.unknown": "? 아직 만나지 못했다",
-  "codex.first": "처음 만남: {run}번째 판 {generation}세대",
+  "codex.unknown": "? 아직 못 만남",
+  "codex.first": "처음 만남: {run}번째 판, {generation}세대",
   "codex.count": "만난 횟수 {n}번"
 }
