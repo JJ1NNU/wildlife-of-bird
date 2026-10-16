@@ -582,7 +582,7 @@ export function Game({ data }: { data: GameData }) {
           <span className="sp" />
           {p && risk && (
             <span className="vals">
-              <span className="risk">
+              <span className="val">
                 <span className="ico s" style={iconStyle('icon.res.energy')} />
                 <b>{lo === hi ? energy1(lo) : `${energy1(lo)}~${energy1(hi)}`}</b>
               </span>
