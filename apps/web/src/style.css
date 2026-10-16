@@ -282,6 +282,10 @@ h1 {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+/* 계절 방침(S-14)은 비용 배지·아이콘이 없어 설명을 3줄까지 */
+.hand.season .pcard .cap {
+  -webkit-line-clamp: 3;
+}
 .pcard .vals {
   display: flex;
   flex-direction: column;

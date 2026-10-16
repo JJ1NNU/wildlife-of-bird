@@ -786,33 +786,42 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
-  /** 계절 방침 카드(M1 기능 위주 — 화면 S-14는 M2): 이름 · 설명 · 방침을 건 다음 단계 위험·에너지(`preview`, 11-season-policy 4장) */
+  /** 계절 방침 카드(S-14, ui-kit 3.1 패 카드 모양): 이름 · 설명 · 방침을 건 다음 단계 에너지·위험(`preview`, 11-season-policy 4장).
+   * 비용 배지는 없다(방침은 에너지 칸을 쓰지 않음). 카드에 다 안 들어가는 설명은 고른 카드만 패 아래에 다 보인다 */
   function seasonRow(card: SeasonPolicyCard) {
     const c = choices.find((x) => x.id === card.choiceId);
     const id = card.choiceId.slice('seasonPolicy.'.length);
     const p = state && !c?.disabled ? preview(state, card.choiceId, data) : undefined;
+    const name = c?.label ?? id;
+    const desc = t(`seasonPolicy.${id}.desc`);
+    const energy = p && formatEnergyDelta(p.energyDelta[0]);
+    const risk = p && formatRisk(data.formulas, p.deathRisk);
+    const selected = card.choiceId === picked;
     return (
       <li key={card.choiceId}>
         <button
           type="button"
-          className={`opt${card.choiceId === picked ? ' sel' : ''}`}
-          aria-pressed={card.choiceId === picked}
+          className={`pcard${selected ? ' sel' : ''}`}
+          aria-pressed={selected}
           disabled={!!c?.disabled}
           onClick={() => setPicked(card.choiceId)}
+          aria-label={[name, desc, energy && `${t('main.energy')} ${energy}`, risk?.text]
+            .filter(Boolean)
+            .join(', ')}
           data-testid={`choice-${card.choiceId}`}
         >
-          <span className="main">
-            <span className="b">{c?.label ?? id}</span>
-            <span className="cap">{t(`seasonPolicy.${id}.desc`)}</span>
-          </span>
-          {p && (
+          <span className="b nm">{name}</span>
+          <span className="cap">{desc}</span>
+          <span className="sp" />
+          {p && risk && (
             <span className="vals" data-testid={`season-preview-${id}`}>
-              <span>
-                {t('main.energy')} <b>{formatEnergyDelta(p.energyDelta[0])}</b>
+              <span className="val">
+                <span className="ico s" style={iconStyle('icon.res.energy')} />
+                <b>{energy}</b>
               </span>
               <span className="risk">
                 <span className="ico s" style={iconStyle('icon.risk')} />
-                {formatRisk(data.formulas, p.deathRisk).text}
+                {risk.text}
               </span>
             </span>
           )}
@@ -1341,7 +1350,15 @@ export function Game({ data }: { data: GameData }) {
             data-testid="gate-seasonPolicy"
           >
             <li className="gate-title b">{t('gate.seasonPolicy.title')}</li>
-            {view.gate.cards.map((card) => seasonRow(card))}
+            <li>
+              <ul className="hand season">{view.gate.cards.map((card) => seasonRow(card))}</ul>
+            </li>
+            {picked?.startsWith('seasonPolicy.') && (
+              <li className="gate-title small" data-testid="season-desc">
+                <span className="b">{pickedChoice?.label}</span>:{' '}
+                {t(`seasonPolicy.${picked.slice('seasonPolicy.'.length)}.desc`)}
+              </li>
+            )}
             <li className="gate-title muted small">{t('gate.seasonPolicy.help')}</li>
           </ul>
         ) : view.gate?.kind === 'clutchSize' ? (
