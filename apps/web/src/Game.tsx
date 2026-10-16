@@ -603,17 +603,23 @@ export function Game({ data }: { data: GameData }) {
     </button>
   );
 
-  // S-11 지도: 옮기기를 넣을 칸(커서) 기준 — 목적지를 누르면 그 칸의 옮기기 펼침으로
+  // S-11 지도: 옮기기를 넣을 칸(커서) 기준 — 목적지를 누르면 그 칸의 옮기기 펼침으로.
+  // 커서가 없으면 첫 빈 칸(`go` 버튼과 같은 칸), 빈 칸도 없으면 누를 수 없다 (#591)
+  const firstEmpty = slots.findIndex((s) => !s.id);
+  const mapSlot =
+    cursorSlot ??
+    (slots[firstEmpty]?.before ? { k: firstEmpty, before: slots[firstEmpty].before } : undefined);
   if (onMap)
     return (
       <MapScreen
         data={data}
-        state={cursorSlot?.before ?? state}
+        state={mapSlot?.before ?? state}
         season={season}
         onBack={() => setOnMap(false)}
         onMove={
-          cursorSlot &&
+          mapSlot &&
           (() => {
+            setCursor(mapSlot.k);
             setOpen('move');
             setOnMap(false);
           })
@@ -1941,7 +1947,7 @@ export function Game({ data }: { data: GameData }) {
             <button
               type="button"
               className="btn prim"
-              onClick={() => (ready ? go() : setCursor(slots.findIndex((s) => !s.id)))}
+              onClick={() => (ready ? go() : setCursor(firstEmpty))}
               data-testid="go"
             >
               {t(ready ? 'routine.go' : 'routine.fillEmpty')}
