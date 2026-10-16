@@ -525,8 +525,9 @@ export function Game({ data }: { data: GameData }) {
     commit(startRun(data));
   }
 
-  /** 선택 한 줄: 이름 · 예상 성장(아래) · 에너지 변화 · 위험%(오른쪽) — 와이어프레임 A.
-   * 루틴 칸이면 그 칸 상태 기준, 에너지는 소수 첫째 자리, 위험은 숫자만(띠는 루틴 합에만, #206) */
+  /** 패 카드 한 장(#557 잠정 — 아트 명세 전): 비용 배지(왼쪽 위) · 아이콘 · 이름 · 예상 성장 · 에너지 변화 · 위험%.
+   * 루틴 칸이면 그 칸 상태 기준, 에너지는 소수 첫째 자리, 위험은 숫자만(띠는 루틴 합에만, #206).
+   * 못 고르는 카드는 이유를 카드 아래 띠로: 에너지 부족(위험색) · 패에 없음(점선·흐림) */
   function row(c: Choice, slot: { k: number; before: RunState }, group?: GroupKey) {
     const p = c.disabled ? undefined : preview(slot.before, c.id, data);
     const selected = plan[slot.k] === c.id;
@@ -548,22 +549,25 @@ export function Game({ data }: { data: GameData }) {
           competition: t(`word.competition.${destSeason.competition}`),
         }),
       gains,
-      c.disabled?.reason,
       ...(p?.notes ?? []),
     ]
       .filter(Boolean)
       .join(', ');
+    const reason = c.disabled?.reason;
+    const cost = budgetCost(c.id, data);
+    const icon = GROUPS.find((g) => g.key === group)?.icon ?? `icon.${c.id}`;
     return (
       <li key={c.id}>
         <button
           type="button"
-          className={`opt${group ? ' sub' : ''}${selected ? ' sel' : ''}`}
+          className={`pcard${selected ? ' sel' : ''}${reason ? (reason === '패에 없음' ? ' out' : ' short') : ''}`}
           aria-pressed={selected}
           disabled={!!c.disabled}
           onClick={() => fill(slot.k, c.id)}
           aria-label={[
             name,
             cap,
+            reason,
             p && `${t('main.energy')} ${lo === hi ? energy1(lo) : `${energy1(lo)}~${energy1(hi)}`}`,
             risk?.text,
           ]
@@ -571,15 +575,15 @@ export function Game({ data }: { data: GameData }) {
             .join(', ')}
           data-testid={`choice-${c.id}`}
         >
-          {!group && <span className="ico" style={iconStyle(`icon.${c.id}`)} />}
-          <span className="main">
-            <span className="b">{name}</span>
-            {cap && <span className="cap">{cap}</span>}
-          </span>
+          <span className="cost">{cost}</span>
+          <span className="ico" style={iconStyle(icon)} />
+          <span className="b nm">{name}</span>
+          {cap && <span className="cap">{cap}</span>}
+          <span className="sp" />
           {p && risk && (
             <span className="vals">
-              <span>
-                {t('main.energy')}{' '}
+              <span className="risk">
+                <span className="ico s" style={iconStyle('icon.res.energy')} />
                 <b>{lo === hi ? energy1(lo) : `${energy1(lo)}~${energy1(hi)}`}</b>
               </span>
               <span className="risk">
@@ -588,6 +592,7 @@ export function Game({ data }: { data: GameData }) {
               </span>
             </span>
           )}
+          {reason && <span className="why">{reason}</span>}
         </button>
       </li>
     );
@@ -1351,7 +1356,7 @@ export function Game({ data }: { data: GameData }) {
           </ul>
         ) : (
           <>
-            <div className="art short">
+            <div className={`art short${cursor !== undefined && !replay ? ' pick' : ''}`}>
               <img className="art-bird" src={birdUrl(view)} alt="" />
               <div className="plate small">
                 {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
@@ -1565,47 +1570,47 @@ export function Game({ data }: { data: GameData }) {
                   <li className="gate-title muted small">{t('routine.fillPrevFirst')}</li>
                 ) : (
                   <>
-                    {cursorChoices
-                      .filter((c) => !GROUPS.some((g) => c.id.startsWith(g.prefix)))
-                      .map((c) => row(c, cursorSlot))}
-                    {GROUPS.map((g) => {
-                      const members = cursorChoices.filter((c) => c.id.startsWith(g.prefix));
-                      if (members.length === 0) return null;
-                      const isOpen = open === g.key;
-                      const pickedHere = members.find((c) => c.id === plan[cursor]);
-                      const hint = pickedHere
-                        ? pickedHere.label
-                        : g.key === 'move'
-                          ? t('routine.group.moveHint', { n: members.length })
-                          : t('routine.group.trainHint');
-                      return [
-                        <li key={g.key}>
-                          <button
-                            type="button"
-                            className={`opt${!isOpen && pickedHere ? ' sel' : ''}`}
-                            aria-expanded={isOpen}
-                            onClick={(e) => {
-                              setOpen(isOpen ? undefined : g.key);
-                              // 펼치면 그 줄을 목록 맨 위로 — 결정 버튼은 늘 같은 자리(와이어프레임 B)
-                              const el = e.currentTarget;
-                              if (!isOpen)
-                                requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
-                            }}
-                            aria-label={`${g.label}, ${hint}`}
-                            data-testid={`group-${g.key}`}
-                          >
-                            <span className="ico" style={iconStyle(g.icon)} />
-                            <span className="main">
-                              <span className="b">
-                                {g.label} {isOpen ? '▴' : '▾'}
-                              </span>
-                              <span className="cap">{hint}</span>
-                            </span>
-                          </button>
-                        </li>,
-                        ...(isOpen ? members.map((c) => row(c, cursorSlot, g.key)) : []),
-                      ];
-                    })}
+                    <li>
+                      <ul className="hand" data-testid="hand">
+                        {!open &&
+                          cursorChoices
+                            .filter((c) => !GROUPS.some((g) => c.id.startsWith(g.prefix)))
+                            .map((c) => row(c, cursorSlot))}
+                        {GROUPS.map((g) => {
+                          const members = cursorChoices.filter((c) => c.id.startsWith(g.prefix));
+                          if (members.length === 0) return null;
+                          const isOpen = open === g.key;
+                          // 묶음을 펼치면 패가 그 묶음 카드로 바뀐다 — 첫 장(묶음)을 다시 누르면 접힌다
+                          if (open && !isOpen) return null;
+                          const pickedHere = members.find((c) => c.id === plan[cursor]);
+                          const hint = pickedHere
+                            ? pickedHere.label
+                            : g.key === 'move'
+                              ? t('routine.group.moveHint', { n: members.length })
+                              : t('routine.group.trainHint');
+                          return [
+                            <li key={g.key}>
+                              <button
+                                type="button"
+                                className={`pcard grp${!isOpen && pickedHere ? ' sel' : ''}${isOpen ? ' open' : ''}`}
+                                aria-expanded={isOpen}
+                                onClick={() => setOpen(isOpen ? undefined : g.key)}
+                                aria-label={`${g.label}, ${hint}`}
+                                data-testid={`group-${g.key}`}
+                              >
+                                <span className="ico" style={iconStyle(g.icon)} />
+                                <span className="b nm">
+                                  {isOpen ? '◂ ' : ''}
+                                  {g.label}
+                                </span>
+                                <span className="cap">{hint}</span>
+                              </button>
+                            </li>,
+                            ...(isOpen ? members.map((c) => row(c, cursorSlot, g.key)) : []),
+                          ];
+                        })}
+                      </ul>
+                    </li>
                   </>
                 )}
               </ul>
