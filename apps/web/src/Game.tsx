@@ -59,9 +59,12 @@ import {
  * 팁 대상에 `.tip-target` 테두리 — 대상은 여러 화면 조각에 흩어져 있어 렌더 뒤 DOM에서 찾는다.
  * 의존성 없이 매 렌더 다시 붙인다(React가 className을 덮어써도 되살아남)
  */
-function TipTarget({ selector }: { selector: string | undefined }) {
+function TipTarget({ selector }: { selector: string | readonly string[] | undefined }) {
   useEffect(() => {
-    const el = selector ? document.querySelector(selector) : null;
+    // querySelector("A, B")는 문서 순서라 우선순위가 안 된다 — 하나씩 차례로
+    const list = typeof selector === 'string' ? [selector] : (selector ?? []);
+    let el: Element | null = null;
+    for (const s of list) if (!el) el = document.querySelector(s);
     el?.classList.add('tip-target');
     return () => el?.classList.remove('tip-target');
   });
