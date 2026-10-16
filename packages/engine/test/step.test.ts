@@ -117,6 +117,10 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
     expect(state.rng).toBe(hungry.rng);
     expect(log[0]?.type).toBe('decision');
     expect(log.at(-1)).toMatchObject({ cause: 'starvation', slot: 1 });
+    // 죽음 화면의 노화 구간 판단 (#597) — 어린 개체는 0, 노화 시작을 넘긴 개체는 > 0
+    expect(getView(state, data).agingRisk).toBe(0);
+    const old = { ...state, player: { ...state.player, age: 20 } };
+    expect(getView(old, data).agingRisk).toBeGreaterThan(0);
   });
 });
 

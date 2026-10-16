@@ -126,6 +126,7 @@ interface ViewModel {
   totalBreeding: number          // 점수
   gameOver: boolean
   records?: { yearsSurvived, generations, fledged, oldestAge }  // 게임 오버 때만 — 부가 기록(02-scoring 4장). yearsSurvived = 지난 시기 ÷ 24 소수 첫째 버림
+  agingRisk?: number            // 게임 오버 때만 — 죽은 개체의 노화 위험(01-formulas 4.1, S-24 stay 카드와 같은 함수). > 0이면 노화 구간
   gate?: { kind: 'mateCandidate', cards: MateCandidateCard[], previousGone?: 'mateDeath' | 'divorce' }  // 열린 관문 — 짝 후보(S-20). previousGone = 지난 짝이 없어진 이유(2.1)
        | { kind: 'mateOrder', cards: { choiceId, acceptance?: 'high' | 'mid' | 'low' }[] }  // 짝 지시 — 수락률은 등급만
        | { kind: 'parentingPolicy', cards: Choice['items'] }  // 육아 방침 — 항목별 선택·현재값
