@@ -968,7 +968,7 @@ export function Game({ data }: { data: GameData }) {
       <li key={card.choiceId}>
         <button
           type="button"
-          className={`pcard${selected ? ' sel' : ''}`}
+          className={`pcard${check ? ' chk' : ''}${selected ? ' sel' : ''}`}
           aria-pressed={selected}
           disabled={!!c?.disabled}
           onClick={() => setPicked(card.choiceId)}
