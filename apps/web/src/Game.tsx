@@ -374,6 +374,7 @@ export function Game({ data }: { data: GameData }) {
   // S-13: 지금 이벤트의 글(제목·본문·선택지)은 data/events
   const eventGate = view.gate?.kind === 'event' ? view.gate : undefined;
   const gateEvent = eventGate && data.events.find((e) => e.id === eventGate.id);
+  const pickedEvent = eventGate?.cards.find((card) => card.choiceId === picked);
   const gateId = policyCards ? (picked ?? 'parentingPolicy') : pickedChoice?.id;
   // 장소 등급은 종의 계절 구분(밸런스)을 따른다 — 엔진의 seasonOf와 같은 규칙
   const seasonPeriods = data.balance.get(view.speciesId)?.seasons;
@@ -866,7 +867,6 @@ export function Game({ data }: { data: GameData }) {
   }
 
   /** 2차 번식 카드 (와이어프레임 mid/04-inherit C): 한다 = 에너지 −n → 남는 값 · 대가 한 줄, 안 한다 = 털갈이 */
-  /** S-13 선택지 한 줄 — 판정형이면 스탯 판정 확률(정수 %, 와이어프레임 mid/02 A) */
   /** 효과 한 덩이(03-events 5.3) — 내 사망 위험만 띠, 새끼·둥지는 숫자 + 낱말(와이어프레임 mid/02 B) */
   function fxItem(e: EffectPreview, i: number) {
     switch (e.type) {
@@ -932,7 +932,8 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
-  function eventRow(card: EventOptionCard) {
+  /** S-13 선택지 글 · 판정형이면 스탯 판정 확률(정수 %, 와이어프레임 mid/02 A) */
+  function eventOption(card: EventOptionCard) {
     const c = choices.find((x) => x.id === card.choiceId);
     const option = gateEvent?.options.find((o) => `event.${o.id}` === card.choiceId);
     const text = option?.text ?? c?.label ?? card.choiceId;
@@ -943,29 +944,41 @@ export function Game({ data }: { data: GameData }) {
         stat: STAT_WORD[option.check.stat],
         n: Math.round(card.chance * 100),
       });
+    return { c, text, check };
+  }
+
+  /** 선택지 효과 — 판정형은 성공·실패 두 줄 */
+  function eventFx(card: EventOptionCard) {
+    return card.onSuccess ? (
+      <>
+        {fxLine(card.onSuccess, t('gate.event.success'))}
+        {fxLine(card.onFail, t('gate.event.fail'))}
+      </>
+    ) : (
+      fxLine(card.effects)
+    );
+  }
+
+  /** S-13 선택지 카드(ui-kit 3.1 패 카드 모양, #557). 비용 배지·아이콘은 없다.
+   * 카드에 다 안 들어가는 효과는 고른 카드만 패 아래에 다 보인다 */
+  function eventRow(card: EventOptionCard) {
+    const { c, text, check } = eventOption(card);
+    const selected = card.choiceId === picked;
     return (
       <li key={card.choiceId}>
         <button
           type="button"
-          className={`opt${card.choiceId === picked ? ' sel' : ''}`}
-          aria-pressed={card.choiceId === picked}
+          className={`pcard${selected ? ' sel' : ''}`}
+          aria-pressed={selected}
           disabled={!!c?.disabled}
           onClick={() => setPicked(card.choiceId)}
           aria-label={check ? `${text}, ${check}` : text}
           data-testid={`choice-${card.choiceId}`}
         >
-          <span className="main">
-            <span className="b">{text}</span>
-            {check && <span className="cap">{check}</span>}
-            {card.onSuccess ? (
-              <>
-                <span>{fxLine(card.onSuccess, t('gate.event.success'))}</span>
-                <span>{fxLine(card.onFail, t('gate.event.fail'))}</span>
-              </>
-            ) : (
-              fxLine(card.effects)
-            )}
-          </span>
+          <span className="b nm">{text}</span>
+          {check && <span className="cap">{check}</span>}
+          <span className="sp" />
+          <span className="fxs">{eventFx(card)}</span>
         </button>
       </li>
     );
@@ -1341,7 +1354,15 @@ export function Game({ data }: { data: GameData }) {
                 {t('main.nest')}, {t('main.nest.chicks', { n: view.nest.chicks })}
               </li>
             )}
-            {view.gate.cards.map((card) => eventRow(card))}
+            <li>
+              <ul className="hand event">{view.gate.cards.map((card) => eventRow(card))}</ul>
+            </li>
+            {pickedEvent && (
+              <li className="gate-title small opt-detail" data-testid="event-detail">
+                <span className="b">{eventOption(pickedEvent).text}</span>
+                {eventFx(pickedEvent)}
+              </li>
+            )}
           </ul>
         ) : view.gate?.kind === 'seasonPolicy' ? (
           <ul
