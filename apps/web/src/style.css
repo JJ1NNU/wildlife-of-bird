@@ -286,6 +286,36 @@ h1 {
 .hand.season .pcard .cap {
   -webkit-line-clamp: 3;
 }
+/* 이벤트 선택지(S-13): 효과는 카드 아래쪽에 들어가는 만큼만(넘치면 잘림), 고른 카드의 전체 효과는 패 아래 */
+/* 효과가 이름보다 우선(art #563): 효과 줄은 줄지 않고, 이름은 3줄(판정 줄이 있으면 2줄)에서 말줄임 —
+   전체 글은 aria-label과 패 아래 event-detail에 있다 */
+.hand.event .nm {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hand.event .pcard.chk .nm {
+  -webkit-line-clamp: 2;
+}
+/* 판정형은 성공·실패 줄마다 첫 줄만(첫 효과 한 덩이씩은 보이게) */
+.hand.event .pcard.chk .fxs .fx {
+  max-height: 16px;
+  overflow: hidden;
+}
+.pcard .fxs {
+  flex: 0 0 auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pcard .fxs .fx {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 6px;
+}
 .pcard .vals {
   display: flex;
   flex-direction: column;
@@ -685,12 +715,12 @@ h1 {
 }
 
 /* S-13 이벤트 선택지 효과 줄 (mid/02 A·B) — 효과마다 한 덩이, 새끼·둥지 손실은 위험색 + 낱말 */
-.opt .fx {
+.opt-detail .fx {
   display: flex;
   flex-wrap: wrap;
   gap: 2px 10px;
 }
-.opt .caution.b {
+.opt-detail .caution.b {
   display: block;
 }
 .fx .danger {
