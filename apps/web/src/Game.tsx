@@ -27,8 +27,12 @@ import {
 import type { GameData, Season, StatName } from '@wb/schema';
 import { useEffect, useState } from 'react';
 import { birdUrl, placeholderBirdUrl } from './art.ts';
+import { Codex } from './Codex.tsx';
+import { recordCodex } from './codex.ts';
 import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
+import { Lineage } from './Lineage.tsx';
+import { type Lineage as LineageData, lineageOf, loadLineage, saveLineage } from './lineage.ts';
 import {
   actRecorded,
   clearRun,
@@ -39,6 +43,7 @@ import {
   startRecord,
 } from './save.ts';
 import { roAfter, t } from './text.ts';
+import { loadSeenTips, nextTip, saveSeenTips, type TipId, tipKey } from './tips.ts';
 
 /**
  * M1 화면(#24): S-01 타이틀·이어하기 · S-10 메인 턴 · S-30 게임 오버 기록 · 자동 저장.
@@ -274,13 +279,37 @@ function startRun(data: GameData): RunState {
   const state = newRun({ speciesId: SPECIES, seed: Date.now().toString(36), mode: 'free' }, data);
   startRecord();
   saveRun(state);
+  recordCodex(undefined, state, data);
   return state;
+}
+
+/** 플레이 기록 JSONL 파일로 저장(#395) — QA가 `npm run sim -- replay`로 다시 돌린다 */
+async function exportRecord(state: RunState) {
+  const line = await runRecordLine(state);
+  if (!line) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(
+    new Blob(
+      [
+        `${line}
+`,
+      ],
+      { type: 'application/x-ndjson' },
+    ),
+  );
+  a.download = `wb-run-${state.config.seed}.jsonl`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 export function Game({ data }: { data: GameData }) {
   const [boot] = useState(() => loadRun(data));
   const [state, setState] = useState<RunState | undefined>(boot.state);
   const [onTitle, setOnTitle] = useState(true);
+  /** S-33 도감을 보는 중 — 타이틀·게임 오버에서 연다 */
+  const [onCodex, setOnCodex] = useState(false);
+  /** S-31 가계도를 보는 중 — 게임 오버에서는 이 판, 타이틀에서는 기기에 둔 지난 판 */
+  const [onLineage, setOnLineage] = useState<LineageData>();
   const [picked, setPicked] = useState<string>();
   const [open, setOpen] = useState<GroupKey>();
   /** 고친 루틴(남은 칸). 없으면 엔진 제안 그대로 */
@@ -295,6 +324,11 @@ export function Game({ data }: { data: GameData }) {
   const [paused, setPaused] = useState(false);
   /** 평시 칸 수가 바뀐 직후 한 줄 알림(01-formulas 9.6). 다음 결정에서 사라진다 */
   const [slotNote, setSlotNote] = useState<{ from: number; to: number }>();
+  /** 튜토리얼: 이 기기에서 본 팁 · 이번 단계에 닫은 팁 수 (06-tutorial 2장) */
+  const [seenTips, setSeenTips] = useState(loadSeenTips);
+  const [tipStep, setTipStep] = useState({ key: '', n: 0 });
+  /** S-40 판 지우기 확인 한 번 더 */
+  const [clearing, setClearing] = useState(false);
 
   useEffect(() => {
     if (!replay || paused || shown >= replay.rows.length) return;
@@ -302,14 +336,21 @@ export function Game({ data }: { data: GameData }) {
     return () => clearTimeout(t);
   }, [replay, paused, shown]);
 
+  if (onCodex) return <Codex data={data} onBack={() => setOnCodex(false)} />;
+  if (onLineage)
+    return <Lineage lineage={onLineage} line={lifeLine} onBack={() => setOnLineage(undefined)} />;
+
   if (onTitle || !state) {
     const saved = state && !state.gameOver ? state : undefined;
+    const lastLineage = loadLineage();
     return (
       <main className="game" data-testid="title">
         <div className="over">
           <h1>{t('title.name')}</h1>
-          {boot.problem && (
-            <p className="notice small">{t('title.loadFail', { problem: boot.problem })}</p>
+          {boot.problem && !state && (
+            <p className="notice small" title={boot.problem}>
+              {t('title.loadFail')}
+            </p>
           )}
           {saved && (
             <button
@@ -333,6 +374,65 @@ export function Game({ data }: { data: GameData }) {
           >
             {t('title.new')}
           </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setOnCodex(true)}
+            data-testid="open-codex"
+          >
+            {t('codex.open')}
+          </button>
+          {lastLineage && (
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setOnLineage(lastLineage)}
+              data-testid="open-lineage"
+            >
+              {t('lineage.last')}
+            </button>
+          )}
+          {state && (
+            <details className="settings" data-testid="settings">
+              <summary>{t('title.settings')}</summary>
+              {hasRecord() && (
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => exportRecord(state)}
+                  data-testid="export-record"
+                >
+                  {t('gameOver.exportRecord')}
+                </button>
+              )}
+              {clearing ? (
+                <>
+                  <p className="small">{t('title.clearConfirm')}</p>
+                  <div className="row">
+                    <button type="button" className="btn" onClick={() => setClearing(false)}>
+                      {t('title.clearNo')}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => {
+                        clearRun();
+                        setState(undefined);
+                        setClearing(false);
+                      }}
+                      data-testid="clear-run"
+                    >
+                      {t('title.clearYes')}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button type="button" className="btn" onClick={() => setClearing(true)}>
+                  {t('title.clear')}
+                </button>
+              )}
+            </details>
+          )}
         </div>
       </main>
     );
@@ -419,6 +519,57 @@ export function Game({ data }: { data: GameData }) {
       : undefined;
   const cursorChoices = cursorSlot ? getChoices(cursorSlot.before, data) : [];
 
+  // 튜토리얼 팁: 조건은 모두 지금 화면 값으로 (06-tutorial 4장). 팁은 act를 부르지 않는다
+  const stepKey = `${view.at.year}.${view.at.period}.${view.at.step}`;
+  const gateKind = view.gate?.kind;
+  const tipConditions: [TipId, boolean][] = [
+    ['T-00', true],
+    ['T-01', !!view.routine],
+    ['T-02', !!view.routine && seenTips.has('T-01')],
+    ['T-03', !!view.routine && seenTips.has('T-02')],
+    // 잠정: 에너지 부족은 엔진 `disabled.reason` 글로 판단
+    ['T-04', [...choices, ...cursorChoices].some((c) => c.disabled?.reason === '에너지 부족')],
+    ['T-05', open === 'move'],
+    ['T-06', view.starving],
+    ['T-07', !!replay],
+    ['T-08', gateKind === 'event'],
+    ['T-10', gateKind === 'mateCandidate'],
+    ['T-11', gateKind === 'mateOrder'],
+    ['T-12', gateKind === 'nestSite'],
+    ['T-13', gateKind === 'clutchSize'],
+    ['T-14', gateKind === 'parentingPolicy'],
+    ['T-15', view.recentLog.some((l) => l.cause === 'nestLoss' || l.cause === 'chickDeath')],
+    ['T-30', gateKind === 'inheritance'],
+    ['T-31', gateKind === 'secondBrood'],
+    ['T-40', !!view.gameOver],
+  ];
+  const tipDue = new Set(tipConditions.filter(([, on]) => on).map(([id]) => id));
+  const tip = nextTip(tipDue, seenTips, tipStep.key === stepKey ? tipStep.n : 0);
+
+  function closeTip(id: TipId) {
+    const next = new Set(seenTips).add(id);
+    saveSeenTips(next);
+    setSeenTips(next);
+    if (id !== 'T-00') setTipStep((s) => ({ key: stepKey, n: s.key === stepKey ? s.n + 1 : 1 }));
+  }
+
+  // 팁 카드 전체를 한 번 누르면 닫힌다 (06-tutorial 2장). 뒤 화면은 막지 않는다
+  const tipCard = tip && (
+    <button
+      type="button"
+      className="tip"
+      onClick={() => closeTip(tip)}
+      data-testid="tip"
+      data-tip={tip}
+    >
+      <span className="b">{t(`${tipKey(tip)}.title`)}</span>
+      {(tip === 'T-00' ? ['line1', 'line2', 'line3'] : ['body']).map((k) => (
+        <span key={k}>{t(`${tipKey(tip)}.${k}`)}</span>
+      ))}
+      {tip === 'T-30' && <span className="risk high">{t(`${tipKey(tip)}.caution`)}</span>}
+    </button>
+  );
+
   /** 칸 k 앞에 옮기기가 있으면 그 칸의 장소 이름 — 다음 칸부터 새 장소(3.5) */
   function placeBefore(k: number): string | undefined {
     const move = plan
@@ -440,6 +591,8 @@ export function Game({ data }: { data: GameData }) {
     const to = getView(next, data).routine?.slots;
     setSlotNote(from && to && from >= 6 && to >= 6 && from !== to ? { from, to } : undefined);
     saveRun(next);
+    recordCodex(state, next, data);
+    if (next.gameOver && !state?.gameOver) saveLineage(lineageOf(next));
     setState(next);
     setPicked(undefined);
     setOpen(undefined);
@@ -453,6 +606,8 @@ export function Game({ data }: { data: GameData }) {
     if (!state) return;
     if (view.gate) {
       if (!gateId) return;
+      // 계승 팁은 먼저 닫아야 한다 — 되돌릴 수 없는 선택 (06-tutorial 2장 T-30)
+      if (tip === 'T-30') return;
       // 계승은 되돌릴 수 없다 — 확인 시트를 거친다 (잔류는 바로)
       if (inheritChick && !confirming) return setConfirming(true);
       commit(actRecorded(state, gateId, data).state);
@@ -500,25 +655,6 @@ export function Game({ data }: { data: GameData }) {
     setEdited(next);
     setOpen(undefined);
     setCursor(k + 1 < plan.length ? k + 1 : undefined);
-  }
-
-  /** 플레이 기록 JSONL 파일로 저장(#395) — QA가 `npm run sim -- replay`로 다시 돌린다 */
-  async function exportRecord() {
-    const line = state && (await runRecordLine(state));
-    if (!state || !line) return;
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(
-      new Blob(
-        [
-          `${line}
-`,
-        ],
-        { type: 'application/x-ndjson' },
-      ),
-    );
-    a.download = `wb-run-${state.config.seed}.jsonl`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
   function restart() {
@@ -1064,6 +1200,7 @@ export function Game({ data }: { data: GameData }) {
       .find((l) => l.type === 'decision');
     return (
       <main className="game" data-testid="game-over">
+        {tipCard}
         <div className="over">
           <h1>{t('gameOver.title')}</h1>
           <p className="muted">
@@ -1117,6 +1254,14 @@ export function Game({ data }: { data: GameData }) {
                 : [],
             )}
           </ol>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setOnLineage(lineageOf(state))}
+            data-testid="open-lineage"
+          >
+            {t('lineage.open')}
+          </button>
           <ul className="feed-list">
             {withLogKeys(view.recentLog.slice(-5)).map(([k, l]) => (
               <li key={k}>{logLine(l)}</li>
@@ -1126,12 +1271,20 @@ export function Game({ data }: { data: GameData }) {
             <button
               type="button"
               className="btn"
-              onClick={exportRecord}
+              onClick={() => exportRecord(state)}
               data-testid="export-record"
             >
               {t('gameOver.exportRecord')}
             </button>
           )}
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setOnCodex(true)}
+            data-testid="open-codex"
+          >
+            {t('codex.open')}
+          </button>
           <button type="button" className="btn prim" onClick={restart}>
             {t('title.new')}
           </button>
@@ -1142,6 +1295,7 @@ export function Game({ data }: { data: GameData }) {
 
   return (
     <main className="game" data-testid="main-turn">
+      {tipCard}
       <div className={`zone${eventGate ? ' ov' : ''}`}>
         <header className="status">
           <div className="row small">

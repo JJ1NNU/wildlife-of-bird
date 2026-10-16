@@ -1,0 +1,7 @@
+{
+  "lineage.title": "가계도",
+  "lineage.open": "가계도",
+  "lineage.back": "돌아가기",
+  "lineage.summary": "총 번식 {total}번, {generations}세대",
+  "lineage.last": "지난 판 가계도"
+}

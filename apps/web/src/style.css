@@ -466,6 +466,21 @@ h1 {
   margin: 0;
 }
 
+/* S-40 설정(#535 잠정) — 타이틀 아래 접힘 */
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-2);
+  margin-top: var(--wb-space-4);
+}
+.settings > summary {
+  color: var(--wb-color-ink-muted);
+  cursor: pointer;
+}
+.settings .row > .btn {
+  flex: 1;
+}
+
 /* 개발용 빨리 감기 — 출시 빌드에서는 없음 */
 .dev {
   display: flex;
@@ -747,4 +762,76 @@ h1 {
   .pcard.sel {
     box-shadow: 0 4px 8px color-mix(in srgb, var(--wb-color-ink) 25%, transparent);
   }
+}
+
+/* 튜토리얼 팁(06-tutorial 2장): 한 장, 누르면 닫힘. 화면 흐름 밖에 떠서 550 높이 예산에 안 든다.
+   가리키는 표시·자리는 아트 몫 — 잠정(#535) 위쪽 고정 */
+.tip {
+  position: fixed;
+  z-index: 10;
+  top: max(var(--wb-space-2), env(safe-area-inset-top));
+  left: var(--wb-space-4);
+  right: var(--wb-space-4);
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-1);
+  padding: var(--wb-space-3) var(--wb-space-4);
+  min-height: var(--wb-touch-min);
+  background: var(--wb-color-card);
+  color: var(--wb-color-ink);
+  border: 2px solid var(--wb-color-ochre-strong);
+  border-radius: var(--wb-radius-l);
+  font: inherit;
+  font-size: var(--wb-font-size-small);
+  text-align: left;
+  box-shadow: 0 4px 12px rgb(31 36 33 / 0.25);
+}
+
+/* S-33 도감 */
+.codex-kind ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-2);
+}
+.codex-kind summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-1);
+  cursor: pointer;
+}
+.codex-kind p {
+  line-height: var(--wb-line-height-body);
+  margin: var(--wb-space-1) 0;
+}
+
+/* S-31 가계도 — 세대마다 한 칸, 계승한 새끼로 이어진 선 */
+.tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-4);
+}
+.tree li {
+  position: relative;
+  padding: var(--wb-space-2) var(--wb-space-3);
+  background: var(--wb-color-card);
+  border-radius: var(--wb-radius-l);
+  font-size: var(--wb-font-size-small);
+  line-height: var(--wb-line-height-body);
+}
+.tree li.inherit::after {
+  content: '';
+  position: absolute;
+  left: var(--wb-space-4);
+  top: 100%;
+  height: var(--wb-space-4);
+  border-left: 2px solid var(--wb-color-ink-muted);
 }
