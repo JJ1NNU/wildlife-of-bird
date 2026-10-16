@@ -442,6 +442,8 @@ export interface ViewModel {
   gameOver: boolean;
   /** 게임 오버 때만 — 부가 기록(점수 아님, 02-scoring 4장) */
   records?: RunRecords;
+  /** 게임 오버 때만 — 죽은 개체의 노화 위험(01-formulas 4.1). > 0이면 노화 구간 (S-30 "늙어서 몸이 느려졌다", #513) */
+  agingRisk?: number;
   /** 열려 있는 관문의 카드 — 짝 후보(S-20) · 짝 지시 · 둥지 자리(S-23) · 산란수 */
   gate?:
     | { kind: 'mateCandidate'; cards: MateCandidateCard[]; previousGone?: MateGone }

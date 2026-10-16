@@ -17,7 +17,7 @@ import {
   hatchIfDue,
 } from './clutch.ts';
 import { checkChance, previewEffects, resolveOption } from './events.ts';
-import { agedStats, fatCap } from './formulas.ts';
+import { agedStats, agingRisk, fatCap } from './formulas.ts';
 import {
   chickCards,
   chooseInheritance,
@@ -620,7 +620,16 @@ export function getView(state: RunState, data: GameData): ViewModel {
     ...(state.gate?.kind === 'seasonPolicy'
       ? { gate: { kind: state.gate.kind, cards: seasonCards(state, data) } }
       : {}),
-    ...(state.gameOver ? { records: runRecords(state, data) } : {}),
+    ...(state.gameOver
+      ? {
+          records: runRecords(state, data),
+          agingRisk: agingRisk(data.formulas, speciesBalance(data, state.config.speciesId), {
+            age: state.player.age,
+            period: state.at.period,
+            stamina: state.player.stats.stamina ?? 0,
+          }),
+        }
+      : {}),
     ...(state.gate?.kind === 'mateCandidate'
       ? {
           gate: {
