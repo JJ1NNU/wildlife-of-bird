@@ -298,6 +298,11 @@ h1 {
 .hand.event .pcard.chk .nm {
   -webkit-line-clamp: 2;
 }
+/* 판정형은 성공·실패 줄마다 첫 줄만(첫 효과 한 덩이씩은 보이게) */
+.hand.event .pcard.chk .fxs .fx {
+  max-height: 16px;
+  overflow: hidden;
+}
 .pcard .fxs {
   flex: 0 0 auto;
   overflow: hidden;
