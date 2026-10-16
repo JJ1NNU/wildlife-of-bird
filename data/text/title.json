@@ -2,10 +2,10 @@
   "title.name": "야생조류 키우기",
   "title.continue": "이어 하기 ({when})",
   "title.new": "새로 시작",
-  "title.loadFail": "이 판은 이어갈 수 없어요. 새로 시작해 주세요.",
+  "title.loadFail": "이 판은 이어 할 수 없음 (새로 시작하기)",
   "title.settings": "설정",
   "title.clear": "판 지우기",
-  "title.clearConfirm": "지금 판을 지울까요? 되돌릴 수 없어요.",
-  "title.clearNo": "그만두기",
+  "title.clearConfirm": "지금 판을 지울까? (지우면 되돌릴 수 없음)",
+  "title.clearNo": "지우지 않기",
   "title.clearYes": "지우기"
 }
