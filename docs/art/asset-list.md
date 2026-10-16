@@ -32,11 +32,11 @@
 | `bird.parus-minor.adult-f.breeding.perch` | 짝 | P0 | **완료** — 배치 02, 콘텐츠 승인(#146). 암컷 = 세로줄 가늘게(field-marks 1장) |
 | `bird.parus-minor.chick.nest` | 둥지 단계 | P0 | **완료** — 배치 03 후보 2, 콘텐츠 승인(#465). 화면 연결 #476. 아트 검수 N1~N3 통과(이끼+털 산좌, 5마리, 흐린 검정·노르스름한 배·노란 입가, 입 다묾, 어미 없음). 구멍 단면에 5~8마리, `bird` 단독 규칙의 예외 |
 | `bird.parus-minor.juv.perch` | 독립·계승 | P0 | **완료** — 배치 02, 콘텐츠 승인(#146), 어린 새 깃(이소 후~첫 털갈이). 노르스름한 배는 어린 새만 |
-| `bird.parus-minor.egg` | 산란·포란 | P1 | |
+| `bird.parus-minor.egg` | 산란·포란 | P1 | **요청됨** — 배치 04(`prompts/batch-04-parus-minor-env.md`). 한배 7개를 `chick.nest`와 같은 둥지 단면에 |
 | `bird.parus-minor.adult.nonbreeding.perch` | 겨울 | P2 | **생략** — 계절 깃 차이 출처 없음, 같은 깃으로 그린다(field-marks 1장) |
-| `bg.forest.spring.day` · `.summer.day` · `.autumn.day` · `.winter.day` | 메인 배경 | P0 | M2 배경 배치. 계절 4장, 시간대 변화는 색 필터로 |
-| `bg.forest.nest-hole` | 둥지 화면 | P1 | 나무구멍 근경 |
-| `pred.rat-snake` | 뱀 경보(고유 메카닉) | P0 | 포식자 목록은 콘텐츠 확정 후(gdd 8.4 [검수 필요]) |
+| `bg.forest.spring.day` · `.summer.day` · `.autumn.day` · `.winter.day` | 메인 배경 | P0 | **요청됨** — 배치 04. 계절 4장(한국 온대 혼효림 하나), 시간대 변화는 색 필터로 |
+| `bg.forest.nest-hole` | 둥지 화면 | P1 | **요청됨** — 배치 04. 나무구멍 근경 |
+| `pred.rat-snake` | 뱀 경보(고유 메카닉) | P0 | 필요 — 식별 특징(field-marks) 기다림. 배치 05 |
 | `pred.<그 밖>` | 둥지·성조 포식자 | P1 | 상성 묶음(매복·급강하·밤·뱀·지상)당 1장으로 시작 |
 | `scene.parus-minor.snake-alarm` | 핵심 장면 | P1 | 배치 01 T3의 정식판 |
 | `scene.parus-minor.fledging` | 이소 | P2 | |
@@ -79,3 +79,4 @@
 | 2026-10-04 | 아이콘 v0 18개 완료 (#25) |
 | 2026-10-06 | 박새 배치 02 3장 후처리 → 검수중 (#25, #95) |
 | 2026-10-06 | 박새 배치 02 3장 콘텐츠 승인 → 완료. 아래꼬리덮깃이 보이는 자세는 프롬프트에 "black stripe reaching undertail coverts" (#146) |
+| 2026-10-16 | 배치 04 프롬프트 — 배경 4계절·나무구멍·알 → 요청됨. 뱀·장면은 식별 특징 뒤 배치 05 (#538) |
