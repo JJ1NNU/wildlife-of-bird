@@ -28,6 +28,7 @@ import type { GameData, Season, StatName } from '@wb/schema';
 import { useEffect, useState } from 'react';
 import { birdUrl, placeholderBirdUrl } from './art.ts';
 import { Codex } from './Codex.tsx';
+import { causeText } from './cause.ts';
 import { recordCodex } from './codex.ts';
 import { fastForward, SHOW_FAST_FORWARD } from './fast-forward.ts';
 import { iconStyle } from './icons.ts';
@@ -260,7 +261,7 @@ function policyText(text: string): string {
   });
 }
 
-function logLine(l: LogEntry): string {
+function logLine(l: LogEntry, data: GameData): string {
   const d = deltaText(l.deltas, l.slot !== undefined);
   const where = `${periodLabel(l.at).text} ${t('main.step', { n: l.at.step })}${l.slot ? ` ${t('routine.slot', { n: l.slot })}` : ''}`;
   const text =
@@ -268,8 +269,17 @@ function logLine(l: LogEntry): string {
       ? policyText(l.text)
       : l.type === 'inheritance'
         ? l.text.replace(/(\d+)로 /, (_m, n: string) => `${n}${roAfter(n)} `)
-        : l.text;
+        : l.type === 'death'
+          ? (causeText('death', l.cause, data) ?? l.text)
+          : l.type === 'brood'
+            ? withReason(l.text, causeText('brood', l.cause, data))
+            : l.text;
   return `${where}: ${text}${d ? `, ${d}` : ''}`;
+}
+
+/** 둥지를 잃은 줄에 이유 한마디 (#513) */
+function withReason(text: string, reason: string | undefined): string {
+  return reason ? `${text} — ${reason}` : text;
 }
 
 /** S-30 가계도 한 줄 (05-inheritance 8장) — 문구 data/text/gameOver.json */
@@ -1287,7 +1297,7 @@ export function Game({ data }: { data: GameData }) {
           </p>
           {death && (
             <p className="cause" data-testid="death-cause">
-              {t('gameOver.cause')} <b>{death.text}</b>
+              {t('gameOver.cause')} <b>{causeText('death', death.cause, data) ?? death.text}</b>
             </p>
           )}
           <p className="muted small">
@@ -1327,7 +1337,12 @@ export function Game({ data }: { data: GameData }) {
               l.life
                 ? [
                     <li key={l.life.generation}>
-                      {lifeLine(l.life, l.type === 'death' ? l.text : undefined)}
+                      {lifeLine(
+                        l.life,
+                        l.type === 'death'
+                          ? (causeText('death', l.cause, data) ?? l.text)
+                          : undefined,
+                      )}
                     </li>,
                   ]
                 : [],
@@ -1343,7 +1358,7 @@ export function Game({ data }: { data: GameData }) {
           </button>
           <ul className="feed-list">
             {withLogKeys(view.recentLog.slice(-5)).map(([k, l]) => (
-              <li key={k}>{logLine(l)}</li>
+              <li key={k}>{logLine(l, data)}</li>
             ))}
           </ul>
           {hasRecord() && (
@@ -1773,7 +1788,7 @@ export function Game({ data }: { data: GameData }) {
                     {replay.death
                       ? t('routine.replay.deathAt', {
                           n: replay.death.slot ?? '',
-                          text: replay.death.text,
+                          text: causeText('death', replay.death.cause, data) ?? replay.death.text,
                         })
                       : deltaText(replay.total?.deltas) || t('routine.replay.noChange')}
                   </p>
@@ -2009,7 +2024,7 @@ export function Game({ data }: { data: GameData }) {
           {withLogKeys(view.recentLog)
             .reverse()
             .map(([k, l]) => (
-              <li key={k}>{logLine(l)}</li>
+              <li key={k}>{logLine(l, data)}</li>
             ))}
         </ul>
         {SHOW_FAST_FORWARD && (
