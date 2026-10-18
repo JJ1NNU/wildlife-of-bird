@@ -474,6 +474,9 @@ h1 {
   margin-top: var(--wb-space-4);
 }
 .settings > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
   color: var(--wb-color-ink-muted);
   cursor: pointer;
 }
@@ -523,7 +526,7 @@ h1 {
   min-height: 44px;
   padding: 2px;
   line-height: 1.15;
-  font-size: var(--wb-font-size-caption);
+  font-size: var(--wb-font-size-small);
   color: inherit;
   word-break: keep-all;
   background: var(--wb-color-paper);
@@ -652,12 +655,12 @@ h1 {
 }
 .cell .pl {
   position: absolute;
-  top: -12px;
+  top: -14px;
   left: 0;
   right: 0;
   overflow: hidden;
-  font-size: 10px;
-  line-height: 11px;
+  font-size: var(--wb-font-size-caption);
+  line-height: 13px;
   color: var(--wb-color-slate-strong);
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -690,7 +693,7 @@ h1 {
 }
 .step {
   min-width: 44px;
-  min-height: 32px;
+  min-height: 44px;
   background: var(--wb-color-card);
   border: 1px solid var(--wb-color-line);
   border-radius: var(--wb-radius-m);
@@ -858,6 +861,7 @@ h1 {
 
 /* S-11 지도 — 목록형(노드 수와 무관, screens.md 미결 표) */
 .link {
+  min-width: 44px;
   min-height: 44px;
   padding: 0 var(--wb-space-1);
   border: none;

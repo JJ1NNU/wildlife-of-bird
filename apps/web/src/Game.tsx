@@ -279,7 +279,7 @@ function logLine(l: LogEntry, data: GameData): string {
 
 /** 둥지를 잃은 줄에 이유 한마디 (#513) */
 function withReason(text: string, reason: string | undefined): string {
-  return reason ? `${text} — ${reason}` : text;
+  return reason ? `${text} (${reason})` : text;
 }
 
 /** S-30 가계도 한 줄 (05-inheritance 8장) — 문구 data/text/gameOver.json */
