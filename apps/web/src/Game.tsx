@@ -1300,6 +1300,12 @@ export function Game({ data }: { data: GameData }) {
               {t('gameOver.cause')} <b>{causeText('death', death.cause, data) ?? death.text}</b>
             </p>
           )}
+          {/* 노화 구간(01-formulas 4.1 노화 위험 > 0)이면 한 줄 — 노화로 죽었으면 이미 이유에 있음 (#513) */}
+          {(view.agingRisk ?? 0) > 0 && death?.cause !== 'aging' && (
+            <p className="muted small" data-testid="death-aging">
+              {t('gameOver.aging')}
+            </p>
+          )}
           <p className="muted small">
             {last && `${t('gameOver.lastAction', { text: last.text })}, `}
             {t('gameOver.energyLeft')} {roundHalfUp(view.player.energy)} /{' '}

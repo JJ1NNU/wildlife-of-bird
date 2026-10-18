@@ -1,6 +1,7 @@
 {
   "gameOver.title": "여기까지",
   "gameOver.cause": "죽은 이유",
+  "gameOver.aging": "늙어서 몸이 느려졌다",
   "gameOver.lastAction": "마지막 행동: {text}",
   "gameOver.energyLeft": "남은 에너지",
   "gameOver.familyTree": "가계도",
