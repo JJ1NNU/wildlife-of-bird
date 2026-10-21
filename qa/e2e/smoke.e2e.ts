@@ -76,7 +76,9 @@ test('새 게임 → 번식 → 계승 → 이어 하기 → 게임 오버', asy
   await expect(over).toBeVisible();
   await expect(page.getByTestId('death-cause')).toBeVisible();
   await expect(page.getByTestId('run-records')).toBeVisible();
-  // 가계도 2세대 이상 = 계승이 기록됐다
-  expect(await page.getByTestId('lineage').locator('li').count()).toBeGreaterThanOrEqual(2);
+  // 가계도 2세대 이상 = 계승이 기록됐다 (게임 오버 [가계도] → S-31, 와이어 08 F)
+  await page.getByTestId('open-lineage').click();
+  // count()는 기다리지 않으니 둘째 줄이 뜰 때까지 기다린다
+  await expect(page.getByTestId('lineage-screen').locator('.tree li').nth(1)).toBeVisible();
   expect(errors).toEqual([]);
 });
