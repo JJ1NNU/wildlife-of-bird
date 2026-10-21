@@ -607,7 +607,7 @@ export function Game({ data }: { data: GameData }) {
     ? { k: firstEmpty, before: slots[firstEmpty].before }
     : undefined;
   const nextChoices = nextSlot ? getChoices(nextSlot.before, data) : [];
-  // 내 패에는 가진 카드만(#611 대표) — 남은 장수가 있는 카드, 같은 카드는 한 장 + ×n (ui-kit 3.1)
+  // 내 패에는 가진 카드만(#611 대표) — 남은 장수가 있는 카드, 같은 카드는 한 장 + n장 배지 (ui-kit 3.1)
   // 그 칸까지의 남은 패에서 뒤 칸(빈 칸 뒤에 넣어 둔 것)이 쓸 카드도 뺀다
   const handLeftNow: Record<string, number> = {
     ...(nextSlot && getView(nextSlot.before, data).routine?.hand),
@@ -825,7 +825,7 @@ export function Game({ data }: { data: GameData }) {
       .join(', ');
   }
 
-  /** 패 카드 v2(ui-kit 3.1): 1줄 비용 배지 + 이름, 2줄 에너지 · 위험%(띠는 정보 줄에만, #206). ×n은 모서리.
+  /** 패 카드 v2(ui-kit 3.1): 1줄 비용 배지 + 이름, 2줄 에너지 · 위험%(띠는 정보 줄에만, #206). n장 배지는 모서리.
    * 못 쓰는 카드(`.short`)는 2줄째가 이유 낱말 — 눌러도 칸에 안 들어가고 정보 줄에 이유 */
   function handCard(c: Choice, n: number, before: RunState) {
     const p = c.disabled ? undefined : preview(before, c.id, data);
@@ -841,7 +841,7 @@ export function Game({ data }: { data: GameData }) {
           aria-disabled={!!reason}
           aria-label={[
             name,
-            n > 1 && `×${n}`,
+            n > 1 && t('routine.hand.count', { n }),
             reason,
             p && `${t('main.energy')} ${energyRange(p)}`,
             risk?.text,
@@ -866,7 +866,7 @@ export function Game({ data }: { data: GameData }) {
           ) : (
             <span className="v why">{reason}</span>
           )}
-          {n > 1 && <span className="cnt">×{n}</span>}
+          {n > 1 && <span className="cnt">{t('routine.hand.count', { n })}</span>}
         </button>
       </li>
     );
@@ -931,7 +931,7 @@ export function Game({ data }: { data: GameData }) {
           ...(s.preview.notes ?? []),
         ]
           .filter(Boolean)
-          .map((x) => ` · ${x}`)
+          .map((x) => `, ${x}`)
           .join('')}{' '}
         <span className={`risk ${risk.band}`}>
           <span className="ico s" style={iconStyle('icon.risk')} />
