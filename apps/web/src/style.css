@@ -373,19 +373,6 @@ h1 {
   background: var(--wb-color-danger);
   color: var(--wb-color-on-strong);
 }
-.pcard.out {
-  background: var(--wb-color-paper);
-  border-style: dashed;
-  color: var(--wb-color-ink-muted);
-  opacity: 0.6;
-}
-.pcard.out .cost {
-  background: var(--wb-color-line);
-  color: var(--wb-color-ink-muted);
-}
-.pcard.out .why {
-  background: var(--wb-color-line);
-}
 @media (prefers-reduced-motion: reduce) {
   .pcard {
     transition: none;

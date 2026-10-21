@@ -575,7 +575,10 @@ export function Game({ data }: { data: GameData }) {
     cursor !== undefined && slots[cursor]?.before
       ? { k: cursor, before: slots[cursor].before }
       : undefined;
-  const cursorChoices = cursorSlot ? getChoices(cursorSlot.before, data) : [];
+  // 내 패에는 가진 카드만(#611 대표) — 패에 없는 카드는 그리지 않는다
+  const cursorChoices = cursorSlot
+    ? getChoices(cursorSlot.before, data).filter((c) => c.disabled?.reason !== '패에 없음')
+    : [];
 
   // 튜토리얼 팁: 조건은 모두 지금 화면 값으로 (06-tutorial 4장). 팁은 act를 부르지 않는다
   const stepKey = `${view.at.year}.${view.at.period}.${view.at.step}`;
@@ -753,7 +756,7 @@ export function Game({ data }: { data: GameData }) {
 
   /** 패 카드 한 장(#557 잠정 — 아트 명세 전): 비용 배지(왼쪽 위) · 아이콘 · 이름 · 예상 성장 · 에너지 변화 · 위험%.
    * 루틴 칸이면 그 칸 상태 기준, 에너지는 소수 첫째 자리, 위험은 숫자만(띠는 루틴 합에만, #206).
-   * 못 고르는 카드는 이유를 카드 아래 띠로: 에너지 부족(위험색) · 패에 없음(점선·흐림) */
+   * 못 고르는 카드는 이유를 카드 아래 띠로: 에너지 부족(위험색). 패에 없는 카드는 그리지 않는다(#611) */
   function row(c: Choice, slot: { k: number; before: RunState }, group?: GroupKey) {
     const p = c.disabled ? undefined : preview(slot.before, c.id, data);
     const selected = plan[slot.k] === c.id;
@@ -786,7 +789,7 @@ export function Game({ data }: { data: GameData }) {
       <li key={c.id}>
         <button
           type="button"
-          className={`pcard${selected ? ' sel' : ''}${reason ? (reason === '패에 없음' ? ' out' : ' short') : ''}`}
+          className={`pcard${selected ? ' sel' : ''}${reason ? ' short' : ''}`}
           aria-pressed={selected}
           disabled={!!c.disabled}
           onClick={() => fill(slot.k, c.id)}
