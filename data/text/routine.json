@@ -41,6 +41,7 @@
   "routine.table.previewLabel": "칸별 예상",
   "routine.filled": "루틴 {k} / {n}칸",
   "routine.hand.head": "패 {n}장, 누르면 다음 빈 칸에",
+  "routine.hand.count": "{n}장",
   "routine.full": "칸이 다 참. 칸을 눌러 빼면 다시 넣을 수 있음.",
   "routine.base.forage": "채식(기본)",
   "routine.remove": "빼기",
