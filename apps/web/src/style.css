@@ -1134,7 +1134,7 @@ h1 {
   background: none;
   border: 0;
 }
-.menu-dim {
+.sheet-dim {
   position: fixed;
   inset: 0;
   z-index: 3;
@@ -1142,7 +1142,7 @@ h1 {
   border: 0;
   background: rgb(31 36 33 / 0.55);
 }
-.menu-sheet {
+.bsheet {
   position: fixed;
   bottom: 0;
   left: 50%;
@@ -1155,14 +1155,19 @@ h1 {
   background: var(--wb-color-paper);
   border-radius: var(--wb-radius-l) var(--wb-radius-l) 0 0;
 }
-.menu-sheet .hd {
+.bsheet .hd {
   display: flex;
   align-items: center;
   gap: var(--wb-space-2);
   min-height: 44px;
   padding: var(--wb-space-2) var(--wb-space-4) 0;
 }
-.menu-sheet .body {
+.bsheet .hd.col {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--wb-space-1);
+}
+.bsheet .body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -1171,21 +1176,21 @@ h1 {
   gap: var(--wb-space-2);
   padding: var(--wb-space-2) var(--wb-space-4);
 }
-.menu-sheet .body .feed {
+.bsheet .body .feed {
   padding: 0;
 }
-.menu-sheet .opt .cap {
+.bsheet .opt .cap {
   display: block;
 }
-.menu-sheet .actions {
+.bsheet .actions {
   flex: none;
   padding: var(--wb-space-2) var(--wb-space-4) max(var(--wb-space-3), env(safe-area-inset-bottom));
 }
-.menu-sheet .actions .btn {
+.bsheet .actions .btn {
   width: 100%;
 }
 @supports (color: color-mix(in srgb, red, blue)) {
-  .menu-dim {
+  .sheet-dim {
     background: color-mix(in srgb, var(--wb-color-ink) 55%, transparent);
   }
 }
