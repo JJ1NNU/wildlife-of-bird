@@ -837,6 +837,10 @@ export function Game({ data }: { data: GameData }) {
   function handCard(c: Choice, n: number, before: RunState) {
     const p = c.disabled ? undefined : preview(before, c.id, data);
     const risk = p && formatRisk(data.formulas, p.deathRisk);
+    /** 3열 칸(103px)에서 "0.1% 미만"이 낱말 중간에 잘려 짧은 꼴 "<0.1%" (#639) — 정보 줄·aria는 원래 글 */
+    const minShown = data.formulas.display.riskMinShown;
+    const riskShort =
+      p && p.deathRisk < minShown ? `<${roundHalfUp(minShown * 100, 1)}%` : risk?.text;
     const name = c.label;
     const reason = c.disabled?.reason;
     return (
@@ -867,7 +871,7 @@ export function Game({ data }: { data: GameData }) {
               <span className="val">{energyRange(p)}</span>
               <span className="risk">
                 <span className="ico s" style={iconStyle('icon.risk')} />
-                {risk.text}
+                {riskShort}
               </span>
             </span>
           ) : (
@@ -1476,6 +1480,17 @@ export function Game({ data }: { data: GameData }) {
                 {t('main.feed')}
               </button>
             </div>
+            {/* 죽은 판 기록을 바로 저장 — [새로 시작]은 타이틀을 거치지 않음 (#639, 대표 플레이 #608) */}
+            {hasRecord() && (
+              <button
+                type="button"
+                className="btn"
+                onClick={() => exportRecord(state)}
+                data-testid="go-export-record"
+              >
+                {t('gameOver.exportRecord')}
+              </button>
+            )}
             <button type="button" className="btn prim" onClick={restart}>
               {t('title.new')}
             </button>
