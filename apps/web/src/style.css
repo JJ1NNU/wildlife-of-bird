@@ -1138,6 +1138,9 @@ h1 {
   flex: none;
   padding: 0 var(--wb-space-4) var(--wb-space-1);
 }
+.ghead > p {
+  margin: 0;
+}
 .ghead-title {
   white-space: nowrap;
   overflow: hidden;
