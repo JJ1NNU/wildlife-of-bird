@@ -567,6 +567,11 @@ export function Game({ data }: { data: GameData }) {
     seasonPeriods &&
     (Object.keys(seasonPeriods) as Season[]).find((k) => seasonPeriods[k].includes(view.at.period));
   const hereSeason = season ? data.nodes.get(view.node)?.seasons[season] : undefined;
+  // 고른 계절 방침은 그 계절 내내 장소 줄에 한 낱말로(screens 6.6). ViewModel에 없어 RunState를 읽는다 — 잠정(#611)
+  const policyWord =
+    state.seasonPolicy && state.seasonPolicy.season === season
+      ? t(`seasonPolicy.${state.seasonPolicy.id}.name`)
+      : undefined;
 
   // 루틴(관문·게임 오버가 아닐 때): 남은 칸의 계획과 칸마다 예상
   // 칸은 비어서 시작한다 — 엔진 `suggested`는 칸 수로만 쓴다(screens 6.3, 잠정 #615: design 판단 대기)
@@ -1662,6 +1667,11 @@ export function Game({ data }: { data: GameData }) {
           })}
         </span>
       )}
+      {policyWord && (
+        <span className="pol-word b" data-testid="place-policy">
+          {policyWord}
+        </span>
+      )}
       <span className="sp" />
       {withMap && (
         <button type="button" className="lk" onClick={() => setOnMap(true)} data-testid="open-map">
@@ -2214,10 +2224,11 @@ export function Game({ data }: { data: GameData }) {
               <>
                 <button
                   type="button"
-                  className="btn"
+                  className="btn back"
                   onClick={() => setConfirming(false)}
                   data-testid="inherit-back"
                 >
+                  <span aria-hidden="true">◂ </span>
                   {t('inheritance.confirm.back')}
                 </button>
                 <button type="button" className="btn prim" onClick={go} data-testid="go">
