@@ -1412,11 +1412,12 @@ export function Game({ data }: { data: GameData }) {
       .find((l) => l.type === 'death');
     return (
       <main className="game" data-testid="game-over">
-        {tipCard}
         <div className="zone go">
           <header className="go-head">
             <h1>{t('gameOver.title')}</h1>
           </header>
+          {/* 팁은 영역 안 흐름 — 그림(160)이 먼저 접혀 버튼 줄은 늘 화면 안 (와이어 08 F) */}
+          {tipCard}
           <div className="art go-art">
             <img className="art-bird" src={birdUrl(view)} alt="" />
           </div>
