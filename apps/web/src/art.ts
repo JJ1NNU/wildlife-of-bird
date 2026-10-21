@@ -18,16 +18,25 @@ export function placeholderBirdUrl(speciesId: string): string | undefined {
   return placeholders[`../../../assets/placeholder/ph.bird.${speciesId}.svg`];
 }
 
-/** 메인 그림 — 둥지에 새끼가 있으면 둥지, 0살이면 어린 새, 아니면 성조(성별). 최종 그림이 없는 종은 자리표시 */
-export function birdUrl(view: ViewModel): string | undefined {
-  const id = view.speciesId;
+function birdKey(view: ViewModel): string {
   const variant =
     (view.nest?.chicks ?? 0) > 0
       ? 'chick.nest'
       : view.player.age === 0
         ? 'juv.perch'
         : `adult-${view.player.sex === 'male' ? 'm' : 'f'}.breeding.perch`;
-  return finals[`../../../assets/bird/bird.${id}.${variant}.webp`] ?? placeholderBirdUrl(id);
+  return `../../../assets/bird/bird.${view.speciesId}.${variant}.webp`;
+}
+
+/** 메인 그림 — 둥지에 새끼가 있으면 둥지, 0살이면 어린 새, 아니면 성조(성별). 최종 그림이 없는 종은 자리표시 */
+export function birdUrl(view: ViewModel): string | undefined {
+  return finals[birdKey(view)] ?? placeholderBirdUrl(view.speciesId);
+}
+
+/** 메인 그림이 앉은 새(perch) 최종 그림인가 — 구도가 정해져 있어(style-guide 2장: 몸통 y 67–95%·가운데) 몸통만 키워 자른다 */
+export function isPerch(view: ViewModel): boolean {
+  const key = birdKey(view);
+  return key.endsWith('.perch.webp') && key in finals;
 }
 
 /** 어린 새 그림(계승 새끼 줄 사진 40) — 최종 그림이 없는 종은 자리표시 */

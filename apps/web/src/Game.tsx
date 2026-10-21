@@ -26,7 +26,7 @@ import {
 } from '@wb/engine';
 import type { GameData, Season, StatName } from '@wb/schema';
 import { type ReactNode, useEffect, useState } from 'react';
-import { birdUrl, juvBirdUrl, placeholderBirdUrl } from './art.ts';
+import { birdUrl, isPerch, juvBirdUrl, placeholderBirdUrl } from './art.ts';
 import { Codex } from './Codex.tsx';
 import { causeText } from './cause.ts';
 import { recordCodex } from './codex.ts';
@@ -1421,7 +1421,11 @@ export function Game({ data }: { data: GameData }) {
           {/* 팁은 영역 안 흐름 — 그림(160)이 먼저 접혀 버튼 줄은 늘 화면 안 (와이어 08 F) */}
           {tipCard}
           <div className="art go-art">
-            <img className="art-bird" src={birdUrl(view)} alt="" />
+            <img
+              className={`art-bird${isPerch(view) ? ' perch' : ''}`}
+              src={birdUrl(view)}
+              alt=""
+            />
           </div>
           <div className="go-score">
             <span className="cap">{t('main.totalBreeding')}</span>
@@ -1679,7 +1683,7 @@ export function Game({ data }: { data: GameData }) {
   // 띠는 28 밑으로 안 줄어 그림만 숨는다 (와이어 08 C)
   const artBand = (
     <div className={`art band${view.nest ? ' nested' : ''}`}>
-      <img className="art-bird" src={birdUrl(view)} alt="" />
+      <img className={`art-bird${isPerch(view) ? ' perch' : ''}`} src={birdUrl(view)} alt="" />
       {view.nest ? (
         <div className="plate nest-band small" data-testid="nest-band">
           <span className="b">{t('main.nest')}</span>

@@ -591,6 +591,11 @@ h1 {
   top: var(--wb-space-3);
   height: calc(100% - 24px);
 }
+/* 앉은 새 최종 그림은 몸통(그림 높이 28%)이 그림 칸의 85%가 되게 3배로 — 위아래 7.5% 여백 */
+.go-art .art-bird.perch {
+  top: -192%;
+  height: 300%;
+}
 .go-score {
   flex: none;
   padding: var(--wb-space-3) var(--wb-space-4) 0;
@@ -1021,6 +1026,11 @@ h1 {
 }
 .art.band .art-bird {
   height: calc(100% - 28px);
+}
+/* 앉은 새 최종 그림: 이름표(28) 위 칸 A에서 몸통이 85% — 그림 3A, 위 -1.92A (go-art와 같은 비율) */
+.art.band .art-bird.perch {
+  top: calc((100% - 28px) * -1.92);
+  height: calc((100% - 28px) * 3);
 }
 /* 번식기 둥지 띠(와이어 08 C): 이름표 자리 28 — C는 28 밑으로 안 줄고 그림만 가려진다 */
 .art.band.nested {
