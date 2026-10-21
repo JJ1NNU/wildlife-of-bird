@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S-10 한눈 화면 v2 — 중충실도 (#611)</title>
+<link rel="stylesheet" href="wf.css">
+<style>
+/* 한눈 화면 v2 (#611) — 화면 안은 토큰만. 550 결정 영역 대신 화면 전체(640)가 한 장, 스크롤 없음 */
+.phone .v2 { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.v2 .status { height: 56px; flex-direction: row; align-items: stretch; gap: var(--wb-space-2); padding-right: 0; }
+.v2 .status .st { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
+.menu { flex: none; width: 48px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--wb-color-slate-strong); }
+/* B 장소 줄 */
+.place { flex: none; height: 44px; display: flex; align-items: center; gap: var(--wb-space-2); padding-left: var(--wb-space-4);
+  border-bottom: 1px solid var(--wb-color-line); font-size: var(--wb-font-size-small); }
+.place .lk { min-width: 56px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--wb-color-slate-strong); font-weight: var(--wb-font-weight-bold); text-decoration: underline; }
+/* C 그림 띠 — 남는 높이만 쓴다(0까지 접힘) */
+.band { position: relative; flex: 1 1 0; min-height: 0; max-height: 120px; overflow: hidden; background: linear-gradient(#dfe6dc 0 55%, #c9d4c3 55% 100%); }
+.band .bird { position: absolute; left: 50%; top: 6px; height: calc(100% - 12px); transform: translateX(-50%); }
+.band .chip { top: auto; bottom: 0; }
+/* D 칸 줄 */
+.slots { flex: none; padding: var(--wb-space-2) var(--wb-space-4) 0; }
+.slots .hd { display: flex; align-items: center; gap: var(--wb-space-2); height: 20px; font-size: var(--wb-font-size-caption); color: var(--wb-color-ink-muted); }
+.budget { flex: 1; height: 8px; border: 1px solid var(--wb-color-slate); border-radius: var(--wb-radius-full); background: var(--wb-color-paper); position: relative; }
+.budget > i { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--wb-color-slate-strong); }
+.cells { display: flex; gap: 4px; margin-top: 4px; }
+.cell { flex: 1; min-width: 0; height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  background: var(--wb-color-card); border: 1px solid var(--wb-color-line); border-radius: var(--wb-radius-m); font-size: var(--wb-font-size-caption); }
+.cell .ico { color: var(--wb-color-slate-strong); }
+.cell.empty { border-style: dashed; background: var(--wb-color-paper); color: var(--wb-color-ink-muted); }
+.cell.next { border: 2px dashed var(--wb-color-sage-strong); }
+.cell.sel { border: 2px solid var(--wb-color-sage-strong); }
+.cell .e { font-weight: var(--wb-font-weight-bold); }
+.cell .e.w { color: var(--wb-color-ochre-strong); }
+/* E 패 — 가진 카드만, 3열 격자 */
+.hand { flex: none; padding: var(--wb-space-2) var(--wb-space-4) 0; }
+.hand .hd { height: 20px; display: flex; align-items: center; font-size: var(--wb-font-size-caption); color: var(--wb-color-ink-muted); }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--wb-space-2); }
+.pc { position: relative; height: 52px; padding: 4px 6px; display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  background: var(--wb-color-card); border: 1px solid var(--wb-color-line); border-radius: var(--wb-radius-m); min-width: 0; }
+.pc .nm { display: flex; align-items: center; gap: 4px; font-weight: var(--wb-font-weight-bold); font-size: var(--wb-font-size-small); white-space: nowrap; overflow: hidden; }
+.pc .nm .ico { color: var(--wb-color-slate-strong); }
+.pc .cost { flex: none; width: 18px; height: 18px; border-radius: var(--wb-radius-full); background: var(--wb-color-slate-strong); color: var(--wb-color-on-strong);
+  font-size: var(--wb-font-size-caption); display: inline-flex; align-items: center; justify-content: center; }
+.pc .n { position: absolute; right: -4px; top: -6px; min-width: 22px; height: 18px; padding: 0 4px; border-radius: var(--wb-radius-full); background: var(--wb-color-paper); border: 1px solid var(--wb-color-slate-strong);
+  font-size: var(--wb-font-size-caption); font-weight: var(--wb-font-weight-bold); color: var(--wb-color-slate-strong); display: flex; align-items: center; justify-content: center; }
+.pc .v { display: flex; gap: 6px; font-size: var(--wb-font-size-caption); white-space: nowrap; }
+.pc.short { background: var(--wb-color-paper); border-style: dashed; color: var(--wb-color-ink-muted); }
+.pc.short .cost { background: var(--wb-color-danger); }
+.pc.last { border: 2px solid var(--wb-color-sage-strong); }
+/* F 늘 있는 카드 */
+.base { flex: none; display: flex; gap: var(--wb-space-2); padding: var(--wb-space-2) var(--wb-space-4) 0; }
+.base .b2 { flex: 1; height: 44px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: var(--wb-font-size-small); font-weight: var(--wb-font-weight-bold);
+  background: var(--wb-color-paper); border: 1.5px solid var(--wb-color-slate); border-radius: var(--wb-radius-m); color: var(--wb-color-slate-strong); }
+/* G 정보 줄 */
+.info { flex: none; height: 44px; margin: var(--wb-space-2) var(--wb-space-4) 0; padding: 0 0 0 var(--wb-space-2); display: flex; align-items: center; gap: var(--wb-space-2);
+  border-left: 3px solid var(--wb-color-sage-strong); font-size: var(--wb-font-size-caption); line-height: 16px; }
+.info .tx { flex: 1; min-width: 0; }
+.info .x { flex: none; width: 56px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--wb-color-slate-strong); border-radius: var(--wb-radius-m);
+  font-size: var(--wb-font-size-small); font-weight: var(--wb-font-weight-bold); color: var(--wb-color-slate-strong); }
+.info.why { border-left-color: var(--wb-color-danger); }
+/* H 행동 바 */
+.v2 .actions { padding: var(--wb-space-2) var(--wb-space-4) var(--wb-space-3); }
+.v2 .actions .btn.s { flex: none; width: 96px; }
+/* 시트 */
+.v2 .sheet { padding-bottom: var(--wb-space-3); }
+.sheet .opt { margin: 0 var(--wb-space-4) var(--wb-space-2); }
+/* 영역 지도 */
+.zmap .z { display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; line-height: 1.35; color: #2a2a28;
+  border: 1.5px dashed #6b6b66; margin: 2px 4px; border-radius: 6px; background: #fff9; }
+.zmap .z b { font-size: 13px; margin-right: 4px; }
+.zmap .grow { flex: 1 1 0; min-height: 0; background: #e8efe6; }
+.fix { position: absolute; right: 4px; bottom: 4px; font-size: 10px; color: #c0392b; }
+</style>
+</head>
+<body>
+<div class="page-head">
+  <h1>07 · S-10 한눈 화면 v2 — 패에서 고르기 (360×640, 스크롤 없음)</h1>
+  <p>기준: 대표 지시 <b>#611</b>(가진 카드만 · 한눈에 · 한 손 · 확장성) · 디자인 <code>specs/12-card-turn.md</code> 2~3장 · <code>specs/screens.md</code> "S-10 카드 턴". 명세: <a href="../../screens.md">screens.md</a> 6장 · <a href="../../../art/ui-kit.md">ui-kit</a> 3.1.
+  <a href="06-routine.html">06</a>(칸 고르고 → 가로 패 넘김, 550 + 아래 스크롤)을 대체한다. 숫자·문구는 자리를 보여 주는 예시다.</p>
+  <p class="legend"><label><input type="checkbox" id="ann" checked> 주석 보기</label>
+    <span class="k p"></span>확률·예상치 자리 <span class="k t"></span>터치 영역 44px 이상</p>
+</div>
+
+<div class="frames">
+
+<!-- ───────── A. 단계 시작 ───────── -->
+<section class="frame">
+<h2>A. 단계 시작 — 칸 6개 비어 있음, 패 7장(가진 것만)</h2>
+<div class="phone"><div class="v2">
+  <div class="status">
+    <div class="st">
+      <div class="row small"><span class="ico s i-winter"></span><span class="b">1월 상반</span><span class="muted">· 1 / 24</span><span class="sp"></span><span>총 번식 <b>0</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:100%"></i></div><span class="b">64</span><span class="muted">/ 64</span>
+        <span class="ico s i-feather"></span><b>80</b></div>
+    </div>
+    <div class="menu t" aria-label="메뉴">≡</div>
+  </div>
+  <div class="place"><span class="b">숲 가장자리</span><span class="p">먹이 보통 · 경쟁 낮음</span><span class="sp"></span><span class="lk t">지도</span></div>
+  <div class="band">
+    <img class="bird" src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt="">
+    <div class="chip t" style="left:0"><span>박새 ♀ 1세 ▸</span></div>
+  </div>
+  <div class="slots">
+    <div class="hd"><span>루틴 0 / 6칸</span><span class="p">예산 18 중 0</span><div class="budget"><i style="width:0"></i></div></div>
+    <div class="cells">
+      <div class="cell empty next t">1</div><div class="cell empty t">2</div><div class="cell empty t">3</div>
+      <div class="cell empty t">4</div><div class="cell empty t">5</div><div class="cell empty t">6</div>
+    </div>
+  </div>
+  <div class="hand">
+    <div class="hd">패 7장 · 누르면 다음 빈 칸에</div>
+    <div class="grid">
+      <div class="pc t"><div class="nm"><span class="cost">2</span>채식</div><div class="v p"><span>−0.1</span><span>⚠0.1%</span></div><span class="n">×2</span></div>
+      <div class="pc t"><div class="nm"><span class="cost">2</span>어울리기</div><div class="v p"><span>−0.1</span><span>⚠0.1%</span></div></div>
+      <div class="pc t"><div class="nm"><span class="cost">3</span>살피기</div><div class="v p"><span>−0.2</span><span>⚠0.2%</span></div></div>
+      <div class="pc t"><div class="nm"><span class="cost">4</span>비행 연습</div><div class="v p"><span>−0.3</span><span>⚠0.1%</span></div><span class="n">×2</span></div>
+      <div class="pc t"><div class="nm"><span class="cost">4</span>경계 연습</div><div class="v p"><span>−0.3</span><span>⚠0.1%</span></div></div>
+    </div>
+  </div>
+  <div class="base">
+    <div class="b2 t"><span class="ico s i-move"></span>옮기기 ▾</div>
+    <div class="b2 t"><span class="ico s i-forage"></span>채식(기본)</div>
+    <div class="b2 t"><span class="ico s i-rest"></span>쉬기</div>
+  </div>
+  <div class="info"><span class="tx muted">카드를 누르면 다음 빈 칸에 들어가고, 자세한 효과가 여기 나온다. 칸을 누르면 그 칸을 뺄 수 있다.</span></div>
+  <div class="actions"><div class="btn s off">되돌리기</div><div class="btn prim t">실행 · 빈 칸은 쉬기</div></div>
+</div></div>
+<ul class="note">
+  <li>같은 카드는 한 장으로 묶고 <b>×2</b>. 다 쓰면 패에서 빠지고 격자는 앞으로 당긴다 — <b>없는 카드는 그리지 않는다</b>.</li>
+  <li>카드 = 비용 · 이름 · 핵심 1줄(에너지 · 위험% · 장수). 카드 안 아이콘은 뺐다(폭 104에 "비행 연습"이 안 들어감) — 아이콘은 칸(D)에. 성장 같은 나머지는 정보 줄(G)로.</li>
+  <li>그림 띠(C)는 남는 높이만 쓴다(최대 120, 0까지 접힘). 패가 4줄이 되면 띠가 줄어든다.</li>
+</ul>
+</section>
+
+<!-- ───────── B. 칸 넣는 중 ───────── -->
+<section class="frame">
+<h2>B. 넣는 중 — 3칸, 마지막 카드 자세히, 에너지 부족 흐림</h2>
+<div class="phone"><div class="v2">
+  <div class="status">
+    <div class="st">
+      <div class="row small"><span class="ico s i-winter"></span><span class="b">1월 상반</span><span class="muted">· 1 / 24</span><span class="sp"></span><span>총 번식 <b>0</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:100%"></i></div><span class="b">64</span><span class="muted">/ 64</span>
+        <span class="ico s i-feather"></span><b>80</b></div>
+    </div>
+    <div class="menu t" aria-label="메뉴">≡</div>
+  </div>
+  <div class="place"><span class="b">숲 가장자리</span><span class="p">먹이 보통 · 경쟁 낮음</span><span class="sp"></span><span class="lk t">지도</span></div>
+  <div class="band">
+    <img class="bird" src="../../../../assets/placeholder/ph.bird.parus-minor.svg" alt="">
+    <div class="chip t" style="left:0"><span>박새 ♀ 1세 ▸</span></div>
+  </div>
+  <div class="slots">
+    <div class="hd"><span>루틴 3 / 6칸</span><span class="p">예산 18 중 10</span><div class="budget"><i style="width:56%"></i></div></div>
+    <div class="cells">
+      <div class="cell t"><span class="ico s i-forage"></span><span class="e p">64</span></div>
+      <div class="cell t"><span class="ico s i-flight"></span><span class="e p">63</span></div>
+      <div class="cell sel t"><span class="ico s i-flight"></span><span class="e p">63</span></div>
+      <div class="cell empty next t">4</div><div class="cell empty t">5</div><div class="cell empty t">6</div>
+    </div>
+  </div>
+  <div class="hand">
+    <div class="hd">패 4장 · 누르면 다음 빈 칸에</div>
+    <div class="grid">
+      <div class="pc t"><div class="nm"><span class="cost">2</span>어울리기</div><div class="v p"><span>−0.1</span><span>⚠0.1%</span></div></div>
+      <div class="pc t"><div class="nm"><span class="cost">3</span>살피기</div><div class="v p"><span>−0.2</span><span>⚠0.2%</span></div></div>
+      <div class="pc t"><div class="nm"><span class="cost">2</span>채식</div><div class="v p"><span>−0.1</span><span>⚠0.1%</span></div></div>
+      <div class="pc short t"><div class="nm"><span class="cost">4</span>경계 연습</div><div class="v"><span>에너지 부족</span></div></div>
+    </div>
+  </div>
+  <div class="base">
+    <div class="b2 t"><span class="ico s i-move"></span>옮기기 ▾</div>
+    <div class="b2 t"><span class="ico s i-forage"></span>채식(기본)</div>
+    <div class="b2 t"><span class="ico s i-rest"></span>쉬기</div>
+  </div>
+  <div class="info"><span class="tx"><b>3칸 비행 연습</b> · 비행 +0.6 · 에너지 −0.3 → <b>63</b><br><span class="risk lo"><span class="ico s i-risk"></span>0.1% <span class="w">낮음</span></span></span><span class="x t">빼기</span></div>
+  <div class="actions"><div class="btn s t">되돌리기</div><div class="btn prim t">실행 · 빈 칸은 쉬기</div></div>
+</div></div>
+<ul class="note">
+  <li>칸 아래 숫자 = 그 칸 뒤 <b>예상 에너지</b>(이어 계산). 배고픔 구간 아래면 <span class="caution">노랑</span>.</li>
+  <li>카드를 넣거나 칸을 누르면 정보 줄(G)이 그 카드의 전체 효과 + 위험 띠(색·아이콘·숫자·낱말). 칸을 눌렀을 때만 <b>빼기</b>.</li>
+  <li>못 쓰는 카드: 점선 + 흐림 + 2줄째가 이유 낱말. 누르면 정보 줄에 이유 한 줄("예산 18 중 10 — 경계 연습은 4, 남은 8칸 몫 …"), 칸에는 안 들어감.</li>
+  <li>되돌리기 = 마지막으로 넣은 칸 하나 빼기. 번식기 2~3칸도 같은 틀(칸이 넓어질 뿐).</li>
+</ul>
+</section>
+
+<!-- ───────── C. 옮기기 시트 ───────── -->
+<section class="frame">
+<h2>C. 옮기기 ▾ — 아래 시트(상태 바는 그대로)</h2>
+<div class="phone"><div class="v2">
+  <div class="status">
+    <div class="st">
+      <div class="row small"><span class="ico s i-winter"></span><span class="b">1월 상반</span><span class="muted">· 1 / 24</span><span class="sp"></span><span>총 번식 <b>0</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:100%"></i></div><span class="b">64</span><span class="muted">/ 64</span>
+        <span class="ico s i-feather"></span><b>80</b></div>
+    </div>
+    <div class="menu" aria-label="메뉴">≡</div>
+  </div>
+  <div class="dim" style="top:56px"></div>
+  <div class="sheet">
+    <div class="hd"><div class="row"><span class="ico i-move"></span><span class="t1">어디로 옮길까</span><span class="sp"></span><span class="muted small">4곳</span></div>
+      <p class="cap">옮기기는 예산을 쓰지 않는다. 고른 곳이 다음 빈 칸에 들어간다.</p></div>
+    <div class="opt t"><div class="main"><div class="b">소나무숲</div><div class="cap p">먹이 많음 · 경쟁 보통</div></div><div class="vals p">−0.4<br><span class="risk lo">0.1% <span class="w">낮음</span></span></div></div>
+    <div class="opt t"><div class="main"><div class="b">활엽수 노숙림</div><div class="cap p">먹이 보통 · 경쟁 높음</div></div><div class="vals p">−0.4<br><span class="risk mid">0.4% <span class="w">보통</span></span></div></div>
+    <div class="opt t"><div class="main"><div class="b">마을 정원</div><div class="cap p">먹이 보통 · 경쟁 낮음</div></div><div class="vals p">−0.6<br><span class="risk mid">0.5% <span class="w">보통</span></span></div></div>
+    <div class="opt t"><div class="main"><div class="b">계곡 덤불</div><div class="cap p">먹이 적음 · 경쟁 낮음</div></div><div class="vals p">−0.5<br><span class="risk lo">0.1% <span class="w">낮음</span></span></div></div>
+    <div class="actions"><div class="btn t">닫기</div></div>
+  </div>
+</div></div>
+<ul class="note">
+  <li>목적지 줄은 지금 <code>.opt</code> 그대로(위험 띠 낱말 포함). 시트 높이는 내용만큼, 최대 4곳이라 스크롤 없음.</li>
+  <li>이벤트(S-13)·판정 결과(S-12)·계절 방침(S-14)도 같은 <b>아래 시트</b> — 상태 바(A)만 남기고 덮는다(screens.md 6.4).</li>
+</ul>
+</section>
+
+<!-- ───────── D. 메뉴 시트 ───────── -->
+<section class="frame">
+<h2>D. ≡ 메뉴 — 판 밖으로 가는 곳은 여기 한 군데</h2>
+<div class="phone"><div class="v2">
+  <div class="status">
+    <div class="st">
+      <div class="row small"><span class="ico s i-winter"></span><span class="b">1월 상반</span><span class="muted">· 1 / 24</span><span class="sp"></span><span>총 번식 <b>0</b></span></div>
+      <div class="row small"><span class="ico s i-energy"></span><div class="gauge"><i style="width:100%"></i></div><span class="b">64</span><span class="muted">/ 64</span>
+        <span class="ico s i-feather"></span><b>80</b></div>
+    </div>
+    <div class="menu t" aria-label="메뉴 닫기">✕</div>
+  </div>
+  <div class="dim" style="top:56px"></div>
+  <div class="sheet">
+    <div class="hd"><div class="t1">메뉴</div></div>
+    <div class="opt t"><div class="main"><div class="b">지난 일</div><div class="cap">이번 판 이야기 기록(지금의 피드)</div></div></div>
+    <div class="opt t"><div class="main"><div class="b">개체 상세</div><div class="cap">스탯 · 특성 · 다음 1년 생존(S-15)</div></div></div>
+    <div class="opt t"><div class="main"><div class="b">도감</div></div></div>
+    <div class="opt t"><div class="main"><div class="b">설정</div><div class="cap">도움말 · 기록 내보내기 · 판 지우기</div></div></div>
+    <div class="actions"><div class="btn t">닫기</div></div>
+  </div>
+</div></div>
+<ul class="note">
+  <li>지금 판 화면 아래에 흐르던 피드·빨리 감기(개발용)·설정은 여기로 — 판 화면은 스크롤 없이 끝난다.</li>
+  <li>새 메뉴(리더보드 등)는 이 목록에 한 줄씩 더한다. 판 화면 틀은 그대로.</li>
+</ul>
+</section>
+
+<!-- ───────── E. 영역 지도 ───────── -->
+<section class="frame">
+<h2>E. 영역 지도 — 높이 예산 · 확장 자리</h2>
+<div class="phone zmap"><div class="v2">
+  <div class="z" style="height:52px"><b>A</b> 상태 바 56 · 고정 — 시기·에너지·깃털·총 번식 · ≡</div>
+  <div class="z" style="height:40px"><b>B</b> 장소 줄 44 · 고정 — 장소·등급 · 지도</div>
+  <div class="z grow"><b>C</b> 그림 띠 · 남는 높이(0~120)<br>새 · 개체 칩 · 번식기엔 둥지 띠<br>나중: 환경 카드 칩, 다른 종 그림</div>
+  <div class="z" style="height:76px"><b>D</b> 칸 줄 84 · 고정 — 예산 막대 · 칸 6~8<br>나중: 겹치기·순서 보너스 표시</div>
+  <div class="z" style="height:120px"><b>E</b> 패 · 3열 × 52, 줄 수만큼<br>나중: 스티커(카드 모서리) · 남겨 두기 표시 · 갈래 %는 G로</div>
+  <div class="z" style="height:44px"><b>F</b> 늘 있는 카드 52 · 옮기기 · 채식 · 쉬기</div>
+  <div class="z" style="height:44px"><b>G</b> 정보 줄 52 · 마지막 카드/칸 자세히 · 이유</div>
+  <div class="z" style="height:52px"><b>H</b> 행동 바 64 · 되돌리기 · 실행(주 버튼 1개)</div>
+  <span class="fix">640 = 56+44+C+84+E+52+52+64</span>
+</div></div>
+<ul class="note">
+  <li>C만 늘고 준다. 나머지는 고정 높이 — 다른 칸에 기능을 더하면 그 칸 높이 안에서 해결하고, 안 되면 C를 줄인다.</li>
+  <li>패 3줄(9장)이면 C ≈ 100. 4줄(10~12장)이면 C ≈ 40. 그 넘게는 E만 세로 스크롤(드묾).</li>
+</ul>
+</section>
+
+</div>
+</body>
+</html>
