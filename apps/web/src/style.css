@@ -956,6 +956,19 @@ h1 {
 .art.band .art-bird {
   height: calc(100% - 28px);
 }
+/* 번식기 둥지 띠(와이어 08 C): 이름표 자리 28 — C는 28 밑으로 안 줄고 그림만 가려진다 */
+.art.band.nested {
+  min-height: 28px;
+}
+.plate.nest-band {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+  padding-top: 0;
+  padding-bottom: 0;
+  white-space: nowrap;
+}
 /* D 칸 줄 머리: 루틴 k/n칸 · 예산 막대 · 합 위험 한 줄 */
 .zone.v2 .slot-head {
   height: 20px;

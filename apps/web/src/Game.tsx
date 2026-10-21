@@ -1687,25 +1687,28 @@ export function Game({ data }: { data: GameData }) {
       {desc && <p className="muted small">{desc}</p>}
     </div>
   );
-  // C 그림 띠: 남는 높이만(0~120) — 패가 길면 먼저 줄어든다
+  // C 그림 띠: 남는 높이만(0~120) — 패가 길면 먼저 줄어든다. 번식기엔 이름표 대신 둥지 띠(28),
+  // 띠는 28 밑으로 안 줄어 그림만 숨는다 (와이어 08 C)
   const artBand = (
-    <div className="art band">
+    <div className={`art band${view.nest ? ' nested' : ''}`}>
       <img className="art-bird" src={birdUrl(view)} alt="" />
-      <div className="plate small">
-        {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
-        {t(`gameOver.life.${view.player.sex}`)} {t('main.age', { n: view.player.age })}
-        {view.nest && (
-          <span className="b" data-testid="nest-band">
-            {', '}
-            {t('main.nest')},{' '}
+      {view.nest ? (
+        <div className="plate nest-band small" data-testid="nest-band">
+          <span className="b">{t('main.nest')}</span>
+          <span>
             {view.nest.chicks !== undefined
               ? t('main.nest.chicks', { n: view.nest.chicks })
               : view.nest.eggs !== undefined
                 ? t('main.nest.eggs', { n: view.nest.eggs })
                 : t('main.nest.beforeLaying')}
           </span>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="plate small">
+          {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
+          {t(`gameOver.life.${view.player.sex}`)} {t('main.age', { n: view.player.age })}
+        </div>
+      )}
     </div>
   );
 
