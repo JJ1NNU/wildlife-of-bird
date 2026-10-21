@@ -38,5 +38,15 @@
   "routine.nextSlot": "다음 칸",
   "routine.slotActions": "{n}칸 행동",
   "routine.table.resultLabel": "칸별 결과",
-  "routine.table.previewLabel": "칸별 예상"
+  "routine.table.previewLabel": "칸별 예상",
+  "routine.filled": "루틴 {k} / {n}칸",
+  "routine.hand.head": "패 {n}장, 누르면 다음 빈 칸에",
+  "routine.full": "칸이 다 참. 칸을 눌러 빼면 다시 넣을 수 있음.",
+  "routine.base.forage": "채식(기본)",
+  "routine.remove": "빼기",
+  "routine.goRest": "실행, 빈 칸은 쉬기",
+  "routine.info.help": "카드를 누르면 다음 빈 칸에 들어가고, 자세한 효과가 여기 나옴. 칸을 누르면 그 칸을 뺄 수 있음.",
+  "routine.move.title": "어디로 옮길까, {n}곳",
+  "routine.move.help": "옮기기는 예산을 쓰지 않음. 고른 곳이 다음 빈 칸에 들어감.",
+  "routine.move.close": "닫기"
 }
