@@ -1647,9 +1647,51 @@ export function Game({ data }: { data: GameData }) {
     </>
   );
 
+  // B 장소 줄(screens 6.2): 장소 · 이번 계절 먹이·경쟁 · [지도]. 관문 시트 뒤에는 지도 없이 흐리게(6.6)
+  const placeRow = (withMap: boolean) => (
+    <div className="place small" data-testid="place">
+      <span className="b">{data.nodes.get(view.node)?.nameKo ?? view.node}</span>
+      {hereSeason && (
+        <span className="muted">
+          {t('main.move.destination', {
+            food: t(`word.food.${hereSeason.food}`),
+            competition: t(`word.competition.${hereSeason.competition}`),
+          })}
+        </span>
+      )}
+      <span className="sp" />
+      {withMap && (
+        <button type="button" className="lk" onClick={() => setOnMap(true)} data-testid="open-map">
+          {t('map.open')}
+        </button>
+      )}
+    </div>
+  );
+  // C 그림 띠: 남는 높이만(0~120) — 패가 길면 먼저 줄어든다
+  const artBand = (
+    <div className="art band">
+      <img className="art-bird" src={birdUrl(view)} alt="" />
+      <div className="plate small">
+        {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
+        {t(`gameOver.life.${view.player.sex}`)} {t('main.age', { n: view.player.age })}
+        {view.nest && (
+          <span className="b" data-testid="nest-band">
+            {', '}
+            {t('main.nest')},{' '}
+            {view.nest.chicks !== undefined
+              ? t('main.nest.chicks', { n: view.nest.chicks })
+              : view.nest.eggs !== undefined
+                ? t('main.nest.eggs', { n: view.nest.eggs })
+                : t('main.nest.beforeLaying')}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <main className="game" data-testid="main-turn">
-      <div className={`zone${eventGate ? ' ov' : ''}${view.routine && !view.gate ? ' v2' : ''}`}>
+      <div className={`zone${view.gate ? ' gs' : view.routine ? ' v2' : ''}`}>
         <header className="status">
           <div className="st">
             <div className="row small">
@@ -1692,555 +1734,545 @@ export function Game({ data }: { data: GameData }) {
         {menu && menuSheet}
         {open === 'move' && !menu && !view.gate && !replay && moveSheet}
         {tipCard}
-
-        {view.gate?.kind === 'mateCandidate' ? (
-          <ul
-            className="list"
-            aria-label={t('gate.mateCandidate.label')}
-            data-testid="gate-mateCandidate"
-          >
-            <li className="gate-title b">{t('gate.mateCandidate.title')}</li>
-            {mateGone && <li className="gate-title muted small">{mateGone}</li>}
-            {view.gate.cards.map((card, i) => mateRow(card, mateCards?.[0]?.previous ? i : i + 1))}
-          </ul>
-        ) : view.gate?.kind === 'nestSite' ? (
-          <ul className="list" aria-label={t('gate.nestSite.label')} data-testid="gate-nestSite">
-            <li className="gate-title b">{t('gate.nestSite.title')}</li>
-            {view.gate.cards.map((card) => nestRow(card))}
-            <li className="gate-title muted small">{t('gate.nestSite.help')}</li>
-          </ul>
-        ) : view.gate?.kind === 'mateOrder' ? (
-          <ul className="list" aria-label={t('gate.mateOrder.label')} data-testid="gate-mateOrder">
-            <li className="gate-title b">{t('gate.mateOrder.title')}</li>
-            {view.gate.cards.map((card) => orderRow(card))}
-            <li className="gate-title muted small">{t('gate.mateOrder.help')}</li>
-          </ul>
-        ) : view.gate?.kind === 'parentingPolicy' ? (
-          <ul
-            className="list"
-            aria-label={t('gate.parentingPolicy.label')}
-            data-testid="gate-parentingPolicy"
-          >
-            <li className="gate-title b">
-              {t(policyAdjust ? 'gate.parentingPolicy.adjustTitle' : 'gate.parentingPolicy.title')}
-            </li>
-            {view.gate.cards.map((it, i) => (
-              <li key={it.item} className={`pol${it.locked ? ' lock' : ''}`}>
-                <span className="lab small b">
-                  {i + 1} {it.label}
-                  {it.locked && <span className="muted">, {t('gate.parentingPolicy.locked')}</span>}
-                </span>
-                <fieldset className="seg" aria-label={it.label}>
-                  {it.options.map((o) => (
-                    <button
-                      key={o}
-                      type="button"
-                      className={policyValues[it.item] === o ? 'on' : undefined}
-                      aria-pressed={policyValues[it.item] === o}
-                      disabled={it.locked}
-                      onClick={() =>
-                        setPicked(
-                          `parentingPolicy?${new URLSearchParams({ ...policyValues, [it.item]: o })}`,
-                        )
-                      }
-                      data-testid={`policy-${it.item}-${o}`}
-                    >
-                      {t(`gate.policy.${o}`)}
-                    </button>
-                  ))}
-                </fieldset>
-              </li>
-            ))}
-          </ul>
-        ) : inherit && confirming && inheritChick ? (
-          <div className="list" data-testid="inherit-confirm">
-            <p className="gate-title b">
-              {t('inheritance.confirm.title', { name: chickName(inheritIndex, inheritChick) })}{' '}
-              <span className="caution">{t('inheritance.confirm.caution')}</span>
-            </p>
-            <table className="compare small">
-              <thead>
-                <tr>
-                  <th />
-                  <th>{t('inheritance.confirm.colStay')}</th>
-                  <th>{chickName(inheritIndex, inheritChick)}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>{t('inheritance.confirm.rowAge')}</th>
-                  <td>{t('inheritance.confirm.stayAge', { age: inherit.stay.age })}</td>
-                  <td className="caution">{t('inheritance.confirm.chickAge')}</td>
-                </tr>
-                <tr>
-                  <th>{t('inheritance.confirm.rowStats')}</th>
-                  <td>{t('inheritance.confirm.stayStats')}</td>
-                  <td className="caution">{t('inheritance.confirm.chickStats')}</td>
-                </tr>
-                <tr>
-                  <th>{t('inheritance.confirm.rowPotential')}</th>
-                  <td>{t('inheritance.confirm.stayPotential')}</td>
-                  <td>{t('inheritance.confirm.chickPotential')}</td>
-                </tr>
-                <tr>
-                  <th>{t('inheritance.confirm.rowMate')}</th>
-                  <td>
-                    {inherit.stay.bond !== undefined
-                      ? t('inheritance.confirm.mateYes', { bond: inherit.stay.bond })
-                      : t('inheritance.confirm.mateNo')}
-                  </td>
-                  <td className="caution">{t('inheritance.confirm.chickMate')}</td>
-                </tr>
-                <tr>
-                  <th>{t('inheritance.confirm.rowSurvival')}</th>
-                  <td>{Math.round(inherit.stay.yearSurvival * 100)}%</td>
-                  <td>
-                    {Math.round(inheritChick.yearSurvival * 100)}%,{' '}
-                    {t('inheritance.chick.firstWinter')} {inheritChick.firstWinter.toFixed(2)}배
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <p className="muted small">{t('inheritance.confirm.kept')}</p>
+        {/* 관문 시트(screens 6.6 · 와이어 08): 판 화면은 뒤에 어둡게, 목록·주 버튼은 아래 시트 하나. 닫기 없음 */}
+        {view.gate && (
+          <div className="behind" aria-hidden="true">
+            {placeRow(false)}
+            {artBand}
           </div>
-        ) : inherit ? (
-          <ul
-            className="list"
-            aria-label={t('gate.inheritance.label')}
-            data-testid="gate-inheritance"
-          >
-            <li className="gate-title b">
-              {t('inheritance.header.title', {
-                n: inherit.cards.length,
-                from: inherit.totalBreeding - 1,
-                to: inherit.totalBreeding,
-              })}
-            </li>
-            <li className="gate-title muted small">{t('inheritance.header.note')}</li>
-            <li>
-              <button
-                type="button"
-                className={`opt${picked === inherit.stay.choiceId ? ' sel' : ''}`}
-                aria-pressed={picked === inherit.stay.choiceId}
-                onClick={() => setPicked(inherit.stay.choiceId)}
-                data-testid={`choice-${inherit.stay.choiceId}`}
-              >
-                <span className="main">
-                  <span className="b">
-                    {t('inheritance.stay.label')} {t(SEX_WORD[view.player.sex])}{' '}
-                    {t('inheritance.confirm.stayAge', { age: inherit.stay.age })}{' '}
-                    <span className="muted small">{t('inheritance.stay.tag')}</span>
-                  </span>
-                  <span className="cap">
-                    {t('inheritance.stay.aging')}{' '}
-                    <b>{formatRisk(data.formulas, inherit.stay.agingRisk).text}</b>
-                    {inherit.stay.bond !== undefined && (
-                      <>
-                        {', '}
-                        {t('inheritance.stay.bond')} <b>{inherit.stay.bond}</b>
-                      </>
-                    )}
-                  </span>
-                </span>
-                <span className="vals">
-                  <span>{t('inheritance.card.yearSurvival')}</span>
-                  <b>{Math.round(inherit.stay.yearSurvival * 100)}%</b>
-                </span>
-              </button>
-            </li>
-            <li className="gate-title muted small">{t('inheritance.chicks.title')}</li>
-            {inherit.cards.map((card, i) => chickRow(card, i))}
-            <li className="gate-title muted small">{t('inheritance.footer.note')}</li>
-          </ul>
-        ) : view.gate?.kind === 'secondBrood' ? (
-          <ul
-            className="list"
-            aria-label={t('gate.secondBrood.label')}
-            data-testid="gate-secondBrood"
-          >
-            <li className="gate-title b">{t('gate.secondBrood.title')}</li>
-            {broodWhy && <li className="gate-title muted small">{broodWhy}</li>}
-            {view.gate.cards.map((card) => broodRow(card))}
-          </ul>
-        ) : view.gate?.kind === 'event' ? (
-          <ul className="list sheet" aria-label={t('gate.event.label')} data-testid="gate-event">
-            {/* 잠정(#188): 전용 장면 그림(asset-list scene.*)이 오기 전까지 새 + 위험 아이콘 (02-event 메모, art.md 7장) */}
-            <li className="scene" aria-hidden="true" data-testid="event-scene">
-              <img className="scene-bird" src={placeholderBirdUrl(view.speciesId)} alt="" />
-              <span className="ico scene-risk" style={iconStyle('icon.risk')} />
-            </li>
-            <li className="gate-title b">{gateEvent?.title ?? view.gate.id}</li>
-            {gateEvent && <li className="gate-title muted small">{gateEvent.body}</li>}
-            {view.nest?.chicks !== undefined && (
-              <li className="gate-title small" data-testid="event-nest">
-                {t('main.nest')}, {t('main.nest.chicks', { n: view.nest.chicks })}
-              </li>
-            )}
-            <li>
-              <ul className="hand event">{view.gate.cards.map((card) => eventRow(card))}</ul>
-            </li>
-            {pickedEvent && (
-              <li className="gate-title small opt-detail" data-testid="event-detail">
-                <span className="b">{eventOption(pickedEvent).text}</span>
-                {eventFx(pickedEvent)}
-              </li>
-            )}
-          </ul>
-        ) : view.gate?.kind === 'seasonPolicy' ? (
-          <ul
-            className="list"
-            aria-label={t('gate.seasonPolicy.label')}
-            data-testid="gate-seasonPolicy"
-          >
-            <li className="gate-title b">{t('gate.seasonPolicy.title')}</li>
-            <li>
-              <ul className="hand season">{view.gate.cards.map((card) => seasonRow(card))}</ul>
-            </li>
-            {picked?.startsWith('seasonPolicy.') && (
-              <li className="gate-title small" data-testid="season-desc">
-                <span className="b">{pickedChoice?.label}</span>:{' '}
-                {t(`seasonPolicy.${picked.slice('seasonPolicy.'.length)}.desc`)}
-              </li>
-            )}
-            <li className="gate-title muted small">{t('gate.seasonPolicy.help')}</li>
-          </ul>
-        ) : view.gate?.kind === 'clutchSize' ? (
-          <ul
-            className="list"
-            aria-label={t('gate.clutchSize.label')}
-            data-testid="gate-clutchSize"
-          >
-            <li className="gate-title b">{t('gate.clutchSize.title')}</li>
-            {view.gate.cards.map((card) => clutchRow(card))}
-            <li className="gate-title muted small">{t('gate.clutchSize.help')}</li>
-          </ul>
-        ) : (
-          <>
-            {/* B 장소 줄(screens 6.2): 장소 · 이번 계절 먹이·경쟁 · [지도] */}
-            <div className="place small" data-testid="place">
-              <span className="b">{data.nodes.get(view.node)?.nameKo ?? view.node}</span>
-              {hereSeason && (
-                <span className="muted">
-                  {t('main.move.destination', {
-                    food: t(`word.food.${hereSeason.food}`),
-                    competition: t(`word.competition.${hereSeason.competition}`),
-                  })}
-                </span>
+        )}
+        <div
+          className={view.gate ? 'gsheet' : 'contents'}
+          data-testid={view.gate ? 'gate-sheet' : undefined}
+        >
+          {view.gate?.kind === 'mateCandidate' ? (
+            <ul
+              className="list"
+              aria-label={t('gate.mateCandidate.label')}
+              data-testid="gate-mateCandidate"
+            >
+              <li className="gate-title b">{t('gate.mateCandidate.title')}</li>
+              {mateGone && <li className="gate-title muted small">{mateGone}</li>}
+              {view.gate.cards.map((card, i) =>
+                mateRow(card, mateCards?.[0]?.previous ? i : i + 1),
               )}
-              <span className="sp" />
-              {!replay && (
-                <button
-                  type="button"
-                  className="lk"
-                  onClick={() => setOnMap(true)}
-                  data-testid="open-map"
-                >
-                  {t('map.open')}
-                </button>
-              )}
-            </div>
-            {/* C 그림 띠: 남는 높이만(0~120) — 패가 길면 먼저 줄어든다 */}
-            <div className="art band">
-              <img className="art-bird" src={birdUrl(view)} alt="" />
-              <div className="plate small">
-                {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
-                {t(`gameOver.life.${view.player.sex}`)} {t('main.age', { n: view.player.age })}
-                {view.nest && (
-                  <span className="b" data-testid="nest-band">
-                    {', '}
-                    {t('main.nest')},{' '}
-                    {view.nest.chicks !== undefined
-                      ? t('main.nest.chicks', { n: view.nest.chicks })
-                      : view.nest.eggs !== undefined
-                        ? t('main.nest.eggs', { n: view.nest.eggs })
-                        : t('main.nest.beforeLaying')}
-                  </span>
+            </ul>
+          ) : view.gate?.kind === 'nestSite' ? (
+            <ul className="list" aria-label={t('gate.nestSite.label')} data-testid="gate-nestSite">
+              <li className="gate-title b">{t('gate.nestSite.title')}</li>
+              {view.gate.cards.map((card) => nestRow(card))}
+              <li className="gate-title muted small">{t('gate.nestSite.help')}</li>
+            </ul>
+          ) : view.gate?.kind === 'mateOrder' ? (
+            <ul
+              className="list"
+              aria-label={t('gate.mateOrder.label')}
+              data-testid="gate-mateOrder"
+            >
+              <li className="gate-title b">{t('gate.mateOrder.title')}</li>
+              {view.gate.cards.map((card) => orderRow(card))}
+              <li className="gate-title muted small">{t('gate.mateOrder.help')}</li>
+            </ul>
+          ) : view.gate?.kind === 'parentingPolicy' ? (
+            <ul
+              className="list"
+              aria-label={t('gate.parentingPolicy.label')}
+              data-testid="gate-parentingPolicy"
+            >
+              <li className="gate-title b">
+                {t(
+                  policyAdjust ? 'gate.parentingPolicy.adjustTitle' : 'gate.parentingPolicy.title',
                 )}
-              </div>
-            </div>
-
-            {/* D 칸 줄: 머리(루틴 k/n칸 · 예산 · 합 위험) + 칸. 다음 빈 칸 점선, 누른 칸 실선 */}
-            <div className="slots" data-testid="routine">
-              <div className="slot-head" role="status" data-testid="slot-head">
-                {slotNote ? (
-                  <b>
-                    {t(
-                      slotNote.to > slotNote.from ? 'routine.slots.gained' : 'routine.slots.lost',
-                      { n: slotNote.to },
+              </li>
+              {view.gate.cards.map((it, i) => (
+                <li key={it.item} className={`pol${it.locked ? ' lock' : ''}`}>
+                  <span className="lab small b">
+                    {i + 1} {it.label}
+                    {it.locked && (
+                      <span className="muted">, {t('gate.parentingPolicy.locked')}</span>
                     )}
-                  </b>
-                ) : (
-                  <span>
-                    {t('routine.filled', {
-                      k: slots.filter((x) => x.id).length + done,
-                      n: slots.length + done,
-                    })}
                   </span>
-                )}
-                {budget && Number.isFinite(budget.limit) && (
-                  <span className="bud" data-testid="budget">
-                    <span>{t('routine.budget', { limit: budget.limit, spent: budget.spent })}</span>
-                    <meter
-                      className="budget"
-                      min={0}
-                      max={budget.limit}
-                      value={budget.spent}
-                      aria-label={t('routine.budget', { limit: budget.limit, spent: budget.spent })}
-                    />
-                  </span>
-                )}
-                {ready && (
-                  <span className={`risk ${sumBand.band}`} data-testid="routine-risk">
-                    <span className="ico s" style={iconStyle('icon.risk')} />
-                    {sumBand.text} <span className="w">{t(`word.risk.${sumBand.band}`)}</span>
-                  </span>
-                )}
-              </div>
-              <div className={`cells${slots.length + done > 6 ? ' many' : ''}`}>
-                {slots.map((s, k) => {
-                  const place = placeBefore(k);
-                  const cls = s.id
-                    ? k === cursor || (replay && k === shown - 1)
-                      ? ' sel'
-                      : ''
-                    : k === firstEmpty && !replay
-                      ? ' empty next'
-                      : ' empty';
-                  return (
-                    <button
-                      // biome-ignore lint/suspicious/noArrayIndexKey: 칸은 자리로 구분한다
-                      key={k}
-                      type="button"
-                      className={`cell${cls}`}
-                      aria-pressed={k === cursor}
-                      disabled={Boolean(replay)}
-                      onClick={() => s.id && setCursor(k === cursor ? undefined : k)}
-                      aria-label={`${t('routine.slot', { n: done + k + 1 })}, ${s.id ? labelOf(s) : t('routine.empty')}`}
-                      data-testid={`slot-${done + k + 1}`}
-                    >
-                      {place && <span className="pl">{place}</span>}
-                      {s.id ? (
-                        <>
-                          <span className="ico s" style={iconStyle(slotIcon(s.id))} />
-                          <span className="e">{roundHalfUp(energyAfter[k] ?? 0)}</span>
-                        </>
-                      ) : (
-                        <span className="n">{done + k + 1}</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {replay ? (
-              <div className="list" data-testid="replay">
-                <table className="slot-table small" aria-label={t('routine.table.resultLabel')}>
-                  <thead>
-                    <tr>
-                      <th>{t('routine.table.slot')}</th>
-                      <th>{t('routine.table.action')}</th>
-                      <th>{t('routine.table.expected')}</th>
-                      <th>{t('routine.table.actual')}</th>
-                      <th />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {replay.rows.map((r, k) => {
-                      const seen = k < shown;
-                      return (
-                        <tr key={r.slot} className={seen ? '' : 'muted'}>
-                          <td>{r.slot}</td>
-                          <td>
-                            {r.label}
-                            {seen && r.event && `, ${r.event.text}`}
-                          </td>
-                          <td>{r.expect !== undefined && energy1(r.expect)}</td>
-                          <td>
-                            {seen ? (r.actual ? energy1(r.actual.deltas?.energy ?? 0) : '-') : '-'}
-                          </td>
-                          <td className={seen && r.dead ? 'danger' : ''}>
-                            {seen ? (r.dead ? '✕' : r.event ? '!' : r.actual ? '✓' : '') : ''}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-                {replayDone && (
-                  <p className="small" data-testid="replay-total">
-                    {replay.death
-                      ? t('routine.replay.deathAt', {
-                          n: replay.death.slot ?? '',
-                          text: causeText('death', replay.death.cause, data) ?? replay.death.text,
-                        })
-                      : deltaText(replay.total?.deltas) || t('routine.replay.noChange')}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <>
-                {/* E 패: 가진 카드만 3열 — 넘치면 패만 스크롤 */}
-                <div className="hand2">
-                  <div className="hd">
-                    {nextSlot
-                      ? t('routine.hand.head', { n: handCards.reduce((x, h) => x + h.n, 0) })
-                      : t('routine.full')}
-                  </div>
-                  {nextSlot && (
-                    <ul className="grid" data-testid="hand">
-                      {handCards.map(({ c, n }) => handCard(c, n, nextSlot.before))}
-                    </ul>
-                  )}
-                </div>
-                {/* F 늘 있는 카드: 옮기기 ▾ · 채식(기본) · 쉬기 */}
-                {nextSlot && (
-                  <div className="base">
-                    {moveChoices.length > 0 && (
+                  <fieldset className="seg" aria-label={it.label}>
+                    {it.options.map((o) => (
                       <button
+                        key={o}
                         type="button"
-                        className="b2"
-                        onClick={() => setOpen('move')}
-                        data-testid="group-move"
+                        className={policyValues[it.item] === o ? 'on' : undefined}
+                        aria-pressed={policyValues[it.item] === o}
+                        disabled={it.locked}
+                        onClick={() =>
+                          setPicked(
+                            `parentingPolicy?${new URLSearchParams({ ...policyValues, [it.item]: o })}`,
+                          )
+                        }
+                        data-testid={`policy-${it.item}-${o}`}
                       >
-                        {t('routine.group.move')} ▾
-                      </button>
-                    )}
-                    {baseCards.map((c) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        className={`b2${c.disabled ? ' short' : ''}`}
-                        aria-disabled={!!c.disabled}
-                        onClick={() => fill(c)}
-                        data-testid={`base-${c.id}`}
-                      >
-                        {c.id === 'action.forage' ? t('routine.base.forage') : c.label}
+                        {t(`gate.policy.${o}`)}
                       </button>
                     ))}
-                  </div>
-                )}
-                {/* G 정보 줄: 누른 칸(+빼기) · 마지막에 넣은 칸 · 못 쓰는 이유 · 사용법 */}
-                <div
-                  className={`info${info && 'why' in info && cursor === undefined ? ' why' : ''}`}
-                  data-testid="info"
+                  </fieldset>
+                </li>
+              ))}
+            </ul>
+          ) : inherit && confirming && inheritChick ? (
+            <div className="list" data-testid="inherit-confirm">
+              <p className="gate-title b">
+                {t('inheritance.confirm.title', { name: chickName(inheritIndex, inheritChick) })}{' '}
+                <span className="caution">{t('inheritance.confirm.caution')}</span>
+              </p>
+              <table className="compare small">
+                <thead>
+                  <tr>
+                    <th />
+                    <th>{t('inheritance.confirm.colStay')}</th>
+                    <th>{chickName(inheritIndex, inheritChick)}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>{t('inheritance.confirm.rowAge')}</th>
+                    <td>{t('inheritance.confirm.stayAge', { age: inherit.stay.age })}</td>
+                    <td className="caution">{t('inheritance.confirm.chickAge')}</td>
+                  </tr>
+                  <tr>
+                    <th>{t('inheritance.confirm.rowStats')}</th>
+                    <td>{t('inheritance.confirm.stayStats')}</td>
+                    <td className="caution">{t('inheritance.confirm.chickStats')}</td>
+                  </tr>
+                  <tr>
+                    <th>{t('inheritance.confirm.rowPotential')}</th>
+                    <td>{t('inheritance.confirm.stayPotential')}</td>
+                    <td>{t('inheritance.confirm.chickPotential')}</td>
+                  </tr>
+                  <tr>
+                    <th>{t('inheritance.confirm.rowMate')}</th>
+                    <td>
+                      {inherit.stay.bond !== undefined
+                        ? t('inheritance.confirm.mateYes', { bond: inherit.stay.bond })
+                        : t('inheritance.confirm.mateNo')}
+                    </td>
+                    <td className="caution">{t('inheritance.confirm.chickMate')}</td>
+                  </tr>
+                  <tr>
+                    <th>{t('inheritance.confirm.rowSurvival')}</th>
+                    <td>{Math.round(inherit.stay.yearSurvival * 100)}%</td>
+                    <td>
+                      {Math.round(inheritChick.yearSurvival * 100)}%,{' '}
+                      {t('inheritance.chick.firstWinter')} {inheritChick.firstWinter.toFixed(2)}배
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p className="muted small">{t('inheritance.confirm.kept')}</p>
+            </div>
+          ) : inherit ? (
+            <ul
+              className="list"
+              aria-label={t('gate.inheritance.label')}
+              data-testid="gate-inheritance"
+            >
+              <li className="gate-title b">
+                {t('inheritance.header.title', {
+                  n: inherit.cards.length,
+                  from: inherit.totalBreeding - 1,
+                  to: inherit.totalBreeding,
+                })}
+              </li>
+              <li className="gate-title muted small">{t('inheritance.header.note')}</li>
+              <li>
+                <button
+                  type="button"
+                  className={`opt${picked === inherit.stay.choiceId ? ' sel' : ''}`}
+                  aria-pressed={picked === inherit.stay.choiceId}
+                  onClick={() => setPicked(inherit.stay.choiceId)}
+                  data-testid={`choice-${inherit.stay.choiceId}`}
                 >
-                  {cursor !== undefined && slots[cursor]?.id ? (
-                    <>
-                      {slotInfo(cursor)}
-                      <button
-                        type="button"
-                        className="x"
-                        onClick={() => unfill(cursor)}
-                        data-testid="slot-remove"
-                      >
-                        {t('routine.remove')}
-                      </button>
-                    </>
-                  ) : info && 'why' in info ? (
-                    <span className="tx">{info.why}</span>
-                  ) : info && slots[info.k]?.id ? (
-                    slotInfo(info.k)
+                  <span className="main">
+                    <span className="b">
+                      {t('inheritance.stay.label')} {t(SEX_WORD[view.player.sex])}{' '}
+                      {t('inheritance.confirm.stayAge', { age: inherit.stay.age })}{' '}
+                      <span className="muted small">{t('inheritance.stay.tag')}</span>
+                    </span>
+                    <span className="cap">
+                      {t('inheritance.stay.aging')}{' '}
+                      <b>{formatRisk(data.formulas, inherit.stay.agingRisk).text}</b>
+                      {inherit.stay.bond !== undefined && (
+                        <>
+                          {', '}
+                          {t('inheritance.stay.bond')} <b>{inherit.stay.bond}</b>
+                        </>
+                      )}
+                    </span>
+                  </span>
+                  <span className="vals">
+                    <span>{t('inheritance.card.yearSurvival')}</span>
+                    <b>{Math.round(inherit.stay.yearSurvival * 100)}%</b>
+                  </span>
+                </button>
+              </li>
+              <li className="gate-title muted small">{t('inheritance.chicks.title')}</li>
+              {inherit.cards.map((card, i) => chickRow(card, i))}
+              <li className="gate-title muted small">{t('inheritance.footer.note')}</li>
+            </ul>
+          ) : view.gate?.kind === 'secondBrood' ? (
+            <ul
+              className="list"
+              aria-label={t('gate.secondBrood.label')}
+              data-testid="gate-secondBrood"
+            >
+              <li className="gate-title b">{t('gate.secondBrood.title')}</li>
+              {broodWhy && <li className="gate-title muted small">{broodWhy}</li>}
+              {view.gate.cards.map((card) => broodRow(card))}
+            </ul>
+          ) : view.gate?.kind === 'event' ? (
+            <ul className="list" aria-label={t('gate.event.label')} data-testid="gate-event">
+              {/* 잠정(#188): 전용 장면 그림(asset-list scene.*)이 오기 전까지 새 + 위험 아이콘 (02-event 메모, art.md 7장) */}
+              <li className="scene" aria-hidden="true" data-testid="event-scene">
+                <img className="scene-bird" src={placeholderBirdUrl(view.speciesId)} alt="" />
+                <span className="ico scene-risk" style={iconStyle('icon.risk')} />
+              </li>
+              <li className="gate-title b">{gateEvent?.title ?? view.gate.id}</li>
+              {gateEvent && <li className="gate-title muted small">{gateEvent.body}</li>}
+              {view.nest?.chicks !== undefined && (
+                <li className="gate-title small" data-testid="event-nest">
+                  {t('main.nest')}, {t('main.nest.chicks', { n: view.nest.chicks })}
+                </li>
+              )}
+              <li>
+                <ul className="hand event">{view.gate.cards.map((card) => eventRow(card))}</ul>
+              </li>
+              {pickedEvent && (
+                <li className="gate-title small opt-detail" data-testid="event-detail">
+                  <span className="b">{eventOption(pickedEvent).text}</span>
+                  {eventFx(pickedEvent)}
+                </li>
+              )}
+            </ul>
+          ) : view.gate?.kind === 'seasonPolicy' ? (
+            <ul
+              className="list"
+              aria-label={t('gate.seasonPolicy.label')}
+              data-testid="gate-seasonPolicy"
+            >
+              <li className="gate-title b">{t('gate.seasonPolicy.title')}</li>
+              <li>
+                <ul className="hand season">{view.gate.cards.map((card) => seasonRow(card))}</ul>
+              </li>
+              {picked?.startsWith('seasonPolicy.') && (
+                <li className="gate-title small" data-testid="season-desc">
+                  <span className="b">{pickedChoice?.label}</span>:{' '}
+                  {t(`seasonPolicy.${picked.slice('seasonPolicy.'.length)}.desc`)}
+                </li>
+              )}
+              <li className="gate-title muted small">{t('gate.seasonPolicy.help')}</li>
+            </ul>
+          ) : view.gate?.kind === 'clutchSize' ? (
+            <ul
+              className="list"
+              aria-label={t('gate.clutchSize.label')}
+              data-testid="gate-clutchSize"
+            >
+              <li className="gate-title b">{t('gate.clutchSize.title')}</li>
+              {view.gate.cards.map((card) => clutchRow(card))}
+              <li className="gate-title muted small">{t('gate.clutchSize.help')}</li>
+            </ul>
+          ) : (
+            <>
+              {placeRow(!replay)}
+              {artBand}
+
+              {/* D 칸 줄: 머리(루틴 k/n칸 · 예산 · 합 위험) + 칸. 다음 빈 칸 점선, 누른 칸 실선 */}
+              <div className="slots" data-testid="routine">
+                <div className="slot-head" role="status" data-testid="slot-head">
+                  {slotNote ? (
+                    <b>
+                      {t(
+                        slotNote.to > slotNote.from ? 'routine.slots.gained' : 'routine.slots.lost',
+                        { n: slotNote.to },
+                      )}
+                    </b>
                   ) : (
-                    <span className="tx muted">{t('routine.info.help')}</span>
+                    <span>
+                      {t('routine.filled', {
+                        k: slots.filter((x) => x.id).length + done,
+                        n: slots.length + done,
+                      })}
+                    </span>
+                  )}
+                  {budget && Number.isFinite(budget.limit) && (
+                    <span className="bud" data-testid="budget">
+                      <span>
+                        {t('routine.budget', { limit: budget.limit, spent: budget.spent })}
+                      </span>
+                      <meter
+                        className="budget"
+                        min={0}
+                        max={budget.limit}
+                        value={budget.spent}
+                        aria-label={t('routine.budget', {
+                          limit: budget.limit,
+                          spent: budget.spent,
+                        })}
+                      />
+                    </span>
+                  )}
+                  {ready && (
+                    <span className={`risk ${sumBand.band}`} data-testid="routine-risk">
+                      <span className="ico s" style={iconStyle('icon.risk')} />
+                      {sumBand.text} <span className="w">{t(`word.risk.${sumBand.band}`)}</span>
+                    </span>
                   )}
                 </div>
-              </>
-            )}
-          </>
-        )}
+                <div className={`cells${slots.length + done > 6 ? ' many' : ''}`}>
+                  {slots.map((s, k) => {
+                    const place = placeBefore(k);
+                    const cls = s.id
+                      ? k === cursor || (replay && k === shown - 1)
+                        ? ' sel'
+                        : ''
+                      : k === firstEmpty && !replay
+                        ? ' empty next'
+                        : ' empty';
+                    return (
+                      <button
+                        // biome-ignore lint/suspicious/noArrayIndexKey: 칸은 자리로 구분한다
+                        key={k}
+                        type="button"
+                        className={`cell${cls}`}
+                        aria-pressed={k === cursor}
+                        disabled={Boolean(replay)}
+                        onClick={() => s.id && setCursor(k === cursor ? undefined : k)}
+                        aria-label={`${t('routine.slot', { n: done + k + 1 })}, ${s.id ? labelOf(s) : t('routine.empty')}`}
+                        data-testid={`slot-${done + k + 1}`}
+                      >
+                        {place && <span className="pl">{place}</span>}
+                        {s.id ? (
+                          <>
+                            <span className="ico s" style={iconStyle(slotIcon(s.id))} />
+                            <span className="e">{roundHalfUp(energyAfter[k] ?? 0)}</span>
+                          </>
+                        ) : (
+                          <span className="n">{done + k + 1}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-        <div className="actions">
-          {inherit && confirming ? (
-            <>
-              <button
-                type="button"
-                className="btn"
-                onClick={() => setConfirming(false)}
-                data-testid="inherit-back"
-              >
-                {t('inheritance.confirm.back')}
-              </button>
-              <button type="button" className="btn prim" onClick={go} data-testid="go">
-                {t('inheritance.confirm.go')}
-              </button>
+              {replay ? (
+                <div className="list" data-testid="replay">
+                  <table className="slot-table small" aria-label={t('routine.table.resultLabel')}>
+                    <thead>
+                      <tr>
+                        <th>{t('routine.table.slot')}</th>
+                        <th>{t('routine.table.action')}</th>
+                        <th>{t('routine.table.expected')}</th>
+                        <th>{t('routine.table.actual')}</th>
+                        <th />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {replay.rows.map((r, k) => {
+                        const seen = k < shown;
+                        return (
+                          <tr key={r.slot} className={seen ? '' : 'muted'}>
+                            <td>{r.slot}</td>
+                            <td>
+                              {r.label}
+                              {seen && r.event && `, ${r.event.text}`}
+                            </td>
+                            <td>{r.expect !== undefined && energy1(r.expect)}</td>
+                            <td>
+                              {seen
+                                ? r.actual
+                                  ? energy1(r.actual.deltas?.energy ?? 0)
+                                  : '-'
+                                : '-'}
+                            </td>
+                            <td className={seen && r.dead ? 'danger' : ''}>
+                              {seen ? (r.dead ? '✕' : r.event ? '!' : r.actual ? '✓' : '') : ''}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {replayDone && (
+                    <p className="small" data-testid="replay-total">
+                      {replay.death
+                        ? t('routine.replay.deathAt', {
+                            n: replay.death.slot ?? '',
+                            text: causeText('death', replay.death.cause, data) ?? replay.death.text,
+                          })
+                        : deltaText(replay.total?.deltas) || t('routine.replay.noChange')}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {/* E 패: 가진 카드만 3열 — 넘치면 패만 스크롤 */}
+                  <div className="hand2">
+                    <div className="hd">
+                      {nextSlot
+                        ? t('routine.hand.head', { n: handCards.reduce((x, h) => x + h.n, 0) })
+                        : t('routine.full')}
+                    </div>
+                    {nextSlot && (
+                      <ul className="grid" data-testid="hand">
+                        {handCards.map(({ c, n }) => handCard(c, n, nextSlot.before))}
+                      </ul>
+                    )}
+                  </div>
+                  {/* F 늘 있는 카드: 옮기기 ▾ · 채식(기본) · 쉬기 */}
+                  {nextSlot && (
+                    <div className="base">
+                      {moveChoices.length > 0 && (
+                        <button
+                          type="button"
+                          className="b2"
+                          onClick={() => setOpen('move')}
+                          data-testid="group-move"
+                        >
+                          {t('routine.group.move')} ▾
+                        </button>
+                      )}
+                      {baseCards.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          className={`b2${c.disabled ? ' short' : ''}`}
+                          aria-disabled={!!c.disabled}
+                          onClick={() => fill(c)}
+                          data-testid={`base-${c.id}`}
+                        >
+                          {c.id === 'action.forage' ? t('routine.base.forage') : c.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {/* G 정보 줄: 누른 칸(+빼기) · 마지막에 넣은 칸 · 못 쓰는 이유 · 사용법 */}
+                  <div
+                    className={`info${info && 'why' in info && cursor === undefined ? ' why' : ''}`}
+                    data-testid="info"
+                  >
+                    {cursor !== undefined && slots[cursor]?.id ? (
+                      <>
+                        {slotInfo(cursor)}
+                        <button
+                          type="button"
+                          className="x"
+                          onClick={() => unfill(cursor)}
+                          data-testid="slot-remove"
+                        >
+                          {t('routine.remove')}
+                        </button>
+                      </>
+                    ) : info && 'why' in info ? (
+                      <span className="tx">{info.why}</span>
+                    ) : info && slots[info.k]?.id ? (
+                      slotInfo(info.k)
+                    ) : (
+                      <span className="tx muted">{t('routine.info.help')}</span>
+                    )}
+                  </div>
+                </>
+              )}
             </>
-          ) : view.gate ? (
-            <button
-              type="button"
-              className="btn prim"
-              disabled={!gateId}
-              onClick={go}
-              data-testid="go"
-            >
-              {policyCards
-                ? policyChanged || !policyAdjust
-                  ? gateGo('parentingPolicy', '')
-                  : gateGo('parentingPolicy')
-                : pickedPrevious
-                  ? t('gate.mateCandidate.previousGo')
-                  : inheritChick
-                    ? t('inheritance.go.chick', { name: chickName(inheritIndex, inheritChick) })
-                    : pickedChoice
-                      ? gateGo(view.gate.kind, pickedChoice.label)
-                      : gateGo(view.gate.kind)}
-            </button>
-          ) : replay ? (
-            replayDone ? (
+          )}
+
+          <div className="actions">
+            {inherit && confirming ? (
+              <>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => setConfirming(false)}
+                  data-testid="inherit-back"
+                >
+                  {t('inheritance.confirm.back')}
+                </button>
+                <button type="button" className="btn prim" onClick={go} data-testid="go">
+                  {t('inheritance.confirm.go')}
+                </button>
+              </>
+            ) : view.gate ? (
               <button
                 type="button"
                 className="btn prim"
-                onClick={() => commit(replay.next)}
-                data-testid="replay-ok"
+                disabled={!gateId}
+                onClick={go}
+                data-testid="go"
               >
-                {t('routine.replay.ok')}
+                {policyCards
+                  ? policyChanged || !policyAdjust
+                    ? gateGo('parentingPolicy', '')
+                    : gateGo('parentingPolicy')
+                  : pickedPrevious
+                    ? t('gate.mateCandidate.previousGo')
+                    : inheritChick
+                      ? t('inheritance.go.chick', { name: chickName(inheritIndex, inheritChick) })
+                      : pickedChoice
+                        ? gateGo(view.gate.kind, pickedChoice.label)
+                        : gateGo(view.gate.kind)}
               </button>
+            ) : replay ? (
+              replayDone ? (
+                <button
+                  type="button"
+                  className="btn prim"
+                  onClick={() => commit(replay.next)}
+                  data-testid="replay-ok"
+                >
+                  {t('routine.replay.ok')}
+                </button>
+              ) : (
+                <>
+                  {/* 멈춤은 좁게 왼쪽 — 확정 버튼 가운데를 연달아 누르면 [끝까지]·[확인]이 받는다(#468 5번) */}
+                  <button
+                    type="button"
+                    className="btn side"
+                    onClick={() => setPaused(!paused)}
+                    data-testid="replay-pause"
+                  >
+                    {t(paused ? 'routine.replay.resume' : 'routine.replay.pause')}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn prim"
+                    onClick={() => setShown(replay.rows.length)}
+                    data-testid="replay-skip"
+                  >
+                    {t('routine.replay.skip')}
+                  </button>
+                </>
+              )
             ) : (
               <>
-                {/* 멈춤은 좁게 왼쪽 — 확정 버튼 가운데를 연달아 누르면 [끝까지]·[확인]이 받는다(#468 5번) */}
                 <button
                   type="button"
                   className="btn side"
-                  onClick={() => setPaused(!paused)}
-                  data-testid="replay-pause"
+                  disabled={placed.length === 0}
+                  onClick={() => {
+                    const k = placed.at(-1);
+                    if (k !== undefined) unfill(k);
+                  }}
+                  data-testid="routine-reset"
                 >
-                  {t(paused ? 'routine.replay.resume' : 'routine.replay.pause')}
+                  {t('routine.undo')}
                 </button>
                 <button
                   type="button"
                   className="btn prim"
-                  onClick={() => setShown(replay.rows.length)}
-                  data-testid="replay-skip"
+                  disabled={!ready}
+                  onClick={go}
+                  data-testid="go"
                 >
-                  {t('routine.replay.skip')}
+                  {t('routine.goRest')}
                 </button>
               </>
-            )
-          ) : (
-            <>
-              <button
-                type="button"
-                className="btn side"
-                disabled={placed.length === 0}
-                onClick={() => {
-                  const k = placed.at(-1);
-                  if (k !== undefined) unfill(k);
-                }}
-                data-testid="routine-reset"
-              >
-                {t('routine.undo')}
-              </button>
-              <button
-                type="button"
-                className="btn prim"
-                disabled={!ready}
-                onClick={go}
-                data-testid="go"
-              >
-                {t('routine.goRest')}
-              </button>
-            </>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </main>

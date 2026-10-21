@@ -94,16 +94,6 @@ h1 {
   background: var(--wb-color-paper);
   border-bottom: 1px solid var(--wb-color-line);
 }
-/* S-13 겹침(mid/02-event): 상태 바는 그대로, 그 아래를 어둡게 하고 카드·결정 버튼은 시트 위에 */
-.zone.ov {
-  background: linear-gradient(rgb(31 36 33 / 0.55), rgb(31 36 33 / 0.55)), var(--wb-color-paper);
-}
-.zone.ov > .sheet {
-  margin-top: var(--wb-space-2);
-  padding-top: var(--wb-space-3);
-  background: var(--wb-color-paper);
-  border-radius: var(--wb-radius-l) var(--wb-radius-l) 0 0;
-}
 /* S-13 잠정 장면(#188): 긴장은 배경 명도로(style-guide scene) — 어두운 띠 위 새 + 위험 아이콘 */
 .scene {
   position: relative;
@@ -126,9 +116,6 @@ h1 {
   right: var(--wb-space-4);
   top: var(--wb-space-3);
   color: var(--wb-color-danger);
-}
-.zone.ov > .actions {
-  background: var(--wb-color-paper);
 }
 .status {
   flex: none;
@@ -735,10 +722,6 @@ h1 {
 /* #423 B: 겹침 색을 토큰으로 — color-mix() 없는 브라우저(Safari 16.2 전)는 위 rgb 값(같은 색)을 쓴다.
    var()가 든 선언은 앞 선언으로 되돌아가지 않으므로 @supports로 나눈다 */
 @supports (color: color-mix(in srgb, red 50%, transparent)) {
-  .zone.ov {
-    --ov: color-mix(in srgb, var(--wb-color-ink) 55%, transparent);
-    background: linear-gradient(var(--ov), var(--ov)), var(--wb-color-paper);
-  }
   .scene {
     --ov: color-mix(in srgb, var(--wb-color-ink) 35%, transparent);
     background: linear-gradient(var(--ov), var(--ov)), var(--wb-color-card);
@@ -778,7 +761,7 @@ h1 {
   outline: 3px solid var(--wb-color-ochre-strong);
   outline-offset: 2px;
 }
-/* 막는 팁(T-30): 겹침 시트처럼 뒤를 ink 55%로(.zone.ov와 같은 값). 팁 카드·대상만 위로 */
+/* 막는 팁(T-30): 겹침 시트처럼 뒤를 ink 55%로(관문 시트 뒤와 같은 값). 팁 카드·대상만 위로 */
 .tip-dim {
   position: fixed;
   inset: 0;
@@ -1109,6 +1092,51 @@ h1 {
 }
 .zone.v2 .actions .btn.side {
   width: 96px;
+}
+
+/* 관문 시트(screens 6.6 · 와이어 08): 상태 바 아래 8px부터, 높이는 내용만큼. 판 화면(B·C)은 뒤에 ink 55%
+   목록만 스크롤, 주 버튼은 시트 맨 아래. z-index를 주지 않는다 — T-30 대상이 .tip-dim 위로 올라와야 한다 */
+.contents {
+  display: contents;
+}
+.zone.gs {
+  height: min(640px, 100dvh);
+}
+.zone.gs > .behind {
+  position: absolute;
+  inset: 56px 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+.zone.gs > .behind::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(31 36 33 / 0.55);
+}
+.gsheet {
+  position: relative;
+  flex: 0 1 auto;
+  min-height: 0;
+  margin-top: auto;
+  padding-top: var(--wb-space-3);
+  display: flex;
+  flex-direction: column;
+  background: var(--wb-color-paper);
+  border-radius: var(--wb-radius-l) var(--wb-radius-l) 0 0;
+}
+.zone.gs > .status {
+  margin-bottom: var(--wb-space-2);
+}
+.gsheet > .list {
+  flex: 0 1 auto;
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+  .zone.gs > .behind::after {
+    background: color-mix(in srgb, var(--wb-color-ink) 55%, transparent);
+  }
 }
 
 /* ≡ 메뉴(07-one-screen D, screens 6.5): 상태 바 오른쪽 48×56 · 아래 시트 — 상태 바는 덮지 않음 */
