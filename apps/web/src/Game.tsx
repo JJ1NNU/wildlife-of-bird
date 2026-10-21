@@ -182,18 +182,31 @@ interface SlotPlan {
   preview: Preview | undefined;
 }
 
+/** 빈 칸은 쉬기로 실행된다(12-card-turn 2.4) */
+const REST = 'action.rest';
+
+/** 선택 id의 카드 — 엔진 routine.ts `cardOf`와 같은 규칙. 옮기기는 없음 */
+function cardOf(id: string): string | undefined {
+  const [head, action, stat] = id.split('.');
+  if (head !== 'action') return undefined;
+  return action === 'train' ? `train-${stat}` : action;
+}
+
 /**
- * 계획한 칸들을 앞에서부터 채워 본다(채우기 `act`는 판정·난수 없음, #191). 못 고르는 칸은 비우고,
- * 빈 칸 뒤로는 선택지를 알 수 없다. 마지막 칸은 채우지 않는다 — 채우면 루틴이 실행된다.
+ * 계획한 칸들을 앞에서부터 채워 본다(채우기 `act`는 판정·난수 없음, #191). 못 고르는 칸은 비운다.
+ * 빈 칸은 쉬기로 실행되므로 뒤 칸은 쉬기로 이어 계산하고, 빈 칸의 `preview`도 쉬기 값(screens 6.3).
+ * 마지막 칸은 채우지 않는다 — 채우면 루틴이 실행된다.
  */
 function planSlots(base: RunState, plan: (string | null)[], data: GameData): SlotPlan[] {
   let s: RunState | undefined = base;
   return plan.map((want, k) => {
     const before = s;
-    const ok = before && want && getChoices(before, data).some((c) => c.id === want && !c.disabled);
+    const open = before ? getChoices(before, data) : [];
+    const ok = want && open.some((c) => c.id === want && !c.disabled);
     const id = ok ? want : null;
-    const p = before && id ? preview(before, id, data) : undefined;
-    s = before && id && k < plan.length - 1 ? act(before, id, data).state : undefined;
+    const run = id ?? (open.some((c) => c.id === REST && !c.disabled) ? REST : undefined);
+    const p = before && run ? preview(before, run, data) : undefined;
+    s = before && run && k < plan.length - 1 ? act(before, run, data).state : undefined;
     return { before, id, preview: p };
   });
 }
@@ -344,8 +357,12 @@ export function Game({ data }: { data: GameData }) {
   const [open, setOpen] = useState<GroupKey>();
   /** 고친 루틴(남은 칸). 없으면 엔진 제안 그대로 */
   const [edited, setEdited] = useState<(string | null)[]>();
-  /** 고치는 칸(0부터, 남은 칸 기준). 없으면 루틴 보기(A) */
+  /** 누른 칸(0부터, 남은 칸 기준) — 정보 줄에 그 칸 + [빼기] (screens 6.3) */
   const [cursor, setCursor] = useState<number>();
+  /** 넣은 칸 순서(되돌리기 = 마지막 하나 빼기) */
+  const [placed, setPlaced] = useState<number[]>([]);
+  /** 정보 줄(G): 마지막에 넣은 칸 또는 못 쓰는 카드의 이유 */
+  const [info, setInfo] = useState<{ k: number } | { why: string }>();
   /** 진행 직후 S-12 재생. 확인을 누르면 `next`로 넘어간다 */
   const [replay, setReplay] = useState<Replay>();
   /** S-24: 새끼를 고르고 결정을 누르면 확인 시트를 한 번 더 (docs/ux/screens.md 3장) */
@@ -363,12 +380,83 @@ export function Game({ data }: { data: GameData }) {
   const [tipsReset, setTipsReset] = useState(false);
   /** S-40 판 지우기 확인 한 번 더 */
   const [clearing, setClearing] = useState(false);
+  /** ≡ 메뉴 시트(screens 6.5): 목록 · 지난 일 · 설정 */
+  const [menu, setMenu] = useState<'list' | 'feed' | 'settings'>();
 
   useEffect(() => {
     if (!replay || paused || shown >= replay.rows.length) return;
     const t = setTimeout(() => setShown((n) => n + 1), REPLAY_MS);
     return () => clearTimeout(t);
   }, [replay, paused, shown]);
+
+  /** S-40 설정 — 타이틀의 접힘과 판 안 ≡ 메뉴가 같이 쓴다 */
+  const settingsBody = (
+    <>
+      <button
+        type="button"
+        className="btn"
+        aria-pressed={tipsOn}
+        onClick={() => {
+          saveTipsOn(!tipsOn);
+          setTipsOn(!tipsOn);
+        }}
+        data-testid="tips-toggle"
+      >
+        {t(tipsOn ? 'title.tipsOn' : 'title.tipsOff')}
+      </button>
+      <button
+        type="button"
+        className="btn"
+        onClick={() => {
+          saveSeenTips(new Set());
+          setSeenTips(new Set());
+          setTipsReset(true);
+        }}
+        data-testid="tips-reset"
+      >
+        {t('title.tipsReset')}
+      </button>
+      {tipsReset && <p className="small">{t('title.tipsResetDone')}</p>}
+      {state && hasRecord() && (
+        <button
+          type="button"
+          className="btn"
+          onClick={() => exportRecord(state)}
+          data-testid="export-record"
+        >
+          {t('gameOver.exportRecord')}
+        </button>
+      )}
+      {state &&
+        (clearing ? (
+          <>
+            <p className="small">{t('title.clearConfirm')}</p>
+            <div className="row">
+              <button type="button" className="btn" onClick={() => setClearing(false)}>
+                {t('title.clearNo')}
+              </button>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  clearRun();
+                  setState(undefined);
+                  setMenu(undefined);
+                  setClearing(false);
+                }}
+                data-testid="clear-run"
+              >
+                {t('title.clearYes')}
+              </button>
+            </div>
+          </>
+        ) : (
+          <button type="button" className="btn" onClick={() => setClearing(true)}>
+            {t('title.clear')}
+          </button>
+        ))}
+    </>
+  );
 
   if (onCodex) return <Codex data={data} onBack={() => setOnCodex(false)} />;
   if (onLineage)
@@ -428,68 +516,7 @@ export function Game({ data }: { data: GameData }) {
           )}
           <details className="settings" data-testid="settings">
             <summary>{t('title.settings')}</summary>
-            <button
-              type="button"
-              className="btn"
-              aria-pressed={tipsOn}
-              onClick={() => {
-                saveTipsOn(!tipsOn);
-                setTipsOn(!tipsOn);
-              }}
-              data-testid="tips-toggle"
-            >
-              {t(tipsOn ? 'title.tipsOn' : 'title.tipsOff')}
-            </button>
-            <button
-              type="button"
-              className="btn"
-              onClick={() => {
-                saveSeenTips(new Set());
-                setSeenTips(new Set());
-                setTipsReset(true);
-              }}
-              data-testid="tips-reset"
-            >
-              {t('title.tipsReset')}
-            </button>
-            {tipsReset && <p className="small">{t('title.tipsResetDone')}</p>}
-            {state && hasRecord() && (
-              <button
-                type="button"
-                className="btn"
-                onClick={() => exportRecord(state)}
-                data-testid="export-record"
-              >
-                {t('gameOver.exportRecord')}
-              </button>
-            )}
-            {state &&
-              (clearing ? (
-                <>
-                  <p className="small">{t('title.clearConfirm')}</p>
-                  <div className="row">
-                    <button type="button" className="btn" onClick={() => setClearing(false)}>
-                      {t('title.clearNo')}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn"
-                      onClick={() => {
-                        clearRun();
-                        setState(undefined);
-                        setClearing(false);
-                      }}
-                      data-testid="clear-run"
-                    >
-                      {t('title.clearYes')}
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <button type="button" className="btn" onClick={() => setClearing(true)}>
-                  {t('title.clear')}
-                </button>
-              ))}
+            {settingsBody}
           </details>
         </div>
       </main>
@@ -539,13 +566,16 @@ export function Game({ data }: { data: GameData }) {
   const season =
     seasonPeriods &&
     (Object.keys(seasonPeriods) as Season[]).find((k) => seasonPeriods[k].includes(view.at.period));
+  const hereSeason = season ? data.nodes.get(view.node)?.seasons[season] : undefined;
 
   // 루틴(관문·게임 오버가 아닐 때): 남은 칸의 계획과 칸마다 예상
-  const plan = view.routine ? (edited ?? view.routine.suggested) : [];
+  // 칸은 비어서 시작한다 — 엔진 `suggested`는 칸 수로만 쓴다(screens 6.3, 잠정 #615: design 판단 대기)
+  const plan = view.routine ? (edited ?? view.routine.suggested.map(() => null)) : [];
   const slots = view.routine ? planSlots(state, plan, data) : [];
   // 칸 번호는 단계 안의 절대값 — 이벤트 뒤 다시 채우기면 이미 한 칸(`paused.done`)부터 (03-contracts 3장)
   const done = (state.paused?.done ?? 0) + (view.routine?.filled.length ?? 0);
-  const ready = slots.length > 0 && slots.every((s) => s.id);
+  // 빈 칸은 쉬기로 실행되니 늘 진행할 수 있다 — 앞 칸 때문에 못 쓰는 칸(`before` 없음)만 막는다
+  const ready = slots.length > 0 && slots.every((s) => s.before);
   // 단계 예산 막대(12-card-turn 3장): 이미 넣은 칸(엔진) + 계획한 칸
   const budget = view.routine && {
     spent: slots.reduce(
@@ -571,11 +601,29 @@ export function Game({ data }: { data: GameData }) {
         .slice(0, shown)
         .reduce((x, r) => x + (r.actual?.deltas?.energy ?? 0), view.player.energy)
     : view.player.energy;
-  const cursorSlot =
-    cursor !== undefined && slots[cursor]?.before
-      ? { k: cursor, before: slots[cursor].before }
-      : undefined;
-  const cursorChoices = cursorSlot ? getChoices(cursorSlot.before, data) : [];
+  // 카드는 다음 빈 칸에 들어간다(screens 6.3) — 패·늘 있는 카드는 그 칸 상태 기준
+  const firstEmpty = slots.findIndex((s) => !s.id);
+  const nextSlot = slots[firstEmpty]?.before
+    ? { k: firstEmpty, before: slots[firstEmpty].before }
+    : undefined;
+  const nextChoices = nextSlot ? getChoices(nextSlot.before, data) : [];
+  // 내 패에는 가진 카드만(#611 대표) — 남은 장수가 있는 카드, 같은 카드는 한 장 + ×n (ui-kit 3.1)
+  // 그 칸까지의 남은 패에서 뒤 칸(빈 칸 뒤에 넣어 둔 것)이 쓸 카드도 뺀다
+  const handLeftNow: Record<string, number> = {
+    ...(nextSlot && getView(nextSlot.before, data).routine?.hand),
+  };
+  for (const s of slots.slice(firstEmpty + 1)) {
+    const card = s.id && cardOf(s.id);
+    if (card && handLeftNow[card]) handLeftNow[card] -= 1;
+  }
+  const handCards = nextChoices
+    .filter((c) => (handLeftNow[cardOf(c.id) ?? ''] ?? 0) > 0)
+    .map((c) => ({ c, n: handLeftNow[cardOf(c.id) ?? ''] ?? 0 }));
+  const baseCards = [
+    nextChoices.find((c) => c.id === 'action.forage'),
+    nextChoices.find((c) => c.id === REST),
+  ].filter((c): c is Choice => !!c);
+  const moveChoices = nextChoices.filter((c) => c.id.startsWith('move.'));
 
   // 튜토리얼 팁: 조건은 모두 지금 화면 값으로 (06-tutorial 4장). 팁은 act를 부르지 않는다
   const stepKey = `${view.at.year}.${view.at.period}.${view.at.step}`;
@@ -586,7 +634,7 @@ export function Game({ data }: { data: GameData }) {
     ['T-02', !!view.routine && seenTips.has('T-01')],
     ['T-03', !!view.routine && seenTips.has('T-02')],
     // 잠정: 에너지 부족은 엔진 `disabled.reason` 글로 판단
-    ['T-04', [...choices, ...cursorChoices].some((c) => c.disabled?.reason === '에너지 부족')],
+    ['T-04', [...choices, ...nextChoices].some((c) => c.disabled?.reason === '에너지 부족')],
     ['T-05', open === 'move'],
     ['T-06', view.starving],
     ['T-07', !!replay],
@@ -635,12 +683,9 @@ export function Game({ data }: { data: GameData }) {
     </>
   );
 
-  // S-11 지도: 옮기기를 넣을 칸(커서) 기준 — 목적지를 누르면 그 칸의 옮기기 펼침으로.
-  // 커서가 없으면 첫 빈 칸(`go` 버튼과 같은 칸), 빈 칸도 없으면 누를 수 없다 (#591)
-  const firstEmpty = slots.findIndex((s) => !s.id);
-  const mapSlot =
-    cursorSlot ??
-    (slots[firstEmpty]?.before ? { k: firstEmpty, before: slots[firstEmpty].before } : undefined);
+  // S-11 지도: 옮기기는 다음 빈 칸에 들어간다 — 목적지를 누르면 옮기기 목록으로.
+  // 빈 칸이 없으면 누를 수 없다 (#591)
+  const mapSlot = nextSlot;
   if (onMap)
     return (
       <MapScreen
@@ -651,7 +696,6 @@ export function Game({ data }: { data: GameData }) {
         onMove={
           mapSlot &&
           (() => {
-            setCursor(mapSlot.k);
             setOpen('move');
             setOnMap(false);
           })
@@ -669,8 +713,9 @@ export function Game({ data }: { data: GameData }) {
   }
 
   function labelOf(s: SlotPlan): string {
-    const c = s.before && getChoices(s.before, data).find((x) => x.id === s.id);
-    return c ? c.label : (s.id ?? '');
+    const id = s.id ?? REST;
+    const c = s.before && getChoices(s.before, data).find((x) => x.id === id);
+    return c ? c.label : id;
   }
 
   function commit(next: RunState) {
@@ -687,6 +732,8 @@ export function Game({ data }: { data: GameData }) {
     setOpen(undefined);
     setEdited(undefined);
     setCursor(undefined);
+    setPlaced([]);
+    setInfo(undefined);
     setReplay(undefined);
     setConfirming(false);
   }
@@ -706,7 +753,7 @@ export function Game({ data }: { data: GameData }) {
     if (!ready) return;
     let s = state;
     let log: LogEntry[] = [];
-    for (const slot of slots) ({ state: s, log } = actRecorded(s, slot.id as string, data));
+    for (const slot of slots) ({ state: s, log } = actRecorded(s, slot.id ?? REST, data));
     // 마지막 칸의 act가 루틴을 실행한다 — 그 로그가 decision(replan) → slot… → event | death
     saveRun(s);
     const death = log.find((l) => l.type === 'death');
@@ -737,13 +784,27 @@ export function Game({ data }: { data: GameData }) {
     setOpen(undefined);
   }
 
-  /** 고치는 칸에 선택을 넣고 다음 칸으로 — 마지막 칸이면 루틴 보기로 */
-  function fill(k: number, id: string) {
+  /** 카드 누름(screens 6.3): 다음 빈 칸에 넣는다. 못 쓰는 카드·빈 칸 없음은 정보 줄에 이유만 */
+  function fill(c: Choice) {
+    if (c.disabled) return setInfo({ why: c.disabled.reason });
+    if (!nextSlot) return setInfo({ why: t('routine.full') });
     const next = plan.slice();
-    next[k] = id;
+    next[nextSlot.k] = c.id;
     setEdited(next);
+    setPlaced([...placed, nextSlot.k]);
+    setInfo({ k: nextSlot.k });
+    setCursor(undefined);
     setOpen(undefined);
-    setCursor(k + 1 < plan.length ? k + 1 : undefined);
+  }
+
+  /** 칸 빼기 — 카드는 패로 돌아가고 칸은 빈 칸으로(뒤 칸을 당기지 않음) */
+  function unfill(k: number) {
+    const next = plan.slice();
+    next[k] = null;
+    setEdited(next);
+    setPlaced(placed.filter((x) => x !== k));
+    setInfo(undefined);
+    setCursor(undefined);
   }
 
   function restart() {
@@ -751,76 +812,132 @@ export function Game({ data }: { data: GameData }) {
     commit(startRun(data));
   }
 
-  /** 패 카드 한 장(#557 잠정 — 아트 명세 전): 비용 배지(왼쪽 위) · 아이콘 · 이름 · 예상 성장 · 에너지 변화 · 위험%.
-   * 루틴 칸이면 그 칸 상태 기준, 에너지는 소수 첫째 자리, 위험은 숫자만(띠는 루틴 합에만, #206).
-   * 못 고르는 카드는 이유를 카드 아래 띠로: 에너지 부족(위험색) · 패에 없음(점선·흐림) */
-  function row(c: Choice, slot: { k: number; before: RunState }, group?: GroupKey) {
-    const p = c.disabled ? undefined : preview(slot.before, c.id, data);
-    const selected = plan[slot.k] === c.id;
-    const risk = p && formatRisk(data.formulas, p.deathRisk);
-    const [lo, hi] = p?.energyDelta ?? [0, 0];
-    const gains = Object.entries(p?.statGains ?? {})
+  /** 에너지 변화 글: 범위면 "lo~hi" (소수 첫째) */
+  function energyRange(p: Preview): string {
+    const [lo, hi] = p.energyDelta;
+    return lo === hi ? energy1(lo) : `${energy1(lo)}~${energy1(hi)}`;
+  }
+
+  /** 성장 글: "비행 +0.6, …" */
+  function gainsText(p: Preview | undefined): string {
+    return Object.entries(p?.statGains ?? {})
       .map(([stat, x]) => `${STAT_WORD[stat as StatName]} ${formatStatGain(x)}`)
       .join(', ');
-    const dest = group === 'move' ? data.nodes.get(c.id.slice('move.'.length)) : undefined;
-    const destSeason = dest && season ? dest.seasons[season] : undefined;
-    const name =
-      group === 'train'
-        ? (STAT_WORD[c.id.slice('action.train.'.length) as StatName] ?? c.label)
-        : (dest?.nameKo ?? c.label);
-    const cap = [
-      destSeason &&
-        t('main.move.destination', {
-          food: t(`word.food.${destSeason.food}`),
-          competition: t(`word.competition.${destSeason.competition}`),
-        }),
-      gains,
-      ...(p?.notes ?? []),
-    ]
-      .filter(Boolean)
-      .join(', ');
+  }
+
+  /** 패 카드 v2(ui-kit 3.1): 1줄 비용 배지 + 이름, 2줄 에너지 · 위험%(띠는 정보 줄에만, #206). ×n은 모서리.
+   * 못 쓰는 카드(`.short`)는 2줄째가 이유 낱말 — 눌러도 칸에 안 들어가고 정보 줄에 이유 */
+  function handCard(c: Choice, n: number, before: RunState) {
+    const p = c.disabled ? undefined : preview(before, c.id, data);
+    const risk = p && formatRisk(data.formulas, p.deathRisk);
+    const name = c.label;
     const reason = c.disabled?.reason;
-    const cost = budgetCost(c.id, data);
-    const icon = GROUPS.find((g) => g.key === group)?.icon ?? `icon.${c.id}`;
     return (
       <li key={c.id}>
         <button
           type="button"
-          className={`pcard${selected ? ' sel' : ''}${reason ? (reason === '패에 없음' ? ' out' : ' short') : ''}`}
-          aria-pressed={selected}
-          disabled={!!c.disabled}
-          onClick={() => fill(slot.k, c.id)}
+          className={`pc${reason ? ' short' : ''}`}
+          onClick={() => fill(c)}
+          aria-disabled={!!reason}
           aria-label={[
             name,
-            cap,
+            n > 1 && `×${n}`,
             reason,
-            p && `${t('main.energy')} ${lo === hi ? energy1(lo) : `${energy1(lo)}~${energy1(hi)}`}`,
+            p && `${t('main.energy')} ${energyRange(p)}`,
             risk?.text,
+            gainsText(p),
           ]
             .filter(Boolean)
             .join(', ')}
           data-testid={`choice-${c.id}`}
         >
-          <span className="cost">{cost}</span>
-          <span className="ico" style={iconStyle(icon)} />
-          <span className="b nm">{name}</span>
-          {cap && <span className="cap">{cap}</span>}
-          <span className="sp" />
-          {p && risk && (
-            <span className="vals">
-              <span className="val">
-                <span className="ico s" style={iconStyle('icon.res.energy')} />
-                <b>{lo === hi ? energy1(lo) : `${energy1(lo)}~${energy1(hi)}`}</b>
-              </span>
+          <span className="nm">
+            <span className="cost">{budgetCost(c.id, data)}</span>
+            <span className="tx">{name}</span>
+          </span>
+          {p && risk ? (
+            <span className="v">
+              <span className="val">{energyRange(p)}</span>
               <span className="risk">
                 <span className="ico s" style={iconStyle('icon.risk')} />
                 {risk.text}
               </span>
             </span>
+          ) : (
+            <span className="v why">{reason}</span>
           )}
-          {reason && <span className="why">{reason}</span>}
+          {n > 1 && <span className="cnt">×{n}</span>}
         </button>
       </li>
+    );
+  }
+
+  /** 옮기기 목적지 줄(.opt): 장소 · 계절 먹이·경쟁 / 에너지 · 위험 띠 */
+  function moveRow(c: Choice, before: RunState) {
+    const p = c.disabled ? undefined : preview(before, c.id, data);
+    const risk = p && formatRisk(data.formulas, p.deathRisk);
+    const dest = data.nodes.get(c.id.slice('move.'.length));
+    const destSeason = dest && season ? dest.seasons[season] : undefined;
+    return (
+      <li key={c.id}>
+        <button
+          type="button"
+          className="opt"
+          disabled={!!c.disabled}
+          onClick={() => fill(c)}
+          data-testid={`choice-${c.id}`}
+        >
+          <span className="main">
+            <span className="b">{dest?.nameKo ?? c.label}</span>
+            <span className="cap">
+              {[
+                destSeason &&
+                  t('main.move.destination', {
+                    food: t(`word.food.${destSeason.food}`),
+                    competition: t(`word.competition.${destSeason.competition}`),
+                  }),
+                c.disabled?.reason,
+              ]
+                .filter(Boolean)
+                .join(', ')}
+            </span>
+          </span>
+          {p && risk && (
+            <span className="vals">
+              <b>{energyRange(p)}</b>
+              <span className={`risk ${risk.band}`}>
+                {risk.text} <span className="w">{t(`word.risk.${risk.band}`)}</span>
+              </span>
+            </span>
+          )}
+        </button>
+      </li>
+    );
+  }
+
+  /** 정보 줄(G) 글: 칸 k의 전체 효과 — 이름 · 성장 · 에너지 → 칸 뒤 값 · 위험 띠 */
+  function slotInfo(k: number) {
+    const s = slots[k];
+    if (!s?.id || !s.preview) return undefined;
+    const risk = formatRisk(data.formulas, s.preview.deathRisk);
+    return (
+      <span className="tx">
+        <b>
+          {t('routine.slot', { n: done + k + 1 })} {labelOf(s)}
+        </b>
+        {[
+          gainsText(s.preview),
+          `${t('main.energy')} ${energyRange(s.preview)} > ${roundHalfUp(energyAfter[k] ?? 0, 1).toFixed(1)}`,
+          ...(s.preview.notes ?? []),
+        ]
+          .filter(Boolean)
+          .map((x) => ` · ${x}`)
+          .join('')}{' '}
+        <span className={`risk ${risk.band}`}>
+          <span className="ico s" style={iconStyle('icon.risk')} />
+          {risk.text} <span className="w">{t(`word.risk.${risk.band}`)}</span>
+        </span>
+      </span>
     );
   }
 
@@ -1393,36 +1510,187 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
+  // ≡ 메뉴 시트(screens 6.5) — 상태 바는 덮지 않고 아래를 어둡게. 피드·빨리 감기(개발용)·설정이 여기로
+  const menuRow = (k: 'feed' | 'codex' | 'settings', name: string, cap?: string) => (
+    <button
+      type="button"
+      className="opt"
+      onClick={() => {
+        if (k === 'codex') {
+          setMenu(undefined);
+          setOnCodex(true);
+        } else setMenu(k);
+      }}
+      data-testid={`menu-${k}`}
+    >
+      <span className="main">
+        <span className="b">{name}</span>
+        {cap && <span className="cap">{cap}</span>}
+      </span>
+    </button>
+  );
+  const menuSheet = (
+    <>
+      <button
+        type="button"
+        className="sheet-dim"
+        tabIndex={-1}
+        aria-label={t('main.menu.close')}
+        onClick={() => setMenu(undefined)}
+      />
+      <div className="bsheet" data-testid="menu">
+        <div className="hd">
+          {menu !== 'list' && (
+            <button type="button" className="btn side" onClick={() => setMenu('list')}>
+              {t('main.menu.back')}
+            </button>
+          )}
+          <b>
+            {menu === 'feed'
+              ? t('main.feed')
+              : menu === 'settings'
+                ? t('title.settings')
+                : t('main.menu')}
+          </b>
+        </div>
+        <div className="body">
+          {menu === 'list' && (
+            <>
+              {menuRow('feed', t('main.feed'), t('main.menu.feedCap'))}
+              {menuRow('codex', t('codex.open'))}
+              {menuRow('settings', t('title.settings'), t('main.menu.settingsCap'))}
+            </>
+          )}
+          {menu === 'settings' && <div className="settings">{settingsBody}</div>}
+          {menu === 'feed' && (
+            <section className="feed" aria-label={t('main.feed')} data-testid="menu-feed-list">
+              <ul className="feed-list">
+                {withLogKeys(view.recentLog)
+                  .reverse()
+                  .map(([k, l]) => (
+                    <li key={k}>{logLine(l, data)}</li>
+                  ))}
+              </ul>
+              {SHOW_FAST_FORWARD && (
+                <div className="dev small">
+                  <span className="muted">개발용, 평균 봇으로</span>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => {
+                      const next = fastForward(state, data);
+                      if (next.gameOver) setMenu(undefined);
+                      commit(next);
+                    }}
+                    data-testid="fast-forward"
+                  >
+                    1년 빨리 감기
+                  </button>
+                </div>
+              )}
+              {SHOW_FAST_FORWARD && (
+                <table className="stats small" data-testid="stats">
+                  <caption className="muted">개발용, 스탯 현재 / 잠재력</caption>
+                  <tbody>
+                    {(Object.keys(view.player.potential) as StatName[]).map((s) => (
+                      <tr key={s}>
+                        <th>{STAT_WORD[s] ?? s}</th>
+                        <td>{roundHalfUp(view.player.stats[s] ?? 0, 1).toFixed(1)}</td>
+                        <td className="muted">
+                          / {roundHalfUp(view.player.potential[s] ?? 0, 1).toFixed(1)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </section>
+          )}
+        </div>
+        <div className="actions">
+          <button type="button" className="btn" onClick={() => setMenu(undefined)}>
+            {t('main.menu.close')}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+  // 옮기기 시트(screens 6.3 · 와이어 07 C) — 메뉴 시트와 같은 틀, 고르면 다음 빈 칸에 들어가고 닫힘
+  const moveSheet = nextSlot && (
+    <>
+      <button
+        type="button"
+        className="sheet-dim"
+        tabIndex={-1}
+        aria-label={t('routine.move.close')}
+        onClick={() => setOpen(undefined)}
+      />
+      <div className="bsheet" data-testid="move-sheet">
+        <div className="hd col">
+          <b>{t('routine.move.title', { n: moveChoices.length })}</b>
+          <span className="muted small">{t('routine.move.help')}</span>
+        </div>
+        <ul className="body" aria-label={t('routine.move.title', { n: moveChoices.length })}>
+          {moveChoices.map((c) => moveRow(c, nextSlot.before))}
+        </ul>
+        <div className="actions">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setOpen(undefined)}
+            data-testid="move-close"
+          >
+            {t('routine.move.close')}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <main className="game" data-testid="main-turn">
-      <div className={`zone${eventGate ? ' ov' : ''}`}>
+      <div className={`zone${eventGate ? ' ov' : ''}${view.routine && !view.gate ? ' v2' : ''}`}>
         <header className="status">
-          <div className="row small">
-            <span className="ico s" style={iconStyle(`icon.season.${when.season}`)} />
-            <span className="b">{when.text}</span>
-            <span className="muted">{t('main.step', { n: view.at.step })}</span>
-            <span className="sp" />
-            <span>
-              {t('main.totalBreeding')} <b>{view.totalBreeding}</b>
-            </span>
-          </div>
-          <div className="row small">
-            <span className="ico s" style={iconStyle('icon.res.energy')} />
-            <span>
-              {t('main.energy')} <b data-testid="energy">{roundHalfUp(shownEnergy)}</b>
-              <span className="muted"> / {roundHalfUp(view.energyCap)}</span>
-            </span>
-            {view.starving && (
-              <span className="risk high b" role="alert" data-testid="starving">
-                {t('main.starving')}
+          <div className="st">
+            <div className="row small">
+              <span className="ico s" style={iconStyle(`icon.season.${when.season}`)} />
+              <span className="b">{when.text}</span>
+              <span className="muted">{t('main.step', { n: view.at.step })}</span>
+              <span className="sp" />
+              <span>
+                {t('main.totalBreeding')} <b>{view.totalBreeding}</b>
               </span>
-            )}
-            <span className="ico s" style={iconStyle('icon.res.feather')} />
-            <span>
-              {t('main.feather')} <b>{roundHalfUp(view.player.feather)}</b>
-            </span>
+            </div>
+            <div className="row small">
+              <span className="ico s" style={iconStyle('icon.res.energy')} />
+              <span>
+                {t('main.energy')} <b data-testid="energy">{roundHalfUp(shownEnergy)}</b>
+                <span className="muted"> / {roundHalfUp(view.energyCap)}</span>
+              </span>
+              {view.starving && (
+                <span className="risk high b" role="alert" data-testid="starving">
+                  {t('main.starving')}
+                </span>
+              )}
+              <span className="ico s" style={iconStyle('icon.res.feather')} />
+              <span>
+                {t('main.feather')} <b>{roundHalfUp(view.player.feather)}</b>
+              </span>
+            </div>
           </div>
+          <button
+            type="button"
+            className="menu-btn"
+            aria-label={t(menu ? 'main.menu.close' : 'main.menu')}
+            aria-expanded={!!menu}
+            onClick={() => setMenu(menu ? undefined : 'list')}
+            data-testid="open-menu"
+          >
+            {menu ? '✕' : '≡'}
+          </button>
         </header>
+        {menu && menuSheet}
+        {open === 'move' && !menu && !view.gate && !replay && moveSheet}
         {tipCard}
 
         {view.gate?.kind === 'mateCandidate' ? (
@@ -1648,110 +1916,120 @@ export function Game({ data }: { data: GameData }) {
           </ul>
         ) : (
           <>
-            <div className={`art short${cursor !== undefined && !replay ? ' pick' : ''}`}>
+            {/* B 장소 줄(screens 6.2): 장소 · 이번 계절 먹이·경쟁 · [지도] */}
+            <div className="place small" data-testid="place">
+              <span className="b">{data.nodes.get(view.node)?.nameKo ?? view.node}</span>
+              {hereSeason && (
+                <span className="muted">
+                  {t('main.move.destination', {
+                    food: t(`word.food.${hereSeason.food}`),
+                    competition: t(`word.competition.${hereSeason.competition}`),
+                  })}
+                </span>
+              )}
+              <span className="sp" />
+              {!replay && (
+                <button
+                  type="button"
+                  className="lk"
+                  onClick={() => setOnMap(true)}
+                  data-testid="open-map"
+                >
+                  {t('map.open')}
+                </button>
+              )}
+            </div>
+            {/* C 그림 띠: 남는 높이만(0~120) — 패가 길면 먼저 줄어든다 */}
+            <div className="art band">
               <img className="art-bird" src={birdUrl(view)} alt="" />
               <div className="plate small">
                 {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
                 {t(`gameOver.life.${view.player.sex}`)} {t('main.age', { n: view.player.age })}
-                {', '}
-                {data.nodes.get(view.node)?.nameKo ?? view.node}{' '}
-                {!replay && (
-                  <button
-                    type="button"
-                    className="link"
-                    onClick={() => setOnMap(true)}
-                    data-testid="open-map"
-                  >
-                    {t('map.open')}
-                  </button>
-                )}
                 {view.nest && (
-                  <div className="b" data-testid="nest-band">
+                  <span className="b" data-testid="nest-band">
+                    {', '}
                     {t('main.nest')},{' '}
                     {view.nest.chicks !== undefined
                       ? t('main.nest.chicks', { n: view.nest.chicks })
                       : view.nest.eggs !== undefined
                         ? t('main.nest.eggs', { n: view.nest.eggs })
                         : t('main.nest.beforeLaying')}
-                  </div>
+                  </span>
                 )}
               </div>
             </div>
 
+            {/* D 칸 줄: 머리(루틴 k/n칸 · 예산 · 합 위험) + 칸. 다음 빈 칸 점선, 누른 칸 실선 */}
             <div className="slots" data-testid="routine">
-              {(slotNote || view.routine?.nextSlotIn !== undefined) && (
-                // 평시 칸 수(01-formulas 9.6) — 문구 data/text/routine.json
-                <div className="slot-head" role="status" data-testid="slot-head">
-                  {slotNote ? (
-                    <b>
-                      {t(
-                        slotNote.to > slotNote.from ? 'routine.slots.gained' : 'routine.slots.lost',
-                        {
-                          n: slotNote.to,
-                        },
-                      )}
-                    </b>
-                  ) : (
-                    <span>{t('routine.slots.count', { n: slots.length + done })}</span>
-                  )}
-                  {view.routine?.nextSlotIn !== undefined && (
-                    <span>, {t('routine.slots.nextIn', { n: view.routine.nextSlotIn })}</span>
-                  )}
-                </div>
-              )}
-              {budget && Number.isFinite(budget.limit) && (
-                <div className="slot-head" data-testid="budget">
-                  <span>{t('routine.budget', { limit: budget.limit, spent: budget.spent })}</span>
-                  <meter
-                    className="budget"
-                    min={0}
-                    max={budget.limit}
-                    value={budget.spent}
-                    aria-label={t('routine.budget', { limit: budget.limit, spent: budget.spent })}
-                  />
-                </div>
-              )}
+              <div className="slot-head" role="status" data-testid="slot-head">
+                {slotNote ? (
+                  <b>
+                    {t(
+                      slotNote.to > slotNote.from ? 'routine.slots.gained' : 'routine.slots.lost',
+                      { n: slotNote.to },
+                    )}
+                  </b>
+                ) : (
+                  <span>
+                    {t('routine.filled', {
+                      k: slots.filter((x) => x.id).length + done,
+                      n: slots.length + done,
+                    })}
+                  </span>
+                )}
+                {budget && Number.isFinite(budget.limit) && (
+                  <span className="bud" data-testid="budget">
+                    <span>{t('routine.budget', { limit: budget.limit, spent: budget.spent })}</span>
+                    <meter
+                      className="budget"
+                      min={0}
+                      max={budget.limit}
+                      value={budget.spent}
+                      aria-label={t('routine.budget', { limit: budget.limit, spent: budget.spent })}
+                    />
+                  </span>
+                )}
+                {ready && (
+                  <span className={`risk ${sumBand.band}`} data-testid="routine-risk">
+                    <span className="ico s" style={iconStyle('icon.risk')} />
+                    {sumBand.text} <span className="w">{t(`word.risk.${sumBand.band}`)}</span>
+                  </span>
+                )}
+              </div>
               <div className={`cells${slots.length + done > 6 ? ' many' : ''}`}>
                 {slots.map((s, k) => {
                   const place = placeBefore(k);
+                  const cls = s.id
+                    ? k === cursor || (replay && k === shown - 1)
+                      ? ' sel'
+                      : ''
+                    : k === firstEmpty && !replay
+                      ? ' empty next'
+                      : ' empty';
                   return (
                     <button
                       // biome-ignore lint/suspicious/noArrayIndexKey: 칸은 자리로 구분한다
                       key={k}
                       type="button"
-                      className={`cell${k === cursor || (replay && k === shown - 1) ? ' cur' : ''}${s.id ? '' : ' empty'}`}
+                      className={`cell${cls}`}
                       aria-pressed={k === cursor}
                       disabled={Boolean(replay)}
-                      onClick={() => setCursor(k === cursor ? undefined : k)}
+                      onClick={() => s.id && setCursor(k === cursor ? undefined : k)}
                       aria-label={`${t('routine.slot', { n: done + k + 1 })}, ${s.id ? labelOf(s) : t('routine.empty')}`}
                       data-testid={`slot-${done + k + 1}`}
                     >
                       {place && <span className="pl">{place}</span>}
-                      <span className="n">{done + k + 1}</span>
-                      {s.id && <span className="ico s" style={iconStyle(slotIcon(s.id))} />}
-                      <span className="e">
-                        {s.preview ? energy1(s.preview.energyDelta[0]) : '-'}
-                      </span>
+                      {s.id ? (
+                        <>
+                          <span className="ico s" style={iconStyle(slotIcon(s.id))} />
+                          <span className="e">{roundHalfUp(energyAfter[k] ?? 0)}</span>
+                        </>
+                      ) : (
+                        <span className="n">{done + k + 1}</span>
+                      )}
                     </button>
                   );
                 })}
-              </div>
-              <div className="sum">
-                <span>
-                  {t('main.energy')} {roundHalfUp(view.player.energy)}
-                  {' > '}
-                  <b>{ready ? roundHalfUp(energyAfter.at(-1) ?? 0) : '-'}</b>
-                </span>
-                <span className="sp" />
-                <span>{t('routine.sum', { n: slots.length })}</span>
-                {ready ? (
-                  <span className={`risk ${sumBand.band}`} data-testid="routine-risk">
-                    <span className="ico s" style={iconStyle('icon.risk')} />
-                    {sumBand.text} <span className="w">{t(`word.risk.${sumBand.band}`)}</span>
-                  </span>
-                ) : (
-                  <span className="muted">{t('routine.hasEmpty')}</span>
-                )}
               </div>
             </div>
 
@@ -1800,122 +2078,74 @@ export function Game({ data }: { data: GameData }) {
                   </p>
                 )}
               </div>
-            ) : cursor === undefined ? (
-              <div className="list">
-                <table className="slot-table small" aria-label={t('routine.table.previewLabel')}>
-                  <thead>
-                    <tr>
-                      <th>{t('routine.table.slot')}</th>
-                      <th>{t('routine.table.action')}</th>
-                      <th>{t('routine.table.energy')}</th>
-                      <th>{t('routine.table.risk')}</th>
-                      <th>{t('routine.table.growth')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {slots.map((s, k) => (
-                      // biome-ignore lint/suspicious/noArrayIndexKey: 칸은 자리로 구분한다
-                      <tr key={k}>
-                        <td>{done + k + 1}</td>
-                        <td>
-                          {s.id ? labelOf(s) : <span className="muted">{t('routine.empty')}</span>}
-                        </td>
-                        <td>
-                          {s.preview &&
-                            `${energy1(s.preview.energyDelta[0])} > ${roundHalfUp(energyAfter[k] ?? 0, 1).toFixed(1)}`}
-                        </td>
-                        <td>{s.preview && formatRisk(data.formulas, s.preview.deathRisk).text}</td>
-                        <td>
-                          {Object.entries(s.preview?.statGains ?? {})
-                            .map(([st, x]) => `${STAT_WORD[st as StatName]} ${formatStatGain(x)}`)
-                            .join(', ')}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <p className="muted small">{t('routine.editHelp')}</p>
-              </div>
             ) : (
-              <ul className="list" aria-label={t('routine.slotActions', { n: done + cursor + 1 })}>
-                <li className="gate-title row small">
-                  <span className="b">{t('routine.slot', { n: done + cursor + 1 })}</span>
-                  {cursor > 0 && (
-                    <span className="muted">
-                      {t('routine.editFrom', {
-                        n: done + cursor,
-                        energy: roundHalfUp(energyAfter[cursor - 1] ?? 0, 1).toFixed(1),
-                      })}
-                    </span>
+              <>
+                {/* E 패: 가진 카드만 3열 — 넘치면 패만 스크롤 */}
+                <div className="hand2">
+                  <div className="hd">
+                    {nextSlot
+                      ? t('routine.hand.head', { n: handCards.reduce((x, h) => x + h.n, 0) })
+                      : t('routine.full')}
+                  </div>
+                  {nextSlot && (
+                    <ul className="grid" data-testid="hand">
+                      {handCards.map(({ c, n }) => handCard(c, n, nextSlot.before))}
+                    </ul>
                   )}
-                  <span className="sp" />
-                  <button
-                    type="button"
-                    className="step"
-                    disabled={cursor === 0}
-                    onClick={() => setCursor(cursor - 1)}
-                    aria-label={t('routine.prevSlot')}
-                  >
-                    ◂
-                  </button>
-                  <button
-                    type="button"
-                    className="step"
-                    disabled={cursor === slots.length - 1}
-                    onClick={() => setCursor(cursor + 1)}
-                    aria-label={t('routine.nextSlot')}
-                  >
-                    ▸
-                  </button>
-                </li>
-                {!cursorSlot ? (
-                  <li className="gate-title muted small">{t('routine.fillPrevFirst')}</li>
-                ) : (
-                  <>
-                    <li>
-                      <ul className="hand" data-testid="hand">
-                        {!open &&
-                          cursorChoices
-                            .filter((c) => !GROUPS.some((g) => c.id.startsWith(g.prefix)))
-                            .map((c) => row(c, cursorSlot))}
-                        {GROUPS.map((g) => {
-                          const members = cursorChoices.filter((c) => c.id.startsWith(g.prefix));
-                          if (members.length === 0) return null;
-                          const isOpen = open === g.key;
-                          // 묶음을 펼치면 패가 그 묶음 카드로 바뀐다 — 첫 장(묶음)을 다시 누르면 접힌다
-                          if (open && !isOpen) return null;
-                          const pickedHere = members.find((c) => c.id === plan[cursor]);
-                          const hint = pickedHere
-                            ? pickedHere.label
-                            : g.key === 'move'
-                              ? t('routine.group.moveHint', { n: members.length })
-                              : t('routine.group.trainHint');
-                          return [
-                            <li key={g.key}>
-                              <button
-                                type="button"
-                                className={`pcard grp${!isOpen && pickedHere ? ' sel' : ''}${isOpen ? ' open' : ''}`}
-                                aria-expanded={isOpen}
-                                onClick={() => setOpen(isOpen ? undefined : g.key)}
-                                aria-label={`${g.label}, ${hint}`}
-                                data-testid={`group-${g.key}`}
-                              >
-                                <span className="ico" style={iconStyle(g.icon)} />
-                                <span className="b nm">
-                                  {isOpen ? '◂ ' : ''}
-                                  {g.label}
-                                </span>
-                                <span className="cap">{hint}</span>
-                              </button>
-                            </li>,
-                            ...(isOpen ? members.map((c) => row(c, cursorSlot, g.key)) : []),
-                          ];
-                        })}
-                      </ul>
-                    </li>
-                  </>
+                </div>
+                {/* F 늘 있는 카드: 옮기기 ▾ · 채식(기본) · 쉬기 */}
+                {nextSlot && (
+                  <div className="base">
+                    {moveChoices.length > 0 && (
+                      <button
+                        type="button"
+                        className="b2"
+                        onClick={() => setOpen('move')}
+                        data-testid="group-move"
+                      >
+                        {t('routine.group.move')} ▾
+                      </button>
+                    )}
+                    {baseCards.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        className={`b2${c.disabled ? ' short' : ''}`}
+                        aria-disabled={!!c.disabled}
+                        onClick={() => fill(c)}
+                        data-testid={`base-${c.id}`}
+                      >
+                        {c.id === 'action.forage' ? t('routine.base.forage') : c.label}
+                      </button>
+                    ))}
+                  </div>
                 )}
-              </ul>
+                {/* G 정보 줄: 누른 칸(+빼기) · 마지막에 넣은 칸 · 못 쓰는 이유 · 사용법 */}
+                <div
+                  className={`info${info && 'why' in info && cursor === undefined ? ' why' : ''}`}
+                  data-testid="info"
+                >
+                  {cursor !== undefined && slots[cursor]?.id ? (
+                    <>
+                      {slotInfo(cursor)}
+                      <button
+                        type="button"
+                        className="x"
+                        onClick={() => unfill(cursor)}
+                        data-testid="slot-remove"
+                      >
+                        {t('routine.remove')}
+                      </button>
+                    </>
+                  ) : info && 'why' in info ? (
+                    <span className="tx">{info.why}</span>
+                  ) : info && slots[info.k]?.id ? (
+                    slotInfo(info.k)
+                  ) : (
+                    <span className="tx muted">{t('routine.info.help')}</span>
+                  )}
+                </div>
+              </>
             )}
           </>
         )}
@@ -1986,24 +2216,15 @@ export function Game({ data }: { data: GameData }) {
                 </button>
               </>
             )
-          ) : cursor === undefined ? (
-            <button
-              type="button"
-              className="btn prim"
-              onClick={() => (ready ? go() : setCursor(firstEmpty))}
-              data-testid="go"
-            >
-              {t(ready ? 'routine.go' : 'routine.fillEmpty')}
-            </button>
           ) : (
             <>
               <button
                 type="button"
-                className="btn"
-                disabled={!edited}
+                className="btn side"
+                disabled={placed.length === 0}
                 onClick={() => {
-                  setEdited(undefined);
-                  setOpen(undefined);
+                  const k = placed.at(-1);
+                  if (k !== undefined) unfill(k);
                 }}
                 data-testid="routine-reset"
               >
@@ -2012,57 +2233,16 @@ export function Game({ data }: { data: GameData }) {
               <button
                 type="button"
                 className="btn prim"
-                onClick={() => {
-                  setCursor(undefined);
-                  setOpen(undefined);
-                }}
-                data-testid="routine-view"
+                disabled={!ready}
+                onClick={go}
+                data-testid="go"
               >
-                {t('routine.view')}
+                {t('routine.goRest')}
               </button>
             </>
           )}
         </div>
       </div>
-
-      <section className="feed" aria-label={t('main.feed')}>
-        <ul className="feed-list">
-          {withLogKeys(view.recentLog)
-            .reverse()
-            .map(([k, l]) => (
-              <li key={k}>{logLine(l, data)}</li>
-            ))}
-        </ul>
-        {SHOW_FAST_FORWARD && (
-          <div className="dev small">
-            <span className="muted">개발용, 평균 봇으로</span>
-            <button
-              type="button"
-              className="btn"
-              onClick={() => commit(fastForward(state, data))}
-              data-testid="fast-forward"
-            >
-              1년 빨리 감기
-            </button>
-          </div>
-        )}
-        {SHOW_FAST_FORWARD && (
-          <table className="stats small" data-testid="stats">
-            <caption className="muted">개발용, 스탯 현재 / 잠재력</caption>
-            <tbody>
-              {(Object.keys(view.player.potential) as StatName[]).map((s) => (
-                <tr key={s}>
-                  <th>{STAT_WORD[s] ?? s}</th>
-                  <td>{roundHalfUp(view.player.stats[s] ?? 0, 1).toFixed(1)}</td>
-                  <td className="muted">
-                    / {roundHalfUp(view.player.potential[s] ?? 0, 1).toFixed(1)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
     </main>
   );
 }
