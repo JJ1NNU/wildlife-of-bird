@@ -601,6 +601,8 @@ export function Game({ data }: { data: GameData }) {
   const sumBand = formatRisk(data.formulas, sumRisk);
   // S-12 재생 중에는 상태 바 에너지가 보인 칸까지 같이 움직인다
   const replayDone = replay ? shown >= replay.rows.length : false;
+  /** 관문·판정 결과는 같은 아래 시트(screens 6.6) */
+  const sheet = Boolean(view.gate || replay);
   const shownEnergy = replay
     ? replay.rows
         .slice(0, shown)
@@ -1714,7 +1716,7 @@ export function Game({ data }: { data: GameData }) {
 
   return (
     <main className="game" data-testid="main-turn">
-      <div className={`zone${view.gate ? ' gs' : view.routine ? ' v2' : ''}`}>
+      <div className={`zone${sheet ? ' gs' : view.routine ? ' v2' : ''}`}>
         <header className="status">
           <div className="st">
             <div className="row small">
@@ -1757,16 +1759,17 @@ export function Game({ data }: { data: GameData }) {
         {menu && menuSheet}
         {open === 'move' && !menu && !view.gate && !replay && moveSheet}
         {tipCard}
-        {/* 관문 시트(screens 6.6 · 와이어 08): 판 화면은 뒤에 어둡게, 목록·주 버튼은 아래 시트 하나. 닫기 없음 */}
-        {view.gate && (
+        {/* 관문 시트(screens 6.6 · 와이어 08): 판 화면은 뒤에 어둡게, 목록·주 버튼은 아래 시트 하나. 닫기 없음.
+            판정 결과(S-12)도 같은 시트 — 목록 = 칸별 결과 줄, 주 버튼 = 확인 */}
+        {sheet && (
           <div className="behind" aria-hidden="true">
             {placeRow(false)}
             {artBand}
           </div>
         )}
         <div
-          className={view.gate ? 'gsheet' : 'contents'}
-          data-testid={view.gate ? 'gate-sheet' : undefined}
+          className={sheet ? 'gsheet' : 'contents'}
+          data-testid={view.gate ? 'gate-sheet' : replay ? 'result-sheet' : undefined}
         >
           {view.gate?.kind === 'mateCandidate' ? (
             <>
@@ -2017,9 +2020,57 @@ export function Game({ data }: { data: GameData }) {
                 <li className="gate-title muted small">{t('gate.clutchSize.help')}</li>
               </ul>
             </>
+          ) : replay ? (
+            <>
+              {gateHead(t('routine.table.resultLabel'))}
+              <div className="list" data-testid="replay">
+                <table className="slot-table small" aria-label={t('routine.table.resultLabel')}>
+                  <thead>
+                    <tr>
+                      <th>{t('routine.table.slot')}</th>
+                      <th>{t('routine.table.action')}</th>
+                      <th>{t('routine.table.expected')}</th>
+                      <th>{t('routine.table.actual')}</th>
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {replay.rows.map((r, k) => {
+                      const seen = k < shown;
+                      return (
+                        <tr key={r.slot} className={seen ? '' : 'muted'}>
+                          <td>{r.slot}</td>
+                          <td>
+                            {r.label}
+                            {seen && r.event && `, ${r.event.text}`}
+                          </td>
+                          <td>{r.expect !== undefined && energy1(r.expect)}</td>
+                          <td>
+                            {seen ? (r.actual ? energy1(r.actual.deltas?.energy ?? 0) : '-') : '-'}
+                          </td>
+                          <td className={seen && r.dead ? 'danger' : ''}>
+                            {seen ? (r.dead ? '✕' : r.event ? '!' : r.actual ? '✓' : '') : ''}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                {replayDone && (
+                  <p className="small" data-testid="replay-total">
+                    {replay.death
+                      ? t('routine.replay.deathAt', {
+                          n: replay.death.slot ?? '',
+                          text: causeText('death', replay.death.cause, data) ?? replay.death.text,
+                        })
+                      : deltaText(replay.total?.deltas) || t('routine.replay.noChange')}
+                  </p>
+                )}
+              </div>
+            </>
           ) : (
             <>
-              {placeRow(!replay)}
+              {placeRow(true)}
               {artBand}
 
               {/* D 칸 줄: 머리(루틴 k/n칸 · 예산 · 합 위험) + 칸. 다음 빈 칸 점선, 누른 칸 실선 */}
@@ -2068,10 +2119,10 @@ export function Game({ data }: { data: GameData }) {
                   {slots.map((s, k) => {
                     const place = placeBefore(k);
                     const cls = s.id
-                      ? k === cursor || (replay && k === shown - 1)
+                      ? k === cursor
                         ? ' sel'
                         : ''
-                      : k === firstEmpty && !replay
+                      : k === firstEmpty
                         ? ' empty next'
                         : ' empty';
                     return (
@@ -2081,7 +2132,6 @@ export function Game({ data }: { data: GameData }) {
                         type="button"
                         className={`cell${cls}`}
                         aria-pressed={k === cursor}
-                        disabled={Boolean(replay)}
                         onClick={() => s.id && setCursor(k === cursor ? undefined : k)}
                         aria-label={`${t('routine.slot', { n: done + k + 1 })}, ${s.id ? labelOf(s) : t('routine.empty')}`}
                         data-testid={`slot-${done + k + 1}`}
@@ -2101,124 +2151,71 @@ export function Game({ data }: { data: GameData }) {
                 </div>
               </div>
 
-              {replay ? (
-                <div className="list" data-testid="replay">
-                  <table className="slot-table small" aria-label={t('routine.table.resultLabel')}>
-                    <thead>
-                      <tr>
-                        <th>{t('routine.table.slot')}</th>
-                        <th>{t('routine.table.action')}</th>
-                        <th>{t('routine.table.expected')}</th>
-                        <th>{t('routine.table.actual')}</th>
-                        <th />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {replay.rows.map((r, k) => {
-                        const seen = k < shown;
-                        return (
-                          <tr key={r.slot} className={seen ? '' : 'muted'}>
-                            <td>{r.slot}</td>
-                            <td>
-                              {r.label}
-                              {seen && r.event && `, ${r.event.text}`}
-                            </td>
-                            <td>{r.expect !== undefined && energy1(r.expect)}</td>
-                            <td>
-                              {seen
-                                ? r.actual
-                                  ? energy1(r.actual.deltas?.energy ?? 0)
-                                  : '-'
-                                : '-'}
-                            </td>
-                            <td className={seen && r.dead ? 'danger' : ''}>
-                              {seen ? (r.dead ? '✕' : r.event ? '!' : r.actual ? '✓' : '') : ''}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                  {replayDone && (
-                    <p className="small" data-testid="replay-total">
-                      {replay.death
-                        ? t('routine.replay.deathAt', {
-                            n: replay.death.slot ?? '',
-                            text: causeText('death', replay.death.cause, data) ?? replay.death.text,
-                          })
-                        : deltaText(replay.total?.deltas) || t('routine.replay.noChange')}
-                    </p>
-                  )}
+              {/* E 패: 가진 카드만 3열 — 넘치면 패만 스크롤 */}
+              <div className="hand2">
+                <div className="hd">
+                  {nextSlot
+                    ? t('routine.hand.head', { n: handCards.reduce((x, h) => x + h.n, 0) })
+                    : t('routine.full')}
                 </div>
-              ) : (
-                <>
-                  {/* E 패: 가진 카드만 3열 — 넘치면 패만 스크롤 */}
-                  <div className="hand2">
-                    <div className="hd">
-                      {nextSlot
-                        ? t('routine.hand.head', { n: handCards.reduce((x, h) => x + h.n, 0) })
-                        : t('routine.full')}
-                    </div>
-                    {nextSlot && (
-                      <ul className="grid" data-testid="hand">
-                        {handCards.map(({ c, n }) => handCard(c, n, nextSlot.before))}
-                      </ul>
-                    )}
-                  </div>
-                  {/* F 늘 있는 카드: 옮기기 ▾ · 채식(기본) · 쉬기 */}
-                  {nextSlot && (
-                    <div className="base">
-                      {moveChoices.length > 0 && (
-                        <button
-                          type="button"
-                          className="b2"
-                          onClick={() => setOpen('move')}
-                          data-testid="group-move"
-                        >
-                          {t('routine.group.move')} ▾
-                        </button>
-                      )}
-                      {baseCards.map((c) => (
-                        <button
-                          key={c.id}
-                          type="button"
-                          className={`b2${c.disabled ? ' short' : ''}`}
-                          aria-disabled={!!c.disabled}
-                          onClick={() => fill(c)}
-                          data-testid={`base-${c.id}`}
-                        >
-                          {c.id === 'action.forage' ? t('routine.base.forage') : c.label}
-                        </button>
-                      ))}
-                    </div>
+                {nextSlot && (
+                  <ul className="grid" data-testid="hand">
+                    {handCards.map(({ c, n }) => handCard(c, n, nextSlot.before))}
+                  </ul>
+                )}
+              </div>
+              {/* F 늘 있는 카드: 옮기기 ▾ · 채식(기본) · 쉬기 */}
+              {nextSlot && (
+                <div className="base">
+                  {moveChoices.length > 0 && (
+                    <button
+                      type="button"
+                      className="b2"
+                      onClick={() => setOpen('move')}
+                      data-testid="group-move"
+                    >
+                      {t('routine.group.move')} ▾
+                    </button>
                   )}
-                  {/* G 정보 줄: 누른 칸(+빼기) · 마지막에 넣은 칸 · 못 쓰는 이유 · 사용법 */}
-                  <div
-                    className={`info${info && 'why' in info && cursor === undefined ? ' why' : ''}`}
-                    data-testid="info"
-                  >
-                    {cursor !== undefined && slots[cursor]?.id ? (
-                      <>
-                        {slotInfo(cursor)}
-                        <button
-                          type="button"
-                          className="x"
-                          onClick={() => unfill(cursor)}
-                          data-testid="slot-remove"
-                        >
-                          {t('routine.remove')}
-                        </button>
-                      </>
-                    ) : info && 'why' in info ? (
-                      <span className="tx">{info.why}</span>
-                    ) : info && slots[info.k]?.id ? (
-                      slotInfo(info.k)
-                    ) : (
-                      <span className="tx muted">{t('routine.info.help')}</span>
-                    )}
-                  </div>
-                </>
+                  {baseCards.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      className={`b2${c.disabled ? ' short' : ''}`}
+                      aria-disabled={!!c.disabled}
+                      onClick={() => fill(c)}
+                      data-testid={`base-${c.id}`}
+                    >
+                      {c.id === 'action.forage' ? t('routine.base.forage') : c.label}
+                    </button>
+                  ))}
+                </div>
               )}
+              {/* G 정보 줄: 누른 칸(+빼기) · 마지막에 넣은 칸 · 못 쓰는 이유 · 사용법 */}
+              <div
+                className={`info${info && 'why' in info && cursor === undefined ? ' why' : ''}`}
+                data-testid="info"
+              >
+                {cursor !== undefined && slots[cursor]?.id ? (
+                  <>
+                    {slotInfo(cursor)}
+                    <button
+                      type="button"
+                      className="x"
+                      onClick={() => unfill(cursor)}
+                      data-testid="slot-remove"
+                    >
+                      {t('routine.remove')}
+                    </button>
+                  </>
+                ) : info && 'why' in info ? (
+                  <span className="tx">{info.why}</span>
+                ) : info && slots[info.k]?.id ? (
+                  slotInfo(info.k)
+                ) : (
+                  <span className="tx muted">{t('routine.info.help')}</span>
+                )}
+              </div>
             </>
           )}
 
