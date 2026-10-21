@@ -1227,9 +1227,17 @@ h1 {
   background: var(--wb-color-paper);
   border: 1px solid var(--wb-color-line);
   border-radius: var(--wb-radius-m);
+  position: relative;
+  overflow: hidden;
 }
+/* 새 그림은 장면용 구도(몸 너비 35%·가운데, 몸 가운데 높이 ≈80% — style-guide 5장): 96px로 키워 새만 보이게 */
 .opt.kid .thumb img {
-  width: 34px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 96px;
+  max-width: none;
+  transform: translate(-50%, -80%);
 }
 .opt.kid .facts {
   display: flex;
