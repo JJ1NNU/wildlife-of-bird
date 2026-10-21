@@ -25,7 +25,7 @@ import {
   type SecondBroodCard,
 } from '@wb/engine';
 import type { GameData, Season, StatName } from '@wb/schema';
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { birdUrl, placeholderBirdUrl } from './art.ts';
 import { Codex } from './Codex.tsx';
 import { causeText } from './cause.ts';
@@ -1667,6 +1667,13 @@ export function Game({ data }: { data: GameData }) {
       )}
     </div>
   );
+  // 관문 시트 머리(screens 6.6): 제목 1줄 + 설명 — 목록 밖이라 스크롤되지 않는다
+  const gateHead = (title: ReactNode, desc?: ReactNode) => (
+    <div className="ghead" data-testid="gate-head">
+      <p className="ghead-title b">{title}</p>
+      {desc && <p className="muted small">{desc}</p>}
+    </div>
+  );
   // C 그림 띠: 남는 높이만(0~120) — 패가 길면 먼저 줄어든다
   const artBand = (
     <div className="art band">
@@ -1746,236 +1753,263 @@ export function Game({ data }: { data: GameData }) {
           data-testid={view.gate ? 'gate-sheet' : undefined}
         >
           {view.gate?.kind === 'mateCandidate' ? (
-            <ul
-              className="list"
-              aria-label={t('gate.mateCandidate.label')}
-              data-testid="gate-mateCandidate"
-            >
-              <li className="gate-title b">{t('gate.mateCandidate.title')}</li>
-              {mateGone && <li className="gate-title muted small">{mateGone}</li>}
-              {view.gate.cards.map((card, i) =>
-                mateRow(card, mateCards?.[0]?.previous ? i : i + 1),
-              )}
-            </ul>
-          ) : view.gate?.kind === 'nestSite' ? (
-            <ul className="list" aria-label={t('gate.nestSite.label')} data-testid="gate-nestSite">
-              <li className="gate-title b">{t('gate.nestSite.title')}</li>
-              {view.gate.cards.map((card) => nestRow(card))}
-              <li className="gate-title muted small">{t('gate.nestSite.help')}</li>
-            </ul>
-          ) : view.gate?.kind === 'mateOrder' ? (
-            <ul
-              className="list"
-              aria-label={t('gate.mateOrder.label')}
-              data-testid="gate-mateOrder"
-            >
-              <li className="gate-title b">{t('gate.mateOrder.title')}</li>
-              {view.gate.cards.map((card) => orderRow(card))}
-              <li className="gate-title muted small">{t('gate.mateOrder.help')}</li>
-            </ul>
-          ) : view.gate?.kind === 'parentingPolicy' ? (
-            <ul
-              className="list"
-              aria-label={t('gate.parentingPolicy.label')}
-              data-testid="gate-parentingPolicy"
-            >
-              <li className="gate-title b">
-                {t(
-                  policyAdjust ? 'gate.parentingPolicy.adjustTitle' : 'gate.parentingPolicy.title',
+            <>
+              {gateHead(t('gate.mateCandidate.title'), mateGone)}
+              <ul
+                className="list"
+                aria-label={t('gate.mateCandidate.label')}
+                data-testid="gate-mateCandidate"
+              >
+                {view.gate.cards.map((card, i) =>
+                  mateRow(card, mateCards?.[0]?.previous ? i : i + 1),
                 )}
-              </li>
-              {view.gate.cards.map((it, i) => (
-                <li key={it.item} className={`pol${it.locked ? ' lock' : ''}`}>
-                  <span className="lab small b">
-                    {i + 1} {it.label}
-                    {it.locked && (
-                      <span className="muted">, {t('gate.parentingPolicy.locked')}</span>
-                    )}
-                  </span>
-                  <fieldset className="seg" aria-label={it.label}>
-                    {it.options.map((o) => (
-                      <button
-                        key={o}
-                        type="button"
-                        className={policyValues[it.item] === o ? 'on' : undefined}
-                        aria-pressed={policyValues[it.item] === o}
-                        disabled={it.locked}
-                        onClick={() =>
-                          setPicked(
-                            `parentingPolicy?${new URLSearchParams({ ...policyValues, [it.item]: o })}`,
-                          )
-                        }
-                        data-testid={`policy-${it.item}-${o}`}
-                      >
-                        {t(`gate.policy.${o}`)}
-                      </button>
-                    ))}
-                  </fieldset>
-                </li>
-              ))}
-            </ul>
+              </ul>
+            </>
+          ) : view.gate?.kind === 'nestSite' ? (
+            <>
+              {gateHead(t('gate.nestSite.title'))}
+              <ul
+                className="list"
+                aria-label={t('gate.nestSite.label')}
+                data-testid="gate-nestSite"
+              >
+                {view.gate.cards.map((card) => nestRow(card))}
+                <li className="gate-title muted small">{t('gate.nestSite.help')}</li>
+              </ul>
+            </>
+          ) : view.gate?.kind === 'mateOrder' ? (
+            <>
+              {gateHead(t('gate.mateOrder.title'))}
+              <ul
+                className="list"
+                aria-label={t('gate.mateOrder.label')}
+                data-testid="gate-mateOrder"
+              >
+                {view.gate.cards.map((card) => orderRow(card))}
+                <li className="gate-title muted small">{t('gate.mateOrder.help')}</li>
+              </ul>
+            </>
+          ) : view.gate?.kind === 'parentingPolicy' ? (
+            <>
+              {gateHead(
+                t(policyAdjust ? 'gate.parentingPolicy.adjustTitle' : 'gate.parentingPolicy.title'),
+              )}
+              <ul
+                className="list"
+                aria-label={t('gate.parentingPolicy.label')}
+                data-testid="gate-parentingPolicy"
+              >
+                {view.gate.cards.map((it, i) => (
+                  <li key={it.item} className={`pol${it.locked ? ' lock' : ''}`}>
+                    <span className="lab small b">
+                      {i + 1} {it.label}
+                      {it.locked && (
+                        <span className="muted">, {t('gate.parentingPolicy.locked')}</span>
+                      )}
+                    </span>
+                    <fieldset className="seg" aria-label={it.label}>
+                      {it.options.map((o) => (
+                        <button
+                          key={o}
+                          type="button"
+                          className={policyValues[it.item] === o ? 'on' : undefined}
+                          aria-pressed={policyValues[it.item] === o}
+                          disabled={it.locked}
+                          onClick={() =>
+                            setPicked(
+                              `parentingPolicy?${new URLSearchParams({ ...policyValues, [it.item]: o })}`,
+                            )
+                          }
+                          data-testid={`policy-${it.item}-${o}`}
+                        >
+                          {t(`gate.policy.${o}`)}
+                        </button>
+                      ))}
+                    </fieldset>
+                  </li>
+                ))}
+              </ul>
+            </>
           ) : inherit && confirming && inheritChick ? (
-            <div className="list" data-testid="inherit-confirm">
-              <p className="gate-title b">
-                {t('inheritance.confirm.title', { name: chickName(inheritIndex, inheritChick) })}{' '}
-                <span className="caution">{t('inheritance.confirm.caution')}</span>
-              </p>
-              <table className="compare small">
-                <thead>
-                  <tr>
-                    <th />
-                    <th>{t('inheritance.confirm.colStay')}</th>
-                    <th>{chickName(inheritIndex, inheritChick)}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th>{t('inheritance.confirm.rowAge')}</th>
-                    <td>{t('inheritance.confirm.stayAge', { age: inherit.stay.age })}</td>
-                    <td className="caution">{t('inheritance.confirm.chickAge')}</td>
-                  </tr>
-                  <tr>
-                    <th>{t('inheritance.confirm.rowStats')}</th>
-                    <td>{t('inheritance.confirm.stayStats')}</td>
-                    <td className="caution">{t('inheritance.confirm.chickStats')}</td>
-                  </tr>
-                  <tr>
-                    <th>{t('inheritance.confirm.rowPotential')}</th>
-                    <td>{t('inheritance.confirm.stayPotential')}</td>
-                    <td>{t('inheritance.confirm.chickPotential')}</td>
-                  </tr>
-                  <tr>
-                    <th>{t('inheritance.confirm.rowMate')}</th>
-                    <td>
-                      {inherit.stay.bond !== undefined
-                        ? t('inheritance.confirm.mateYes', { bond: inherit.stay.bond })
-                        : t('inheritance.confirm.mateNo')}
-                    </td>
-                    <td className="caution">{t('inheritance.confirm.chickMate')}</td>
-                  </tr>
-                  <tr>
-                    <th>{t('inheritance.confirm.rowSurvival')}</th>
-                    <td>{Math.round(inherit.stay.yearSurvival * 100)}%</td>
-                    <td>
-                      {Math.round(inheritChick.yearSurvival * 100)}%,{' '}
-                      {t('inheritance.chick.firstWinter')} {inheritChick.firstWinter.toFixed(2)}배
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <p className="muted small">{t('inheritance.confirm.kept')}</p>
-            </div>
+            <>
+              {gateHead(
+                t('inheritance.confirm.title', { name: chickName(inheritIndex, inheritChick) }),
+                <span className="caution">{t('inheritance.confirm.caution')}</span>,
+              )}
+              <div className="list" data-testid="inherit-confirm">
+                <table className="compare small">
+                  <thead>
+                    <tr>
+                      <th />
+                      <th>{t('inheritance.confirm.colStay')}</th>
+                      <th>{chickName(inheritIndex, inheritChick)}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th>{t('inheritance.confirm.rowAge')}</th>
+                      <td>{t('inheritance.confirm.stayAge', { age: inherit.stay.age })}</td>
+                      <td className="caution">{t('inheritance.confirm.chickAge')}</td>
+                    </tr>
+                    <tr>
+                      <th>{t('inheritance.confirm.rowStats')}</th>
+                      <td>{t('inheritance.confirm.stayStats')}</td>
+                      <td className="caution">{t('inheritance.confirm.chickStats')}</td>
+                    </tr>
+                    <tr>
+                      <th>{t('inheritance.confirm.rowPotential')}</th>
+                      <td>{t('inheritance.confirm.stayPotential')}</td>
+                      <td>{t('inheritance.confirm.chickPotential')}</td>
+                    </tr>
+                    <tr>
+                      <th>{t('inheritance.confirm.rowMate')}</th>
+                      <td>
+                        {inherit.stay.bond !== undefined
+                          ? t('inheritance.confirm.mateYes', { bond: inherit.stay.bond })
+                          : t('inheritance.confirm.mateNo')}
+                      </td>
+                      <td className="caution">{t('inheritance.confirm.chickMate')}</td>
+                    </tr>
+                    <tr>
+                      <th>{t('inheritance.confirm.rowSurvival')}</th>
+                      <td>{Math.round(inherit.stay.yearSurvival * 100)}%</td>
+                      <td>
+                        {Math.round(inheritChick.yearSurvival * 100)}%,{' '}
+                        {t('inheritance.chick.firstWinter')} {inheritChick.firstWinter.toFixed(2)}배
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p className="muted small">{t('inheritance.confirm.kept')}</p>
+              </div>
+            </>
           ) : inherit ? (
-            <ul
-              className="list"
-              aria-label={t('gate.inheritance.label')}
-              data-testid="gate-inheritance"
-            >
-              <li className="gate-title b">
-                {t('inheritance.header.title', {
+            <>
+              {gateHead(
+                t('inheritance.header.title', {
                   n: inherit.cards.length,
                   from: inherit.totalBreeding - 1,
                   to: inherit.totalBreeding,
-                })}
-              </li>
-              <li className="gate-title muted small">{t('inheritance.header.note')}</li>
-              <li>
-                <button
-                  type="button"
-                  className={`opt${picked === inherit.stay.choiceId ? ' sel' : ''}`}
-                  aria-pressed={picked === inherit.stay.choiceId}
-                  onClick={() => setPicked(inherit.stay.choiceId)}
-                  data-testid={`choice-${inherit.stay.choiceId}`}
-                >
-                  <span className="main">
-                    <span className="b">
-                      {t('inheritance.stay.label')} {t(SEX_WORD[view.player.sex])}{' '}
-                      {t('inheritance.confirm.stayAge', { age: inherit.stay.age })}{' '}
-                      <span className="muted small">{t('inheritance.stay.tag')}</span>
+                }),
+                t('inheritance.header.note'),
+              )}
+              <ul
+                className="list"
+                aria-label={t('gate.inheritance.label')}
+                data-testid="gate-inheritance"
+              >
+                <li>
+                  <button
+                    type="button"
+                    className={`opt${picked === inherit.stay.choiceId ? ' sel' : ''}`}
+                    aria-pressed={picked === inherit.stay.choiceId}
+                    onClick={() => setPicked(inherit.stay.choiceId)}
+                    data-testid={`choice-${inherit.stay.choiceId}`}
+                  >
+                    <span className="main">
+                      <span className="b">
+                        {t('inheritance.stay.label')} {t(SEX_WORD[view.player.sex])}{' '}
+                        {t('inheritance.confirm.stayAge', { age: inherit.stay.age })}{' '}
+                        <span className="muted small">{t('inheritance.stay.tag')}</span>
+                      </span>
+                      <span className="cap">
+                        {t('inheritance.stay.aging')}{' '}
+                        <b>{formatRisk(data.formulas, inherit.stay.agingRisk).text}</b>
+                        {inherit.stay.bond !== undefined && (
+                          <>
+                            {', '}
+                            {t('inheritance.stay.bond')} <b>{inherit.stay.bond}</b>
+                          </>
+                        )}
+                      </span>
                     </span>
-                    <span className="cap">
-                      {t('inheritance.stay.aging')}{' '}
-                      <b>{formatRisk(data.formulas, inherit.stay.agingRisk).text}</b>
-                      {inherit.stay.bond !== undefined && (
-                        <>
-                          {', '}
-                          {t('inheritance.stay.bond')} <b>{inherit.stay.bond}</b>
-                        </>
-                      )}
+                    <span className="vals">
+                      <span>{t('inheritance.card.yearSurvival')}</span>
+                      <b>{Math.round(inherit.stay.yearSurvival * 100)}%</b>
                     </span>
-                  </span>
-                  <span className="vals">
-                    <span>{t('inheritance.card.yearSurvival')}</span>
-                    <b>{Math.round(inherit.stay.yearSurvival * 100)}%</b>
-                  </span>
-                </button>
-              </li>
-              <li className="gate-title muted small">{t('inheritance.chicks.title')}</li>
-              {inherit.cards.map((card, i) => chickRow(card, i))}
-              <li className="gate-title muted small">{t('inheritance.footer.note')}</li>
-            </ul>
+                  </button>
+                </li>
+                <li className="gate-title muted small">{t('inheritance.chicks.title')}</li>
+                {inherit.cards.map((card, i) => chickRow(card, i))}
+                <li className="gate-title muted small">{t('inheritance.footer.note')}</li>
+              </ul>
+            </>
           ) : view.gate?.kind === 'secondBrood' ? (
-            <ul
-              className="list"
-              aria-label={t('gate.secondBrood.label')}
-              data-testid="gate-secondBrood"
-            >
-              <li className="gate-title b">{t('gate.secondBrood.title')}</li>
-              {broodWhy && <li className="gate-title muted small">{broodWhy}</li>}
-              {view.gate.cards.map((card) => broodRow(card))}
-            </ul>
+            <>
+              {gateHead(t('gate.secondBrood.title'), broodWhy)}
+              <ul
+                className="list"
+                aria-label={t('gate.secondBrood.label')}
+                data-testid="gate-secondBrood"
+              >
+                {view.gate.cards.map((card) => broodRow(card))}
+              </ul>
+            </>
           ) : view.gate?.kind === 'event' ? (
-            <ul className="list" aria-label={t('gate.event.label')} data-testid="gate-event">
-              {/* 잠정(#188): 전용 장면 그림(asset-list scene.*)이 오기 전까지 새 + 위험 아이콘 (02-event 메모, art.md 7장) */}
-              <li className="scene" aria-hidden="true" data-testid="event-scene">
+            <>
+              {/* 잠정(#188): 전용 장면 그림(asset-list scene.*)이 오기 전까지 새 + 위험 아이콘 (02-event 메모, art.md 7장).
+                그림 96은 시트가 넘치면 목록보다 먼저 0까지 접힌다(screens 6.6) */}
+              <div className="scene" aria-hidden="true" data-testid="event-scene">
                 <img className="scene-bird" src={placeholderBirdUrl(view.speciesId)} alt="" />
                 <span className="ico scene-risk" style={iconStyle('icon.risk')} />
-              </li>
-              <li className="gate-title b">{gateEvent?.title ?? view.gate.id}</li>
-              {gateEvent && <li className="gate-title muted small">{gateEvent.body}</li>}
-              {view.nest?.chicks !== undefined && (
-                <li className="gate-title small" data-testid="event-nest">
-                  {t('main.nest')}, {t('main.nest.chicks', { n: view.nest.chicks })}
-                </li>
+              </div>
+              {gateHead(
+                gateEvent?.title ?? view.gate.id,
+                (gateEvent || view.nest?.chicks !== undefined) && (
+                  <>
+                    {gateEvent?.body}
+                    {view.nest?.chicks !== undefined && (
+                      <span className="nest-line" data-testid="event-nest">
+                        {t('main.nest')}, {t('main.nest.chicks', { n: view.nest.chicks })}
+                      </span>
+                    )}
+                  </>
+                ),
               )}
-              <li>
-                <ul className="hand event">{view.gate.cards.map((card) => eventRow(card))}</ul>
-              </li>
-              {pickedEvent && (
-                <li className="gate-title small opt-detail" data-testid="event-detail">
-                  <span className="b">{eventOption(pickedEvent).text}</span>
-                  {eventFx(pickedEvent)}
+              <ul className="list" aria-label={t('gate.event.label')} data-testid="gate-event">
+                <li>
+                  <ul className="hand event">{view.gate.cards.map((card) => eventRow(card))}</ul>
                 </li>
-              )}
-            </ul>
+                {pickedEvent && (
+                  <li className="gate-title small opt-detail" data-testid="event-detail">
+                    <span className="b">{eventOption(pickedEvent).text}</span>
+                    {eventFx(pickedEvent)}
+                  </li>
+                )}
+              </ul>
+            </>
           ) : view.gate?.kind === 'seasonPolicy' ? (
-            <ul
-              className="list"
-              aria-label={t('gate.seasonPolicy.label')}
-              data-testid="gate-seasonPolicy"
-            >
-              <li className="gate-title b">{t('gate.seasonPolicy.title')}</li>
-              <li>
-                <ul className="hand season">{view.gate.cards.map((card) => seasonRow(card))}</ul>
-              </li>
-              {picked?.startsWith('seasonPolicy.') && (
-                <li className="gate-title small" data-testid="season-desc">
-                  <span className="b">{pickedChoice?.label}</span>:{' '}
-                  {t(`seasonPolicy.${picked.slice('seasonPolicy.'.length)}.desc`)}
+            <>
+              {gateHead(t('gate.seasonPolicy.title'))}
+              <ul
+                className="list"
+                aria-label={t('gate.seasonPolicy.label')}
+                data-testid="gate-seasonPolicy"
+              >
+                <li>
+                  <ul className="hand season">{view.gate.cards.map((card) => seasonRow(card))}</ul>
                 </li>
-              )}
-              <li className="gate-title muted small">{t('gate.seasonPolicy.help')}</li>
-            </ul>
+                {picked?.startsWith('seasonPolicy.') && (
+                  <li className="gate-title small" data-testid="season-desc">
+                    <span className="b">{pickedChoice?.label}</span>:{' '}
+                    {t(`seasonPolicy.${picked.slice('seasonPolicy.'.length)}.desc`)}
+                  </li>
+                )}
+                <li className="gate-title muted small">{t('gate.seasonPolicy.help')}</li>
+              </ul>
+            </>
           ) : view.gate?.kind === 'clutchSize' ? (
-            <ul
-              className="list"
-              aria-label={t('gate.clutchSize.label')}
-              data-testid="gate-clutchSize"
-            >
-              <li className="gate-title b">{t('gate.clutchSize.title')}</li>
-              {view.gate.cards.map((card) => clutchRow(card))}
-              <li className="gate-title muted small">{t('gate.clutchSize.help')}</li>
-            </ul>
+            <>
+              {gateHead(t('gate.clutchSize.title'))}
+              <ul
+                className="list"
+                aria-label={t('gate.clutchSize.label')}
+                data-testid="gate-clutchSize"
+              >
+                {view.gate.cards.map((card) => clutchRow(card))}
+                <li className="gate-title muted small">{t('gate.clutchSize.help')}</li>
+              </ul>
+            </>
           ) : (
             <>
               {placeRow(!replay)}

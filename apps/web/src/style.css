@@ -1133,6 +1133,30 @@ h1 {
 .gsheet > .list {
   flex: 0 1 auto;
 }
+/* 머리(screens 6.6): 제목 1줄 + 설명 — 목록 밖이라 안 줄고 안 스크롤된다 */
+.ghead {
+  flex: none;
+  padding: 0 var(--wb-space-4) var(--wb-space-1);
+}
+.ghead > p {
+  margin: 0;
+}
+.ghead-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ghead .nest-line {
+  display: block;
+  color: var(--wb-color-ink);
+}
+/* 이벤트 그림 96: 시트가 넘치면 목록보다 먼저 0까지 접힌다(줄어드는 몫을 그림에 몰아줌) */
+.gsheet > .scene {
+  height: auto;
+  flex: 0 1000 96px;
+  min-height: 0;
+  margin: 0 var(--wb-space-4) var(--wb-space-2);
+}
 @supports (color: color-mix(in srgb, red, blue)) {
   .zone.gs > .behind::after {
     background: color-mix(in srgb, var(--wb-color-ink) 55%, transparent);
