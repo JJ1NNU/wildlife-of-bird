@@ -34,7 +34,7 @@
 | `bird.parus-minor.juv.perch` | 독립·계승 | P0 | **완료** — 배치 02, 콘텐츠 승인(#146), 어린 새 깃(이소 후~첫 털갈이). 노르스름한 배는 어린 새만 |
 | `bird.parus-minor.egg` | 산란·포란 | P1 | **요청됨** — 배치 04(`prompts/batch-04-parus-minor-env.md`). 한배 7개를 `chick.nest`와 같은 둥지 단면에 |
 | `bird.parus-minor.adult.nonbreeding.perch` | 겨울 | P2 | **생략** — 계절 깃 차이 출처 없음, 같은 깃으로 그린다(field-marks 1장) |
-| `bg.forest.spring.day` · `.summer.day` · `.autumn.day` · `.winter.day` | 메인 배경 | P0 | **요청됨** — 배치 04. 계절 4장(한국 온대 혼효림 하나), 시간대 변화는 색 필터로 |
+| `bg.forest.spring.day` · `.summer.day` · `.autumn.day` · `.winter.day` | 메인 배경 | P0 | **검수중** — 배치 04 후보 1 ×4, `assets/bg/`(2.2). 계절 4장(한국 온대 혼효림 하나), 시간대 변화는 색 필터로. 숲 모습 콘텐츠 확인 대기 |
 | `bg.forest.nest-hole` | 둥지 화면 | P1 | **요청됨** — 배치 04. 나무구멍 근경 |
 | `pred.rat-snake` | 뱀 경보(고유 메카닉) | P0 | **요청됨** — 배치 05(`prompts/batch-05-rat-snake.md`). 구렁이 한 종·어른·암갈~검정(field-marks 5장) |
 | `pred.<그 밖>` | 둥지·성조 포식자 | P1 | 상성 묶음(매복·급강하·밤·뱀·지상)당 1장으로 시작 |
@@ -52,6 +52,19 @@
 | 원본 | 2048px PNG, 후보 1장씩(대표가 고름). 저장소 밖 `C:\dev\wild-bird-originals\batch-02\` |
 | 후처리 | `scripts/art/process-bird.py`(Pillow) — 표시 지우기 · 종이색 맞춤 · 몸길이 0.35 · 발끝 92% · 768px WebP q80(약 6KB) |
 | 생태 검토 | **대기** — `review:content`(#95 거부 기준 6개) |
+
+### 2.2 출처 — 배치 04 배경 (2026-10-21)
+
+| 항목 | 내용 |
+|---|---|
+| 에셋 | `assets/bg/bg.forest.{spring,summer,autumn,winter}.day.webp` — 4장 모두 후보 `__1` |
+| 도구 | Gemini(보고 부서가 대표 대신 생성 — 커밋 b3e7f73~ed0b33c "보고 부서 대리 생성") |
+| 생성 날짜 | 2026-10-21 (#567) |
+| 프롬프트 | `docs/art/prompts/batch-04-parus-minor-env.md` |
+| 원본 | 1024px WebP 후보 2장씩 `assets/inbox/batch-04/` |
+| 고른 이유 | 4장 모두 `__1`이 같은 구도(양쪽 나무 무리 사이 가운데 빈 길, 수평선 위에서 55~60%)라 같은 숲 같은 자리로 읽힌다. `__2`는 계절마다 구도가 달라지고(봄: 왼쪽 큰 줄기, 여름: 가운데 언덕) 여름·가을 `__2`는 종이 테두리가 넓다 |
+| 후처리 | Pillow — 가장자리 6%씩 잘라 가운데 88%(생성 표시·종이 테두리 제거) → 1024px WebP q80(145~166KB, 상한 250KB) |
+| 생태 검토 | 숲 모습(활엽수+소나무 혼효림)은 PR에서 콘텐츠에 함께 묻는다(프롬프트 검수 순서 7) |
 
 ## 3. 두루미 — M4
 
@@ -81,3 +94,4 @@
 | 2026-10-06 | 박새 배치 02 3장 콘텐츠 승인 → 완료. 아래꼬리덮깃이 보이는 자세는 프롬프트에 "black stripe reaching undertail coverts" (#146) |
 | 2026-10-16 | 배치 04 프롬프트 — 배경 4계절·나무구멍·알 → 요청됨. 뱀·장면은 식별 특징 뒤 배치 05 (#538) |
 | 2026-10-16 | 배치 05 프롬프트 — 구렁이·뱀 경보 장면 → 요청됨 (#538, field-marks 5장) |
+| 2026-10-21 | 배치 04 배경 4계절 후보 1 선택·후처리 → 검수중. 나무구멍·알은 아직 안 옴 (#567) |
