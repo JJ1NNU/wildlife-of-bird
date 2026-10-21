@@ -380,12 +380,83 @@ export function Game({ data }: { data: GameData }) {
   const [tipsReset, setTipsReset] = useState(false);
   /** S-40 판 지우기 확인 한 번 더 */
   const [clearing, setClearing] = useState(false);
+  /** ≡ 메뉴 시트(screens 6.5): 목록 · 지난 일 · 설정 */
+  const [menu, setMenu] = useState<'list' | 'feed' | 'settings'>();
 
   useEffect(() => {
     if (!replay || paused || shown >= replay.rows.length) return;
     const t = setTimeout(() => setShown((n) => n + 1), REPLAY_MS);
     return () => clearTimeout(t);
   }, [replay, paused, shown]);
+
+  /** S-40 설정 — 타이틀의 접힘과 판 안 ≡ 메뉴가 같이 쓴다 */
+  const settingsBody = (
+    <>
+      <button
+        type="button"
+        className="btn"
+        aria-pressed={tipsOn}
+        onClick={() => {
+          saveTipsOn(!tipsOn);
+          setTipsOn(!tipsOn);
+        }}
+        data-testid="tips-toggle"
+      >
+        {t(tipsOn ? 'title.tipsOn' : 'title.tipsOff')}
+      </button>
+      <button
+        type="button"
+        className="btn"
+        onClick={() => {
+          saveSeenTips(new Set());
+          setSeenTips(new Set());
+          setTipsReset(true);
+        }}
+        data-testid="tips-reset"
+      >
+        {t('title.tipsReset')}
+      </button>
+      {tipsReset && <p className="small">{t('title.tipsResetDone')}</p>}
+      {state && hasRecord() && (
+        <button
+          type="button"
+          className="btn"
+          onClick={() => exportRecord(state)}
+          data-testid="export-record"
+        >
+          {t('gameOver.exportRecord')}
+        </button>
+      )}
+      {state &&
+        (clearing ? (
+          <>
+            <p className="small">{t('title.clearConfirm')}</p>
+            <div className="row">
+              <button type="button" className="btn" onClick={() => setClearing(false)}>
+                {t('title.clearNo')}
+              </button>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  clearRun();
+                  setState(undefined);
+                  setMenu(undefined);
+                  setClearing(false);
+                }}
+                data-testid="clear-run"
+              >
+                {t('title.clearYes')}
+              </button>
+            </div>
+          </>
+        ) : (
+          <button type="button" className="btn" onClick={() => setClearing(true)}>
+            {t('title.clear')}
+          </button>
+        ))}
+    </>
+  );
 
   if (onCodex) return <Codex data={data} onBack={() => setOnCodex(false)} />;
   if (onLineage)
@@ -445,68 +516,7 @@ export function Game({ data }: { data: GameData }) {
           )}
           <details className="settings" data-testid="settings">
             <summary>{t('title.settings')}</summary>
-            <button
-              type="button"
-              className="btn"
-              aria-pressed={tipsOn}
-              onClick={() => {
-                saveTipsOn(!tipsOn);
-                setTipsOn(!tipsOn);
-              }}
-              data-testid="tips-toggle"
-            >
-              {t(tipsOn ? 'title.tipsOn' : 'title.tipsOff')}
-            </button>
-            <button
-              type="button"
-              className="btn"
-              onClick={() => {
-                saveSeenTips(new Set());
-                setSeenTips(new Set());
-                setTipsReset(true);
-              }}
-              data-testid="tips-reset"
-            >
-              {t('title.tipsReset')}
-            </button>
-            {tipsReset && <p className="small">{t('title.tipsResetDone')}</p>}
-            {state && hasRecord() && (
-              <button
-                type="button"
-                className="btn"
-                onClick={() => exportRecord(state)}
-                data-testid="export-record"
-              >
-                {t('gameOver.exportRecord')}
-              </button>
-            )}
-            {state &&
-              (clearing ? (
-                <>
-                  <p className="small">{t('title.clearConfirm')}</p>
-                  <div className="row">
-                    <button type="button" className="btn" onClick={() => setClearing(false)}>
-                      {t('title.clearNo')}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn"
-                      onClick={() => {
-                        clearRun();
-                        setState(undefined);
-                        setClearing(false);
-                      }}
-                      data-testid="clear-run"
-                    >
-                      {t('title.clearYes')}
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <button type="button" className="btn" onClick={() => setClearing(true)}>
-                  {t('title.clear')}
-                </button>
-              ))}
+            {settingsBody}
           </details>
         </div>
       </main>
@@ -1500,36 +1510,155 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
+  // ≡ 메뉴 시트(screens 6.5) — 상태 바는 덮지 않고 아래를 어둡게. 피드·빨리 감기(개발용)·설정이 여기로
+  const menuRow = (k: 'feed' | 'codex' | 'settings', name: string, cap?: string) => (
+    <button
+      type="button"
+      className="opt"
+      onClick={() => {
+        if (k === 'codex') {
+          setMenu(undefined);
+          setOnCodex(true);
+        } else setMenu(k);
+      }}
+      data-testid={`menu-${k}`}
+    >
+      <span className="main">
+        <span className="b">{name}</span>
+        {cap && <span className="cap">{cap}</span>}
+      </span>
+    </button>
+  );
+  const menuSheet = (
+    <>
+      <button
+        type="button"
+        className="menu-dim"
+        tabIndex={-1}
+        aria-label={t('main.menu.close')}
+        onClick={() => setMenu(undefined)}
+      />
+      <div className="menu-sheet" data-testid="menu">
+        <div className="hd">
+          {menu !== 'list' && (
+            <button type="button" className="btn side" onClick={() => setMenu('list')}>
+              {t('main.menu.back')}
+            </button>
+          )}
+          <b>
+            {menu === 'feed'
+              ? t('main.feed')
+              : menu === 'settings'
+                ? t('title.settings')
+                : t('main.menu')}
+          </b>
+        </div>
+        <div className="body">
+          {menu === 'list' && (
+            <>
+              {menuRow('feed', t('main.feed'), t('main.menu.feedCap'))}
+              {menuRow('codex', t('codex.open'))}
+              {menuRow('settings', t('title.settings'), t('main.menu.settingsCap'))}
+            </>
+          )}
+          {menu === 'settings' && <div className="settings">{settingsBody}</div>}
+          {menu === 'feed' && (
+            <section className="feed" aria-label={t('main.feed')} data-testid="menu-feed-list">
+              <ul className="feed-list">
+                {withLogKeys(view.recentLog)
+                  .reverse()
+                  .map(([k, l]) => (
+                    <li key={k}>{logLine(l, data)}</li>
+                  ))}
+              </ul>
+              {SHOW_FAST_FORWARD && (
+                <div className="dev small">
+                  <span className="muted">개발용, 평균 봇으로</span>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => {
+                      const next = fastForward(state, data);
+                      if (next.gameOver) setMenu(undefined);
+                      commit(next);
+                    }}
+                    data-testid="fast-forward"
+                  >
+                    1년 빨리 감기
+                  </button>
+                </div>
+              )}
+              {SHOW_FAST_FORWARD && (
+                <table className="stats small" data-testid="stats">
+                  <caption className="muted">개발용, 스탯 현재 / 잠재력</caption>
+                  <tbody>
+                    {(Object.keys(view.player.potential) as StatName[]).map((s) => (
+                      <tr key={s}>
+                        <th>{STAT_WORD[s] ?? s}</th>
+                        <td>{roundHalfUp(view.player.stats[s] ?? 0, 1).toFixed(1)}</td>
+                        <td className="muted">
+                          / {roundHalfUp(view.player.potential[s] ?? 0, 1).toFixed(1)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </section>
+          )}
+        </div>
+        <div className="actions">
+          <button type="button" className="btn" onClick={() => setMenu(undefined)}>
+            {t('main.menu.close')}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <main className="game" data-testid="main-turn">
       <div className={`zone${eventGate ? ' ov' : ''}${view.routine && !view.gate ? ' v2' : ''}`}>
         <header className="status">
-          <div className="row small">
-            <span className="ico s" style={iconStyle(`icon.season.${when.season}`)} />
-            <span className="b">{when.text}</span>
-            <span className="muted">{t('main.step', { n: view.at.step })}</span>
-            <span className="sp" />
-            <span>
-              {t('main.totalBreeding')} <b>{view.totalBreeding}</b>
-            </span>
-          </div>
-          <div className="row small">
-            <span className="ico s" style={iconStyle('icon.res.energy')} />
-            <span>
-              {t('main.energy')} <b data-testid="energy">{roundHalfUp(shownEnergy)}</b>
-              <span className="muted"> / {roundHalfUp(view.energyCap)}</span>
-            </span>
-            {view.starving && (
-              <span className="risk high b" role="alert" data-testid="starving">
-                {t('main.starving')}
+          <div className="st">
+            <div className="row small">
+              <span className="ico s" style={iconStyle(`icon.season.${when.season}`)} />
+              <span className="b">{when.text}</span>
+              <span className="muted">{t('main.step', { n: view.at.step })}</span>
+              <span className="sp" />
+              <span>
+                {t('main.totalBreeding')} <b>{view.totalBreeding}</b>
               </span>
-            )}
-            <span className="ico s" style={iconStyle('icon.res.feather')} />
-            <span>
-              {t('main.feather')} <b>{roundHalfUp(view.player.feather)}</b>
-            </span>
+            </div>
+            <div className="row small">
+              <span className="ico s" style={iconStyle('icon.res.energy')} />
+              <span>
+                {t('main.energy')} <b data-testid="energy">{roundHalfUp(shownEnergy)}</b>
+                <span className="muted"> / {roundHalfUp(view.energyCap)}</span>
+              </span>
+              {view.starving && (
+                <span className="risk high b" role="alert" data-testid="starving">
+                  {t('main.starving')}
+                </span>
+              )}
+              <span className="ico s" style={iconStyle('icon.res.feather')} />
+              <span>
+                {t('main.feather')} <b>{roundHalfUp(view.player.feather)}</b>
+              </span>
+            </div>
           </div>
+          <button
+            type="button"
+            className="menu-btn"
+            aria-label={t(menu ? 'main.menu.close' : 'main.menu')}
+            aria-expanded={!!menu}
+            onClick={() => setMenu(menu ? undefined : 'list')}
+            data-testid="open-menu"
+          >
+            {menu ? '✕' : '≡'}
+          </button>
         </header>
+        {menu && menuSheet}
         {tipCard}
 
         {view.gate?.kind === 'mateCandidate' ? (
@@ -2101,45 +2230,6 @@ export function Game({ data }: { data: GameData }) {
           )}
         </div>
       </div>
-
-      <section className="feed" aria-label={t('main.feed')}>
-        <ul className="feed-list">
-          {withLogKeys(view.recentLog)
-            .reverse()
-            .map(([k, l]) => (
-              <li key={k}>{logLine(l, data)}</li>
-            ))}
-        </ul>
-        {SHOW_FAST_FORWARD && (
-          <div className="dev small">
-            <span className="muted">개발용, 평균 봇으로</span>
-            <button
-              type="button"
-              className="btn"
-              onClick={() => commit(fastForward(state, data))}
-              data-testid="fast-forward"
-            >
-              1년 빨리 감기
-            </button>
-          </div>
-        )}
-        {SHOW_FAST_FORWARD && (
-          <table className="stats small" data-testid="stats">
-            <caption className="muted">개발용, 스탯 현재 / 잠재력</caption>
-            <tbody>
-              {(Object.keys(view.player.potential) as StatName[]).map((s) => (
-                <tr key={s}>
-                  <th>{STAT_WORD[s] ?? s}</th>
-                  <td>{roundHalfUp(view.player.stats[s] ?? 0, 1).toFixed(1)}</td>
-                  <td className="muted">
-                    / {roundHalfUp(view.player.potential[s] ?? 0, 1).toFixed(1)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
     </main>
   );
 }
