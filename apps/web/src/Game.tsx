@@ -1403,117 +1403,102 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
+  // S-30 게임 오버(와이어 08 F): 시트가 아닌 한 장 — 머리 줄 · 그림(먼저 접힘) · 점수 · 죽은 이유 · 아래 버튼.
+  // 도감·기록 저장·지난 가계도는 타이틀에 있다. 지난 일은 아래 시트로
   if (view.gameOver) {
     const death = view.recentLog
       .slice()
       .reverse()
       .find((l) => l.type === 'death');
-    const last = view.recentLog
-      .slice()
-      .reverse()
-      .find((l) => l.type === 'decision');
     return (
       <main className="game" data-testid="game-over">
         {tipCard}
-        <div className="over">
-          <h1>{t('gameOver.title')}</h1>
-          <p className="muted">
-            {when.text}, {t('main.age', { n: view.player.age })}
-          </p>
-          {death && (
-            <p className="cause" data-testid="death-cause">
-              {t('gameOver.cause')} <b>{causeText('death', death.cause, data) ?? death.text}</b>
-            </p>
-          )}
-          {/* 노화 구간(01-formulas 4.1 노화 위험 > 0)이면 한 줄 — 노화로 죽었으면 이미 이유에 있음 (#513) */}
-          {(view.agingRisk ?? 0) > 0 && death?.cause !== 'aging' && (
-            <p className="muted small" data-testid="death-aging">
-              {t('gameOver.aging')}
-            </p>
-          )}
-          <p className="muted small">
-            {last && `${t('gameOver.lastAction', { text: last.text })}, `}
-            {t('gameOver.energyLeft')} {roundHalfUp(view.player.energy)} /{' '}
-            {roundHalfUp(view.energyCap)}
-          </p>
-          <p className="score">
-            {t('main.totalBreeding')} <b>{view.totalBreeding}</b>
-          </p>
-          {view.records && (
-            <table className="compare small" data-testid="run-records">
-              <tbody>
-                <tr>
-                  <th>{t('gameOver.records.span')}</th>
-                  <td>
-                    {t('gameOver.records.spanValue', {
-                      generations: view.records.generations,
-                      years: view.records.yearsSurvived.toFixed(1),
-                    })}
-                  </td>
-                </tr>
-                <tr>
-                  <th>{t('gameOver.records.fledged')}</th>
-                  <td>{t('main.nest.chicks', { n: view.records.fledged })}</td>
-                </tr>
-                <tr>
-                  <th>{t('gameOver.records.oldestAge')}</th>
-                  <td>{t('main.age', { n: view.records.oldestAge })}</td>
-                </tr>
-              </tbody>
-            </table>
-          )}
-          <h2 className="small">{t('gameOver.familyTree')}</h2>
-          <ol className="feed-list" data-testid="lineage">
-            {state.log.flatMap((l) =>
-              l.life
-                ? [
-                    <li key={l.life.generation}>
-                      {lifeLine(
-                        l.life,
-                        l.type === 'death'
-                          ? (causeText('death', l.cause, data) ?? l.text)
-                          : undefined,
-                      )}
-                    </li>,
-                  ]
-                : [],
+        <div className="zone go">
+          <header className="go-head">
+            <h1>{t('gameOver.title')}</h1>
+          </header>
+          <div className="art go-art">
+            <img className="art-bird" src={birdUrl(view)} alt="" />
+          </div>
+          <div className="go-score">
+            <span className="cap">{t('main.totalBreeding')}</span>
+            <b className="n">{view.totalBreeding}</b>
+            {view.records && (
+              <span className="cap" data-testid="run-records">
+                {t('gameOver.records.spanValue', {
+                  generations: view.records.generations,
+                  years: view.records.yearsSurvived.toFixed(1),
+                })}
+              </span>
             )}
-          </ol>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => setOnLineage(lineageOf(state))}
-            data-testid="open-lineage"
-          >
-            {t('lineage.open')}
-          </button>
-          <ul className="feed-list">
-            {withLogKeys(view.recentLog.slice(-5)).map(([k, l]) => (
-              <li key={k}>{logLine(l, data)}</li>
-            ))}
-          </ul>
-          {hasRecord() && (
+          </div>
+          <div className="go-body">
+            <div className="opt" data-testid="death-cause">
+              <span className="main">
+                <span className="b">
+                  {death ? (causeText('death', death.cause, data) ?? death.text) : ''}
+                </span>
+                <span className="cap">
+                  {when.text} · {t('main.age', { n: view.player.age })}
+                </span>
+              </span>
+            </div>
+            {/* 노화 구간(01-formulas 4.1 노화 위험 > 0)이면 한 줄 — 노화로 죽었으면 이미 이유에 있음 (#513) */}
+            {(view.agingRisk ?? 0) > 0 && death?.cause !== 'aging' && (
+              <p className="muted small" data-testid="death-aging">
+                {t('gameOver.aging')}
+              </p>
+            )}
+          </div>
+          <div className="actions col">
+            <div className="row2">
+              <button
+                type="button"
+                className="btn"
+                onClick={() => setOnLineage(lineageOf(state))}
+                data-testid="open-lineage"
+              >
+                {t('lineage.open')}
+              </button>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => setMenu('feed')}
+                data-testid="open-feed"
+              >
+                {t('main.feed')}
+              </button>
+            </div>
+            <button type="button" className="btn prim" onClick={restart}>
+              {t('title.new')}
+            </button>
+          </div>
+        </div>
+        {menu === 'feed' && (
+          <>
             <button
               type="button"
-              className="btn"
-              onClick={() => exportRecord(state)}
-              data-testid="export-record"
-            >
-              {t('gameOver.exportRecord')}
-            </button>
-          )}
-          <button
-            type="button"
-            className="btn"
-            onClick={() => setOnCodex(true)}
-            data-testid="open-codex"
-          >
-            {t('codex.open')}
-          </button>
-          <button type="button" className="btn prim" onClick={restart}>
-            {t('title.new')}
-          </button>
-        </div>
+              className="sheet-dim"
+              tabIndex={-1}
+              aria-label={t('main.menu.close')}
+              onClick={() => setMenu(undefined)}
+            />
+            <div className="bsheet" data-testid="menu">
+              <div className="hd">
+                <b>{t('main.feed')}</b>
+              </div>
+              <div className="body">
+                <ul className="feed-list">
+                  {withLogKeys(view.recentLog)
+                    .reverse()
+                    .map(([k, l]) => (
+                      <li key={k}>{logLine(l, data)}</li>
+                    ))}
+                </ul>
+              </div>
+            </div>
+          </>
+        )}
       </main>
     );
   }

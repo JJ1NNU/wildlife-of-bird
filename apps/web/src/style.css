@@ -564,6 +564,72 @@ h1 {
   font-size: var(--wb-font-size-title);
 }
 
+/* S-30 게임 오버 한 장(와이어 08 F): 그림(160)이 먼저 접히고 버튼 줄은 늘 화면 안 */
+.zone.go {
+  height: min(640px, 100dvh);
+}
+.go-head {
+  flex: none;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  padding: max(0px, env(safe-area-inset-top)) var(--wb-space-4) 0;
+  background: var(--wb-color-card);
+  border-bottom: 1px solid var(--wb-color-line);
+}
+.go-head h1 {
+  margin: 0;
+  font-size: var(--wb-font-size-title);
+}
+.art.go-art {
+  flex: 0 1000 160px;
+  min-height: 0;
+  height: auto;
+  filter: saturate(0.3);
+}
+.go-art .art-bird {
+  top: var(--wb-space-3);
+  height: calc(100% - 24px);
+}
+.go-score {
+  flex: none;
+  padding: var(--wb-space-3) var(--wb-space-4) 0;
+  text-align: center;
+}
+.go-score .n {
+  display: block;
+  font-size: 40px;
+  line-height: 1.1;
+}
+.go-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--wb-space-2) var(--wb-space-4) 0;
+}
+.go-body .opt {
+  cursor: default;
+}
+.go-body .opt .cap {
+  display: block;
+}
+.zone.go .actions.col {
+  flex-direction: column;
+  gap: var(--wb-space-2);
+  padding-bottom: max(var(--wb-space-3), env(safe-area-inset-bottom));
+}
+.zone.go .actions .row2 {
+  display: flex;
+  gap: var(--wb-space-2);
+}
+.zone.go .actions .row2 .btn + .btn,
+.zone.go .actions.col > .btn {
+  margin-left: 0;
+}
+.zone.go .actions.col > .btn {
+  flex: none;
+}
+
 /* 개발용 스탯 표 (#176) — 출시 빌드에서는 없음 */
 .stats {
   border-collapse: collapse;
