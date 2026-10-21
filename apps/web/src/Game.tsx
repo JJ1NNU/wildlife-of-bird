@@ -567,6 +567,11 @@ export function Game({ data }: { data: GameData }) {
     seasonPeriods &&
     (Object.keys(seasonPeriods) as Season[]).find((k) => seasonPeriods[k].includes(view.at.period));
   const hereSeason = season ? data.nodes.get(view.node)?.seasons[season] : undefined;
+  // 고른 계절 방침은 그 계절 내내 장소 줄에 한 낱말로(screens 6.6). ViewModel에 없어 RunState를 읽는다 — 잠정(#611)
+  const policyWord =
+    state.seasonPolicy && state.seasonPolicy.season === season
+      ? t(`seasonPolicy.${state.seasonPolicy.id}.name`)
+      : undefined;
 
   // 루틴(관문·게임 오버가 아닐 때): 남은 칸의 계획과 칸마다 예상
   // 칸은 비어서 시작한다 — 엔진 `suggested`는 칸 수로만 쓴다(screens 6.3, 잠정 #615: design 판단 대기)
@@ -1662,6 +1667,11 @@ export function Game({ data }: { data: GameData }) {
           })}
         </span>
       )}
+      {policyWord && (
+        <span className="pol-word b" data-testid="place-policy">
+          {policyWord}
+        </span>
+      )}
       <span className="sp" />
       {withMap && (
         <button type="button" className="lk" onClick={() => setOnMap(true)} data-testid="open-map">
@@ -1677,25 +1687,28 @@ export function Game({ data }: { data: GameData }) {
       {desc && <p className="muted small">{desc}</p>}
     </div>
   );
-  // C 그림 띠: 남는 높이만(0~120) — 패가 길면 먼저 줄어든다
+  // C 그림 띠: 남는 높이만(0~120) — 패가 길면 먼저 줄어든다. 번식기엔 이름표 대신 둥지 띠(28),
+  // 띠는 28 밑으로 안 줄어 그림만 숨는다 (와이어 08 C)
   const artBand = (
-    <div className="art band">
+    <div className={`art band${view.nest ? ' nested' : ''}`}>
       <img className="art-bird" src={birdUrl(view)} alt="" />
-      <div className="plate small">
-        {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
-        {t(`gameOver.life.${view.player.sex}`)} {t('main.age', { n: view.player.age })}
-        {view.nest && (
-          <span className="b" data-testid="nest-band">
-            {', '}
-            {t('main.nest')},{' '}
+      {view.nest ? (
+        <div className="plate nest-band small" data-testid="nest-band">
+          <span className="b">{t('main.nest')}</span>
+          <span>
             {view.nest.chicks !== undefined
               ? t('main.nest.chicks', { n: view.nest.chicks })
               : view.nest.eggs !== undefined
                 ? t('main.nest.eggs', { n: view.nest.eggs })
                 : t('main.nest.beforeLaying')}
           </span>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="plate small">
+          {data.ecology.get(view.speciesId)?.nameKo ?? view.speciesId}{' '}
+          {t(`gameOver.life.${view.player.sex}`)} {t('main.age', { n: view.player.age })}
+        </div>
+      )}
     </div>
   );
 
@@ -2214,10 +2227,11 @@ export function Game({ data }: { data: GameData }) {
               <>
                 <button
                   type="button"
-                  className="btn"
+                  className="btn back"
                   onClick={() => setConfirming(false)}
                   data-testid="inherit-back"
                 >
+                  <span aria-hidden="true">◂ </span>
                   {t('inheritance.confirm.back')}
                 </button>
                 <button type="button" className="btn prim" onClick={go} data-testid="go">

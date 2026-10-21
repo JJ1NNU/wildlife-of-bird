@@ -715,6 +715,12 @@ h1 {
 .actions .btn.side {
   flex: none;
 }
+/* 계승 확인(와이어 08 E): 왼쪽 [◂ 다시 고르기] 112 고정, 주 버튼이 나머지 */
+.actions .btn.back {
+  flex: none;
+  width: 112px;
+  padding: 0 var(--wb-space-2);
+}
 .slot-table .danger {
   color: var(--wb-color-danger);
   font-weight: var(--wb-font-weight-bold);
@@ -921,6 +927,14 @@ h1 {
   white-space: nowrap;
   overflow: hidden;
 }
+.place .muted {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.place .pol-word {
+  flex: none;
+}
 .place .lk {
   flex: none;
   min-width: 56px;
@@ -941,6 +955,19 @@ h1 {
 }
 .art.band .art-bird {
   height: calc(100% - 28px);
+}
+/* 번식기 둥지 띠(와이어 08 C): 이름표 자리 28 — C는 28 밑으로 안 줄고 그림만 가려진다 */
+.art.band.nested {
+  min-height: 28px;
+}
+.plate.nest-band {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+  padding-top: 0;
+  padding-bottom: 0;
+  white-space: nowrap;
 }
 /* D 칸 줄 머리: 루틴 k/n칸 · 예산 막대 · 합 위험 한 줄 */
 .zone.v2 .slot-head {
@@ -1314,6 +1341,7 @@ h1 {
 .bsheet .actions .btn {
   width: 100%;
 }
+
 @supports (color: color-mix(in srgb, red, blue)) {
   .sheet-dim {
     background: color-mix(in srgb, var(--wb-color-ink) 55%, transparent);
