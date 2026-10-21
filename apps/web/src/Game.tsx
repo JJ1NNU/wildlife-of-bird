@@ -26,7 +26,7 @@ import {
 } from '@wb/engine';
 import type { GameData, Season, StatName } from '@wb/schema';
 import { type ReactNode, useEffect, useState } from 'react';
-import { birdUrl, placeholderBirdUrl } from './art.ts';
+import { birdUrl, juvBirdUrl, placeholderBirdUrl } from './art.ts';
 import { Codex } from './Codex.tsx';
 import { causeText } from './cause.ts';
 import { recordCodex } from './codex.ts';
@@ -1056,29 +1056,38 @@ export function Game({ data }: { data: GameData }) {
     );
   }
 
-  /** S-24 새끼 카드: 성별 · 1년 생존(정수 %) · 은수저·첫 겨울 배율(소수 둘째) · 잠재력 범위 — 05-inheritance 5장 */
+  /** S-24 새끼 줄(와이어 08 D): 사진 40 · 이름 · 1년 생존(정수 %) · 강한 잠재력 1개. 고른 줄만 은수저·첫 겨울 배율(소수 둘째)·잠재력 전부 */
   function chickRow(card: InheritanceChickCard, i: number) {
     const sel = card.choiceId === picked;
     return (
       <li key={card.choiceId}>
         <button
           type="button"
-          className={`opt${sel ? ' sel' : ''}`}
+          className={`opt kid${sel ? ' sel' : ''}`}
           aria-pressed={sel}
           onClick={() => setPicked(card.choiceId)}
           data-testid={`choice-${card.choiceId}`}
         >
+          <span className="thumb">
+            <img src={juvBirdUrl(view.speciesId)} alt="" />
+          </span>
           <span className="main">
             <span className="b">{chickName(i, card)}</span>
-            <span className="cap">
-              {t('inheritance.chick.silverSpoon')} <b>{card.silverSpoon.toFixed(2)}</b>,{' '}
-              {t('inheritance.chick.firstWinter')} <b>{card.firstWinter.toFixed(2)}배</b>
+            <span className="facts">
+              <span className="surv">
+                {t('inheritance.card.yearSurvival')} <b>{Math.round(card.yearSurvival * 100)}%</b>
+              </span>
+              {!sel && potentialRanges(card, 1)}
             </span>
-            {potentialRanges(card, sel ? undefined : 2)}
-          </span>
-          <span className="vals">
-            <span>{t('inheritance.card.yearSurvival')}</span>
-            <b>{Math.round(card.yearSurvival * 100)}%</b>
+            {sel && (
+              <>
+                <span className="cap">
+                  {t('inheritance.chick.silverSpoon')} <b>{card.silverSpoon.toFixed(2)}</b>,{' '}
+                  {t('inheritance.chick.firstWinter')} <b>{card.firstWinter.toFixed(2)}배</b>
+                </span>
+                {potentialRanges(card)}
+              </>
+            )}
           </span>
         </button>
       </li>
@@ -1892,6 +1901,8 @@ export function Game({ data }: { data: GameData }) {
                 aria-label={t('gate.inheritance.label')}
                 data-testid="gate-inheritance"
               >
+                <li className="gate-title muted small">{t('inheritance.chicks.title')}</li>
+                {inherit.cards.map((card, i) => chickRow(card, i))}
                 <li>
                   <button
                     type="button"
@@ -1917,14 +1928,12 @@ export function Game({ data }: { data: GameData }) {
                         )}
                       </span>
                     </span>
-                    <span className="vals">
+                    <span className="vals surv">
                       <span>{t('inheritance.card.yearSurvival')}</span>
                       <b>{Math.round(inherit.stay.yearSurvival * 100)}%</b>
                     </span>
                   </button>
                 </li>
-                <li className="gate-title muted small">{t('inheritance.chicks.title')}</li>
-                {inherit.cards.map((card, i) => chickRow(card, i))}
                 <li className="gate-title muted small">{t('inheritance.footer.note')}</li>
               </ul>
             </>

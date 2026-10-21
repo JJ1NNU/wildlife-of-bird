@@ -53,7 +53,7 @@ test('새 게임 → 번식 → 계승 → 이어 하기 → 게임 오버', asy
   // 계승 확인은 팁(T-30)을 먼저 닫아야 한다(06-tutorial 2장)
   if (await page.getByTestId('tip').isVisible()) await page.getByTestId('tip').click();
   // 첫 새끼로 계승: 고르기 → 진행 → 확인 화면 → 진행
-  await gate.locator('[data-testid^="choice-"]').nth(1).click();
+  await gate.locator('[data-testid^="choice-"]').first().click();
   await page.getByTestId('go').click();
   await expect(page.getByTestId('inherit-confirm')).toBeVisible();
   await page.getByTestId('go').click();

@@ -29,3 +29,10 @@ export function birdUrl(view: ViewModel): string | undefined {
         : `adult-${view.player.sex === 'male' ? 'm' : 'f'}.breeding.perch`;
   return finals[`../../../assets/bird/bird.${id}.${variant}.webp`] ?? placeholderBirdUrl(id);
 }
+
+/** 어린 새 그림(계승 새끼 줄 사진 40) — 최종 그림이 없는 종은 자리표시 */
+export function juvBirdUrl(speciesId: string): string | undefined {
+  return (
+    finals[`../../../assets/bird/bird.${speciesId}.juv.perch.webp`] ?? placeholderBirdUrl(speciesId)
+  );
+}
