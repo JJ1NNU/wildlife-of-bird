@@ -38,6 +38,10 @@ test('새 게임 → 번식 → 계승 → 이어 하기 → 게임 오버', asy
   await page.getByTestId('new-run').click();
   await expect(page.getByTestId('main-turn')).toBeVisible();
 
+  // 한눈 화면(#611, screens 6.1-2): 360×640에서 판 화면은 세로 스크롤이 없다
+  await page.setViewportSize({ width: 360, height: 640 });
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(640);
+
   // 계승 관문까지 손으로 (번식에 성공해 새끼가 있어야 온다)
   const gate = page.getByTestId('gate-inheritance');
   for (let i = 0; i < 400 && !(await gate.isVisible()); i++) {
