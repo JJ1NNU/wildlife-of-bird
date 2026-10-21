@@ -1533,12 +1533,12 @@ export function Game({ data }: { data: GameData }) {
     <>
       <button
         type="button"
-        className="menu-dim"
+        className="sheet-dim"
         tabIndex={-1}
         aria-label={t('main.menu.close')}
         onClick={() => setMenu(undefined)}
       />
-      <div className="menu-sheet" data-testid="menu">
+      <div className="bsheet" data-testid="menu">
         <div className="hd">
           {menu !== 'list' && (
             <button type="button" className="btn side" onClick={() => setMenu('list')}>
@@ -1615,6 +1615,37 @@ export function Game({ data }: { data: GameData }) {
       </div>
     </>
   );
+  // 옮기기 시트(screens 6.3 · 와이어 07 C) — 메뉴 시트와 같은 틀, 고르면 다음 빈 칸에 들어가고 닫힘
+  const moveSheet = nextSlot && (
+    <>
+      <button
+        type="button"
+        className="sheet-dim"
+        tabIndex={-1}
+        aria-label={t('routine.move.close')}
+        onClick={() => setOpen(undefined)}
+      />
+      <div className="bsheet" data-testid="move-sheet">
+        <div className="hd col">
+          <b>{t('routine.move.title', { n: moveChoices.length })}</b>
+          <span className="muted small">{t('routine.move.help')}</span>
+        </div>
+        <ul className="body" aria-label={t('routine.move.title', { n: moveChoices.length })}>
+          {moveChoices.map((c) => moveRow(c, nextSlot.before))}
+        </ul>
+        <div className="actions">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setOpen(undefined)}
+            data-testid="move-close"
+          >
+            {t('routine.move.close')}
+          </button>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <main className="game" data-testid="main-turn">
@@ -1659,6 +1690,7 @@ export function Game({ data }: { data: GameData }) {
           </button>
         </header>
         {menu && menuSheet}
+        {open === 'move' && !menu && !view.gate && !replay && moveSheet}
         {tipCard}
 
         {view.gate?.kind === 'mateCandidate' ? (
@@ -2046,25 +2078,6 @@ export function Game({ data }: { data: GameData }) {
                   </p>
                 )}
               </div>
-            ) : open === 'move' && nextSlot ? (
-              // 옮기기 목록 — 잠정: 패 자리에 펼침, 아래 시트는 메뉴(≡)와 함께 다음 조각
-              <ul className="list" aria-label={t('routine.move.title', { n: moveChoices.length })}>
-                <li className="gate-title b">
-                  {t('routine.move.title', { n: moveChoices.length })}
-                </li>
-                <li className="gate-title muted small">{t('routine.move.help')}</li>
-                {moveChoices.map((c) => moveRow(c, nextSlot.before))}
-                <li>
-                  <button
-                    type="button"
-                    className="btn"
-                    onClick={() => setOpen(undefined)}
-                    data-testid="move-close"
-                  >
-                    {t('routine.move.close')}
-                  </button>
-                </li>
-              </ul>
             ) : (
               <>
                 {/* E 패: 가진 카드만 3열 — 넘치면 패만 스크롤 */}
