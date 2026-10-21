@@ -34,8 +34,8 @@ export type TipId = (typeof TIP_ORDER)[number];
  */
 export const TIP_TARGET: Partial<Record<TipId, string | readonly string[]>> = {
   'T-01': ['[data-testid="hand"]', '[data-testid="routine"] .cell.empty'],
-  'T-02': '[data-testid="hand"] .pcard .val',
-  'T-03': '[data-testid="hand"] .pcard .risk',
+  'T-02': '[data-testid="hand"] .pc .val',
+  'T-03': '[data-testid="hand"] .pc .risk',
   'T-04': '[data-testid="budget"]',
   'T-05': '[data-testid^="choice-move."]',
   'T-06': '[data-testid="starving"]',
