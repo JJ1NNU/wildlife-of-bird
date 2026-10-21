@@ -46,7 +46,7 @@ export const TIP_TARGET: Partial<Record<TipId, string | readonly string[]>> = {
   'T-12': '[data-testid^="nestLoss-"]',
   'T-13': '[data-testid^="clutch-forecast-"]',
   'T-15': '[data-testid="nest-band"]',
-  'T-30': '[data-testid="gate-inheritance"] .opt .vals',
+  'T-30': '[data-testid="gate-inheritance"] .surv',
   'T-31': '[data-testid="gate-secondBrood"] .opt .vals',
   'T-40': '[data-testid="death-cause"]',
 };
