@@ -237,6 +237,7 @@ h1 {
 .choice.sel {
   border: 2px solid var(--wb-color-sage-strong);
   background: var(--wb-color-paper);
+  padding: 7px 9px; /* 굵은 테두리만큼 줄여 높이 그대로(와이어 08, #631) */
 }
 .choice:disabled,
 .opt:disabled {
