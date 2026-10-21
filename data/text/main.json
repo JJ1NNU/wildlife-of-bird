@@ -12,5 +12,10 @@
   "main.nest.beforeLaying": "알 낳기 전",
   "main.feed": "지난 일",
   "main.move.destination": "먹이 {food}, 경쟁 {competition}",
-  "main.age": "{n}세"
+  "main.age": "{n}세",
+  "main.menu": "메뉴",
+  "main.menu.close": "닫기",
+  "main.menu.back": "◂ 메뉴",
+  "main.menu.feedCap": "이번 판 이야기 기록",
+  "main.menu.settingsCap": "도움말 · 기록 내보내기 · 판 지우기"
 }

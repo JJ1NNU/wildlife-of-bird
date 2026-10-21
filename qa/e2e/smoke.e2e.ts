@@ -62,7 +62,9 @@ test('새 게임 → 번식 → 계승 → 이어 하기 → 게임 오버', asy
   await expect(page.getByTestId('main-turn')).toBeVisible();
   await expect(page.getByTestId('energy')).toHaveText(energy ?? '');
 
-  // 빨리 감기(평균 봇)로 게임 오버까지
+  // 빨리 감기(평균 봇)로 게임 오버까지 — ≡ 메뉴 › 지난 일 안에 있다(screens 6.5)
+  await page.getByTestId('open-menu').click();
+  await page.getByTestId('menu-feed').click();
   const over = page.getByTestId('game-over');
   for (let i = 0; i < 30 && !(await over.isVisible()); i++) {
     await page.getByTestId('fast-forward').click();

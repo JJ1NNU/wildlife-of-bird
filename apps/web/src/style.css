@@ -1110,3 +1110,82 @@ h1 {
 .zone.v2 .actions .btn.side {
   width: 96px;
 }
+
+/* ≡ 메뉴(07-one-screen D, screens 6.5): 상태 바 오른쪽 48×56 · 아래 시트 — 상태 바는 덮지 않음 */
+.status:has(> .st) {
+  position: relative;
+  z-index: 4;
+  flex-direction: row;
+  padding-right: 0;
+}
+.status > .st {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.menu-btn {
+  flex: none;
+  width: 48px;
+  margin: -6px 0;
+  font-size: 20px;
+  color: var(--wb-color-slate-strong);
+  background: none;
+  border: 0;
+}
+.menu-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  padding: 0;
+  border: 0;
+  background: rgb(31 36 33 / 0.55);
+}
+.menu-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  z-index: 3;
+  width: min(100%, 480px);
+  max-height: calc(100dvh - 56px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  background: var(--wb-color-paper);
+  border-radius: var(--wb-radius-l) var(--wb-radius-l) 0 0;
+}
+.menu-sheet .hd {
+  display: flex;
+  align-items: center;
+  gap: var(--wb-space-2);
+  min-height: 44px;
+  padding: var(--wb-space-2) var(--wb-space-4) 0;
+}
+.menu-sheet .body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--wb-space-2);
+  padding: var(--wb-space-2) var(--wb-space-4);
+}
+.menu-sheet .body .feed {
+  padding: 0;
+}
+.menu-sheet .opt .cap {
+  display: block;
+}
+.menu-sheet .actions {
+  flex: none;
+  padding: var(--wb-space-2) var(--wb-space-4) max(var(--wb-space-3), env(safe-area-inset-bottom));
+}
+.menu-sheet .actions .btn {
+  width: 100%;
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+  .menu-dim {
+    background: color-mix(in srgb, var(--wb-color-ink) 55%, transparent);
+  }
+}
