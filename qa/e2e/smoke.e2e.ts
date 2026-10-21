@@ -76,6 +76,10 @@ test('새 게임 → 번식 → 계승 → 이어 하기 → 게임 오버', asy
   await expect(over).toBeVisible();
   await expect(page.getByTestId('death-cause')).toBeVisible();
   await expect(page.getByTestId('run-records')).toBeVisible();
+  // 죽은 화면에서 바로 플레이 기록 저장 (#639 — 대표 플레이 #608 3번)
+  const download = page.waitForEvent('download');
+  await page.getByTestId('go-export-record').click();
+  expect((await download).suggestedFilename()).toMatch(/^wb-run-.+\.jsonl$/);
   // 가계도 2세대 이상 = 계승이 기록됐다 (게임 오버 [가계도] → S-31, 와이어 08 F)
   await page.getByTestId('open-lineage').click();
   // count()는 기다리지 않으니 둘째 줄이 뜰 때까지 기다린다
