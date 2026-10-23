@@ -93,9 +93,13 @@ export function intake(
   );
 }
 
-/** 2.4 행동 비용. `move`만 비행 스탯으로 줄어든다 */
-export function actionCost(f: Formulas, action: ActionId, flight: number): number {
-  const cost = f.actions[action].cost;
+/** 2.4 행동 비용. `move`만 비행 스탯으로 줄어든다. `cost` = 카드 비용(12-card-turn 3.1), 없으면 `actions.<행동>.cost` */
+export function actionCost(
+  f: Formulas,
+  action: ActionId,
+  flight: number,
+  cost = f.actions[action].cost,
+): number {
   if (action !== 'move') return cost;
   return cost * (f.energy.moveCostFlightBase - f.energy.moveCostPerFlight * flight);
 }
@@ -118,6 +122,8 @@ export function expenditure(
     phase: Phase;
     action: ActionId;
     flight: number;
+    /** 카드 비용 (12-card-turn 3.1). 없으면 `actions.<행동>.cost` */
+    cost?: number | undefined;
     /** 이 단계에 포란 비용을 내는가 (박새는 암컷만 포란) */
     incubating: boolean;
     /** 이 단계에 돌보는 둥지가 있어 급이 비용을 내는가 — 둥지 없는 새는 급이 국면에도 내지 않는다 */
@@ -132,7 +138,7 @@ export function expenditure(
   const molt = input.phase === 'molt' ? f.energy.moltCostPerStep : 0;
   return (
     species.basalPerStep[seasonOf(species, input.period)] +
-    actionCost(f, input.action, input.flight) +
+    actionCost(f, input.action, input.flight, input.cost) +
     broodCost(f, input) +
     molt
   );

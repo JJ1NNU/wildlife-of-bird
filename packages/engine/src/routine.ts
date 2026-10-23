@@ -1,5 +1,5 @@
 import type { CardId, GameData, GameEvent, StatName } from '@wb/schema';
-import { drawHand, type Hand } from './cards.ts';
+import { cardCost, cardOf, drawHand, type Hand } from './cards.ts';
 import { drawStepEvent } from './events.ts';
 import { seasonOf } from './formulas.ts';
 import { endLife } from './inherit.ts';
@@ -42,13 +42,6 @@ export function stepHand(state: RunState, data: GameData): Hand {
   return drawHand(data.cards, at, rng).hand;
 }
 
-/** 선택 id의 카드. 옮기기는 없음 */
-function cardOf(choiceId: string): CardId | undefined {
-  const [head, action, stat] = choiceId.split('.');
-  if (head !== 'action') return undefined;
-  return (action === 'train' ? `train-${stat}` : action) as CardId;
-}
-
 /** 늘 있는 카드 — 옮기기와 함께 패에 없어도 고를 수 있다 (2.3). 패에 있으면 패의 것을 먼저 쓴다 */
 const ALWAYS: ReadonlySet<CardId> = new Set(['forage', 'rest']);
 
@@ -76,12 +69,10 @@ export function limitToHand(choices: Choice[], hand: Hand): Choice[] {
   });
 }
 
-/** 한 칸이 단계 예산에서 쓰는 행동 비용 (12-card-turn 3장). 쉬기·옮기기는 0 */
+/** 한 칸이 단계 예산에서 쓰는 카드 비용 (12-card-turn 3장·3.1). 쉬기·옮기기는 0 */
 function budgetCost(choiceId: string, data: GameData): number {
-  const card = cardOf(choiceId);
-  if (!card || card === 'rest') return 0;
-  const action = choiceId.split('.')[1] as keyof GameData['formulas']['actions'];
-  return data.formulas.actions[action]?.cost ?? 0;
+  if (cardOf(choiceId) === 'rest') return 0;
+  return cardCost(choiceId, data) ?? 0;
 }
 
 /** 칸들이 쓴 단계 예산 */
