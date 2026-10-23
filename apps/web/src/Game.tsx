@@ -212,13 +212,19 @@ function planSlots(base: RunState, plan: (string | null)[], data: GameData): Slo
 }
 
 /**
- * 한 칸이 단계 예산에서 쓰는 행동 비용 — 엔진 routine.ts `budgetCost`와 같은 규칙(12-card-turn 3장).
+ * 한 칸이 단계 예산에서 쓰는 카드 비용 — 엔진 routine.ts `budgetCost`·cards.ts `cardCost`와 같은 규칙
+ * (12-card-turn 3장·3.1: `cards.pool.<카드>.cost`, 없으면 `actions.<행동>.cost`).
  * 계획한 칸은 아직 엔진 상태에 없어서 화면이 더한다. 쉬기·옮기기는 0
  */
 function budgetCost(id: string, data: GameData): number {
-  const [head, action] = id.split('.');
+  const [head, action, stat] = id.split('.');
   if (head !== 'action' || action === 'rest') return 0;
-  return data.formulas.actions[action as keyof GameData['formulas']['actions']]?.cost ?? 0;
+  const card = (action === 'train' ? `train-${stat}` : action) as keyof GameData['cards']['pool'];
+  return (
+    data.cards.pool[card]?.cost ??
+    data.formulas.actions[action as keyof GameData['formulas']['actions']]?.cost ??
+    0
+  );
 }
 
 /** 기록 한 줄의 변화: 스탯(소수 첫째) 먼저, 에너지·깃털(정수, 칸 줄은 소수 첫째 #206) 뒤 — 0으로 반올림되면 뺀다 (#176) */
