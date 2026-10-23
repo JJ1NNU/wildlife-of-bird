@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { RunState } from '../src/index.ts';
 import { getChoices, getView, newRun, preview } from '../src/index.ts';
 import { nestLossChance } from '../src/nest.ts';
+import { seasonDue } from '../src/season.ts';
 import { judgeStep } from '../src/step.ts';
 import { actStep, seasonData } from './fixture.ts';
 
@@ -18,11 +19,15 @@ const policy = (s: RunState, season: 'winter' | 'spring' | 'summer', id: string)
 });
 
 describe('계절 방침 관문 (11-season-policy 1장, 00-core-loop 4.6)', () => {
-  // 봄 첫 단계(`period` 5) — 짝 후보 관문보다 먼저 열린다
-  const opened = actStep(at(5), 'action.rest', seasonData).state;
+  // 봄 첫 단계(`period` 5) — 짝 후보 관문이 먼저, 고른 뒤 계절 방침 (1.1)
+  const pairing = actStep(at(5), 'action.rest', seasonData).state;
+  const mateId = getChoices(pairing, seasonData).find((c) => !c.disabled)?.id ?? '';
+  const opened = actStep(pairing, mateId, seasonData).state;
 
-  it('계절 첫 시기의 첫 단계 흐름 끝에 열리고 그 계절의 방침만 준다', () => {
+  it('짝 후보를 고른 뒤 같은 단계에 열리고, 짝이 있으면 봄 방침이 다 나온다', () => {
+    expect(pairing.gate?.kind).toBe('mateCandidate');
     expect(opened.gate?.kind).toBe('seasonPolicy');
+    expect(opened.mate).toBeDefined();
     expect(opened.at).toEqual({ year: 1, period: 5, step: 1 });
     expect(getChoices(opened, seasonData).map((c) => c.id)).toEqual([
       'seasonPolicy.balanced',
@@ -30,14 +35,23 @@ describe('계절 방침 관문 (11-season-policy 1장, 00-core-loop 4.6)', () =>
       'seasonPolicy.selfCare',
     ]);
     const gate = getView(opened, seasonData).gate;
-    expect(gate?.kind === 'seasonPolicy' && gate.cards[2]?.effects.nestLossMult).toBe(1.1);
+    expect(gate?.kind === 'seasonPolicy' && gate.cards[2]?.effects).toEqual({
+      playerRiskMult: 0.9,
+      nestLossMult: 1.1,
+    });
   });
 
-  it('고르면 걸리고, 같은 단계의 나머지 관문(짝 후보)으로 이어진다', () => {
+  it('고르면 걸리고, 짝 후보 관문을 다시 열지 않고 다음 단계로 간다', () => {
     const r = actStep(opened, 'seasonPolicy.selfCare', seasonData).state;
     expect(r.seasonPolicy).toEqual({ season: 'spring', id: 'selfCare' });
-    expect(r.gate?.kind === 'mateCandidate' || r.at.period === 5).toBe(true);
-    expect(r.gate?.kind).not.toBe('seasonPolicy');
+    expect(r.gate?.kind).not.toBe('mateCandidate');
+    expect(r.at).toEqual({ year: 1, period: 5, step: 2 });
+  });
+
+  it('짝이 없으면 봄 방침이 기본값 하나뿐이라 관문이 열리지 않는다', () => {
+    const { mate: _m, ...single } = opened;
+    expect(seasonDue(single, seasonData)).toBe(false);
+    expect(seasonDue(opened, seasonData)).toBe(true);
   });
 
   it('미리보기는 방침을 건 다음 단계 위험·에너지 — 겨울 flock은 balanced보다 위험이 낮다 (4장)', () => {

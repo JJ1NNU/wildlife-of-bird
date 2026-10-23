@@ -4,7 +4,7 @@ import { speciesBalance } from './step.ts';
 import type { Choice, LogEntry, RunState, SeasonPolicyCard } from './types.ts';
 
 /**
- * 계절 방침 관문 `seasonPolicy` — 11-season-policy. 각 계절 첫 시기의 첫 단계 흐름 끝에 늘 열리고(00-core-loop 4.6),
+ * 계절 방침 관문 `seasonPolicy` — 11-season-policy. 각 계절 첫 시기의 첫 단계 흐름 끝에 열리고(00-core-loop 4.6),
  * 고른 방침은 다음 단계부터 그 계절 끝까지 걸린다. 고르기 전·그 계절을 벗어나면 기본값(목록의 첫 방침).
  */
 
@@ -17,6 +17,13 @@ function policyIds(state: RunState, data: GameData, season: Season): string[] {
   return data.seasonPolicy.species[state.config.speciesId]?.[season] ?? [];
 }
 
+/** 관문을 여는 순간 조건(`requires`)이 모두 참인 방침만 (1.1) */
+function offered(state: RunState, data: GameData): string[] {
+  return policyIds(state, data, seasonNow(state, data)).filter((id) =>
+    (data.seasonPolicy.policies[id]?.requires ?? []).every((r) => r === 'mate' && !!state.mate),
+  );
+}
+
 /** 지금 걸린 방침의 효과 (3장). 없는 키는 배율 1 · 가산 0 */
 export function seasonEffect(state: RunState, data: GameData): SeasonPolicyEffect {
   const season = seasonNow(state, data);
@@ -27,7 +34,7 @@ export function seasonEffect(state: RunState, data: GameData): SeasonPolicyEffec
   return (id && data.seasonPolicy.policies[id]) || {};
 }
 
-/** 관문이 열리는가 — 계절 첫 시기의 첫 단계이고 이 계절 방침을 아직 고르지 않았다 */
+/** 관문이 열리는가 — 계절 첫 시기의 첫 단계이고 이 계절 방침을 아직 고르지 않았고, 나오는 방침이 2개 이상이다(1.1) */
 export function seasonDue(state: RunState, data: GameData): boolean {
   const season = seasonNow(state, data);
   const first = speciesBalance(data, state.config.speciesId).seasons[season][0];
@@ -35,7 +42,7 @@ export function seasonDue(state: RunState, data: GameData): boolean {
     state.at.period === first &&
     state.at.step === 1 &&
     state.seasonPolicy?.season !== season &&
-    policyIds(state, data, season).length > 0
+    offered(state, data).length > 1
   );
 }
 
@@ -51,7 +58,7 @@ function label(data: GameData, id: string): string {
 }
 
 export function seasonChoices(state: RunState, data: GameData): Choice[] {
-  return policyIds(state, data, seasonNow(state, data)).map((id) => ({
+  return offered(state, data).map((id) => ({
     id: `seasonPolicy.${id}`,
     kind: 'seasonPolicy',
     label: label(data, id),
@@ -60,10 +67,10 @@ export function seasonChoices(state: RunState, data: GameData): Choice[] {
 
 /** 관문 카드 — 방침마다 효과 숫자 그대로(화면 S-14는 M2) */
 export function seasonCards(state: RunState, data: GameData): SeasonPolicyCard[] {
-  return policyIds(state, data, seasonNow(state, data)).map((id) => ({
-    choiceId: `seasonPolicy.${id}`,
-    effects: structuredClone(data.seasonPolicy.policies[id] ?? {}),
-  }));
+  return offered(state, data).map((id) => {
+    const { requires: _r, ...effects } = data.seasonPolicy.policies[id] ?? {};
+    return { choiceId: `seasonPolicy.${id}`, effects: structuredClone(effects) };
+  });
 }
 
 /** 방침을 건다. 관문은 닫지 않는다(api가 닫는다) */
