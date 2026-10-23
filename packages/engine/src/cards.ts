@@ -1,9 +1,27 @@
-import type { CardId, Cards, Season } from '@wb/schema';
+import type { CardId, Cards, GameData, Season } from '@wb/schema';
 import type { RngState } from './rng.ts';
 import { nextFloat } from './rng.ts';
 
 /** 패 — 카드 id → 장수 (12-card-turn 2장) */
 export type Hand = Partial<Record<CardId, number>>;
+
+/** 선택 id의 카드. 옮기기는 없음 */
+export function cardOf(choiceId: string): CardId | undefined {
+  const [head, action, stat] = choiceId.split('.');
+  if (head !== 'action') return undefined;
+  return (action === 'train' ? `train-${stat}` : action) as CardId;
+}
+
+/**
+ * 카드 비용 (12-card-turn 3.1) = `cards.pool.<카드>.cost`, 없으면 `actions.<행동>.cost`.
+ * 단계 예산과 실제 소비(01-formulas 9.4)가 같은 값을 쓴다. 카드가 아닌 선택(옮기기)은 undefined
+ */
+export function cardCost(choiceId: string, data: GameData): number | undefined {
+  const card = cardOf(choiceId);
+  if (!card) return undefined;
+  const action = choiceId.split('.')[1] as keyof GameData['formulas']['actions'];
+  return data.cards.pool[card]?.cost ?? data.formulas.actions[action]?.cost ?? 0;
+}
 
 /** 뽑기에 영향을 주는 지금 상황 */
 export interface DrawAt {
