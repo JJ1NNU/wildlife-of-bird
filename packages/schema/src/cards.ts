@@ -24,6 +24,8 @@ const PoolCard = z
     nodeMult: z.partialRecord(NodeId, positive).optional(),
     /** 계절 → 가중치 배율. 없는 계절은 1 */
     seasonMult: z.partialRecord(Season, positive).optional(),
+    /** 카드 비용 — 단계 예산과 실제 소비 (3.1). 없으면 `actions.<행동>.cost` */
+    cost: z.number().finite().nonnegative().optional(),
   })
   .strict();
 export type PoolCard = z.infer<typeof PoolCard>;
