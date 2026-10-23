@@ -15,7 +15,9 @@
     "bondReunion": 10,
     "bondPerAccepted": 2,
     "bondMax": 100,
-    "rBase": 0.6
+    "rBase": 0.6,
+    "searchEnergy": 3,
+    "searchPotentialDrop": 3
   },
   "orders": {
     "patrol": {

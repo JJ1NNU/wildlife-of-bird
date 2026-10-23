@@ -34,13 +34,13 @@ export function seasonEffect(state: RunState, data: GameData): SeasonPolicyEffec
   return (id && data.seasonPolicy.policies[id]) || {};
 }
 
-/** 관문이 열리는가 — 계절 첫 시기의 첫 단계이고 이 계절 방침을 아직 고르지 않았고, 나오는 방침이 2개 이상이다(1.1) */
-export function seasonDue(state: RunState, data: GameData): boolean {
+/** 관문이 열리는가 — 계절 첫 시기의 첫 단계이고 이 계절 방침을 아직 고르지 않았고, 나오는 방침이 2개 이상이다(1.1).
+ * `late`: 더 찾아본 뒤 늦게 짝을 맺은 단계 — 첫 단계 조건 없이(04-breeding 2.7) */
+export function seasonDue(state: RunState, data: GameData, late = false): boolean {
   const season = seasonNow(state, data);
   const first = speciesBalance(data, state.config.speciesId).seasons[season][0];
   return (
-    state.at.period === first &&
-    state.at.step === 1 &&
+    (late || (state.at.period === first && state.at.step === 1)) &&
     state.seasonPolicy?.season !== season &&
     offered(state, data).length > 1
   );
