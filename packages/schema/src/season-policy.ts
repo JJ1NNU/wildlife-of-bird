@@ -16,6 +16,8 @@ const Policy = z
     nestLossMult: positive.optional(),
     moltRecoverMult: positive.optional(),
     statGainMult: z.partialRecord(StatName, positive).optional(),
+    /** 나오는 조건 — 관문을 여는 순간 모두 참이어야 선택지에 나온다(1.1). `mate` = 지금 짝이 있다 */
+    requires: z.array(z.enum(['mate'])).optional(),
   })
   .strict();
 export type SeasonPolicyEffect = z.infer<typeof Policy>;

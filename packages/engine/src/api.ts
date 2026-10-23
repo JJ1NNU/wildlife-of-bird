@@ -374,18 +374,12 @@ function endStep(state: RunState, routed: ActResult, hadNest: boolean, data: Gam
 }
 
 /**
- * 흐름의 마지막: 관문 (00-core-loop 4.6). 열리면 이 단계에 머문다. 계절 방침이 먼저, 고르면 이어서 나머지 관문.
+ * 흐름의 마지막: 관문 (00-core-loop 4.6). 열리면 이 단계에 머문다. 짝 후보가 먼저, 고르면 계절 방침, 그다음 나머지 관문.
  * `state` = 이 단계를 시작한 상태(로그·달력 기준), `survived` = 단계 끝 처리를 마친 상태
  */
 function endGates(state: RunState, done: RunState, log: LogEntry[], data: GameData): ActResult {
   let survived = done;
-  if (seasonDue(survived, data)) {
-    return {
-      state: { ...survived, gate: { kind: 'seasonPolicy' }, log: [...state.log, ...log] },
-      log,
-    };
-  }
-  if (isPhaseStart(state.calendar, state.at, 'pairing')) {
+  if (isPhaseStart(state.calendar, state.at, 'pairing') && !paired(state)) {
     // 번식기 시작 — 지표 M-05(qa/metrics.md). 박새는 런 시작(1살)·계승 개체 모두 이때 1살 이상이라 늘 번식 가능
     log.push({
       at: state.at,
@@ -410,6 +404,12 @@ function endGates(state: RunState, done: RunState, log: LogEntry[], data: GameDa
       return { state: picked.state, log: [...log, ...picked.log] };
     }
     return { state: opened, log };
+  }
+  if (seasonDue(survived, data)) {
+    return {
+      state: { ...survived, gate: { kind: 'seasonPolicy' }, log: [...state.log, ...log] },
+      log,
+    };
   }
   // 짝 없이 `nestSite`에 들어오면 그 해의 번식은 없다 — 분할 해제 (00-core-loop 4.6 · 4.5)
   if (!survived.mate && isPhaseStart(state.calendar, state.at, 'nestSite')) {
@@ -436,6 +436,17 @@ function endGates(state: RunState, done: RunState, log: LogEntry[], data: GameDa
   const next = nextStep(survived, data);
   log.push(...next.log);
   return { state: { ...next.state, log: [...state.log, ...log] }, log };
+}
+
+/** 이 단계에 짝 후보 관문을 이미 열었다 — 그 뒤 계절 방침을 고르고 다시 들어온 때 (00-core-loop 4.6) */
+function paired(state: RunState): boolean {
+  return state.log.some(
+    (e) =>
+      e.type === 'breedingSeason' &&
+      e.at.year === state.at.year &&
+      e.at.period === state.at.period &&
+      e.at.step === state.at.step,
+  );
 }
 
 /** 부상 1 감소, 0이면 지운다. 이 단계에 걸린 부상이면 표시만 지운다 (03-events 6.1 `injury`) */
@@ -563,11 +574,18 @@ function pickMate(state: RunState, choiceId: string, data: GameData): ActResult 
     ? { ...picked, bond: Math.min(m.bondMax, picked.bond + m.bondReunion), personalityKnown: true }
     : picked;
   const { gate: _g, mateGone: _gone, ...closed } = state;
+  const made: LogEntry = {
+    at: state.at,
+    type: 'mate',
+    text: previous ? '지난 짝과 다시 맺었다' : '짝을 맺었다',
+  };
+  // 짝 후보 다음에 계절 방침 — 짝이 있어야 나오는 방침이 있다 (11-season-policy 1.1)
+  if (seasonDue({ ...closed, mate }, data)) {
+    const opened: RunState = { ...closed, mate, gate: { kind: 'seasonPolicy' } };
+    return { state: { ...opened, log: [...state.log, made] }, log: [made] };
+  }
   const next = nextStep({ ...closed, mate }, data);
-  const log: LogEntry[] = [
-    { at: state.at, type: 'mate', text: previous ? '지난 짝과 다시 맺었다' : '짝을 맺었다' },
-    ...next.log,
-  ];
+  const log: LogEntry[] = [made, ...next.log];
   return { state: { ...next.state, log: [...state.log, ...log] }, log };
 }
 
