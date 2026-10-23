@@ -14,7 +14,8 @@
 
 ## 최근 완료 (2026-10-23)
 - **PR #660 승인 댓글**(design 12-card-turn 3.1 카드별 비용) · **PR #661 승인 댓글**(04-breeding 2.7 더 찾아보기·포기 — 구현 메모: 로그로 세면 저장 형식 그대로, 자동 진행 분기 제거, 늦은 계절 방침). review:engine 뗌
-- **PR #666 열음**(#659):  —  하나로 예산·소비·미리보기. 훈련 5·4·3 데이터. 저장 형식 변경 없음. check 통과. review:design → 승인 오면 - 다음: #662(2.7 구현) — #661 머지 뒤. #658 머지 먼저(같은 endGates를 고침)
+- **PR #666 열음**(#659): `cards.pool.<카드>.cost` — `cardCost` 하나로 예산·소비·미리보기. 훈련 5·4·3 데이터. 저장 형식 변경 없음. check 통과. review:design → 승인 오면 `merge-pr.sh 666`
+- 다음: #662(2.7 구현) — #661 머지 뒤. #658 머지 먼저(같은 endGates를 고침)
 - **PR #654 승인 댓글**(design 11-season-policy v0.1): 구현 가능, 저장 형식 변경 없음. review:engine 뗌
 - **PR #658 열음**(#653): 계절 방침 `requires: ["mate"]`(스키마·데이터 두 줄) · 조건 맞는 방침만, 1개면 관문 안 엶 · 짝 후보 → 계절 방침 순서(pickMate 뒤 방침 관문, 이 단계 `breedingSeason` 로그로 짝 후보 재오픈 막음 — 옛 저장 호환). contracts 3장. check 통과. review:design → 승인 오면 `merge-pr.sh 658`
 
