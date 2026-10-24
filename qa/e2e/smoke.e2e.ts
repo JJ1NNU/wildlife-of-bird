@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 /**
  * M1 핵심 흐름 스모크(T6, test-strategy 5장):
- * 새 게임 → (손 진행) 첫 번식 → 계승 화면에서 새끼로 계승 → 새로고침·이어 하기 → (빨리 감기) 게임 오버 기록.
+ * 새 게임 → (손 진행) 프롤로그 → 독립 → 첫 번식 → 계승 화면에서 새끼로 계승 → 새로고침·이어 하기 → (빨리 감기) 게임 오버 기록.
  * 새 판 시드가 Date.now()라 시계를 고정한다 — 이 시각의 판은 계승 관문이 온다.
  * 밸런스가 바뀌어 관문 전에 죽으면 날짜를 바꿔 다시 고른다(#438: 1월 1일 → 3일, 둥지 손실·겨울 값 PR 뒤 3일은 3년 동안 번식 0 → 다시 1일).
  */
@@ -26,7 +26,14 @@ async function press(page: Page) {
   return page.locator('[data-testid^="choice-"]:not([disabled])').first().click();
 }
 
-test('새 게임 → 번식 → 계승 → 이어 하기 → 게임 오버', async ({ page }) => {
+/** 프롤로그(13-prologue 3.3) 패: 카드 위험이 "부모 곁이라 판정 없음" */
+const prologueCard = (page: Page) =>
+  page
+    .getByTestId('hand')
+    .getByRole('button', { name: /부모 곁/ })
+    .first();
+
+test('새 게임 → 프롤로그 → 독립 → 번식 → 계승 → 이어 하기 → 게임 오버', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => {
@@ -37,6 +44,9 @@ test('새 게임 → 번식 → 계승 → 이어 하기 → 게임 오버', asy
   await page.goto('/');
   await page.getByTestId('new-run').click();
   await expect(page.getByTestId('main-turn')).toBeVisible();
+  // 알에서 깨어나 둥지 안(P-1)에서 시작한다(#644)
+  await expect(page.getByTestId('choice-action.forage')).toContainText('먹이 조르기');
+  await expect(prologueCard(page)).toBeVisible();
 
   // 한눈 화면(#611, screens 6.1-2): 360×640에서 판 화면은 세로 스크롤이 없다
   await page.setViewportSize({ width: 360, height: 640 });
@@ -46,12 +56,17 @@ test('새 게임 → 번식 → 계승 → 이어 하기 → 게임 오버', asy
   const gate = page.getByTestId('gate-inheritance');
   // 이벤트를 고르면 결과가 시트에 남는다(#650)
   let eventResults = 0;
+  let independent = false;
   for (let i = 0; i < 400 && !(await gate.isVisible()); i++) {
     await expect(page.getByTestId('game-over')).toBeHidden();
     if (await page.getByTestId('event-result').isVisible()) eventResults++;
+    // 독립(프롤로그 끝) = 패가 보이는데 판정 없는 카드가 없다
+    if (!independent && (await page.getByTestId('hand').isVisible()))
+      independent = !(await prologueCard(page).isVisible());
     await press(page);
   }
   await expect(gate).toBeVisible();
+  expect(independent).toBe(true);
   expect(eventResults).toBeGreaterThan(0);
 
   // 계승 확인은 팁(T-30)을 먼저 닫아야 한다(06-tutorial 2장)
@@ -89,4 +104,21 @@ test('새 게임 → 번식 → 계승 → 이어 하기 → 게임 오버', asy
   // count()는 기다리지 않으니 둘째 줄이 뜰 때까지 기다린다
   await expect(page.getByTestId('lineage-screen').locator('.tree li').nth(1)).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test('빨리 감기가 프롤로그를 넘는다', async ({ page }) => {
+  await page.clock.setFixedTime(FIXED_TIME);
+  await page.goto('/');
+  await page.getByTestId('new-run').click();
+  await expect(prologueCard(page)).toBeVisible();
+  await page.getByTestId('open-menu').click();
+  await page.getByTestId('menu-feed').click();
+  await page.getByTestId('fast-forward').click();
+  await expect(page.getByTestId('game-over')).toBeHidden();
+  await page.getByTestId('menu').getByRole('button', { name: '닫기' }).click();
+  // 1년 뒤 같은 때 — 관문·팁이 먼저 나오면 넘겨 패까지
+  const hand = page.getByTestId('hand');
+  for (let i = 0; i < 20 && !(await hand.isVisible()); i++) await press(page);
+  await expect(hand).toBeVisible();
+  await expect(prologueCard(page)).toBeHidden();
 });
