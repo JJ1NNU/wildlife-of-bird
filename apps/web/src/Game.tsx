@@ -421,6 +421,8 @@ export function Game({ data }: { data: GameData }) {
     next: RunState;
     option: string;
     lines: string[];
+    /** 판정형 선택지면 성공 여부 — 첫 결과 줄 앞에 굵게 (#682) */
+    success?: boolean;
   }>();
   /** S-24: 새끼를 고르고 결정을 누르면 확인 시트를 한 번 더 (docs/ux/screens.md 3장) */
   const [confirming, setConfirming] = useState(false);
@@ -819,7 +821,12 @@ export function Game({ data }: { data: GameData }) {
         const { state: next, log } = actRecorded(state, gateId, data);
         saveRun(next);
         const option = pickedEvent ? eventOption(pickedEvent).text : (log[0]?.text ?? '');
-        return setEventResult({ next, option, lines: eventResultLines(state, next, log, data) });
+        return setEventResult({
+          next,
+          option,
+          lines: eventResultLines(state, next, log, data),
+          success: log[0]?.success,
+        });
       }
       commit(actRecorded(state, gateId, data).state);
       return;
@@ -2116,6 +2123,11 @@ export function Game({ data }: { data: GameData }) {
                     ).map((line, k) => (
                       // biome-ignore lint/suspicious/noArrayIndexKey: 같은 로그 글이 두 줄 나올 수 있다
                       <span key={k} className="cap">
+                        {k === 0 && eventResult.success !== undefined && (
+                          <span className="b">
+                            {t(eventResult.success ? 'gate.event.success' : 'gate.event.fail')}{' '}
+                          </span>
+                        )}
                         {line}
                       </span>
                     ))}
