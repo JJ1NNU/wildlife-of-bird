@@ -701,7 +701,8 @@ export function Game({ data }: { data: GameData }) {
     ['T-00', true],
     ['T-01', !!view.routine],
     ['T-02', !!view.routine && seenTips.has('T-01')],
-    ['T-03', !!view.routine && seenTips.has('T-02')],
+    // 프롤로그 동안은 위험%가 0이라 독립 뒤 첫 S-10에서 (v0.1)
+    ['T-03', !!view.routine && !view.prologue && seenTips.has('T-02')],
     // 잠정: 에너지 부족은 엔진 `disabled.reason` 글로 판단
     ['T-04', [...choices, ...nextChoices].some((c) => c.disabled?.reason === '에너지 부족')],
     ['T-05', open === 'move'],
@@ -714,6 +715,10 @@ export function Game({ data }: { data: GameData }) {
     ['T-13', gateKind === 'clutchSize'],
     ['T-14', gateKind === 'parentingPolicy'],
     ['T-15', view.recentLog.some((l) => l.cause === 'nestLoss' || l.cause === 'chickDeath')],
+    ['T-16', !!view.routine && view.recentLog.some((l) => l.cause === 'fledge')],
+    ['T-17', view.prologue === 'fledge' && !!view.routine?.hand['train-vigilance']],
+    ['T-18', view.recentLog.some((l) => l.cause === 'independent')],
+    ['T-19', !!view.routine && view.player.age >= 1],
     ['T-30', gateKind === 'inheritance'],
     ['T-31', gateKind === 'secondBrood'],
     ['T-40', !!view.gameOver],
@@ -744,7 +749,7 @@ export function Game({ data }: { data: GameData }) {
         data-tip={tip}
       >
         <span className="b">{t(`${tipKey(tip)}.title`)}</span>
-        {(tip === 'T-00' ? ['line1', 'line2', 'line3'] : ['body']).map((k) => (
+        {(tip === 'T-00' ? ['line1', 'line2', 'line3', 'line4'] : ['body']).map((k) => (
           <span key={k}>{t(`${tipKey(tip)}.${k}`)}</span>
         ))}
         {tip === 'T-30' && <span className="risk high">{t(`${tipKey(tip)}.caution`)}</span>}
