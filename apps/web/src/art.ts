@@ -20,7 +20,8 @@ export function placeholderBirdUrl(speciesId: string): string | undefined {
 
 function birdKey(view: ViewModel): string {
   const variant =
-    (view.nest?.chicks ?? 0) > 0
+    // 프롤로그 둥지 안(13-prologue P-1)도 둥지 단면 그림 (#692)
+    (view.nest?.chicks ?? 0) > 0 || view.prologue === 'nest'
       ? 'chick.nest'
       : view.player.age === 0
         ? 'juv.perch'
@@ -28,7 +29,7 @@ function birdKey(view: ViewModel): string {
   return `../../../assets/bird/bird.${view.speciesId}.${variant}.webp`;
 }
 
-/** 메인 그림 — 둥지에 새끼가 있으면 둥지, 0살이면 어린 새, 아니면 성조(성별). 최종 그림이 없는 종은 자리표시 */
+/** 메인 그림 — 둥지에 새끼가 있거나 프롤로그 둥지 안이면 둥지, 0살이면 어린 새, 아니면 성조(성별). 최종 그림이 없는 종은 자리표시 */
 export function birdUrl(view: ViewModel): string | undefined {
   return finals[birdKey(view)] ?? placeholderBirdUrl(view.speciesId);
 }

@@ -116,8 +116,8 @@ export function stepChoices(state: RunState, data: GameData): Choice[] {
   const stage = prologueStage(state);
   const locked = stage
     ? stage === 'nest'
-      ? '아직 날지 못한다'
-      : '부모를 따라다닌다'
+      ? '아직 날지 못함'
+      : '부모를 따라다님'
     : nestLocked(state)
       ? '둥지를 떠날 수 없음'
       : undefined;

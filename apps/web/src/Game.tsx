@@ -108,6 +108,11 @@ const GROUPS = [
   { key: 'move', prefix: 'move.', label: t('routine.group.move'), icon: 'icon.action.move' },
 ] as const;
 type GroupKey = (typeof GROUPS)[number]['key'];
+/** 프롤로그 P-1 둥지 안 카드 이름(13-prologue 3.1) — 선택 id → 문구 키 */
+const NEST_LABEL: Record<string, string> = {
+  'action.forage': 'prologue.card.forage',
+  'action.train.flight': 'prologue.card.trainFlight',
+};
 const RES_WORD: Record<string, string> = { energy: t('main.energy'), feather: t('main.feather') };
 /** 관문 결정 버튼 글 — 문구 data/text/gate.json. 2차 번식·계승·이벤트는 고른 선택지 글 그대로 */
 function gateGo(kind: string, label?: string): string {
@@ -584,6 +589,11 @@ export function Game({ data }: { data: GameData }) {
 
   const view = getView(state, data);
   const choices = getChoices(state, data);
+  // 프롤로그(13-prologue 3.1·3.3): 둥지 안 카드 이름, 위험%는 "0% — 부모 곁(판정 없음)" — 엔진 위험이 0이라 띠 낱말은 안 붙인다
+  const prologue = view.prologue;
+  const cardName = (id: string, label: string) =>
+    prologue === 'nest' && NEST_LABEL[id] ? t(NEST_LABEL[id]) : label;
+  const zeroRisk = prologue && t('prologue.risk.zero');
   const when = periodLabel(view.at);
   const pickedChoice = choices.find((c) => c.id === picked);
   // S-20: 지난 짝이 없어진 이유 한 줄 — 관문의 `previousGone` (04-breeding 2.1)
@@ -789,7 +799,7 @@ export function Game({ data }: { data: GameData }) {
   function labelOf(s: SlotPlan): string {
     const id = s.id ?? REST;
     const c = s.before && getChoices(s.before, data).find((x) => x.id === id);
-    return c ? c.label : id;
+    return c ? cardName(c.id, c.label) : id;
   }
 
   function commit(next: RunState) {
@@ -924,9 +934,12 @@ export function Game({ data }: { data: GameData }) {
     const risk = p && formatRisk(data.formulas, p.deathRisk);
     /** 3열 칸(103px)에서 "0.1% 미만"이 낱말 중간에 잘려 짧은 꼴 "<0.1%" (#639) — 정보 줄·aria는 원래 글 */
     const minShown = data.formulas.display.riskMinShown;
-    const riskShort =
-      p && p.deathRisk < minShown ? `<${roundHalfUp(minShown * 100, 1)}%` : risk?.text;
-    const name = c.label;
+    const riskShort = zeroRisk
+      ? '0%'
+      : p && p.deathRisk < minShown
+        ? `<${roundHalfUp(minShown * 100, 1)}%`
+        : risk?.text;
+    const name = cardName(c.id, c.label);
     const reason = c.disabled?.reason;
     return (
       <li key={c.id}>
@@ -940,7 +953,7 @@ export function Game({ data }: { data: GameData }) {
             n > 1 && t('routine.hand.count', { n }),
             reason,
             p && `${t('main.energy')} ${energyRange(p, before.player.energy)}`,
-            risk?.text,
+            p && (zeroRisk || risk?.text),
             gainsText(p, before),
           ]
             .filter(Boolean)
@@ -1029,10 +1042,17 @@ export function Game({ data }: { data: GameData }) {
           .filter(Boolean)
           .map((x) => `, ${x}`)
           .join('')}{' '}
-        <span className={`risk ${risk.band}`}>
-          <span className="ico s" style={iconStyle('icon.risk')} />
-          {risk.text} <span className="w">{t(`word.risk.${risk.band}`)}</span>
-        </span>
+        {zeroRisk ? (
+          <span className="risk">
+            <span className="ico s" style={iconStyle('icon.risk')} />
+            {zeroRisk}
+          </span>
+        ) : (
+          <span className={`risk ${risk.band}`}>
+            <span className="ico s" style={iconStyle('icon.risk')} />
+            {risk.text} <span className="w">{t(`word.risk.${risk.band}`)}</span>
+          </span>
+        )}
       </span>
     );
   }
@@ -2279,9 +2299,16 @@ export function Game({ data }: { data: GameData }) {
                     </span>
                   )}
                   {ready && (
-                    <span className={`risk ${sumBand.band}`} data-testid="routine-risk">
+                    <span
+                      className={zeroRisk ? 'risk' : `risk ${sumBand.band}`}
+                      data-testid="routine-risk"
+                    >
                       <span className="ico s" style={iconStyle('icon.risk')} />
-                      {sumBand.text} <span className="w">{t(`word.risk.${sumBand.band}`)}</span>
+                      {zeroRisk ?? (
+                        <>
+                          {sumBand.text} <span className="w">{t(`word.risk.${sumBand.band}`)}</span>
+                        </>
+                      )}
                     </span>
                   )}
                 </div>

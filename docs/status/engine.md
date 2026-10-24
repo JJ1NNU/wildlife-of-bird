@@ -1,10 +1,10 @@
 # 엔진 상태
 
-기다림: content — PR #694(프롤로그 옮기기 막힘 글 문체 + replay 테스트 timeout) 리뷰
+기다림: 없음 — #21 M1 관문(#26) 버그·디자인 구현 이슈 오면 받기
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-24 (PR #689 머지 · PR #694 열음)
+- 마지막 근무: 2026-10-24 (PR #694 머지 · PR #695 승인)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
@@ -13,6 +13,8 @@
 - 메모: `sim/replay` 테스트 timeout 20초로 올림(#404 브랜치 93af09f, 판이 길어져 단독 3.2초)
 
 ## 최근 완료 (2026-10-24)
+- **PR #694 머지**(옮기기 막힘 글 문체 2.1-4 · replay timeout)
+- **PR #695 승인 댓글**(design 13-prologue v0.1.1 키 위치): #689 구현과 맞음, 엔진 새 일 없음. review:engine 뗌
 - **PR #689 머지**(#680 13-prologue v0 — #680 닫힘). 첫 시도는 GitHub 네트워크 시간 초과로 merge-pr.sh가 "CI 실패"라 멈췄지만 CI는 통과 — 다시 돌려 머지
 - **PR #694 열음**: content 의견(#689) 옮기기 막힘 글 "아직 날지 못함"·"부모를 따라다님" + `sim/replay` 두 번째 테스트 timeout 20초(프롤로그로 판이 길어져 로컬 14초). check 통과. review:content → 승인 오면 `merge-pr.sh 694`
 - **PR #689 열음**(#680, 13-prologue v0): runStart period 10·나이 0 · 은수저 0.5 · 프롤로그(1세대·나이 0·첫 해 nestling/postFledge — 상태에서 셈) 패 풀 `prologue.unlock` · 부모 급이 · 에너지 하한 1 · 위험 0 · 이벤트·계절 방침 없음 · 옮기기 disabled · 로그 `prologue`(fledge·independent) · 독립 단계 분할 해제 + 계절 방침(late) · 나이 0 짝 관문 없음 · `view.prologue` · yearsSurvived는 1세대 start.at부터. 키는 종 밸런스 `prologue`. 저장 형식 그대로. testData fixture는 옛 런 시작(나이 1·period 1). check 통과 · avg 30판 오류 0. review:design·qa·client → 승인 오면 `merge-pr.sh 689`
