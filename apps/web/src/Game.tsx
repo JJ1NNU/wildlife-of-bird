@@ -535,6 +535,9 @@ export function Game({ data }: { data: GameData }) {
   // S-20: 지난 짝이 없어진 이유 한 줄 — 관문의 `previousGone` (04-breeding 2.1)
   const mateCards = view.gate?.kind === 'mateCandidate' ? view.gate.cards : undefined;
   const pickedPrevious = !!mateCards?.find((c) => c.choiceId === picked)?.previous;
+  // 올해 번식 포기는 그해 둥지·계승이 없다 — 확인 한 번 (04-breeding 2.7)
+  const mateSkip = mateCards && picked === 'mateCandidate.skip';
+  const mateSearch = mateCards && picked === 'mateCandidate.search';
   const mateGone =
     view.gate?.kind === 'mateCandidate' && view.gate.previousGone
       ? t(`gate.previousGone.${view.gate.previousGone}`)
@@ -757,7 +760,7 @@ export function Game({ data }: { data: GameData }) {
       // 계승 팁은 먼저 닫아야 한다 — 되돌릴 수 없는 선택 (06-tutorial 2장 T-30)
       if (tip === 'T-30') return;
       // 계승은 되돌릴 수 없다 — 확인 시트를 거친다 (잔류는 바로)
-      if (inheritChick && !confirming) return setConfirming(true);
+      if ((inheritChick || mateSkip) && !confirming) return setConfirming(true);
       commit(actRecorded(state, gateId, data).state);
       return;
     }
@@ -1049,6 +1052,33 @@ export function Game({ data }: { data: GameData }) {
           <span className="vals">
             <span>{t('gate.mateCandidate.accepts')}</span>
             <b>{t(card.accepts ? 'gate.yes' : 'gate.no')}</b>
+          </span>
+        </button>
+      </li>
+    );
+  }
+
+  /** S-20 카드 밖 선택지: 더 찾아보기 · 올해 번식 포기 (04-breeding 2.7) */
+  function mateSkipRow(id: 'search' | 'skip') {
+    const choiceId = `mateCandidate.${id}`;
+    const c = choices.find((x) => x.id === choiceId);
+    return (
+      <li key={choiceId}>
+        <button
+          type="button"
+          className={`opt${choiceId === picked ? ' sel' : ''}`}
+          aria-pressed={choiceId === picked}
+          disabled={!c || !!c.disabled}
+          onClick={() => setPicked(choiceId)}
+          data-testid={`choice-${choiceId}`}
+        >
+          <span className="main">
+            <span className="b">{t(`gate.mateCandidate.${id}`)}</span>
+            <span className="cap">
+              {c?.disabled
+                ? t('gate.mateCandidate.searchDisabled')
+                : t(`gate.mateCandidate.${id}Help`, { n: data.breeding.mate.searchEnergy })}
+            </span>
           </span>
         </button>
       </li>
@@ -1792,7 +1822,14 @@ export function Game({ data }: { data: GameData }) {
           className={sheet ? 'gsheet' : 'contents'}
           data-testid={view.gate ? 'gate-sheet' : replay ? 'result-sheet' : undefined}
         >
-          {view.gate?.kind === 'mateCandidate' ? (
+          {mateSkip && confirming ? (
+            <>
+              {gateHead(t('gate.mateCandidate.skipConfirm.title'))}
+              <div className="list" data-testid="mate-skip-confirm">
+                <p className="cap">{t('gate.mateCandidate.skipConfirm.body')}</p>
+              </div>
+            </>
+          ) : view.gate?.kind === 'mateCandidate' ? (
             <>
               {gateHead(t('gate.mateCandidate.title'), mateGone)}
               <ul
@@ -1803,6 +1840,8 @@ export function Game({ data }: { data: GameData }) {
                 {view.gate.cards.map((card, i) =>
                   mateRow(card, mateCards?.[0]?.previous ? i : i + 1),
                 )}
+                {mateSkipRow('search')}
+                {mateSkipRow('skip')}
               </ul>
             </>
           ) : view.gate?.kind === 'nestSite' ? (
@@ -2241,7 +2280,22 @@ export function Game({ data }: { data: GameData }) {
           )}
 
           <div className="actions">
-            {inherit && confirming ? (
+            {mateSkip && confirming ? (
+              <>
+                <button
+                  type="button"
+                  className="btn back"
+                  onClick={() => setConfirming(false)}
+                  data-testid="mate-skip-back"
+                >
+                  <span aria-hidden="true">◂ </span>
+                  {t('gate.mateCandidate.skipConfirm.back')}
+                </button>
+                <button type="button" className="btn prim" onClick={go} data-testid="go">
+                  {t('gate.mateCandidate.skipConfirm.go')}
+                </button>
+              </>
+            ) : inherit && confirming ? (
               <>
                 <button
                   type="button"
@@ -2270,11 +2324,13 @@ export function Game({ data }: { data: GameData }) {
                     : gateGo('parentingPolicy')
                   : pickedPrevious
                     ? t('gate.mateCandidate.previousGo')
-                    : inheritChick
-                      ? t('inheritance.go.chick', { name: chickName(inheritIndex, inheritChick) })
-                      : pickedChoice
-                        ? gateGo(view.gate.kind, pickedChoice.label)
-                        : gateGo(view.gate.kind)}
+                    : mateSearch || mateSkip
+                      ? t(`gate.mateCandidate.${mateSearch ? 'search' : 'skip'}`)
+                      : inheritChick
+                        ? t('inheritance.go.chick', { name: chickName(inheritIndex, inheritChick) })
+                        : pickedChoice
+                          ? gateGo(view.gate.kind, pickedChoice.label)
+                          : gateGo(view.gate.kind)}
               </button>
             ) : replay ? (
               replayDone ? (
