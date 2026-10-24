@@ -2383,7 +2383,10 @@ export function Game({ data }: { data: GameData }) {
                       onClick={() => fill(c)}
                       data-testid={`base-${c.id}`}
                     >
-                      {c.id === 'action.forage' ? t('routine.base.forage') : c.label}
+                      {c.id === 'action.forage'
+                        ? // 둥지 안에서는 패와 같은 이름(13-prologue 3.1) — 「먹이 조르기(기본)」
+                          t('routine.base.forage').replace(c.label, cardName(c.id, c.label))
+                        : c.label}
                     </button>
                   ))}
                 </div>
