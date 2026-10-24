@@ -320,7 +320,13 @@ function pickEventOption(state: RunState, choiceId: string, data: GameData): Act
   const option = event.options.find((o) => o.id === optionId);
   const out = resolveOption(state, event, optionId, data);
   const log: LogEntry[] = [
-    { at: state.at, type: 'event', text: option?.text ?? optionId, event: event.id },
+    {
+      at: state.at,
+      type: 'event',
+      text: option?.text ?? optionId,
+      event: event.id,
+      ...(out.success === undefined ? {} : { success: out.success }),
+    },
     ...out.log,
   ];
   const { gate: _g, paused, ...after } = out.state;
