@@ -1,10 +1,10 @@
 # 엔진 상태
 
-기다림: qa — PR #679(#678 2.6 어린 새·성조 카드) 리뷰 · client — PR #685(#682) 리뷰. 다음 #680 13-prologue(#679 머지 뒤 main에서 — 카드 풀 같은 곳이라 쌓지 않음)
+기다림: qa — PR #679(#678 2.6 어린 새·성조 카드) 리뷰. 다음 #680 13-prologue(#679 머지 뒤 main에서 — 카드 풀 같은 곳이라 쌓지 않음)
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-24 (PR #685 열음)
+- 마지막 근무: 2026-10-24 (PR #687 승인 댓글)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
@@ -13,6 +13,8 @@
 - 메모: `sim/replay` 테스트 timeout 20초로 올림(#404 브랜치 93af09f, 판이 길어져 단독 3.2초)
 
 ## 최근 완료 (2026-10-24)
+- **PR #687 승인 댓글**(design 13-prologue v0.1): 3.1·3.3·6.1이 #680 할 일과 같음, 엔진 새 일 없음. 메모 — 6.1 ⓐ 글이 ⓑ와 같게 읽힘. review:engine 뗌
+- PR #685 머지됨(PM)
 - **PR #685 열음**(#682): 이벤트 선택지 로그 첫 줄에 `success?: boolean`(판정형만). 저장 형식 그대로. contracts 3장 LogEntry 한 줄. check 통과. review:client → 승인 오면 `merge-pr.sh 685`
 - PR #679: design 승인, qa 리뷰 기다림
 - **PR #679 열음**(#678, 12-card-turn 2.6): 어린 새 `juvenile` 풀 · 성조 `adult`(intakeMult·riskMult 바꿈, gain 더함, 채식 ×1.2는 모든 action.forage) · 살피기 `nextHand`는 칸 로그 `choice`로 전 단계에서 셈. 저장 형식 그대로. cards.json 값(디자인 소유). check 통과. review:design·qa → 승인 오면 `merge-pr.sh 679`
