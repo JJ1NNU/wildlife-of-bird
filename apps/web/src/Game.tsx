@@ -7,7 +7,6 @@ import {
   type EventOptionCard,
   formatEnergyDelta,
   formatRisk,
-  formatStatGain,
   getChoices,
   getView,
   type InheritanceChickCard,
@@ -44,7 +43,7 @@ import {
   saveRun,
   startRecord,
 } from './save.ts';
-import { energy1, roAfter, t } from './text.ts';
+import { diff1, energy1, num1, roAfter, statGain, statInt, t } from './text.ts';
 import {
   loadSeenTips,
   loadTipsOn,
@@ -212,17 +211,23 @@ function planSlots(base: RunState, plan: (string | null)[], data: GameData): Slo
 }
 
 /**
- * 한 칸이 단계 예산에서 쓰는 행동 비용 — 엔진 routine.ts `budgetCost`와 같은 규칙(12-card-turn 3장).
+ * 한 칸이 단계 예산에서 쓰는 카드 비용 — 엔진 routine.ts `budgetCost`·cards.ts `cardCost`와 같은 규칙
+ * (12-card-turn 3장·3.1: `cards.pool.<카드>.cost`, 없으면 `actions.<행동>.cost`).
  * 계획한 칸은 아직 엔진 상태에 없어서 화면이 더한다. 쉬기·옮기기는 0
  */
 function budgetCost(id: string, data: GameData): number {
-  const [head, action] = id.split('.');
+  const [head, action, stat] = id.split('.');
   if (head !== 'action' || action === 'rest') return 0;
-  return data.formulas.actions[action as keyof GameData['formulas']['actions']]?.cost ?? 0;
+  const card = (action === 'train' ? `train-${stat}` : action) as keyof GameData['cards']['pool'];
+  return (
+    data.cards.pool[card]?.cost ??
+    data.formulas.actions[action as keyof GameData['formulas']['actions']]?.cost ??
+    0
+  );
 }
 
-/** 기록 한 줄의 변화: 스탯(소수 첫째) 먼저, 에너지·깃털(정수, 칸 줄은 소수 첫째 #206) 뒤 — 0으로 반올림되면 뺀다 (#176) */
-function deltaText(deltas: Record<string, number> = {}, perSlot = false): string {
+/** 기록 한 줄의 변화: 스탯(소수 첫째) 먼저, 에너지·깃털(소수 첫째, 01-formulas 7.0) 뒤 — 0으로 반올림되면 뺀다 (#176) */
+function deltaText(deltas: Record<string, number> = {}): string {
   const stats: string[] = [];
   const res: string[] = [];
   for (const [k, x] of Object.entries(deltas)) {
@@ -232,8 +237,8 @@ function deltaText(deltas: Record<string, number> = {}, perSlot = false): string
       if (n !== 0) stats.push(`${name} ${n > 0 ? '+' : '-'}${Math.abs(n).toFixed(1)}`);
     } else if (k in RES_WORD) {
       // 그 밖의 키(짝 지시 `acceptance`·`effect` 등)는 로그 글에 이미 있다
-      const t = perSlot ? energy1(x) : formatEnergyDelta(x);
-      if (t !== '0') res.push(`${RES_WORD[k]} ${t}`);
+      const t = energy1(x);
+      if (t !== '0.0') res.push(`${RES_WORD[k]} ${t}`);
     }
   }
   return [...stats, ...res].join(', ');
@@ -275,7 +280,7 @@ function policyText(text: string): string {
 }
 
 function logLine(l: LogEntry, data: GameData): string {
-  const d = deltaText(l.deltas, l.slot !== undefined);
+  const d = deltaText(l.deltas);
   const where = `${periodLabel(l.at).text} ${t('main.step', { n: l.at.step })}${l.slot ? ` ${t('routine.slot', { n: l.slot })}` : ''}`;
   const text =
     l.type === 'parenting'
@@ -819,16 +824,20 @@ export function Game({ data }: { data: GameData }) {
     commit(startRun(data));
   }
 
-  /** 에너지 변화 글: 범위면 "lo~hi" (소수 첫째) */
-  function energyRange(p: Preview): string {
+  /** 에너지 변화 글: 범위면 "lo~hi" — 지금 값 `base`에서 표시값 차 (01-formulas 7.0) */
+  function energyRange(p: Preview, base: number): string {
     const [lo, hi] = p.energyDelta;
-    return lo === hi ? energy1(lo) : `${energy1(lo)}~${energy1(hi)}`;
+    const d = (x: number) => diff1(base, base + x);
+    return lo === hi ? d(lo) : `${d(lo)}~${d(hi)}`;
   }
 
-  /** 성장 글: "비행 +0.6, …" */
-  function gainsText(p: Preview | undefined): string {
+  /** 성장 글: "비행 +1, …" — 정수, 버린 값 차 (01-formulas 7.3) */
+  function gainsText(p: Preview | undefined, before: RunState): string {
     return Object.entries(p?.statGains ?? {})
-      .map(([stat, x]) => `${STAT_WORD[stat as StatName]} ${formatStatGain(x)}`)
+      .map(
+        ([stat, x]) =>
+          `${STAT_WORD[stat as StatName]} ${statGain(before.player.stats[stat as StatName] ?? 0, x)}`,
+      )
       .join(', ');
   }
 
@@ -854,9 +863,9 @@ export function Game({ data }: { data: GameData }) {
             name,
             n > 1 && t('routine.hand.count', { n }),
             reason,
-            p && `${t('main.energy')} ${energyRange(p)}`,
+            p && `${t('main.energy')} ${energyRange(p, before.player.energy)}`,
             risk?.text,
-            gainsText(p),
+            gainsText(p, before),
           ]
             .filter(Boolean)
             .join(', ')}
@@ -868,7 +877,7 @@ export function Game({ data }: { data: GameData }) {
           </span>
           {p && risk ? (
             <span className="v">
-              <span className="val">{energyRange(p)}</span>
+              <span className="val">{energyRange(p, before.player.energy)}</span>
               <span className="risk">
                 <span className="ico s" style={iconStyle('icon.risk')} />
                 {riskShort}
@@ -915,7 +924,7 @@ export function Game({ data }: { data: GameData }) {
           </span>
           {p && risk && (
             <span className="vals">
-              <b>{energyRange(p)}</b>
+              <b>{energyRange(p, before.player.energy)}</b>
               <span className={`risk ${risk.band}`}>
                 {risk.text} <span className="w">{t(`word.risk.${risk.band}`)}</span>
               </span>
@@ -937,8 +946,8 @@ export function Game({ data }: { data: GameData }) {
           {t('routine.slot', { n: done + k + 1 })} {labelOf(s)}
         </b>
         {[
-          gainsText(s.preview),
-          `${t('main.energy')} ${energyRange(s.preview)} > ${roundHalfUp(energyAfter[k] ?? 0, 1).toFixed(1)}`,
+          s.before && gainsText(s.preview, s.before),
+          `${t('main.energy')} ${diff1(energyAfter[k - 1] ?? view.player.energy, energyAfter[k] ?? 0)} > ${num1(energyAfter[k] ?? 0)}`,
           ...(s.preview.notes ?? []),
         ]
           .filter(Boolean)
@@ -1174,7 +1183,8 @@ export function Game({ data }: { data: GameData }) {
             <span className="fx" data-testid={`season-preview-${id}`}>
               <span className="val">
                 <span className="ico s" style={iconStyle('icon.res.energy')} />
-                {t('main.energy')} <b>{formatEnergyDelta(p.energyDelta[0])}</b>
+                {t('main.energy')}{' '}
+                <b>{diff1(view.player.energy, view.player.energy + p.energyDelta[0])}</b>
               </span>
               <span className={`risk ${risk.band}`}>
                 <span className="ico s" style={iconStyle('icon.risk')} />
@@ -1214,7 +1224,7 @@ export function Game({ data }: { data: GameData }) {
             <b>
               {card.layingCost === 0
                 ? t('gate.none')
-                : `${t('main.energy')} ${formatEnergyDelta(-card.layingCost)}`}
+                : `${t('main.energy')} ${diff1(view.player.energy, view.player.energy - card.layingCost)}`}
             </b>
           </span>
         </button>
@@ -1227,7 +1237,12 @@ export function Game({ data }: { data: GameData }) {
   function fxItem(e: EffectPreview, i: number) {
     switch (e.type) {
       case 'energy':
-      case 'feather':
+      case 'feather': {
+        const cur = e.type === 'energy' ? view.player.energy : view.player.feather;
+        return (
+          <span key={i}>{t(`gate.event.fx.${e.type}`, { n: diff1(cur, cur + e.delta) })}</span>
+        );
+      }
       case 'bond':
         return (
           <span key={i}>{t(`gate.event.fx.${e.type}`, { n: formatEnergyDelta(e.delta) })}</span>
@@ -1235,7 +1250,10 @@ export function Game({ data }: { data: GameData }) {
       case 'statGain':
         return (
           <span key={i}>
-            {t('gate.event.fx.statGain', { stat: STAT_WORD[e.stat], n: formatStatGain(e.gain) })}
+            {t('gate.event.fx.statGain', {
+              stat: STAT_WORD[e.stat],
+              n: statGain(view.player.stats[e.stat] ?? 0, e.gain),
+            })}
           </span>
         );
       case 'deathRisk': {
@@ -1365,7 +1383,7 @@ export function Game({ data }: { data: GameData }) {
             <span>{t('main.energy')}</span>
             <b>
               {yes
-                ? `${formatEnergyDelta(-card.energyCost)} > ${Math.max(0, roundHalfUp(view.player.energy - card.energyCost))}`
+                ? `${diff1(view.player.energy, Math.max(0, view.player.energy - card.energyCost))} > ${num1(Math.max(0, view.player.energy - card.energyCost))}`
                 : t('gate.none')}
             </b>
           </span>
@@ -1610,10 +1628,8 @@ export function Game({ data }: { data: GameData }) {
                     {(Object.keys(view.player.potential) as StatName[]).map((s) => (
                       <tr key={s}>
                         <th>{STAT_WORD[s] ?? s}</th>
-                        <td>{roundHalfUp(view.player.stats[s] ?? 0, 1).toFixed(1)}</td>
-                        <td className="muted">
-                          / {roundHalfUp(view.player.potential[s] ?? 0, 1).toFixed(1)}
-                        </td>
+                        <td>{statInt(view.player.stats[s] ?? 0)}</td>
+                        <td className="muted">/ {statInt(view.player.potential[s] ?? 0)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1736,8 +1752,8 @@ export function Game({ data }: { data: GameData }) {
             <div className="row small">
               <span className="ico s" style={iconStyle('icon.res.energy')} />
               <span>
-                {t('main.energy')} <b data-testid="energy">{roundHalfUp(shownEnergy)}</b>
-                <span className="muted"> / {roundHalfUp(view.energyCap)}</span>
+                {t('main.energy')} <b data-testid="energy">{num1(shownEnergy)}</b>
+                <span className="muted"> / {num1(view.energyCap)}</span>
               </span>
               {view.starving && (
                 <span className="risk high b" role="alert" data-testid="starving">
@@ -1746,7 +1762,7 @@ export function Game({ data }: { data: GameData }) {
               )}
               <span className="ico s" style={iconStyle('icon.res.feather')} />
               <span>
-                {t('main.feather')} <b>{roundHalfUp(view.player.feather)}</b>
+                {t('main.feather')} <b>{num1(view.player.feather)}</b>
               </span>
             </div>
           </div>
@@ -2145,7 +2161,7 @@ export function Game({ data }: { data: GameData }) {
                         {s.id ? (
                           <>
                             <span className="ico s" style={iconStyle(slotIcon(s.id))} />
-                            <span className="e">{roundHalfUp(energyAfter[k] ?? 0)}</span>
+                            <span className="e">{num1(energyAfter[k] ?? 0)}</span>
                           </>
                         ) : (
                           <span className="n">{done + k + 1}</span>

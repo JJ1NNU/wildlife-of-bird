@@ -1,6 +1,6 @@
 import { formatRisk, getChoices, preview, type RunState } from '@wb/engine';
 import type { GameData, Season } from '@wb/schema';
-import { energy1, t } from './text.ts';
+import { diff1, t } from './text.ts';
 
 /**
  * S-11 지도(`docs/design/specs/screens.md` v2) — 장소마다 먹이·위험·경쟁 등급, 지금 장소의 연속 체류(고갈).
@@ -30,6 +30,7 @@ export function MapScreen({
   const nodes = [...data.nodes.values()].filter((n) => n.species.includes(state.config.speciesId));
   const { depletionPerStay, depletionFloor } = data.formulas.energy;
   const depletion = Math.max(depletionFloor, 1 - depletionPerStay * state.stay);
+  const e0 = state.player.energy;
   return (
     <main className="game" data-testid="map">
       <div className="over">
@@ -59,10 +60,11 @@ export function MapScreen({
                     ? t('map.stay', { n: state.stay, food: Math.round(depletion * 100) })
                     : p
                       ? t('map.move', {
+                          // S-10 옮기기 카드와 같은 숫자 — 지금 값에서 표시값 차 (01-formulas 7.0)
                           energy:
                             p.energyDelta[0] === p.energyDelta[1]
-                              ? energy1(p.energyDelta[0])
-                              : `${energy1(p.energyDelta[0])}~${energy1(p.energyDelta[1])}`,
+                              ? diff1(e0, e0 + p.energyDelta[0])
+                              : `${diff1(e0, e0 + p.energyDelta[0])}~${diff1(e0, e0 + p.energyDelta[1])}`,
                           risk: formatRisk(data.formulas, p.deathRisk).text,
                         })
                       : t('map.far')}

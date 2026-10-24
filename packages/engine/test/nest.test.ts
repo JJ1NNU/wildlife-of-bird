@@ -28,7 +28,7 @@ describe('둥지 자리 관문 (04-breeding 1·4장)', () => {
     expect(nestHoles(testData, 'village-farmland')).toContain('nestBox');
   });
 
-  const paired = actStep(
+  const pairGate = actStep(
     {
       ...start,
       at: { year: 1, period: 5, step: 1 },
@@ -39,6 +39,11 @@ describe('둥지 자리 관문 (04-breeding 1·4장)', () => {
       },
     },
     'action.rest',
+    testData,
+  ).state;
+  const paired = act(
+    pairGate,
+    getChoices(pairGate, testData).find((c) => !c.disabled)?.id ?? '',
     testData,
   ).state;
   /** `nestSite` 첫 단계(`period 7`), 짝 있음 */
