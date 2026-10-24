@@ -295,17 +295,50 @@ function policyText(text: string): string {
 function logLine(l: LogEntry, data: GameData): string {
   const d = deltaText(l.deltas);
   const where = `${periodLabel(l.at).text} ${t('main.step', { n: l.at.step })}${l.slot ? ` ${t('routine.slot', { n: l.slot })}` : ''}`;
-  const text =
-    l.type === 'parenting'
-      ? policyText(l.text)
-      : l.type === 'inheritance'
-        ? l.text.replace(/(\d+)로 /, (_m, n: string) => `${n}${roAfter(n)} `)
-        : l.type === 'death'
-          ? (causeText('death', l.cause, data) ?? l.text)
-          : l.type === 'brood'
-            ? withReason(l.text, causeText('brood', l.cause, data))
-            : l.text;
-  return `${where}: ${text}${d ? `, ${d}` : ''}`;
+  return `${where}: ${logText(l, data)}${d ? `, ${d}` : ''}`;
+}
+
+/** 기록 한 줄의 글(때·변화 빼고) */
+function logText(l: LogEntry, data: GameData): string {
+  return l.type === 'parenting'
+    ? policyText(l.text)
+    : l.type === 'inheritance'
+      ? l.text.replace(/(\d+)로 /, (_m, n: string) => `${n}${roAfter(n)} `)
+      : l.type === 'death'
+        ? (causeText('death', l.cause, data) ?? l.text)
+        : l.type === 'brood'
+          ? withReason(l.text, causeText('brood', l.cause, data))
+          : l.text;
+}
+
+/** 이벤트 선택 결과(#650): 판정 전후 에너지·깃털·스탯은 표시값 차, 이 시기 위험·먹이 배율과 부상은 새로 붙은 것만,
+ * 둥지·사망은 로그 글 그대로. 첫 줄(`event` = 고른 선택지)은 머리에 따로 보인다 */
+function eventResultLines(
+  before: RunState,
+  after: RunState,
+  log: LogEntry[],
+  data: GameData,
+): string[] {
+  const deltas: Record<string, number> = {
+    energy: after.player.energy - before.player.energy,
+    feather: after.player.feather - before.player.feather,
+  };
+  for (const [k, v] of Object.entries(after.player.stats))
+    deltas[`stat.${k}`] = v - (before.player.stats[k as StatName] ?? 0);
+  const lines = [deltaText(deltas, before.player)].filter(Boolean);
+  const mods = (x: RunState) => x.periodMods ?? { risk: [], food: [] };
+  for (const tier of mods(after).risk.slice(mods(before).risk.length))
+    lines.push(t('gate.event.fx.riskMod', { n: roundHalfUp(1 + data.effects.riskMod[tier], 1) }));
+  for (const m of mods(after).food.slice(mods(before).food.length)) {
+    const v = data.effects.foodMod[m.tier];
+    lines.push(
+      t('gate.event.fx.foodMod', { n: roundHalfUp(m.sign === 'gain' ? 1 + v : 1 - v, 1) }),
+    );
+  }
+  if ((after.injury ?? 0) > (before.injury ?? 0))
+    lines.push(t('gate.event.fx.injury', { n: after.injury ?? 0 }));
+  for (const l of log) if (l.type !== 'event') lines.push(logText(l, data));
+  return lines;
 }
 
 /** 둥지를 잃은 줄에 이유 한마디 (#513) */
@@ -383,6 +416,12 @@ export function Game({ data }: { data: GameData }) {
   const [info, setInfo] = useState<{ k: number } | { why: string }>();
   /** 진행 직후 S-12 재생. 확인을 누르면 `next`로 넘어간다 */
   const [replay, setReplay] = useState<Replay>();
+  /** 이벤트를 고른 직후 결과(#650). 확인을 누르면 `next`로 넘어간다 */
+  const [eventResult, setEventResult] = useState<{
+    next: RunState;
+    option: string;
+    lines: string[];
+  }>();
   /** S-24: 새끼를 고르고 결정을 누르면 확인 시트를 한 번 더 (docs/ux/screens.md 3장) */
   const [confirming, setConfirming] = useState(false);
   const [shown, setShown] = useState(0);
@@ -763,6 +802,7 @@ export function Game({ data }: { data: GameData }) {
     setPlaced([]);
     setInfo(undefined);
     setReplay(undefined);
+    setEventResult(undefined);
     setConfirming(false);
   }
 
@@ -774,6 +814,13 @@ export function Game({ data }: { data: GameData }) {
       if (tip === 'T-30') return;
       // 계승은 되돌릴 수 없다 — 확인 시트를 거친다 (잔류는 바로)
       if ((inheritChick || mateSkip) && !confirming) return setConfirming(true);
+      // 이벤트는 결과를 먼저 보인다 — 저장은 바로(다시 열면 결과 없이 다음으로)
+      if (view.gate.kind === 'event') {
+        const { state: next, log } = actRecorded(state, gateId, data);
+        saveRun(next);
+        const option = pickedEvent ? eventOption(pickedEvent).text : (log[0]?.text ?? '');
+        return setEventResult({ next, option, lines: eventResultLines(state, next, log, data) });
+      }
       commit(actRecorded(state, gateId, data).state);
       return;
     }
@@ -2059,17 +2106,33 @@ export function Game({ data }: { data: GameData }) {
                   </>
                 ),
               )}
-              <ul className="list" aria-label={t('gate.event.label')} data-testid="gate-event">
-                <li>
-                  <ul className="hand event">{view.gate.cards.map((card) => eventRow(card))}</ul>
-                </li>
-                {pickedEvent && (
-                  <li className="gate-title small opt-detail" data-testid="event-detail">
-                    <span className="b">{eventOption(pickedEvent).text}</span>
-                    {eventFx(pickedEvent)}
+              {eventResult ? (
+                <ul className="list" aria-label={t('gate.event.label')} data-testid="event-result">
+                  <li className="gate-title small opt-detail">
+                    <span className="b">{eventResult.option}</span>
+                    {(eventResult.lines.length
+                      ? eventResult.lines
+                      : [t('routine.replay.noChange')]
+                    ).map((line, k) => (
+                      <span key={k} className="cap">
+                        {line}
+                      </span>
+                    ))}
                   </li>
-                )}
-              </ul>
+                </ul>
+              ) : (
+                <ul className="list" aria-label={t('gate.event.label')} data-testid="gate-event">
+                  <li>
+                    <ul className="hand event">{view.gate.cards.map((card) => eventRow(card))}</ul>
+                  </li>
+                  {pickedEvent && (
+                    <li className="gate-title small opt-detail" data-testid="event-detail">
+                      <span className="b">{eventOption(pickedEvent).text}</span>
+                      {eventFx(pickedEvent)}
+                    </li>
+                  )}
+                </ul>
+              )}
             </>
           ) : view.gate?.kind === 'seasonPolicy' ? (
             <>
@@ -2339,6 +2402,15 @@ export function Game({ data }: { data: GameData }) {
                   {t('inheritance.confirm.go')}
                 </button>
               </>
+            ) : eventResult ? (
+              <button
+                type="button"
+                className="btn prim"
+                onClick={() => commit(eventResult.next)}
+                data-testid="event-ok"
+              >
+                {t('routine.replay.ok')}
+              </button>
             ) : view.gate ? (
               <button
                 type="button"
