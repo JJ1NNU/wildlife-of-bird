@@ -50,10 +50,10 @@
   "routine.move.title": "어디로 옮길까 (갈 수 있는 곳 {n}곳)",
   "routine.move.help": "옮기기는 예산을 쓰지 않음. 고른 곳이 다음 빈 칸에 들어감.",
   "routine.move.close": "닫기",
-  "routine.adult": "성조: {text}",
-  "routine.adult.future": "성조가 되면 {text}",
-  "routine.adult.intake": "섭취 ×{from}→{to}",
-  "routine.adult.risk": "위험 ×{from}→{to}",
+  "routine.adult": "어른 새: {text}",
+  "routine.adult.future": "어른 새가 되면 {text}",
+  "routine.adult.intake": "섭취 {from}배 > {to}배",
+  "routine.adult.risk": "위험 {from}배 > {to}배",
   "routine.adult.gain": "{stat}도 +{n}",
   "routine.adult.nextHand": "다음 패 +{n}장"
 }
