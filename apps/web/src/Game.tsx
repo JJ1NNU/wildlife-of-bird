@@ -299,8 +299,7 @@ function policyText(text: string): string {
 }
 
 /** 「지난 일」 줄마다 앞 값 — 지금 상태에서 기록을 거꾸로 되짚는다 (01-formulas 7.0, #657).
- * `decision`·`replan`은 뒤 `slot` 줄들의 합이라 커서를 옮기지 않고, 계승을 넘으면 앞 값이 없다(변화량 그대로).
- * 잠정(#700): 이벤트 선택 결과 등 `deltas` 없는 변화가 있으면 그보다 앞 줄은 조금 어긋날 수 있다 */
+ * `decision`·`replan`은 뒤 `slot` 줄들의 합이라 커서를 옮기지 않고, 계승을 넘으면 앞 값이 없다(변화량 그대로). 기록마다 `deltas`가 있다(엔진 #700) */
 function logBefores(log: readonly LogEntry[], now: Before): (Before | undefined)[] {
   const out: (Before | undefined)[] = [];
   let cur: Before | undefined = {
