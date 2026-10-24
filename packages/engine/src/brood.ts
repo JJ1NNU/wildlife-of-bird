@@ -87,9 +87,19 @@ export function chooseSecondBrood(
   rebrood.forEach((p, i) => {
     if (start + i <= calendar.length) calendar[start + i - 1] = [...p.steps];
   });
-  const energy = Math.max(0, state.player.energy - energyCost(state, data));
+  const player = {
+    ...state.player,
+    energy: Math.max(0, state.player.energy - energyCost(state, data)),
+  };
   return {
-    state: { ...state, calendar, player: { ...state.player, energy } },
-    log: [{ at: state.at, type: 'brood', text: '한 번 더 번식하기로 했다' }],
+    state: { ...state, calendar, player },
+    log: [
+      {
+        at: state.at,
+        type: 'brood',
+        text: '한 번 더 번식하기로 했다',
+        deltas: { energy: player.energy - state.player.energy },
+      },
+    ],
   };
 }

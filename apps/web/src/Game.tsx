@@ -22,6 +22,7 @@ import {
   roundHalfUp,
   type SeasonPolicyCard,
   type SecondBroodCard,
+  type ViewModel,
 } from '@wb/engine';
 import type { GameData, Season, StatName } from '@wb/schema';
 import { type ReactNode, useEffect, useState } from 'react';
@@ -231,6 +232,32 @@ function budgetCost(id: string, data: GameData): number {
   );
 }
 
+/**
+ * 카드의 성조 보너스 한 줄 (12-card-turn 2.6) — `cards.pool.<카드>.adult`를 그대로 읽는다.
+ * 배율은 그 행동 값을 바꾸므로 "앞→뒤", 성장·다음 패는 더하는 값. 보너스가 없는 카드는 undefined
+ */
+function adultText(id: string, data: GameData): string | undefined {
+  const [head, action, stat] = id.split('.');
+  if (head !== 'action') return undefined;
+  const card = (action === 'train' ? `train-${stat}` : action) as keyof GameData['cards']['pool'];
+  const adult = data.cards.pool[card]?.adult;
+  const base = data.formulas.actions[action as keyof GameData['formulas']['actions']];
+  if (!adult || !base) return undefined;
+  const mult = (x: number) => roundHalfUp(x, 1).toFixed(1);
+  return [
+    adult.intakeMult !== undefined &&
+      t('routine.adult.intake', { from: mult(base.intakeMult), to: mult(adult.intakeMult) }),
+    adult.riskMult !== undefined &&
+      t('routine.adult.risk', { from: mult(base.riskMult), to: mult(adult.riskMult) }),
+    ...Object.entries(adult.gain ?? {}).map(([s, n]) =>
+      t('routine.adult.gain', { stat: t(`word.stat.${s}`), n }),
+    ),
+    adult.nextHand && t('routine.adult.nextHand', { n: adult.nextHand }),
+  ]
+    .filter(Boolean)
+    .join(', ');
+}
+
 /** 변화 앞 값 — 있으면 표시값 차(에너지·깃털 소수 첫째 차, 스탯 버린 값 차)로 보인다 (01-formulas 7.0) */
 type Before = Pick<RunState['player'], 'energy' | 'feather' | 'stats'>;
 
@@ -297,8 +324,43 @@ function policyText(text: string): string {
   });
 }
 
-function logLine(l: LogEntry, data: GameData): string {
-  const d = deltaText(l.deltas);
+/** 「지난 일」 줄마다 앞 값 — 지금 상태에서 기록을 거꾸로 되짚는다 (01-formulas 7.0, #657).
+ * `decision`·`replan`은 뒤 `slot` 줄들의 합이라 커서를 옮기지 않고, 계승을 넘으면 앞 값이 없다(변화량 그대로). 기록마다 `deltas`가 있다(엔진 #700) */
+function logBefores(log: readonly LogEntry[], now: Before): (Before | undefined)[] {
+  const out: (Before | undefined)[] = [];
+  let cur: Before | undefined = {
+    energy: now.energy,
+    feather: now.feather,
+    stats: { ...now.stats },
+  };
+  for (let i = log.length - 1; i >= 0; i--) {
+    const l = log[i] as LogEntry;
+    if (l.type === 'inheritance') cur = undefined;
+    out[i] = cur;
+    if (!cur || !l.deltas || l.type === 'decision' || l.type === 'replan') continue;
+    const d = l.deltas;
+    const stats = { ...cur.stats };
+    for (const [k, x] of Object.entries(d))
+      if (k.startsWith('stat.')) {
+        const stat = k.slice('stat.'.length) as StatName;
+        stats[stat] = (stats[stat] ?? 0) - x;
+      }
+    cur = { energy: cur.energy - (d.energy ?? 0), feather: cur.feather - (d.feather ?? 0), stats };
+    out[i] = cur;
+  }
+  return out;
+}
+
+/** 「지난 일」 목록 — 새것 먼저 */
+function feedLines(view: ViewModel, data: GameData): [string, string][] {
+  const befores = logBefores(view.recentLog, view.player);
+  return withLogKeys(view.recentLog)
+    .map(([k, l], i): [string, string] => [k, logLine(l, data, befores[i])])
+    .reverse();
+}
+
+function logLine(l: LogEntry, data: GameData, before?: Before): string {
+  const d = deltaText(l.deltas, before);
   const where = `${periodLabel(l.at).text} ${t('main.step', { n: l.at.step })}${l.slot ? ` ${t('routine.slot', { n: l.slot })}` : ''}`;
   return `${where}: ${logText(l, data)}${d ? `, ${d}` : ''}`;
 }
@@ -929,6 +991,12 @@ export function Game({ data }: { data: GameData }) {
 
   /** 패 카드 v2(ui-kit 3.1): 1줄 비용 배지 + 이름, 2줄 에너지 · 위험%(띠는 정보 줄에만, #206). n장 배지는 모서리.
    * 못 쓰는 카드(`.short`)는 2줄째가 이유 낱말 — 눌러도 칸에 안 들어가고 정보 줄에 이유 */
+  function adultLine(id: string, at: RunState) {
+    // 둥지 안(13-prologue 3.1)은 다른 이름의 카드라 성조 줄을 붙이지 않는다
+    const text = prologue !== 'nest' && adultText(id, data);
+    return text && t(at.player.age > 0 ? 'routine.adult' : 'routine.adult.future', { text });
+  }
+
   function handCard(c: Choice, n: number, before: RunState) {
     const p = c.disabled ? undefined : preview(before, c.id, data);
     const risk = p && formatRisk(data.formulas, p.deathRisk);
@@ -955,6 +1023,7 @@ export function Game({ data }: { data: GameData }) {
             p && `${t('main.energy')} ${energyRange(p, before.player.energy)}`,
             p && (zeroRisk || risk?.text),
             gainsText(p, before),
+            adultLine(c.id, before),
           ]
             .filter(Boolean)
             .join(', ')}
@@ -1029,6 +1098,9 @@ export function Game({ data }: { data: GameData }) {
     const s = slots[k];
     if (!s?.id || !s.preview) return undefined;
     const risk = formatRisk(data.formulas, s.preview.deathRisk);
+    // 성조 보너스(12-card-turn 2.6): 어린 새(나이 0)에게는 회색 "성조가 되면" — 숨기지 않는다(원칙 5)
+    const adult = prologue !== 'nest' && adultText(s.id, data);
+    const grown = (s.before?.player.age ?? view.player.age) > 0;
     return (
       <span className="tx">
         <b>
@@ -1052,6 +1124,14 @@ export function Game({ data }: { data: GameData }) {
             <span className="ico s" style={iconStyle('icon.risk')} />
             {risk.text} <span className="w">{t(`word.risk.${risk.band}`)}</span>
           </span>
+        )}
+        {adult && (
+          <>
+            {', '}
+            <span className={grown ? undefined : 'muted'}>
+              {t(grown ? 'routine.adult' : 'routine.adult.future', { text: adult })}
+            </span>
+          </>
         )}
       </span>
     );
@@ -1652,11 +1732,9 @@ export function Game({ data }: { data: GameData }) {
               </div>
               <div className="body">
                 <ul className="feed-list">
-                  {withLogKeys(view.recentLog)
-                    .reverse()
-                    .map(([k, l]) => (
-                      <li key={k}>{logLine(l, data)}</li>
-                    ))}
+                  {feedLines(view, data).map(([k, line]) => (
+                    <li key={k}>{line}</li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -1721,11 +1799,9 @@ export function Game({ data }: { data: GameData }) {
           {menu === 'feed' && (
             <section className="feed" aria-label={t('main.feed')} data-testid="menu-feed-list">
               <ul className="feed-list">
-                {withLogKeys(view.recentLog)
-                  .reverse()
-                  .map(([k, l]) => (
-                    <li key={k}>{logLine(l, data)}</li>
-                  ))}
+                {feedLines(view, data).map(([k, line]) => (
+                  <li key={k}>{line}</li>
+                ))}
               </ul>
               {SHOW_FAST_FORWARD && (
                 <div className="dev small">
@@ -2383,7 +2459,10 @@ export function Game({ data }: { data: GameData }) {
                       onClick={() => fill(c)}
                       data-testid={`base-${c.id}`}
                     >
-                      {c.id === 'action.forage' ? t('routine.base.forage') : c.label}
+                      {c.id === 'action.forage'
+                        ? // 둥지 안에서는 패와 같은 이름(13-prologue 3.1) — 「먹이 조르기(기본)」
+                          t('routine.base.forage').replace(c.label, cardName(c.id, c.label))
+                        : c.label}
                     </button>
                   ))}
                 </div>

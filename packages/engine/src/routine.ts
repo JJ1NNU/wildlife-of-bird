@@ -248,7 +248,7 @@ export function runRoutine(
       slot,
       text: label,
       choice: id,
-      deltas: deltas(s.player, out),
+      deltas: playerDeltas(s.player, out),
     });
     s = {
       ...s,
@@ -297,7 +297,7 @@ export function runRoutine(
     at: state.at,
     type: paused ? 'replan' : 'decision',
     text: labels.join(', '),
-    deltas: deltas(state.player, s.player),
+    deltas: playerDeltas(state.player, s.player),
   };
   // 가계도: 죽은 개체의 생애를 닫는다 (05-inheritance 8장)
   const log = [decision, ...slots, ...(death ? [{ ...death, life: endLife(s, 'death') }] : [])];
@@ -308,8 +308,8 @@ export function runRoutine(
   };
 }
 
-/** 판정 전후의 변화 (에너지·깃털·스탯) */
-function deltas(
+/** 판정 전후의 변화 (에너지·깃털·스탯) — 개체 값을 바꾸는 로그 줄에 적는다 (#700) */
+export function playerDeltas(
   from: RunState['player'],
   to: Pick<RunState['player'], 'energy' | 'feather' | 'stats'>,
 ): Record<string, number> {
