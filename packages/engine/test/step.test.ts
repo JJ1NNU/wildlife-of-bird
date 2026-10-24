@@ -1,8 +1,9 @@
 import type { GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
+import { fatCap } from '../src/formulas.ts';
 import type { RunState } from '../src/index.ts';
 import { act, getChoices, getView, newRun, preview } from '../src/index.ts';
-import { actStep, onlyCard, testData } from './fixture.ts';
+import { actStep, fullData, onlyCard, testData } from './fixture.ts';
 
 /** 그 단계의 칸 수 = 6 ÷ 그 시기의 단계 수 */
 const slotsOf = (s: RunState) => 6 / (s.calendar[s.at.period - 1]?.length ?? 1);
@@ -49,16 +50,49 @@ const example: RunState = {
   },
 };
 
-describe('런 시작 개체 (05-inheritance 2장)', () => {
-  it('잠재력은 종 평균, 현재값은 × 0.85, 에너지·깃털·경험은 시작값', () => {
-    const p = start.player;
+describe('런 시작 개체 · 프롤로그 (13-prologue)', () => {
+  const run = newRun({ speciesId: 'parus-minor', seed: 'prologue', mode: 'free' }, fullData);
+
+  it('period 10·나이 0, 잠재력은 종 평균, 현재값은 은수저 0.5의 시작 스탯(× 0.35), 에너지·깃털은 시작값', () => {
+    const p = run.player;
+    expect(run.at).toEqual({ year: 1, period: 10, step: 1 });
+    expect([p.age, p.expYears, p.silverSpoon]).toEqual([0, 0, 0.5]);
     expect(p.potential.foraging).toBe(70);
-    expect(p.stats.flight).toBeCloseTo(39.1, 9);
-    expect(p.stats.foraging).toBeCloseTo(59.5, 9);
-    expect(p.stats.stamina).toBeCloseTo(28.9, 9);
-    expect(p.energy).toBeCloseTo(64.45, 9);
+    expect(p.stats.flight).toBeCloseTo(16.1, 9);
+    expect(p.stats.foraging).toBeCloseTo(24.5, 9);
+    expect(p.energy).toBeCloseTo(fatCap(fullData.formulas, p.stats.stamina ?? 0), 9);
     expect(p.feather).toBe(80);
-    expect(p.expYears).toBe(1);
+  });
+
+  it('7단계 동안 위험 0 · 옮기기 막힘 · 열린 카드만 패에 · 관문 없음, 끝에 이소·독립', () => {
+    let s = run;
+    for (let i = 1; i <= 7; i++) {
+      const view = getView(s, fullData);
+      expect(view.prologue).toBe(i <= 3 ? 'nest' : 'fledge');
+      expect(s.gate).toBeUndefined();
+      expect(preview(s, 'action.forage', fullData).deathRisk).toBe(0);
+      expect(
+        getChoices(s, fullData)
+          .filter((c) => c.kind === 'node')
+          .every((c) => c.disabled),
+      ).toBe(true);
+      const allowed =
+        i < 4 ? ['forage', 'train-flight'] : ['forage', 'train-flight', 'train-foraging'];
+      if (i === 1 || i === 4)
+        expect(allowed).toEqual(expect.arrayContaining(Object.keys(view.routine?.hand ?? {})));
+      s = actStep(s, 'action.forage', fullData).state;
+      expect(s.gameOver).toBe(false);
+    }
+    const ends = s.log.filter((e) => e.type === 'prologue');
+    expect(ends.map((e) => [e.cause, e.at.period, e.at.step])).toEqual([
+      ['fledge', 10, 3],
+      ['independent', 12, 2],
+    ]);
+    // 여름 첫 단계가 프롤로그 안이었으므로 독립한 단계의 흐름 끝에 계절 방침 (3.3)
+    expect(s.gate?.kind).toBe('seasonPolicy');
+    s = act(s, 'seasonPolicy.balanced', fullData).state;
+    expect(s.at).toEqual({ year: 1, period: 13, step: 1 });
+    expect(getView(s, fullData).prologue).toBeUndefined();
   });
 });
 

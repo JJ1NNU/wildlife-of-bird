@@ -22,9 +22,16 @@ export const fullData: GameData = loaded.data;
  * 추첨 u₁은 그대로 쓰므로 난수 순서는 실제와 같다 (03-events 3.1). 계절 방침은 난수를 쓰지 않는다.
  * 먹이 모자람 배율(01-formulas 3.2·3.3, #501)도 끈다 — 명세 예시는 배율 1로 계산했고, 배율은 nest.test가 따로 잰다
  * 장소 위험 등급·노화 위험은 명세 예시의 값(#462 전)으로 둔다 — 3.1·4.1 예시가 그 값으로 계산돼 있다
+ * 런은 프롤로그 전처럼 나이 1·`period 1`에서 시작한다 — 다른 규칙의 테스트가 프롤로그(13-prologue)를 지나지 않게. 프롤로그는 `fullData`로
  */
+const real = loaded.data.balance.get('parus-minor');
+if (!real) throw new Error('data/balance/species/parus-minor.json 이 없다');
 export const testData: GameData = {
   ...loaded.data,
+  balance: new Map(loaded.data.balance).set('parus-minor', {
+    ...real,
+    runStart: { ...real.runStart, age: 1, period: 1 },
+  }),
   events: [],
   seasonPolicy: { policies: {}, species: {} },
   formulas: {

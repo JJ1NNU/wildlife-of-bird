@@ -63,6 +63,8 @@ export interface DrawAt {
   juvenile: boolean;
   /** 지난 단계 살피기의 성조 보너스 `nextHand` — 나오는 장수에 더한다 */
   extra: number;
+  /** 프롤로그 단계에 나올 수 있는 카드 (13-prologue 3.1). 없으면 제한 없음 */
+  pool?: ReadonlySet<CardId>;
 }
 
 /** 2.2 나오는 장수 = 칸 수 + handBase + min(handExpCap, floor(경험 연수)) */
@@ -77,7 +79,7 @@ export function handSize(cards: Cards, slots: number, expYears: number): number 
 export function drawHand(cards: Cards, at: DrawAt, rng: RngState): { hand: Hand; rng: RngState } {
   const weighted: [CardId, number][] = [];
   for (const [id, card] of Object.entries(cards.pool) as [CardId, Cards['pool'][CardId]][]) {
-    if (!card || (at.juvenile && !card.juvenile)) continue;
+    if (!card || (at.juvenile && !card.juvenile) || (at.pool && !at.pool.has(id))) continue;
     weighted.push([
       id,
       card.weight * (card.nodeMult?.[at.node] ?? 1) * (card.seasonMult?.[at.season] ?? 1),

@@ -444,6 +444,8 @@ export interface ViewModel {
   potentialRange: Partial<Record<StatName, [string, string]>>;
   totalBreeding: number;
   gameOver: boolean;
+  /** 프롤로그 구간일 때만 — `nest` P-1 둥지 안 · `fledge` P-2 부모 돌봄 (13-prologue 2장). 팁·위험 0% 글을 이것으로 고른다 */
+  prologue?: 'nest' | 'fledge';
   /** 게임 오버 때만 — 부가 기록(점수 아님, 02-scoring 4장) */
   records?: RunRecords;
   /** 게임 오버 때만 — 죽은 개체의 노화 위험(01-formulas 4.1). > 0이면 노화 구간 (S-30 "늙어서 몸이 느려졌다", #513) */

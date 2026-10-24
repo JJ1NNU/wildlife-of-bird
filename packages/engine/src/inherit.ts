@@ -28,10 +28,11 @@ export function endLife(state: RunState, reason: LifeRecord['reason']): LifeReco
 }
 
 /** 게임 오버 뒤 부가 기록 (02-scoring 4장) — 끝난 생애는 모두 로그의 `life`에 있다 */
-export function runRecords(state: RunState, data: GameData): RunRecords {
+export function runRecords(state: RunState, _data: GameData): RunRecords {
   const lives = state.log.flatMap((l) => (l.life ? [l.life] : []));
-  const start = speciesBalance(data, state.config.speciesId).runStart.period;
-  const periods = (state.at.year - 1) * PERIODS_PER_YEAR + state.at.period - start;
+  // 런을 시작한 시기 = 1세대 생애의 시작 — 데이터의 runStart가 바뀌어도 옛 저장 기록이 맞다
+  const start = [state.life, ...lives].find((l) => l.generation === 1)?.start.at ?? state.at;
+  const periods = (state.at.year - start.year) * PERIODS_PER_YEAR + state.at.period - start.period;
   return {
     yearsSurvived: Math.floor((periods * 10) / PERIODS_PER_YEAR) / 10,
     generations: state.life.generation,
