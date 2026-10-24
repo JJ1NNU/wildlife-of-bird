@@ -226,18 +226,29 @@ function budgetCost(id: string, data: GameData): number {
   );
 }
 
-/** 기록 한 줄의 변화: 스탯(소수 첫째) 먼저, 에너지·깃털(소수 첫째, 01-formulas 7.0) 뒤 — 0으로 반올림되면 뺀다 (#176) */
-function deltaText(deltas: Record<string, number> = {}): string {
+/** 변화 앞 값 — 있으면 표시값 차(에너지·깃털 소수 첫째 차, 스탯 버린 값 차)로 보인다 (01-formulas 7.0) */
+type Before = Pick<RunState['player'], 'energy' | 'feather' | 'stats'>;
+
+/** 기록 한 줄의 변화: 스탯 먼저, 에너지·깃털(소수 첫째, 01-formulas 7.0) 뒤 — 0으로 보이면 뺀다 (#176).
+ * 앞 값(`before`)이 없으면 스탯은 소수 첫째 변화량 그대로 */
+function deltaText(deltas: Record<string, number> = {}, before?: Before): string {
   const stats: string[] = [];
   const res: string[] = [];
   for (const [k, x] of Object.entries(deltas)) {
     if (k.startsWith('stat.')) {
+      const stat = k.slice('stat.'.length) as StatName;
+      const name = STAT_WORD[stat] ?? k;
+      if (before) {
+        const g = statGain(before.stats[stat] ?? 0, x);
+        if (g !== '+0') stats.push(`${name} ${g}`);
+        continue;
+      }
       const n = roundHalfUp(x, 1);
-      const name = STAT_WORD[k.slice('stat.'.length) as StatName] ?? k;
       if (n !== 0) stats.push(`${name} ${n > 0 ? '+' : '-'}${Math.abs(n).toFixed(1)}`);
     } else if (k in RES_WORD) {
       // 그 밖의 키(짝 지시 `acceptance`·`effect` 등)는 로그 글에 이미 있다
-      const t = energy1(x);
+      const b = before?.[k as 'energy' | 'feather'];
+      const t = b === undefined ? energy1(x) : diff1(b, b + x);
       if (t !== '0.0') res.push(`${RES_WORD[k]} ${t}`);
     }
   }
@@ -262,6 +273,8 @@ interface Replay {
   /** 루틴 합 변화(`decision`, 다시 채우기면 `replan` 줄) — 끝나면 성장 합 한 줄 */
   total: LogEntry | undefined;
   death: LogEntry | undefined;
+  /** 루틴 앞 상태 — 칸 결과·합을 표시값 차로 (01-formulas 7.0) */
+  before: Before;
 }
 
 const REPLAY_MS = 600;
@@ -792,6 +805,7 @@ export function Game({ data }: { data: GameData }) {
       death,
       total: log.find((l) => l.type === 'decision' || l.type === 'replan'),
       rows,
+      before: state.player,
     });
     setShown(reducedMotion() ? rows.length : 0);
     setPaused(false);
@@ -2097,6 +2111,16 @@ export function Game({ data }: { data: GameData }) {
                   <tbody>
                     {replay.rows.map((r, k) => {
                       const seen = k < shown;
+                      // 칸 결과 = 그 칸 뒤 표시값 − 앞 표시값 (01-formulas 7.0)
+                      const e0 = replay.rows
+                        .slice(0, k)
+                        .reduce(
+                          (x, q) => x + (q.actual?.deltas?.energy ?? 0),
+                          replay.before.energy,
+                        );
+                      const x0 = replay.rows
+                        .slice(0, k)
+                        .reduce((x, q) => x + (q.expect ?? 0), replay.before.energy);
                       return (
                         <tr key={r.slot} className={seen ? '' : 'muted'}>
                           <td>{r.slot}</td>
@@ -2104,9 +2128,13 @@ export function Game({ data }: { data: GameData }) {
                             {r.label}
                             {seen && r.event && `, ${r.event.text}`}
                           </td>
-                          <td>{r.expect !== undefined && energy1(r.expect)}</td>
+                          <td>{r.expect !== undefined && diff1(x0, x0 + r.expect)}</td>
                           <td>
-                            {seen ? (r.actual ? energy1(r.actual.deltas?.energy ?? 0) : '-') : '-'}
+                            {seen
+                              ? r.actual
+                                ? diff1(e0, e0 + (r.actual.deltas?.energy ?? 0))
+                                : '-'
+                              : '-'}
                           </td>
                           <td className={seen && r.dead ? 'danger' : ''}>
                             {seen ? (r.dead ? '✕' : r.event ? '!' : r.actual ? '✓' : '') : ''}
@@ -2123,7 +2151,8 @@ export function Game({ data }: { data: GameData }) {
                           n: replay.death.slot ?? '',
                           text: causeText('death', replay.death.cause, data) ?? replay.death.text,
                         })
-                      : deltaText(replay.total?.deltas) || t('routine.replay.noChange')}
+                      : deltaText(replay.total?.deltas, replay.before) ||
+                        t('routine.replay.noChange')}
                   </p>
                 )}
               </div>
