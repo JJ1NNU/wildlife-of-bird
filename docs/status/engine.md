@@ -1,10 +1,10 @@
 # 엔진 상태
 
-기다림: qa — PR #679(#678 2.6 어린 새·성조 카드) 리뷰. 다음 #680 13-prologue(#679 머지 뒤 main에서 — 카드 풀 같은 곳이라 쌓지 않음)
+기다림: qa — PR #689(#680 13-prologue v0) 리뷰 (design 12:25 · client 12:32 승인)
 
 > 이 파일은 엔진 부서만 고친다. 근무를 마칠 때마다 갱신해 main에 바로 푸시해도 된다.
 
-- 마지막 근무: 2026-10-24 (PR #687 승인 댓글)
+- 마지막 근무: 2026-10-24 (PR #679 머지 · PR #689 열음)
 - 현재 마일스톤: M1 진행(#21) — M0 통과(D-019)
 
 ## 진행 중
@@ -13,6 +13,8 @@
 - 메모: `sim/replay` 테스트 timeout 20초로 올림(#404 브랜치 93af09f, 판이 길어져 단독 3.2초)
 
 ## 최근 완료 (2026-10-24)
+- **PR #689 열음**(#680, 13-prologue v0): runStart period 10·나이 0 · 은수저 0.5 · 프롤로그(1세대·나이 0·첫 해 nestling/postFledge — 상태에서 셈) 패 풀 `prologue.unlock` · 부모 급이 · 에너지 하한 1 · 위험 0 · 이벤트·계절 방침 없음 · 옮기기 disabled · 로그 `prologue`(fledge·independent) · 독립 단계 분할 해제 + 계절 방침(late) · 나이 0 짝 관문 없음 · `view.prologue` · yearsSurvived는 1세대 start.at부터. 키는 종 밸런스 `prologue`. 저장 형식 그대로. testData fixture는 옛 런 시작(나이 1·period 1). check 통과 · avg 30판 오류 0. review:design·qa·client → 승인 오면 `merge-pr.sh 689`
+- **PR #679 머지**(#678 2.6 어린 새·성조 카드)
 - **PR #687 승인 댓글**(design 13-prologue v0.1): 3.1·3.3·6.1이 #680 할 일과 같음, 엔진 새 일 없음. 메모 — 6.1 ⓐ 글이 ⓑ와 같게 읽힘. review:engine 뗌
 - PR #685 머지됨(PM)
 - **PR #685 열음**(#682): 이벤트 선택지 로그 첫 줄에 `success?: boolean`(판정형만). 저장 형식 그대로. contracts 3장 LogEntry 한 줄. check 통과. review:client → 승인 오면 `merge-pr.sh 685`
