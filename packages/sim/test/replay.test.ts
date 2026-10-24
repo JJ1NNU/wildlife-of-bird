@@ -32,5 +32,5 @@ describe('판 기록 리플레이 (test-strategy T1 · T3)', () => {
     expect(decisions).toBeLessThan(choices.length);
     expect(result.decisionsByYear).toHaveLength(result.endAt.year);
     expect(result.deathCause).not.toBeNull();
-  });
+  }, 20_000); // 한 판 — 프롤로그(#680)로 판 앞 단계가 늘었다
 });
