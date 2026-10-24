@@ -90,6 +90,8 @@ export interface LogEntry {
   cause?: string;
   /** 칸 판정 로그면 그 단계의 몇째 칸 (1부터) */
   slot?: number;
+  /** 칸 판정 로그면 고른 선택 id — 다음 단계 패의 성조 보너스 `nextHand`를 센다 (12-card-turn 2.6) */
+  choice?: string;
   /** 이벤트 로그면 이벤트 id */
   event?: string;
   /** 이벤트 선택지 줄이면 판정 성공 여부 — 판정형 선택지일 때만 (#682) */

@@ -2,11 +2,18 @@ import type { Cards, GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
 import { drawHand, handSize } from '../src/cards.ts';
 import type { RunState } from '../src/index.ts';
-import { act, getChoices, getView, newRun, seedFromString } from '../src/index.ts';
-import { testData } from './fixture.ts';
+import { act, getChoices, getView, newRun, preview, seedFromString } from '../src/index.ts';
+import { actStep, testData } from './fixture.ts';
 
 const cards = testData.cards;
-const at = { slots: 6, expYears: 0, node: 'forest-edge', season: 'winter' } as const;
+const at = {
+  slots: 6,
+  expYears: 0,
+  node: 'forest-edge',
+  season: 'winter',
+  juvenile: false,
+  extra: 0,
+} as const;
 
 describe('나오는 장수 (12-card-turn 2.2 예시)', () => {
   it('평시 6칸 · 경험 0년 → 7장', () => expect(handSize(cards, 6, 0)).toBe(7));
@@ -90,5 +97,44 @@ describe('패로 칸 고르기 (11장 v1)', () => {
     // 화면 막대 = 같은 합 (쉬기는 0)
     const rested = act(s, 'action.rest', tight).state;
     expect(getView(rested, tight).routine?.budget).toEqual({ spent: 2, limit: 2 });
+  });
+});
+
+describe('어린 새와 성조 (2.6)', () => {
+  const start = newRun({ speciesId: 'parus-minor', seed: 'adult', mode: 'free' }, testData);
+  const young = { ...start, player: { ...start.player, age: 0 } };
+  const total = (s: RunState, data: GameData) =>
+    Object.values(getView(s, data).routine?.hand ?? {}).reduce((a, n) => a + (n ?? 0), 0);
+
+  it('어린 새의 패는 juvenile 카드만', () => {
+    const juvenile = Object.entries(cards.pool)
+      .filter(([, card]) => card?.juvenile)
+      .map(([id]) => id);
+    expect(juvenile.sort()).toEqual(
+      ['forage', 'social', 'train-flight', 'train-foraging', 'train-vigilance'].sort(),
+    );
+    const hand = Object.keys(getView(young, testData).routine?.hand ?? {});
+    expect(hand.length).toBeGreaterThan(0);
+    expect(hand.every((id) => juvenile.includes(id))).toBe(true);
+  });
+
+  it('성조 보너스는 성조에게만 — 채식 섭취 ×1.2, 비행 연습에 체력 +', () => {
+    const energy = (s: RunState) => preview(s, 'action.forage', testData).energyDelta[0] ?? 0;
+    expect(energy(start)).toBeGreaterThan(energy(young));
+    const stamina = (s: RunState) =>
+      preview(s, 'action.train.flight', testData).statGains?.stamina ?? 0;
+    expect(stamina(start)).toBeGreaterThan(0);
+    expect(stamina(young)).toBe(0);
+  });
+
+  it('살피기 성조 보너스: 다음 단계 패만 +1장', () => {
+    const data: GameData = {
+      ...testData,
+      cards: { ...cards, pool: { explore: { weight: 1, adult: { nextHand: 1 } } } },
+    };
+    const plain = total(start, data);
+    const scouted = actStep(start, 'action.explore', data).state;
+    expect(total(scouted, data)).toBe(plain + 1);
+    expect(total(actStep(scouted, 'action.rest', data).state, data)).toBe(plain);
   });
 });
