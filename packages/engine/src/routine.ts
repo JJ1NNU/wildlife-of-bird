@@ -1,4 +1,5 @@
 import type { CardId, GameData, GameEvent, StatName } from '@wb/schema';
+import { advance } from './calendar.ts';
 import { cardCost, cardOf, drawHand, type Hand } from './cards.ts';
 import { drawStepEvent } from './events.ts';
 import { seasonOf } from './formulas.ts';
@@ -37,9 +38,29 @@ export function stepHand(state: RunState, data: GameData): Hand {
     expYears: state.player.expYears,
     node: state.node,
     season: seasonOf(speciesBalance(data, speciesId), period),
+    juvenile: state.player.age === 0,
+    extra: nextHandBonus(state, data),
   };
   const rng = seedFromString(`${speciesId}:${seed}:hand:${year}.${period}.${step}`);
   return drawHand(data.cards, at, rng).hand;
+}
+
+/**
+ * 바로 전 단계 칸에서 쓴 카드의 성조 보너스 `nextHand` 최댓값 (12-card-turn 2.6 살피기).
+ * 칸 로그의 `choice`로 센다 — 이벤트로 멈췄다 다시 채운 칸도 같은 단계라 함께 세고, 그다음 단계까지만 간다
+ */
+function nextHandBonus(state: RunState, data: GameData): number {
+  const same = (a: LogEntry['at'], b: LogEntry['at']) =>
+    a.year === b.year && a.period === b.period && a.step === b.step;
+  let extra = 0;
+  for (let i = state.log.length - 1; i >= 0; i--) {
+    const e = state.log[i] as LogEntry;
+    if (same(e.at, state.at)) continue;
+    if (!same(advance(e.at, state.calendar), state.at)) break;
+    const card = e.type === 'slot' && e.choice ? cardOf(e.choice) : undefined;
+    extra = Math.max(extra, (card && data.cards.pool[card]?.adult?.nextHand) || 0);
+  }
+  return extra;
 }
 
 /** 늘 있는 카드 — 옮기기와 함께 패에 없어도 고를 수 있다 (2.3). 패에 있으면 패의 것을 먼저 쓴다 */
@@ -218,7 +239,14 @@ export function runRoutine(
     labels.push(label);
     const out = judgeStep(s, id, data, n);
     const slot = done + i + 1;
-    slots.push({ at: state.at, type: 'slot', slot, text: label, deltas: deltas(s.player, out) });
+    slots.push({
+      at: state.at,
+      type: 'slot',
+      slot,
+      text: label,
+      choice: id,
+      deltas: deltas(s.player, out),
+    });
     s = {
       ...s,
       node: out.node,

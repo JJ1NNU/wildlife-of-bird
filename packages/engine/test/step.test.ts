@@ -13,9 +13,16 @@ const start = newRun({ speciesId: 'parus-minor', seed: 'step', mode: 'free' }, t
 const edge = testData.nodes.get('forest-edge');
 if (!edge) throw new Error('data/nodes/forest-edge.json 이 없다');
 const tiers = { food: 'medium', risk: 'medium', competition: 'low' } as const;
-// 3.1 예시는 6칸 기준이다 — 예시 스탯 합(약 323)이 칸 수 문턱(9.6)을 넘으므로 여기서는 끈다
+// 3.1 예시는 6칸 기준이다 — 예시 스탯 합(약 323)이 칸 수 문턱(9.6)을 넘으므로 여기서는 끈다.
+// 성조 보너스(12-card-turn 2.6)도 끈다 — 3.1 예시가 보너스 전 값으로 계산돼 있다
 const data: GameData = {
   ...testData,
+  cards: {
+    ...testData.cards,
+    pool: Object.fromEntries(
+      Object.entries(testData.cards.pool).map(([id, { adult: _, ...card }]) => [id, card]),
+    ),
+  },
   formulas: {
     ...testData.formulas,
     routine: { ...testData.formulas.routine, extraSlotRatios: [] },
