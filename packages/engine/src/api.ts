@@ -35,6 +35,8 @@ import {
   makeCandidates,
   mateCards,
   mateChoices,
+  mateReopenDue,
+  mateSearches,
   mateYear,
   potentialRange,
 } from './mate.ts';
@@ -136,7 +138,7 @@ export function newRun(config: RunConfig, data: GameData): RunState {
 export function getChoices(state: RunState, data: GameData): Choice[] {
   if (state.gameOver) return [];
   if (state.gate?.kind === 'seasonPolicy') return seasonChoices(state, data);
-  if (state.gate?.kind === 'mateCandidate') return mateChoices(state.gate.candidates);
+  if (state.gate?.kind === 'mateCandidate') return mateChoices(state, state.gate.candidates);
   if (state.gate?.kind === 'mateOrder') return orderChoices(state, data, state.gate.options);
   if (state.gate?.kind === 'nestSite') return nestChoices(state.gate.holes);
   if (state.gate?.kind === 'clutchSize') return clutchChoices(state.gate.options);
@@ -201,6 +203,11 @@ export function preview(state: RunState, choiceId: string, data: GameData): Prev
   if (state.gate?.kind === 'seasonPolicy') return seasonPreview(state, choiceId, data);
   // 관문 고르기는 판정이 없다 — 위험·에너지 변화 없음. 짝 지시는 화면용 수락률(2.5)
   if (state.gate) {
+    // 더 찾아보기: 에너지 −searchEnergy (04-breeding 2.7)
+    if (choiceId === 'mateCandidate.search') {
+      const cost = -Math.min(state.player.energy, data.breeding.mate.searchEnergy);
+      return { deathRisk: 0, energyDelta: [cost, cost], notes: [] };
+    }
     const p =
       state.gate.kind === 'mateOrder' ? orderAcceptance(state, data, choiceId, true) : undefined;
     // S-22: 고를 방침을 걸었을 때의 이소 기대 수·내 번식 비용(04-breeding 6.4)
@@ -397,13 +404,20 @@ function endGates(state: RunState, done: RunState, log: LogEntry[], data: GameDa
       gate: { kind: 'mateCandidate', candidates },
       log: [...state.log, ...log],
     };
-    // 받아들이는 카드가 1장뿐이면 자동 진행 — 결정으로 세지 않는다(04-breeding 2.2)
-    const accepted = candidates.flatMap((c, i) => (c.accepts ? [i] : []));
-    if (accepted.length === 1) {
-      const picked = pickMate(opened, `mateCandidate.${(accepted[0] ?? 0) + 1}`, data);
-      return { state: picked.state, log: [...log, ...picked.log] };
-    }
     return { state: opened, log };
+  }
+  // 더 찾아본 다음 단계: 새 후보로 다시 연다 — 번식기 시작·이혼은 첫 단계에만 (04-breeding 2.7)
+  if (mateReopenDue({ ...survived, log: state.log })) {
+    const { rng, candidates } = makeCandidates({ ...survived, log: state.log }, data);
+    return {
+      state: {
+        ...survived,
+        rng,
+        gate: { kind: 'mateCandidate', candidates },
+        log: [...state.log, ...log],
+      },
+      log,
+    };
   }
   if (seasonDue(survived, data)) {
     return {
@@ -564,6 +578,8 @@ function pickClutch(state: RunState, choiceId: string, data: GameData): ActResul
 
 /** 짝 후보 관문을 닫고 다음 단계로 간다 (04-breeding 2.2) */
 function pickMate(state: RunState, choiceId: string, data: GameData): ActResult {
+  if (choiceId === 'mateCandidate.search' || choiceId === 'mateCandidate.skip')
+    return passMate(state, choiceId, data);
   const index = Number(choiceId.split('.')[1]) - 1;
   const c = state.gate?.kind === 'mateCandidate' ? state.gate.candidates[index] : undefined;
   if (!c) throw new Error(`없는 짝 후보다: ${choiceId}`);
@@ -579,12 +595,39 @@ function pickMate(state: RunState, choiceId: string, data: GameData): ActResult 
     type: 'mate',
     text: previous ? '지난 짝과 다시 맺었다' : '짝을 맺었다',
   };
-  // 짝 후보 다음에 계절 방침 — 짝이 있어야 나오는 방침이 있다 (11-season-policy 1.1)
-  if (seasonDue({ ...closed, mate }, data)) {
-    const opened: RunState = { ...closed, mate, gate: { kind: 'seasonPolicy' } };
+  // 더 찾아본 뒤 늦게 맺었으면 이 단계에 (2.7)
+  return afterMate(state, { ...closed, mate }, made, mateSearches(state) > 0, data);
+}
+
+/** 고르지 않기 — 더 찾아보기(에너지 −searchEnergy) · 올해 번식 포기. 지난 짝 카드는 떠난다 (04-breeding 2.7) */
+function passMate(state: RunState, choiceId: string, data: GameData): ActResult {
+  const { gate: _g, mateGone: _gone, mate: _m, ...closed } = state;
+  const search = choiceId === 'mateCandidate.search';
+  const cost = search ? Math.min(closed.player.energy, data.breeding.mate.searchEnergy) : 0;
+  const made: LogEntry = {
+    at: state.at,
+    type: 'mate',
+    text: search ? '짝을 더 찾아보기로 했다' : '올해는 번식하지 않기로 했다',
+    cause: search ? 'mateSearch' : 'mateSkip',
+    ...(search ? { deltas: { energy: -cost } } : {}),
+  };
+  const player = { ...closed.player, energy: closed.player.energy - cost };
+  return afterMate(state, { ...closed, player }, made, false, data);
+}
+
+/** 짝 후보 관문 다음: 계절 방침 — 짝이 있어야 나오는 방침이 있다 (11-season-policy 1.1). 없으면 다음 단계로 */
+function afterMate(
+  state: RunState,
+  closed: RunState,
+  made: LogEntry,
+  late: boolean,
+  data: GameData,
+): ActResult {
+  if (seasonDue(closed, data, late)) {
+    const opened: RunState = { ...closed, gate: { kind: 'seasonPolicy' } };
     return { state: { ...opened, log: [...state.log, made] }, log: [made] };
   }
-  const next = nextStep({ ...closed, mate }, data);
+  const next = nextStep(closed, data);
   const log: LogEntry[] = [made, ...next.log];
   return { state: { ...next.state, log: [...state.log, ...log] }, log };
 }

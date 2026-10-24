@@ -1,5 +1,5 @@
 import type { Formulas, GameData, Phase, StatName } from '@wb/schema';
-import { phaseAt } from './calendar.ts';
+import { advance, phaseAt } from './calendar.ts';
 import { statGrade } from './formulas.ts';
 import type { RngState } from './rng.ts';
 import { nextChance, nextInt, nextNormal } from './rng.ts';
@@ -72,6 +72,29 @@ export function divorce(state: RunState, data: GameData): { state: RunState; log
   };
 }
 
+/** 올해 `cause`가 같은 짝 로그들 — 더 찾아보기·포기는 로그로 센다(저장 형식 그대로, 2.7) */
+function mateLogs(state: RunState, cause: 'mateSearch' | 'mateSkip'): LogEntry[] {
+  return state.log.filter(
+    (e) => e.type === 'mate' && e.cause === cause && e.at.year === state.at.year,
+  );
+}
+
+/** 올해 더 찾아본 횟수 (2.7) */
+export function mateSearches(state: RunState): number {
+  return mateLogs(state, 'mateSearch').length;
+}
+
+/**
+ * 더 찾아본 다음 단계 흐름 끝에 짝 후보 관문을 다시 연다 (2.7). 올해 포기했으면 열지 않는다.
+ * 이 단계에 더 찾아보기를 고른 뒤(계절 방침을 고르고 다시 들어온 때)에도 열지 않는다
+ */
+export function mateReopenDue(state: RunState): boolean {
+  const searched = mateLogs(state, 'mateSearch').at(-1);
+  if (!searched || state.mate || mateLogs(state, 'mateSkip').length > 0) return false;
+  const here = searched.at.period === state.at.period && searched.at.step === state.at.step;
+  return !here && phaseAt(state.calendar, state.at) === 'pairing';
+}
+
 /** 지난 짝 카드 — 늘 받아들이고, 성격은 이미 확인돼 있어 힌트가 맞다 (2.2) */
 function previousCard(mate: Mate): MateCandidate {
   const values = Object.values(mate.potential);
@@ -97,6 +120,8 @@ export function makeCandidates(
   const m = data.breeding.mate;
   const h = f.heredity;
   const species = speciesBalance(data, state.config.speciesId);
+  // 더 찾아볼 때마다 새 후보 잠재력 평균이 내려간다 (2.7)
+  const drop = mateSearches(state) * m.searchPotentialDrop;
   let rng = state.rng;
   const candidates: MateCandidate[] = [];
   for (let i = 0; i < m.candidates; i += 1) {
@@ -106,7 +131,7 @@ export function makeCandidates(
       const z = nextNormal(rng);
       rng = z.state;
       const p = clamp(
-        (f.stats.aptitudeMean[grade] ?? 0) + z.value * m.candidatePotentialSd,
+        (f.stats.aptitudeMean[grade] ?? 0) - drop + z.value * m.candidatePotentialSd,
         h.potentialMin,
         h.potentialMax,
       );
@@ -162,14 +187,28 @@ export function mateAccepts(
   return qualities.map((q) => q === lowest || attract >= q - m.reachMargin);
 }
 
-/** 관문 선택지. 받아들이지 않는 카드는 `disabled` */
-export function mateChoices(candidates: MateCandidate[]): Choice[] {
-  return candidates.map((c, i) => ({
-    id: `mateCandidate.${i + 1}`,
-    kind: 'mateCandidate',
-    label: `후보 ${i + 1}`,
-    ...(c.accepts ? {} : { disabled: { reason: '노래 더 필요함' } }),
-  }));
+/**
+ * 관문 선택지. 받아들이지 않는 카드는 `disabled`. 카드 뒤에 더 찾아보기 · 올해 번식 포기가 늘 있다 (2.7) —
+ * 더 찾아보기는 다음 단계가 `pairing`일 때만
+ */
+export function mateChoices(state: RunState, candidates: MateCandidate[]): Choice[] {
+  const kind = 'mateCandidate' as const;
+  const nextPairing = phaseAt(state.calendar, advance(state.at, state.calendar)) === 'pairing';
+  return [
+    ...candidates.map((c, i) => ({
+      id: `mateCandidate.${i + 1}`,
+      kind,
+      label: `후보 ${i + 1}`,
+      ...(c.accepts ? {} : { disabled: { reason: '노래 더 필요함' } }),
+    })),
+    {
+      id: 'mateCandidate.search',
+      kind,
+      label: '더 찾아보기',
+      ...(nextPairing ? {} : { disabled: { reason: '짝 찾기 시기가 끝난다' } }),
+    },
+    { id: 'mateCandidate.skip', kind, label: '올해 번식 포기' },
+  ];
 }
 
 /** 잠재력 등급 범위 [아래, 위] — 05-inheritance 4장 */
