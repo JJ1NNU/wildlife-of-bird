@@ -1,6 +1,6 @@
 # 05 · 런 시작 개체 · 새끼 · 계승
 
-- 버전: v0 (2026-10-05, #22)
+- 버전: v0.1 (2026-10-24, #644 — **잠정(#672)**: 2장 런 시작 개체를 프롤로그 시작(나이 0, `period 10`)으로) · v0 (2026-10-05, #22)
 - 소유: 게임디자인 / 구현: 엔진 / 검증: QA
 - 기준: 기획서 `gdd.md` 4.1 · 5.3 · 5.4 · 7.4, `00-core-loop` 6장 · B-4 · B-7, `01-formulas` 5 · 6장, `02-scoring`
 - 숫자: `data/balance/formulas.json`(`heredity` · `silverSpoon` · `energy` · `feather`), `data/balance/breeding.json`(`mate`), `data/balance/species/parus-minor.json`
@@ -22,32 +22,34 @@
 
 ## 2. 런 시작 개체 — 화면 S-03
 
-모든 종은 '첫 번식기를 앞둔 젊은 성조'로 시작한다(gdd 4.1). 박새: `species.runStart`(나이 1, `period 1`, 장소 `forest-edge`).
+박새는 **알에서 깨어난 새끼**로 시작한다 — 독립까지 프롤로그(`13-prologue`, 대표 결정 #644). 박새: `species.runStart`(나이 0, 1년 차 `period 10` 첫 단계, 장소 `forest-edge`). 다른 종은 그 종을 넣을 때 정한다(`13-prologue` 7장).
 
 | 항목 | 값 |
 |---|---|
 | 성별 | **플레이어가 고른다**(S-03, ♀ / ♂). `RunConfig.startSex`. 결정 예산(`00-core-loop` 5장)에는 넣지 않는다 — 런마다 1번 |
 | 잠재력[s] | `stats.aptitudeMean[species.aptitude[s]]` — **종 평균 그대로**. 난수 없음 |
-| 현재값[s] | `잠재력[s] × mate.candidateCurrentRatio` — 보통 품질의 새 짝 후보(`04-breeding` 2.2)와 같은 규칙 |
-| 경험 연수 | `species.runStart.age` (짝 후보와 같은 셈) |
+| 은수저 지수 | `prologue.silverSpoonIndex` **0.5** 고정(잠정 #644 — 보통 둥지의 새끼). 계승한 새끼와 같은 식에 넣는다: 시작 스탯·성장 배율 `01-formulas` 6.2, 첫해 보정 6.3 |
+| 현재값[s] | `잠재력[s] × (silverSpoon.startStatBase + silverSpoon.startStatPerIndex × 0.5)` — 학습 보너스 0 |
+| 경험 연수 | 0 |
 | 에너지 | 지방 상한(`01-formulas` 2.1) × `energy.runStartRatio` |
 | 깃털 | `feather.runStart` |
 | 짝 · 부상 | 없음. 첫 짝은 `pairing` 첫 단계의 짝 후보 관문에서 |
 
-- **왜 종 평균인가**: 같은 시드면 같은 출발이어야 리더보드가 공정하다(gdd 11.4). 계보를 강하게 만드는 것은 짝 고르기와 새끼 고르기다(gdd 5.4). 출발 개체에 난수를 넣으면 '좋은 시작 다시 뽑기'가 생긴다.
+- **왜 종 평균 + 고정 지수인가**: 같은 시드면 같은 출발이어야 리더보드가 공정하다(gdd 11.4). 부모는 화면에 나오지 않는 NPC다 — '좋은 부모 다시 뽑기'를 만들지 않는다. 계보를 강하게 만드는 것은 짝 고르기와 새끼 고르기다(gdd 5.4). 출발 개체에 난수를 넣으면 '좋은 시작 다시 뽑기'가 생긴다.
 - **왜 성별을 고르게 하나**: 박새는 암수의 일이 다르다 — 암컷은 산란 비용·포란을 지고, 수컷은 둥지 자리 경쟁(`patrol`)과 짝 먹여 주기(`feedMate`)를 한다(`04-breeding` 3장). 같은 종을 두 방식으로 해 볼 수 있는 것이 다시 할 이유가 된다. 계승 뒤의 성별은 고른 새끼의 성별이다.
 - S-03 화면: 성별 2개 + 성별마다 한 줄 설명(문구는 콘텐츠), 스탯 6개의 현재 등급 / 잠재력 등급 범위(4장).
 
-| 예시 (박새) | 잠재력 | 현재값 | 화면 (현재 / 잠재력) |
+| 예시 (박새, 잠재력의 35%) | 잠재력 | 현재값 | 화면 (현재 / 잠재력) |
 |---|---|---|---|
-| 비행 (적성 C) | 46 | 39.1 | E / D~C |
-| 채식 (A) | 70 | 59.5 | C / B~A |
-| 경계 (A) | 70 | 59.5 | C / B~A |
-| 체력 (D) | 34 | 28.9 | F / F~E |
-| 과시 (B) | 58 | 49.3 | D / C~B |
-| 사회 (A) | 70 | 59.5 | C / B~A |
+| 비행 (적성 C) | 46 | 16.1 | G / D~C |
+| 채식 (A) | 70 | 24.5 | F / B~A |
+| 경계 (A) | 70 | 24.5 | F / B~A |
+| 체력 (D) | 34 | 11.9 | G / F~E |
+| 과시 (B) | 58 | 20.3 | F / C~B |
+| 사회 (A) | 70 | 24.5 | F / B~A |
 
-- 지방 상한 `50 + 0.5 × 28.9` = 64.45 → 에너지 **45.12**. 깃털 **80**. 경험 **1**.
+- 지방 상한 `50 + 0.5 × 11.9` = 55.95 → 에너지 **55.95**(`energy.runStartRatio` 1). 깃털 **80**. 경험 **0**. 프롤로그 동안 부모 급이·위험 0(`13-prologue` 3장)으로 독립 때까지 스탯을 키운다.
+- v0의 성조 시작(나이 1, `period 1`, 현재값 = 잠재력 × `mate.candidateCurrentRatio`)은 엔진 후속(`13-prologue` 8장)이 머지될 때까지 지금 코드의 동작이다.
 
 ---
 
@@ -234,7 +236,7 @@
 |---|---|---|
 | `heredity.femaleShare` | 0.5 | **새 키** — 스키마에 더해야 한다 (잠정 #22, 엔진 이슈) |
 | `heredity.rangeWithin` | 5 | **새 키** — 같음 |
-| 그 밖 | `mate.candidateCurrentRatio` · `energy.runStartRatio` · `energy.inheritStartRatio` · `feather.runStart` · `silverSpoon.*` · `species.runStart` | 이미 있는 키 |
+| 그 밖 | `prologue.silverSpoonIndex`(새 키, `13-prologue` 8장) · `mate.candidateCurrentRatio` · `energy.runStartRatio` · `energy.inheritStartRatio` · `feather.runStart` · `silverSpoon.*` · `species.runStart` | 이미 있는 키 |
 
 ## 12. 남은 것
 
