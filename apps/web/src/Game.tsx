@@ -422,7 +422,7 @@ export function Game({ data }: { data: GameData }) {
     option: string;
     lines: string[];
     /** 판정형 선택지면 성공 여부 — 첫 결과 줄 앞에 굵게 (#682) */
-    success?: boolean;
+    success?: boolean | undefined;
   }>();
   /** S-24: 새끼를 고르고 결정을 누르면 확인 시트를 한 번 더 (docs/ux/screens.md 3장) */
   const [confirming, setConfirming] = useState(false);
