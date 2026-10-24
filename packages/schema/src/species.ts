@@ -160,6 +160,23 @@ export const SpeciesBalance = z
         node: z.string().min(1),
       })
       .strict(),
+    /** 프롤로그 — 런 시작 개체가 부화부터 독립까지 (`13-prologue` 3장) */
+    prologue: z
+      .object({
+        /** 런 시작 개체의 은수저 지수 — 계승한 새끼와 같은 식(01-formulas 6.2·6.3)에 넣는다 */
+        silverSpoonIndex: z.number().nonnegative(),
+        /** 부모 급이 = 그 단계 기초 소비 × 이 값. `nest` = P-1 둥지 안, `fledge` = P-2 부모 돌봄 */
+        parentFeed: z
+          .object({ nest: z.number().nonnegative(), fledge: z.number().nonnegative() })
+          .strict(),
+        /** 프롤로그 몇째 단계(1부터)부터 패 풀에 더하는 카드(누적). 카드 id는 검증기가 확인한다 */
+        unlock: z.array(
+          z
+            .object({ step: z.number().int().positive(), cards: z.array(z.string().min(1)) })
+            .strict(),
+        ),
+      })
+      .strict(),
     /** 계절 → 시기 목록. 1~24가 정확히 한 번씩 */
     seasons: z.record(Season, z.array(Period).min(1)).superRefine((seasons, ctx) => {
       const seen = new Map<number, string>();

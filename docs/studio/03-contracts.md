@@ -125,6 +125,7 @@ interface ViewModel {
   potentialRange: { [stat]: [아래, 위] }  // 플레이어 잠재력 등급 범위 — 숫자 대신 이것을 보인다 (05-inheritance 4장)
   totalBreeding: number          // 점수
   gameOver: boolean
+  prologue?: 'nest' | 'fledge'  // 프롤로그 구간일 때만 — P-1 둥지 안 · P-2 부모 돌봄(13-prologue 2장). 그 동안 위험 0 · 옮기기 disabled(reason)
   records?: { yearsSurvived, generations, fledged, oldestAge }  // 게임 오버 때만 — 부가 기록(02-scoring 4장). yearsSurvived = 지난 시기 ÷ 24 소수 첫째 버림
   agingRisk?: number            // 게임 오버 때만 — 죽은 개체의 노화 위험(01-formulas 4.1, S-24 stay 카드와 같은 함수). > 0이면 노화 구간
   gate?: { kind: 'mateCandidate', cards: MateCandidateCard[], previousGone?: 'mateDeath' | 'divorce' }  // 열린 관문 — 짝 후보(S-20). previousGone = 지난 짝이 없어진 이유(2.1)
@@ -227,7 +228,8 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 - **판 기록**(JSONL, 판 하나 = 한 줄): `config` · `bot {id, version}` · `gameVersion` · `commit` · `choices`(선택 id 순서) · `result {totalBreeding, gameOver, endAt}` · `error`(null 또는 `{message, at, stack}`) · `finalStateHash`(`serialize` 결과의 SHA-256) · `log`.
 - `replay`는 `config` + `choices`를 다시 재생한다. `resumeAt = k`면 k번째 선택 앞에서 `serialize` → `deserialize`로 끊었다 이어 간다. 명령은 `CLAUDE.md` "시뮬레이션 실행".
 - 지표용 로그 종류(`decision` `breedingSeason` `breeding` `inheritance` `death` `event`, #33 4절)는 그 규칙을 구현할 때(M1, #21) 더한다.
-  - `breedingSeason`: `pairing` 첫 단계(관문 직전)에 1건, `deltas.breedable` = 1(번식 가능)·0. 박새는 늘 1(런 시작 1살 · 계승 개체도 이때 1살 이상) — 지표 M-05
+  - `breedingSeason`: `pairing` 첫 단계(관문 직전)에 1건, `deltas.breedable` = 1(번식 가능)·0. 박새는 늘 1(나이 0은 번식 관문이 없고, 박새는 다음 해 `pairing`에 1살) — 지표 M-05
+  - `prologue`: 프롤로그 구간 마지막 단계 끝에 1건 — `cause` `fledge`(P-1 끝, 이소) · `independent`(P-2 끝, 독립 = 프롤로그 끝, 13-prologue 2장)
   - `breeding`: 둥지를 지을 때 **시도** 1건 `deltas.attempt` = 그해 몇째 둥지(1 = 1차 — 지표 M-13), 독립 때 **성공** 1건 `deltas.totalBreeding: 1`·`fledged`. 둘은 `deltas`로 가른다
 
 ### 구현 상태 (M1 진행 중, #21)
@@ -235,7 +237,8 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
 - 잠정(#21): 지난 짝의 생존·이혼·재결합 카드(04-breeding 2.1)는 종 키(`mateYearSurvival`·`divorce`)가 생기면 — 그 전에는 해마다 새 후보만 나오고 고르면 짝이 바뀐다.
 - **짝 지시 관문**(04-breeding 3장 — 수락·거절 f·유대·성격 확인·짝 r·상호성은 `feedMate` 단계만). 효과: `patrol`(경쟁 확률) · `courtshipFeed`·`incubationFeed`(소비에서 뺌) · `feedMate`(소비 +) · `splitBrood`(새끼 사망). 잠정(#21): `guardNest`·`feedHigh`는 걸어 두기만 — 둥지 손실·은수저 조각에서.
 - 아직 없음: 1차 성공 뒤 2차 번식 관문 · 둥지 손실 · 은수저 · 계승 · 점수 · 이벤트 · 환경 카드.
-- 런 시작 개체의 잠재력 = 종 평균(`stats.aptitudeMean`), 현재값 = 잠재력 × `mate.candidateCurrentRatio`, 경험 연수 = `runStart.age`(05-inheritance 2장, #152). 잠정(#21): 런 시작 개체의 성장 배율 1.
+- 런 시작 개체(13-prologue 3.4, #680): `runStart`(박새 `period 10`·나이 0)에서 시작. 잠재력 = 종 평균(`stats.aptitudeMean`), `Bird.silverSpoon` = 종 밸런스 `prologue.silverSpoonIndex` — 시작 스탯·성장 배율·첫해 보정이 계승한 새끼와 같은 식. 경험 연수 = `runStart.age`.
+- **프롤로그**(13-prologue 3장): 1세대·나이 0·생애를 시작한 해의 `nestling`·`postFledge` 단계(상태에서 셈, 저장 형식 그대로). 패 풀 = 종 밸런스 `prologue.unlock`(프롤로그 몇째 단계부터, 누적) · 판정 1 섭취에 부모 급이 = 기초 소비 × `prologue.parentFeed[nest|fledge]` · 아사 대신 에너지 하한 1 · 위험 0 · 이벤트·계절 방침 관문 없음 · 옮기기 disabled. 독립한 단계의 흐름 끝에 분할 해제, 계절 방침 관문(`late` 규칙). `records.yearsSurvived`는 1세대 생애 `start.at`부터 센다.
 
 ---
 

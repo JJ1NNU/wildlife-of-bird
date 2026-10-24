@@ -1,5 +1,6 @@
 import type { GameData, Season, SeasonPolicyEffect } from '@wb/schema';
 import { seasonOf } from './formulas.ts';
+import { prologueStage } from './prologue.ts';
 import { speciesBalance } from './step.ts';
 import type { Choice, LogEntry, RunState, SeasonPolicyCard } from './types.ts';
 
@@ -35,8 +36,10 @@ export function seasonEffect(state: RunState, data: GameData): SeasonPolicyEffec
 }
 
 /** 관문이 열리는가 — 계절 첫 시기의 첫 단계이고 이 계절 방침을 아직 고르지 않았고, 나오는 방침이 2개 이상이다(1.1).
- * `late`: 더 찾아본 뒤 늦게 짝을 맺은 단계 — 첫 단계 조건 없이(04-breeding 2.7) */
+ * `late`: 더 찾아본 뒤 늦게 짝을 맺은 단계·프롤로그에서 독립한 단계 — 첫 단계 조건 없이(04-breeding 2.7, 13-prologue 3.3).
+ * 프롤로그 동안은 열지 않는다 */
 export function seasonDue(state: RunState, data: GameData, late = false): boolean {
+  if (!late && prologueStage(state)) return false;
   const season = seasonNow(state, data);
   const first = speciesBalance(data, state.config.speciesId).seasons[season][0];
   return (

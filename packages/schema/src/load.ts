@@ -2,7 +2,7 @@ import './locale.ts';
 import type { z } from 'zod';
 import { Breeding } from './breeding.ts';
 import { Calendar, calendarPhases } from './calendar.ts';
-import { Cards } from './cards.ts';
+import { CardId, Cards } from './cards.ts';
 import { CodexEntry } from './codex.ts';
 import { EffectsTable } from './effects.ts';
 import type { GameEvent } from './events.ts';
@@ -146,6 +146,18 @@ export function loadGameData(raw: RawGameData): { data?: GameData; issues: DataI
       continue;
     }
     checkSpeciesPhases(species, calendarPhases(cal), file, issues);
+  }
+  for (const [speciesId, species] of balance) {
+    for (const [i, u] of species.prologue.unlock.entries()) {
+      for (const [j, card] of u.cards.entries()) {
+        if (CardId.safeParse(card).success) continue;
+        issues.push({
+          file: balanceFile.get(speciesId) ?? 'data/balance/species',
+          at: `prologue.unlock[${i}].cards[${j}]`,
+          reason: `없는 카드다: ${card}`,
+        });
+      }
+    }
   }
 
   const nodes = loadNodes(raw.nodes, ecology, issues);
