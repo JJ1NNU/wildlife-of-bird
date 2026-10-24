@@ -26,6 +26,22 @@ const PoolCard = z
     seasonMult: z.partialRecord(Season, positive).optional(),
     /** 카드 비용 — 단계 예산과 실제 소비 (3.1). 없으면 `actions.<행동>.cost` */
     cost: z.number().finite().nonnegative().optional(),
+    /** 어린 새(나이 0)도 뽑는 카드 (2.6). 없으면 성조만 */
+    juvenile: z.literal(true).optional(),
+    /** 성조 보너스 (2.6) — 어린 새에게는 없다 */
+    adult: z
+      .object({
+        /** 그 칸의 `actions.<행동>.intakeMult`를 바꾼다 */
+        intakeMult: z.number().finite().nonnegative().optional(),
+        /** 그 칸의 `actions.<행동>.riskMult`를 바꾼다 */
+        riskMult: z.number().finite().nonnegative().optional(),
+        /** 행동의 기본 성장(`actions.<행동>.gain`)에 더한다 */
+        gain: z.partialRecord(StatName, positive).optional(),
+        /** 쓴 다음 단계 패 장수 + (같은 단계에 여러 장 써도 최댓값 하나) */
+        nextHand: z.number().int().positive().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type PoolCard = z.infer<typeof PoolCard>;

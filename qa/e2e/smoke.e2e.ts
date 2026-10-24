@@ -8,11 +8,11 @@ import { expect, type Page, test } from '@playwright/test';
  */
 const FIXED_TIME = Date.UTC(2026, 0, 1);
 
-/** 사람처럼 한 번 누른다: 팁은 닫고, 다시 보기는 넘기고, 관문은 첫 선택지, 빈 칸은 채식 */
+/** 사람처럼 한 번 누른다: 팁은 닫고, 다시 보기·이벤트 결과는 넘기고, 관문은 첫 선택지, 빈 칸은 채식 */
 async function press(page: Page) {
   const tip = page.getByTestId('tip');
   if (await tip.isVisible()) return tip.click();
-  for (const id of ['replay-skip', 'replay-ok']) {
+  for (const id of ['replay-skip', 'replay-ok', 'event-ok']) {
     const b = page.getByTestId(id);
     if (await b.isVisible()) return b.click();
   }
@@ -44,11 +44,15 @@ test('새 게임 → 번식 → 계승 → 이어 하기 → 게임 오버', asy
 
   // 계승 관문까지 손으로 (번식에 성공해 새끼가 있어야 온다)
   const gate = page.getByTestId('gate-inheritance');
+  // 이벤트를 고르면 결과가 시트에 남는다(#650)
+  let eventResults = 0;
   for (let i = 0; i < 400 && !(await gate.isVisible()); i++) {
     await expect(page.getByTestId('game-over')).toBeHidden();
+    if (await page.getByTestId('event-result').isVisible()) eventResults++;
     await press(page);
   }
   await expect(gate).toBeVisible();
+  expect(eventResults).toBeGreaterThan(0);
 
   // 계승 확인은 팁(T-30)을 먼저 닫아야 한다(06-tutorial 2장)
   if (await page.getByTestId('tip').isVisible()) await page.getByTestId('tip').click();

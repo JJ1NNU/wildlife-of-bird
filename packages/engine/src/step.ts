@@ -1,6 +1,6 @@
 import type { Formulas, GameData, MapNode, Phase, SpeciesBalance, StatName } from '@wb/schema';
 import { phaseAt } from './calendar.ts';
-import { cardCost } from './cards.ts';
+import { cardCost, withAdultBonus } from './cards.ts';
 import { layingCost } from './clutch.ts';
 import type { ActionId } from './formulas.ts';
 import {
@@ -218,7 +218,8 @@ export function judgeStep(
   data: GameData,
   n = slotCount(state, data),
 ): StepOutcome {
-  const f = data.formulas;
+  // 성조 보너스는 그 칸의 행동 값만 바꾼다 (12-card-turn 2.6)
+  const f = withAdultBonus(data.formulas, choiceId, data, state.player.age);
   const species = speciesBalance(data, state.config.speciesId);
   const p = state.player;
   const { action, trained, node, stay } = stepAction(state, choiceId);
