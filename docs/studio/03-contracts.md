@@ -231,6 +231,7 @@ replay(record: { config, choices }, data: GameData, resumeAt?: number): string  
   - `breedingSeason`: `pairing` 첫 단계(관문 직전)에 1건, `deltas.breedable` = 1(번식 가능)·0. 박새는 늘 1(나이 0은 번식 관문이 없고, 박새는 다음 해 `pairing`에 1살) — 지표 M-05
   - `prologue`: 프롤로그 구간 마지막 단계 끝에 1건 — `cause` `fledge`(P-1 끝, 이소) · `independent`(P-2 끝, 독립 = 프롤로그 끝, 13-prologue 2장)
   - `breeding`: 둥지를 지을 때 **시도** 1건 `deltas.attempt` = 그해 몇째 둥지(1 = 1차 — 지표 M-13), 독립 때 **성공** 1건 `deltas.totalBreeding: 1`·`fledged`. 둘은 `deltas`로 가른다
+  - **개체 값 `deltas`**(#700): 에너지·깃털·스탯을 바꾸는 줄은 그 변화를 `deltas`(`energy` · `feather` · `stat.<스탯>`)로 적는다 — `slot` · 이벤트 선택지 `event`(바뀐 값만) · `mate`(더 찾아보기) · `brood`(2차 번식 '한다') · `aging`(`period 1` 진입 노화로 스탯이 줄 때 1건, 새 단계의 `at`). `act` 한 번의 실제 변화 = 새 줄 `deltas` 합(`decision`·`replan`은 합이라 빼고, `inheritance`는 개체가 바뀜). 화면은 지금 값에서 거꾸로 되짚는다(#657)
 
 ### 구현 상태 (M1 진행 중, #21)
 - 실제 규칙: 단계표(시기별 단계 수·국면) · 행동·훈련·옮기기 선택지 · 판정 1·2·3(에너지 → 스탯 → 위험, `00-core-loop` 3.1) · 아사(`starvation`)·포식(`predation`)·노화(`aging`, 01-formulas 4.1 — 칸 판정의 난수 하나로 `u < 포식`이면 포식, `u < 포식 + 노화`면 노화, #478) 사망 · `period 1` 진입(나이·경험 +1, 노화, 단계표 초기화). 로그 `decision` · `death`. **짝 후보 관문**(`pairing` 첫 단계, 04-breeding 2.2~2.4 — 후보 생성·신호·상호 선택·더 찾아보기·포기 2.7), `RunState.mate`·`gate`, 로그 `mate`. 정규분포 표본은 `nextNormal`(Box–Muller, 균등 2개).

@@ -57,6 +57,7 @@ import {
   emptySlots,
   handLeft,
   nextSlotChoices,
+  playerDeltas,
   projected,
   routineSlots,
   runRoutine,
@@ -330,6 +331,7 @@ function pickEventOption(state: RunState, choiceId: string, data: GameData): Act
       text: option?.text ?? optionId,
       event: event.id,
       ...(out.success === undefined ? {} : { success: out.success }),
+      ...changed(state.player, out.state.player),
     },
     ...out.log,
   ];
@@ -664,19 +666,30 @@ function yearStart(state: RunState, data: GameData): ActResult {
   const age = state.player.age + 1;
   const mate = mateYear(state, data);
   const { yearNests: _y, ...rest } = mate.state;
-  return {
-    log: mate.log,
-    state: {
-      ...rest,
-      calendar: yearCalendar(data, state.config.speciesId),
-      player: {
-        ...state.player,
-        age,
-        expYears: state.player.expYears + 1,
-        stats: agedStats(data.formulas, species, age, state.player.stats),
-      },
-    },
+  const player = {
+    ...state.player,
+    age,
+    expYears: state.player.expYears + 1,
+    stats: agedStats(data.formulas, species, age, state.player.stats),
   };
+  // 노화로 스탯이 줄면 한 줄 (#700 — 화면이 로그 `deltas`로 앞 값을 되짚는다)
+  const aged = changed(state.player, player);
+  const log: LogEntry[] = aged.deltas
+    ? [...mate.log, { at: state.at, type: 'aging', text: '나이가 들어 몸이 굳었다', ...aged }]
+    : mate.log;
+  return {
+    log,
+    state: { ...rest, calendar: yearCalendar(data, state.config.speciesId), player },
+  };
+}
+
+/** 개체 값이 바뀌었으면 `{ deltas }`, 아니면 빈 객체 — 로그 줄에 펼쳐 넣는다 */
+function changed(
+  from: RunState['player'],
+  to: RunState['player'],
+): { deltas?: Record<string, number> } {
+  const d = Object.fromEntries(Object.entries(playerDeltas(from, to)).filter(([, v]) => v !== 0));
+  return Object.keys(d).length > 0 ? { deltas: d } : {};
 }
 
 /**
