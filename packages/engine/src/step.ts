@@ -21,6 +21,7 @@ import {
 import { nestLocked } from './nest.ts';
 import { orderValue } from './order.ts';
 import { feedCostMult, feedIntensity, parentingCost, playerRiskMult } from './parenting.ts';
+import { parentFeed, prologueStage } from './prologue.ts';
 import { seasonEffect } from './season.ts';
 import type { Choice, RunState } from './types.ts';
 
@@ -111,14 +112,21 @@ export function stepChoices(state: RunState, data: GameData): Choice[] {
   for (const stat of Object.keys(species.aptitude) as StatName[]) {
     choices.push({ id: `action.train.${stat}`, kind: 'action', label: `${STAT_LABEL[stat]} 훈련` });
   }
-  const locked = nestLocked(state);
+  // 둥지 국면 동안 옮길 수 없다 (04-breeding 1장). 프롤로그 동안도 (13-prologue 2장)
+  const stage = prologueStage(state);
+  const locked = stage
+    ? stage === 'nest'
+      ? '아직 날지 못한다'
+      : '부모를 따라다닌다'
+    : nestLocked(state)
+      ? '둥지를 떠날 수 없음'
+      : undefined;
   for (const id of mapNode(data, state.node).links) {
     choices.push({
       id: `move.${id}`,
       kind: 'node',
       label: `옮기기: ${mapNode(data, id).nameKo}`,
-      // 둥지 국면 동안 옮길 수 없다 (04-breeding 1장)
-      ...(locked ? { disabled: { reason: '둥지를 떠날 수 없음' } } : {}),
+      ...(locked ? { disabled: { reason: locked } } : {}),
     });
   }
   return choices;
@@ -204,7 +212,7 @@ export function periodRiskFactor(state: RunState, data: GameData): number {
   return riskModFactor(data.effects.riskMod, state.periodMods?.risk ?? []);
 }
 
-/** 1.3 성장 배율: 계승한 새끼는 나이 ≤ `growthUntilAge` 동안 은수저 성장 배율. 런 시작 개체는 1 */
+/** 1.3 성장 배율: 은수저 지수가 있는 개체(계승한 새끼·프롤로그 런 시작 개체)는 나이 ≤ `growthUntilAge` 동안 은수저 성장 배율 */
 export function growthNow(f: Formulas, p: RunState['player']): number {
   return p.silverSpoon !== undefined && p.age <= f.silverSpoon.growthUntilAge
     ? growthMult(f, p.silverSpoon)
@@ -256,9 +264,17 @@ export function judgeStep(
       parentingCost(state, data) +
       (sp.playerCostPerStep ?? 0),
   );
-  // 9.4: 에너지 변화 전체(잠 회복 포함)와 깃털 변화는 ÷ 칸 수
+  // 9.4: 에너지 변화 전체(잠 회복 포함)와 깃털 변화는 ÷ 칸 수. 부모 급이는 섭취에 더한다 (13-prologue 3.2)
   const recover = species.sleepRecoverPerStep[season];
-  const { energy, starved } = nextEnergy(cap, p.energy, gained / n, (spent - recover) / n);
+  const fed = nextEnergy(
+    cap,
+    p.energy,
+    (gained + parentFeed(state, data)) / n,
+    (spent - recover) / n,
+  );
+  // 프롤로그에는 아사가 없다 — 에너지 하한 1 (3.3)
+  const prologue = prologueStage(state) !== undefined;
+  const { energy, starved } = prologue ? { energy: Math.max(1, fed.energy), starved: false } : fed;
   const feather =
     p.feather + (nextFeather(f, p.feather, phase, action, sp.moltRecoverMult) - p.feather) / n;
   if (starved)
@@ -278,7 +294,10 @@ export function judgeStep(
     stats[s] = Math.min(potential, current + gain);
   }
 
-  // 판정 3 — 위험 (01-formulas 3.1). 같은 단계에 오른 경계가 바로 쓰인다
+  // 판정 3 — 위험 (01-formulas 3.1). 프롤로그에는 위험이 0이다 — 부모가 지킨다 (13-prologue 3.3)
+  if (prologue)
+    return { phase, node, stay, energy, starved, feather, stats, risk: 0, agingRisk: 0 };
+  // 같은 단계에 오른 경계가 바로 쓰인다
   const stepRisk = deathRisk(f, species, {
     nodeRisk: tiers.risk,
     phase,

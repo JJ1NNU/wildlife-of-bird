@@ -21,9 +21,19 @@
     "social": "A"
   },
   "runStart": {
-    "age": 1,
-    "period": 1,
+    "age": 0,
+    "period": 10,
     "node": "forest-edge"
+  },
+  "prologue": {
+    "silverSpoonIndex": 0.5,
+    "parentFeed": { "nest": 1.0, "fledge": 0.5 },
+    "unlock": [
+      { "step": 1, "cards": ["forage", "train-flight"] },
+      { "step": 4, "cards": ["train-foraging"] },
+      { "step": 5, "cards": ["train-vigilance"] },
+      { "step": 6, "cards": ["social"] }
+    ]
   },
   "seasons": {
     "winter": [23, 24, 1, 2, 3, 4],

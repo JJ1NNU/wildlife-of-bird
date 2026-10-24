@@ -4,6 +4,7 @@ import { cardCost, cardOf, drawHand, type Hand } from './cards.ts';
 import { drawStepEvent } from './events.ts';
 import { seasonOf } from './formulas.ts';
 import { endLife } from './inherit.ts';
+import { prologuePool, prologueStage } from './prologue.ts';
 import { nextFloat, seedFromString } from './rng.ts';
 import { judgeStep, slotCount, speciesBalance, stepChoices } from './step.ts';
 import type { Choice, LogEntry, RunState } from './types.ts';
@@ -33,6 +34,7 @@ export function stepHand(state: RunState, data: GameData): Hand {
   if (state.paused) return state.paused.hand;
   const { speciesId, seed } = state.config;
   const { year, period, step } = state.at;
+  const pool = prologuePool(state, data);
   const at = {
     slots: slotCount(state, data),
     expYears: state.player.expYears,
@@ -40,6 +42,7 @@ export function stepHand(state: RunState, data: GameData): Hand {
     season: seasonOf(speciesBalance(data, speciesId), period),
     juvenile: state.player.age === 0,
     extra: nextHandBonus(state, data),
+    ...(pool ? { pool } : {}),
   };
   const rng = seedFromString(`${speciesId}:${seed}:hand:${year}.${period}.${step}`);
   return drawHand(data.cards, at, rng).hand;
@@ -267,7 +270,8 @@ export function runRoutine(
           : { at: state.at, type: 'death', text: '늙어서 죽었다', cause: 'aging', slot };
       break;
     }
-    if (paused) continue;
+    // 프롤로그 동안 이벤트 관문은 열지 않는다 (13-prologue 3.3)
+    if (paused || prologueStage(state)) continue;
     const drawn = drawStepEvent(s, data, plan, s.eventCooldown, n);
     s = drawn.state;
     if (drawn.event) {

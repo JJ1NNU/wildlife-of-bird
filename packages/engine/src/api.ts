@@ -17,7 +17,7 @@ import {
   hatchIfDue,
 } from './clutch.ts';
 import { checkChance, previewEffects, resolveOption } from './events.ts';
-import { agedStats, agingRisk, fatCap } from './formulas.ts';
+import { agedStats, agingRisk, fatCap, startStat } from './formulas.ts';
 import {
   chickCards,
   chooseInheritance,
@@ -51,6 +51,7 @@ import {
   orderOptions,
 } from './order.ts';
 import { parentingChoices, parentingDue, setPolicy } from './parenting.ts';
+import { prologueEnd, prologueStage } from './prologue.ts';
 import { seedFromString } from './rng.ts';
 import {
   emptySlots,
@@ -98,18 +99,20 @@ export function newRun(config: RunConfig, data: GameData): RunState {
   if (!node) throw new Error(`런 시작 장소가 없다: ${config.speciesId}의 runStart.node`);
   mapNode(data, node);
 
-  // 런 시작 개체(05-inheritance 2장): 잠재력 = 종 평균(난수 없음), 현재값 = 보통 짝 후보와 같은 비율
+  // 런 시작 개체(13-prologue 3.4): 잠재력 = 종 평균(난수 없음), 현재값·성장 배율·첫해 보정 = 고정 은수저 지수로
+  // 계승한 새끼와 같은 식(01-formulas 6.2·6.3). 학습 보너스 0
+  const silverSpoon = species.prologue.silverSpoonIndex;
   const potential: Partial<Record<StatName, number>> = {};
   const stats: Partial<Record<StatName, number>> = {};
   for (const [stat, grade] of Object.entries(species.aptitude)) {
     const p = f.stats.aptitudeMean[grade] ?? 0;
     potential[stat as StatName] = p;
-    stats[stat as StatName] = p * data.breeding.mate.candidateCurrentRatio;
+    stats[stat as StatName] = Math.min(p, startStat(f, p, silverSpoon));
   }
   const at = { year: 1, period: species.runStart.period, step: 1 };
   const player = {
     speciesId: config.speciesId,
-    // 런 시작 상태: 모든 종은 '첫 번식기를 앞둔 젊은 성조' (gdd 4.1장)
+    // 런 시작 상태: 알에서 깨어난 새끼 — 독립까지가 프롤로그 (13-prologue 2장)
     sex: config.startSex ?? 'female',
     age: species.runStart.age,
     energy: fatCap(f, stats.stamina ?? 0) * f.energy.runStartRatio,
@@ -118,6 +121,7 @@ export function newRun(config: RunConfig, data: GameData): RunState {
     feather: f.feather.runStart,
     // 05-inheritance 2장: 경험 연수 = `runStart.age` (짝 후보와 같은 셈)
     expYears: species.runStart.age,
+    silverSpoon,
   };
   return {
     config,
@@ -383,6 +387,19 @@ function endStep(state: RunState, routed: ActResult, hadNest: boolean, data: Gam
     };
   }
   const survived = failed ? endBreeding(raised.state) : raised.state;
+  // 프롤로그 구간 끝: 이소 · 독립. 독립하면 계승한 새끼처럼 그 해 번식 분할을 푼다 (13-prologue 2장)
+  const end = prologueEnd(state);
+  if (end === 'fledge')
+    log.push({ at: state.at, type: 'prologue', text: '둥지를 떠났다', cause: 'fledge' });
+  if (end === 'independent') {
+    log.push({
+      at: state.at,
+      type: 'prologue',
+      text: '부모 곁을 떠나 독립했다',
+      cause: 'independent',
+    });
+    return endGates(state, endBreeding(survived), log, data);
+  }
   return endGates(state, survived, log, data);
 }
 
@@ -392,8 +409,9 @@ function endStep(state: RunState, routed: ActResult, hadNest: boolean, data: Gam
  */
 function endGates(state: RunState, done: RunState, log: LogEntry[], data: GameData): ActResult {
   let survived = done;
-  if (isPhaseStart(state.calendar, state.at, 'pairing') && !paired(state)) {
-    // 번식기 시작 — 지표 M-05(qa/metrics.md). 박새는 런 시작(1살)·계승 개체 모두 이때 1살 이상이라 늘 번식 가능
+  // 나이 0은 번식 관문이 없다 — 프롤로그가 번식기 안에서 시작한다 (13-prologue 2장)
+  if (isPhaseStart(state.calendar, state.at, 'pairing') && state.player.age > 0 && !paired(state)) {
+    // 번식기 시작 — 지표 M-05(qa/metrics.md)
     log.push({
       at: state.at,
       type: 'breedingSeason',
@@ -425,7 +443,8 @@ function endGates(state: RunState, done: RunState, log: LogEntry[], data: GameDa
       log,
     };
   }
-  if (seasonDue(survived, data)) {
+  // 프롤로그에서 독립한 단계는 첫 단계 조건 없이 — 그 계절 첫 단계가 프롤로그 안이었다 (13-prologue 3.3)
+  if (seasonDue(survived, data, prologueEnd(state) === 'independent')) {
     return {
       state: { ...survived, gate: { kind: 'seasonPolicy' }, log: [...state.log, ...log] },
       log,
@@ -666,6 +685,7 @@ function yearStart(state: RunState, data: GameData): ActResult {
  */
 export function getView(state: RunState, data: GameData): ViewModel {
   const nextIn = nextSlotIn(state, data);
+  const prologue = prologueStage(state);
   const energyCap = fatCap(data.formulas, state.player.stats.stamina ?? 0);
   return structuredClone({
     at: state.at,
@@ -684,6 +704,7 @@ export function getView(state: RunState, data: GameData): ViewModel {
     ),
     totalBreeding: state.totalBreeding,
     gameOver: state.gameOver,
+    ...(prologue ? { prologue } : {}),
     ...(state.gate?.kind === 'seasonPolicy'
       ? { gate: { kind: state.gate.kind, cards: seasonCards(state, data) } }
       : {}),
