@@ -232,6 +232,32 @@ function budgetCost(id: string, data: GameData): number {
   );
 }
 
+/**
+ * 카드의 성조 보너스 한 줄 (12-card-turn 2.6) — `cards.pool.<카드>.adult`를 그대로 읽는다.
+ * 배율은 그 행동 값을 바꾸므로 "앞→뒤", 성장·다음 패는 더하는 값. 보너스가 없는 카드는 undefined
+ */
+function adultText(id: string, data: GameData): string | undefined {
+  const [head, action, stat] = id.split('.');
+  if (head !== 'action') return undefined;
+  const card = (action === 'train' ? `train-${stat}` : action) as keyof GameData['cards']['pool'];
+  const adult = data.cards.pool[card]?.adult;
+  const base = data.formulas.actions[action as keyof GameData['formulas']['actions']];
+  if (!adult || !base) return undefined;
+  const mult = (x: number) => roundHalfUp(x, 1).toFixed(1);
+  return [
+    adult.intakeMult !== undefined &&
+      t('routine.adult.intake', { from: mult(base.intakeMult), to: mult(adult.intakeMult) }),
+    adult.riskMult !== undefined &&
+      t('routine.adult.risk', { from: mult(base.riskMult), to: mult(adult.riskMult) }),
+    ...Object.entries(adult.gain ?? {}).map(([s, n]) =>
+      t('routine.adult.gain', { stat: t(`word.stat.${s}`), n }),
+    ),
+    adult.nextHand && t('routine.adult.nextHand', { n: adult.nextHand }),
+  ]
+    .filter(Boolean)
+    .join(', ');
+}
+
 /** 변화 앞 값 — 있으면 표시값 차(에너지·깃털 소수 첫째 차, 스탯 버린 값 차)로 보인다 (01-formulas 7.0) */
 type Before = Pick<RunState['player'], 'energy' | 'feather' | 'stats'>;
 
@@ -965,6 +991,12 @@ export function Game({ data }: { data: GameData }) {
 
   /** 패 카드 v2(ui-kit 3.1): 1줄 비용 배지 + 이름, 2줄 에너지 · 위험%(띠는 정보 줄에만, #206). n장 배지는 모서리.
    * 못 쓰는 카드(`.short`)는 2줄째가 이유 낱말 — 눌러도 칸에 안 들어가고 정보 줄에 이유 */
+  function adultLine(id: string, at: RunState) {
+    // 둥지 안(13-prologue 3.1)은 다른 이름의 카드라 성조 줄을 붙이지 않는다
+    const text = prologue !== 'nest' && adultText(id, data);
+    return text && t(at.player.age > 0 ? 'routine.adult' : 'routine.adult.future', { text });
+  }
+
   function handCard(c: Choice, n: number, before: RunState) {
     const p = c.disabled ? undefined : preview(before, c.id, data);
     const risk = p && formatRisk(data.formulas, p.deathRisk);
@@ -991,6 +1023,7 @@ export function Game({ data }: { data: GameData }) {
             p && `${t('main.energy')} ${energyRange(p, before.player.energy)}`,
             p && (zeroRisk || risk?.text),
             gainsText(p, before),
+            adultLine(c.id, before),
           ]
             .filter(Boolean)
             .join(', ')}
@@ -1065,6 +1098,9 @@ export function Game({ data }: { data: GameData }) {
     const s = slots[k];
     if (!s?.id || !s.preview) return undefined;
     const risk = formatRisk(data.formulas, s.preview.deathRisk);
+    // 성조 보너스(12-card-turn 2.6): 어린 새(나이 0)에게는 회색 "성조가 되면" — 숨기지 않는다(원칙 5)
+    const adult = prologue !== 'nest' && adultText(s.id, data);
+    const grown = (s.before?.player.age ?? view.player.age) > 0;
     return (
       <span className="tx">
         <b>
@@ -1088,6 +1124,14 @@ export function Game({ data }: { data: GameData }) {
             <span className="ico s" style={iconStyle('icon.risk')} />
             {risk.text} <span className="w">{t(`word.risk.${risk.band}`)}</span>
           </span>
+        )}
+        {adult && (
+          <>
+            {', '}
+            <span className={grown ? undefined : 'muted'}>
+              {t(grown ? 'routine.adult' : 'routine.adult.future', { text: adult })}
+            </span>
+          </>
         )}
       </span>
     );
