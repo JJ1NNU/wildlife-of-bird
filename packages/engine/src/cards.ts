@@ -1,4 +1,4 @@
-import type { CardId, Cards, GameData, Season } from '@wb/schema';
+import type { CardId, Cards, Formulas, GameData, Season } from '@wb/schema';
 import type { RngState } from './rng.ts';
 import { nextFloat } from './rng.ts';
 
@@ -23,6 +23,34 @@ export function cardCost(choiceId: string, data: GameData): number | undefined {
   return data.cards.pool[card]?.cost ?? data.formulas.actions[action]?.cost ?? 0;
 }
 
+/**
+ * 성조 보너스(12-card-turn 2.6)를 그 칸의 행동 값에 얹은 공식 — `intakeMult`·`riskMult`는 바꾸고 `gain`은 더한다.
+ * 어린 새(나이 0)이거나 보너스가 없는 카드면 그대로
+ */
+export function withAdultBonus(
+  f: Formulas,
+  choiceId: string,
+  data: GameData,
+  age: number,
+): Formulas {
+  const card = cardOf(choiceId);
+  const adult = card && age > 0 ? data.cards.pool[card]?.adult : undefined;
+  if (!adult) return f;
+  const name = choiceId.split('.')[1] as keyof Formulas['actions'];
+  const base = f.actions[name];
+  const gain = { ...base.gain };
+  for (const [stat, add] of Object.entries(adult.gain ?? {}) as [keyof typeof gain, number][]) {
+    gain[stat] = (gain[stat] ?? 0) + add;
+  }
+  const action = {
+    ...base,
+    intakeMult: adult.intakeMult ?? base.intakeMult,
+    riskMult: adult.riskMult ?? base.riskMult,
+    gain,
+  };
+  return { ...f, actions: { ...f.actions, [name]: action } };
+}
+
 /** 뽑기에 영향을 주는 지금 상황 */
 export interface DrawAt {
   /** 이 단계의 칸 수 (00-core-loop 3.5) */
@@ -31,6 +59,10 @@ export interface DrawAt {
   expYears: number;
   node: string;
   season: Season;
+  /** 어린 새(나이 0)면 `juvenile` 카드만 뽑는다 (2.6) */
+  juvenile: boolean;
+  /** 지난 단계 살피기의 성조 보너스 `nextHand` — 나오는 장수에 더한다 */
+  extra: number;
 }
 
 /** 2.2 나오는 장수 = 칸 수 + handBase + min(handExpCap, floor(경험 연수)) */
@@ -39,13 +71,13 @@ export function handSize(cards: Cards, slots: number, expYears: number): number 
 }
 
 /**
- * 2.2 패 뽑기: 카드마다 가중치 = weight × 장소 배율 × 계절 배율, 중복 허용, 장마다 난수 1번.
+ * 2.2 패 뽑기(어린 새는 2.6의 풀만): 카드마다 가중치 = weight × 장소 배율 × 계절 배율, 중복 허용, 장마다 난수 1번.
  * 같은 시드 = 같은 패 (11장). 풀이 비면 난수를 쓰지 않는다.
  */
 export function drawHand(cards: Cards, at: DrawAt, rng: RngState): { hand: Hand; rng: RngState } {
   const weighted: [CardId, number][] = [];
   for (const [id, card] of Object.entries(cards.pool) as [CardId, Cards['pool'][CardId]][]) {
-    if (!card) continue;
+    if (!card || (at.juvenile && !card.juvenile)) continue;
     weighted.push([
       id,
       card.weight * (card.nodeMult?.[at.node] ?? 1) * (card.seasonMult?.[at.season] ?? 1),
@@ -55,7 +87,7 @@ export function drawHand(cards: Cards, at: DrawAt, rng: RngState): { hand: Hand;
   if (weighted.length === 0) return { hand, rng };
   const total = weighted.reduce((sum, [, w]) => sum + w, 0);
   let state = rng;
-  for (let i = 0; i < handSize(cards, at.slots, at.expYears); i++) {
+  for (let i = 0; i < handSize(cards, at.slots, at.expYears) + at.extra; i++) {
     const rolled = nextFloat(state);
     state = rolled.state;
     let u = rolled.value * total;

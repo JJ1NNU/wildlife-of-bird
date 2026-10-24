@@ -3,14 +3,19 @@
   "handExpCap": 3,
   "stepBudget": 3,
   "pool": {
-    "forage": { "weight": 1 },
-    "social": { "weight": 1 },
-    "explore": { "weight": 1 },
-    "train-flight": { "weight": 1, "cost": 5 },
-    "train-foraging": { "weight": 1, "cost": 3 },
-    "train-vigilance": { "weight": 1, "cost": 3 },
-    "train-stamina": { "weight": 1, "cost": 5 },
-    "train-display": { "weight": 1, "cost": 4 },
-    "train-social": { "weight": 1, "cost": 4 }
+    "forage": { "weight": 1, "juvenile": true, "adult": { "intakeMult": 1.2 } },
+    "social": { "weight": 1, "juvenile": true, "adult": { "riskMult": 0.8 } },
+    "explore": { "weight": 1, "adult": { "nextHand": 1 } },
+    "train-flight": {
+      "weight": 1,
+      "cost": 5,
+      "juvenile": true,
+      "adult": { "gain": { "stamina": 1 } }
+    },
+    "train-foraging": { "weight": 1, "cost": 3, "juvenile": true, "adult": { "intakeMult": 1.0 } },
+    "train-vigilance": { "weight": 1, "cost": 3, "juvenile": true, "adult": { "riskMult": 1.0 } },
+    "train-stamina": { "weight": 1, "cost": 5, "adult": { "gain": { "flight": 1 } } },
+    "train-display": { "weight": 1, "cost": 4, "adult": { "gain": { "social": 1 } } },
+    "train-social": { "weight": 1, "cost": 4, "adult": { "gain": { "display": 1 } } }
   }
 }

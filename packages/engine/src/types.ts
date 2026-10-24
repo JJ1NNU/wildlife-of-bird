@@ -90,6 +90,8 @@ export interface LogEntry {
   cause?: string;
   /** 칸 판정 로그면 그 단계의 몇째 칸 (1부터) */
   slot?: number;
+  /** 칸 판정 로그면 고른 선택 id — 다음 단계 패의 성조 보너스 `nextHand`를 센다 (12-card-turn 2.6) */
+  choice?: string;
   /** 이벤트 로그면 이벤트 id */
   event?: string;
   /** 조작이 끝난 개체의 생애 기록 — 계승(`inheritance`)·사망(`death`) 로그에만 (05-inheritance 8장) */
