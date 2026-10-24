@@ -2114,6 +2114,7 @@ export function Game({ data }: { data: GameData }) {
                       ? eventResult.lines
                       : [t('routine.replay.noChange')]
                     ).map((line, k) => (
+                      // biome-ignore lint/suspicious/noArrayIndexKey: 같은 로그 글이 두 줄 나올 수 있다
                       <span key={k} className="cap">
                         {line}
                       </span>
