@@ -2,7 +2,7 @@ import type { GameData } from '@wb/schema';
 import { describe, expect, it } from 'vitest';
 import type { Mate, RunState } from '../src/index.ts';
 import { act, getChoices, getView, mateAccepts, newRun, preview } from '../src/index.ts';
-import { actStep, testData } from './fixture.ts';
+import { actStep, seasonData, testData } from './fixture.ts';
 
 describe('상호 선택 (04-breeding 2.4 예시)', () => {
   it('매력 54, 품질 52 · 58 · 66 → 예 · 예 · 아니오', () => {
@@ -37,11 +37,14 @@ describe('짝 후보 관문 (04-breeding 2.2, 00-core-loop 4.6)', () => {
       expect.objectContaining({ at: pairing.at, deltas: { breedable: 1 } }),
     ]);
     const choices = getChoices(opened, testData);
-    expect(choices).toHaveLength(testData.breeding.mate.candidates);
+    expect(choices.map((c) => c.id).slice(-2)).toEqual([
+      'mateCandidate.search',
+      'mateCandidate.skip',
+    ]);
     expect(choices.every((c) => c.kind === 'mateCandidate')).toBe(true);
     const gate = getView(opened, testData).gate;
     const cards = gate?.kind === 'mateCandidate' ? gate.cards : [];
-    expect(cards.map((c) => c.choiceId)).toEqual(choices.map((c) => c.id));
+    expect(cards.map((c) => c.choiceId)).toEqual(choices.slice(0, -2).map((c) => c.id));
     expect(preview(opened, choices[0]?.id ?? '', testData).deathRisk).toBe(0);
   });
 
@@ -55,15 +58,49 @@ describe('짝 후보 관문 (04-breeding 2.2, 00-core-loop 4.6)', () => {
     expect(actStep(paired, 'action.rest', testData).state.gate).toBeUndefined();
   });
 
-  it('받아들이는 카드가 1장뿐이면 자동 진행한다', () => {
-    const lonely: RunState = {
-      ...pairing,
-      player: { ...pairing.player, stats: { ...pairing.player.stats, display: 0, social: 0 } },
-    };
-    const next = actStep(lonely, 'action.rest', testData).state;
-    expect(next.gate).toBeUndefined();
-    expect(next.mate).toBeDefined();
-    expect(next.at.step).toBe(2);
+  /** 과시·사회 0 — 받아들이는 카드가 1장뿐 */
+  const lonely: RunState = {
+    ...pairing,
+    player: { ...pairing.player, stats: { ...pairing.player.stats, display: 0, social: 0 } },
+  };
+
+  it('받아들이는 카드가 1장뿐이어도 관문이 열린다 — 자동 진행 없음 (2.7)', () => {
+    const gate = actStep(lonely, 'action.rest', testData).state;
+    expect(gate.gate?.kind).toBe('mateCandidate');
+    expect(gate.at).toEqual(lonely.at);
+  });
+
+  it('더 찾아보기: 에너지 −searchEnergy, 다음 단계 끝에 새 후보로 다시 열린다. 늦게 맺으면 계절 방침 관문 (2.7)', () => {
+    const m = testData.breeding.mate;
+    const gate = actStep(lonely, 'action.rest', seasonData).state;
+    expect(preview(gate, 'mateCandidate.search', seasonData).energyDelta).toEqual([
+      -m.searchEnergy,
+      -m.searchEnergy,
+    ]);
+    const searched = act(gate, 'mateCandidate.search', seasonData).state;
+    expect(searched.at).toEqual({ year: 1, period: 5, step: 2 });
+    expect(searched.gate).toBeUndefined();
+    expect(searched.mate).toBeUndefined();
+    const again = actStep(searched, 'action.rest', seasonData).state;
+    expect(again.at).toEqual(searched.at);
+    expect(again.gate?.kind).toBe('mateCandidate');
+    // 번식기 시작 로그는 한 해에 한 번 (M-05)
+    expect(again.log.filter((l) => l.type === 'breedingSeason')).toHaveLength(1);
+    const id = getChoices(again, seasonData).find((c) => !c.disabled)?.id ?? '';
+    const late = act(again, id, seasonData).state;
+    expect(late.mate).toBeDefined();
+    expect(late.gate?.kind).toBe('seasonPolicy');
+    expect(late.at).toEqual(searched.at);
+  });
+
+  it('pairing 마지막 단계에서는 더 찾아보기를 막는다. 포기하면 그해 다시 열지 않는다 (2.7)', () => {
+    const gate = actStep(lonely, 'action.rest', testData).state;
+    const last = { ...gate, at: { year: 1, period: 6, step: gate.calendar[5]?.length ?? 1 } };
+    const search = getChoices(last, testData).find((c) => c.id === 'mateCandidate.search');
+    expect(search?.disabled?.reason).toBe('짝 찾기 시기가 끝난다');
+    const skipped = act(gate, 'mateCandidate.skip', testData).state;
+    expect(skipped.mate).toBeUndefined();
+    expect(actStep(skipped, 'action.rest', testData).state.gate).toBeUndefined();
   });
 });
 
