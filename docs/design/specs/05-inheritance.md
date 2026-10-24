@@ -1,6 +1,6 @@
 # 05 · 런 시작 개체 · 새끼 · 계승
 
-- 버전: v0.1 (2026-10-24, #644 — **잠정(#672)**: 2장 런 시작 개체를 프롤로그 시작(나이 0, `period 10`)으로) · v0 (2026-10-05, #22)
+- 버전: v0.1.1 (2026-10-24, #644 — 엔진 #689 머지: 2장 성조 시작 문단 지움, `prologue.*`는 종 밸런스 키) · v0.1 (2026-10-24, #644 — **잠정(#672)**: 2장 런 시작 개체를 프롤로그 시작(나이 0, `period 10`)으로) · v0 (2026-10-05, #22)
 - 소유: 게임디자인 / 구현: 엔진 / 검증: QA
 - 기준: 기획서 `gdd.md` 4.1 · 5.3 · 5.4 · 7.4, `00-core-loop` 6장 · B-4 · B-7, `01-formulas` 5 · 6장, `02-scoring`
 - 숫자: `data/balance/formulas.json`(`heredity` · `silverSpoon` · `energy` · `feather`), `data/balance/breeding.json`(`mate`), `data/balance/species/parus-minor.json`
@@ -49,7 +49,6 @@
 | 사회 (A) | 70 | 24.5 | F / B~A |
 
 - 지방 상한 `50 + 0.5 × 11.9` = 55.95 → 에너지 **55.95**(`energy.runStartRatio` 1). 깃털 **80**. 경험 **0**. 프롤로그 동안 부모 급이·위험 0(`13-prologue` 3장)으로 독립 때까지 스탯을 키운다.
-- v0의 성조 시작(나이 1, `period 1`, 현재값 = 잠재력 × `mate.candidateCurrentRatio`)은 엔진 후속(`13-prologue` 8장)이 머지될 때까지 지금 코드의 동작이다.
 
 ---
 
@@ -236,7 +235,7 @@
 |---|---|---|
 | `heredity.femaleShare` | 0.5 | **새 키** — 스키마에 더해야 한다 (잠정 #22, 엔진 이슈) |
 | `heredity.rangeWithin` | 5 | **새 키** — 같음 |
-| 그 밖 | `prologue.silverSpoonIndex`(새 키, `13-prologue` 8장) · `mate.candidateCurrentRatio` · `energy.runStartRatio` · `energy.inheritStartRatio` · `feather.runStart` · `silverSpoon.*` · `species.runStart` | 이미 있는 키 |
+| 그 밖 | `prologue.silverSpoonIndex`(종 밸런스, 엔진 #689) · `mate.candidateCurrentRatio` · `energy.runStartRatio` · `energy.inheritStartRatio` · `feather.runStart` · `silverSpoon.*` · `species.runStart` | 이미 있는 키 |
 
 ## 12. 남은 것
 
