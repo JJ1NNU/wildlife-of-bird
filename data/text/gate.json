@@ -101,5 +101,14 @@
   "gate.event.fx.foodMod": "이 시기 먹이 {n}배",
   "gate.event.fx.injury": "부상: 다음 위험 판정 {n}번은 더 위험",
   "gate.event.fx.fledgeEarly": "새끼들이 지금 둥지를 떠남",
-  "gate.clutchSize.label": "알 수"
+  "gate.clutchSize.label": "알 수",
+  "gate.mateCandidate.search": "더 찾아보기",
+  "gate.mateCandidate.searchHelp": "에너지 -{n}. 좋은 새는 먼저 짝을 지어서 다음 후보는 조금 못할 수 있음. 지난 짝이 있으면 다른 짝을 찾아 떠남.",
+  "gate.mateCandidate.searchDisabled": "짝 찾기 시기의 마지막 단계라 더 찾을 수 없음",
+  "gate.mateCandidate.skip": "올해 번식 포기",
+  "gate.mateCandidate.skipHelp": "짝 없이 한 해를 넘김. 올해는 둥지, 새끼, 계승 없음.",
+  "gate.mateCandidate.skipConfirm.title": "올해 번식을 포기할까?",
+  "gate.mateCandidate.skipConfirm.body": "올해는 둥지, 새끼, 계승 없음. 지난 짝이 있으면 떠남. 이 새로 1년 더 버텨 내년 봄에 새 후보를 만남.",
+  "gate.mateCandidate.skipConfirm.back": "다시 고르기",
+  "gate.mateCandidate.skipConfirm.go": "포기하기"
 }
