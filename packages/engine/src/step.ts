@@ -1,5 +1,6 @@
 import type { Formulas, GameData, MapNode, Phase, SpeciesBalance, StatName } from '@wb/schema';
 import { phaseAt } from './calendar.ts';
+import { cardCost } from './cards.ts';
 import { layingCost } from './clutch.ts';
 import type { ActionId } from './formulas.ts';
 import {
@@ -246,6 +247,7 @@ export function judgeStep(
       period: state.at.period,
       action,
       flight: stat('flight'),
+      cost: cardCost(choiceId, data),
       ...broodInput(state, data),
     }) +
       layingCost(data, state) +

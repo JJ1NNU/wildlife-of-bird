@@ -65,6 +65,11 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
     expect(p.deathRisk).toBeCloseTo(1 - (1 - 0.0025407792) ** (1 / 6), 6);
   });
 
+  it('훈련 칸의 소비는 카드 비용 — 비행 5 · 채식 3이면 칸당 (5 − 3) ÷ 6 차이 (12-card-turn 3.1)', () => {
+    const e = (id: string) => preview(example, id, data).energyDelta[0] ?? 0;
+    expect(e('action.train.foraging') - e('action.train.flight')).toBeCloseTo(2 / 6, 9);
+  });
+
   it('칸 채우기는 판정·난수 없이 적어 두고, 마지막 칸이 루틴을 실행한다', () => {
     const filled = act(example, 'action.forage', data);
     expect(filled.log).toEqual([]);
