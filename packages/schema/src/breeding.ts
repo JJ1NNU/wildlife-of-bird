@@ -36,6 +36,10 @@ const Mate = z
     bondPerAccepted: nonneg,
     bondMax: positive,
     rBase: probability,
+    /** 더 찾아보기(2.7) 에너지 */
+    searchEnergy: nonneg,
+    /** 더 찾아볼 때마다 새 후보 잠재력 평균이 내려가는 양(2.7) */
+    searchPotentialDrop: nonneg,
   })
   .strict()
   .refine((m) => m.candidateAgeMin <= m.candidateAgeMax, {

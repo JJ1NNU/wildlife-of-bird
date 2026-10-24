@@ -36,9 +36,30 @@ export function roAfter(word: string): string {
   return jong === 0 || jong === 8 ? '로' : '으로';
 }
 
-/** 칸 단위 에너지 — 소수 첫째 자리(#206, 01-formulas 9.4). 0이면 부호 없이 */
+/** 관리 수치(에너지·깃털) 표시값 — 늘 소수 첫째 자리 (01-formulas 7.0, #648) */
+export function num1(x: number): string {
+  return roundHalfUp(x, 1).toFixed(1);
+}
+
+/** 관리 수치의 변화 — 소수 첫째, 부호 붙임. 0이면 부호 없이 `0.0` (01-formulas 7.2) */
 export function energy1(x: number): string {
   const n = roundHalfUp(x, 1);
-  if (n === 0) return '0';
+  if (n === 0) return '0.0';
   return `${n > 0 ? '+' : '-'}${Math.abs(n).toFixed(1)}`;
+}
+
+/** 변화 = 표시한 뒤 값 − 표시한 앞 값 (01-formulas 7.0) — 화면에서 "앞 + 변화 = 뒤"가 늘 맞게 */
+export function diff1(before: number, after: number): string {
+  return energy1(roundHalfUp(after, 1) - roundHalfUp(before, 1));
+}
+
+/** 스탯 표시값 — 정수 버림 (01-formulas 7.0). 등급(1.1)과 어긋나지 않게 */
+export function statInt(x: number): number {
+  return Math.floor(x);
+}
+
+/** 스탯 상승 — 버린 값끼리의 차 (01-formulas 7.3) */
+export function statGain(before: number, gain: number): string {
+  const n = statInt(before + gain) - statInt(before);
+  return n < 0 ? `-${-n}` : `+${n}`;
 }
