@@ -28,7 +28,7 @@
 |---|---|
 | 성별 | **플레이어가 고른다**(S-03, ♀ / ♂). `RunConfig.startSex`. 결정 예산(`00-core-loop` 5장)에는 넣지 않는다 — 런마다 1번 |
 | 잠재력[s] | `stats.aptitudeMean[species.aptitude[s]]` — **종 평균 그대로**. 난수 없음 |
-| 은수저 지수 | `prologue.silverSpoonIndex` **0.5** 고정(잠정 #644 — 보통 둥지의 새끼). 계승한 새끼와 같은 식에 넣는다: 시작 스탯·성장 배율 `01-formulas` 6.2, 첫해 보정 6.3 |
+| 은수저 지수 | `prologue.silverSpoonIndex` **0** 고정(잠정 #681 — 은수저는 앞 세대 육아의 보상, `13-prologue` 6.2). 계승한 새끼와 같은 식에 넣는다: 시작 스탯·성장 배율 `01-formulas` 6.2, 첫해 보정 6.3 |
 | 현재값[s] | `잠재력[s] × (silverSpoon.startStatBase + silverSpoon.startStatPerIndex × 0.5)` — 학습 보너스 0 |
 | 경험 연수 | 0 |
 | 에너지 | 지방 상한(`01-formulas` 2.1) × `energy.runStartRatio` |
