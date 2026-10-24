@@ -172,6 +172,7 @@
 </div></div>
 <ul class="note">
   <li>번식 관문 5개(짝 후보 S-20 · 둥지 자리 · 알 수 · 짝 지시 S-21 · 육아 방침 S-22)와 2차 번식은 <b>모두 이 시트 하나</b> — 머리(제목·한 줄) / <code>.opt</code> 줄 / 주 버튼 <code>gate.&lt;kind&gt;.go</code>. 줄 내용은 03·04 C 그대로.</li>
+  <li>짝 후보(S-20): 후보 줄 아래에 카드 밖 <code>.opt</code> 줄 두 개 — <b>[더 찾아보기]</b>(<code>gate.mateCandidate.searchHelp</code>, 마지막 단계면 <code>searchDisabled</code> 글로 비활성) · <b>[올해 번식 포기]</b>(<code>skipHelp</code>). 값 칸 없음. 포기는 되돌릴 수 없어 E처럼 <b>같은 시트에서 확인</b>(<code>skipConfirm.*</code>, 왼쪽 [◂ 다시 고르기]) — #677.</li>
   <li>육아 방침(항목 여러 개 × 값)은 줄 대신 항목마다 한 줄 + 오른쪽 값 버튼 묶음(지금 구현 그대로). 항목이 많아 넘치면 목록만 스크롤.</li>
   <li>번식기 판 화면: <b>둥지 띠(28)</b>를 그림 띠(C) 아래에 겹친다. 패가 많아 C가 줄어도 <b>C는 28 밑으로 안 줄인다</b>(그림만 숨고 둥지 띠는 남음) — 그만큼 E가 먼저 스크롤.</li>
 </ul>
