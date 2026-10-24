@@ -308,6 +308,25 @@ describe('루틴에 연결 — 칸마다 추첨 · 이벤트로 멈춤 · 다시
     ]);
   });
 
+  it('선택지 줄 success — 판정형만 싣는다 (#682)', () => {
+    const checked: GameEvent = {
+      ...ev,
+      options: [
+        { id: 'fixed', text: '고정', effects: [] },
+        {
+          id: 'check',
+          text: '판정',
+          check: { stat: 'vigilance', difficulty: 'medium' },
+          onSuccess: [],
+          onFail: [],
+        },
+      ],
+    };
+    const d: GameData = { ...data, events: [checked] };
+    expect(act(s, 'event.fixed', d).log[0]).not.toHaveProperty('success');
+    expect(typeof act(s, 'event.check', d).log[0]?.success).toBe('boolean');
+  });
+
   it('칸 이벤트로 injury small(2) → 그 단계 끝에는 줄지 않고 다음 두 단계 뒤 낫는다 (03-events 6.1 v0.1.2)', () => {
     const hurt: GameEvent = {
       ...ev,
