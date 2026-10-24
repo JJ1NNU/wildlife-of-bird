@@ -22,6 +22,7 @@ import {
   roundHalfUp,
   type SeasonPolicyCard,
   type SecondBroodCard,
+  type ViewModel,
 } from '@wb/engine';
 import type { GameData, Season, StatName } from '@wb/schema';
 import { type ReactNode, useEffect, useState } from 'react';
@@ -297,8 +298,44 @@ function policyText(text: string): string {
   });
 }
 
-function logLine(l: LogEntry, data: GameData): string {
-  const d = deltaText(l.deltas);
+/** 「지난 일」 줄마다 앞 값 — 지금 상태에서 기록을 거꾸로 되짚는다 (01-formulas 7.0, #657).
+ * `decision`·`replan`은 뒤 `slot` 줄들의 합이라 커서를 옮기지 않고, 계승을 넘으면 앞 값이 없다(변화량 그대로).
+ * 잠정(#700): 이벤트 선택 결과 등 `deltas` 없는 변화가 있으면 그보다 앞 줄은 조금 어긋날 수 있다 */
+function logBefores(log: readonly LogEntry[], now: Before): (Before | undefined)[] {
+  const out: (Before | undefined)[] = [];
+  let cur: Before | undefined = {
+    energy: now.energy,
+    feather: now.feather,
+    stats: { ...now.stats },
+  };
+  for (let i = log.length - 1; i >= 0; i--) {
+    const l = log[i] as LogEntry;
+    if (l.type === 'inheritance') cur = undefined;
+    out[i] = cur;
+    if (!cur || !l.deltas || l.type === 'decision' || l.type === 'replan') continue;
+    const d = l.deltas;
+    const stats = { ...cur.stats };
+    for (const [k, x] of Object.entries(d))
+      if (k.startsWith('stat.')) {
+        const stat = k.slice('stat.'.length) as StatName;
+        stats[stat] = (stats[stat] ?? 0) - x;
+      }
+    cur = { energy: cur.energy - (d.energy ?? 0), feather: cur.feather - (d.feather ?? 0), stats };
+    out[i] = cur;
+  }
+  return out;
+}
+
+/** 「지난 일」 목록 — 새것 먼저 */
+function feedLines(view: ViewModel, data: GameData): [string, string][] {
+  const befores = logBefores(view.recentLog, view.player);
+  return withLogKeys(view.recentLog)
+    .map(([k, l], i): [string, string] => [k, logLine(l, data, befores[i])])
+    .reverse();
+}
+
+function logLine(l: LogEntry, data: GameData, before?: Before): string {
+  const d = deltaText(l.deltas, before);
   const where = `${periodLabel(l.at).text} ${t('main.step', { n: l.at.step })}${l.slot ? ` ${t('routine.slot', { n: l.slot })}` : ''}`;
   return `${where}: ${logText(l, data)}${d ? `, ${d}` : ''}`;
 }
@@ -1652,11 +1689,9 @@ export function Game({ data }: { data: GameData }) {
               </div>
               <div className="body">
                 <ul className="feed-list">
-                  {withLogKeys(view.recentLog)
-                    .reverse()
-                    .map(([k, l]) => (
-                      <li key={k}>{logLine(l, data)}</li>
-                    ))}
+                  {feedLines(view, data).map(([k, line]) => (
+                    <li key={k}>{line}</li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -1721,11 +1756,9 @@ export function Game({ data }: { data: GameData }) {
           {menu === 'feed' && (
             <section className="feed" aria-label={t('main.feed')} data-testid="menu-feed-list">
               <ul className="feed-list">
-                {withLogKeys(view.recentLog)
-                  .reverse()
-                  .map(([k, l]) => (
-                    <li key={k}>{logLine(l, data)}</li>
-                  ))}
+                {feedLines(view, data).map(([k, line]) => (
+                  <li key={k}>{line}</li>
+                ))}
               </ul>
               {SHOW_FAST_FORWARD && (
                 <div className="dev small">
