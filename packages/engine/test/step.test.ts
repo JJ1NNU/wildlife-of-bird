@@ -53,13 +53,13 @@ const example: RunState = {
 describe('런 시작 개체 · 프롤로그 (13-prologue)', () => {
   const run = newRun({ speciesId: 'parus-minor', seed: 'prologue', mode: 'free' }, fullData);
 
-  it('period 10·나이 0, 잠재력은 종 평균, 현재값은 은수저 0.5의 시작 스탯(× 0.35), 에너지·깃털은 시작값', () => {
+  it('period 10·나이 0, 잠재력은 종 평균, 현재값은 은수저 0의 시작 스탯(× 0.2, 13-prologue 6.2), 에너지·깃털은 시작값', () => {
     const p = run.player;
     expect(run.at).toEqual({ year: 1, period: 10, step: 1 });
-    expect([p.age, p.expYears, p.silverSpoon]).toEqual([0, 0, 0.5]);
+    expect([p.age, p.expYears, p.silverSpoon]).toEqual([0, 0, 0]);
     expect(p.potential.foraging).toBe(70);
-    expect(p.stats.flight).toBeCloseTo(16.1, 9);
-    expect(p.stats.foraging).toBeCloseTo(24.5, 9);
+    expect(p.stats.flight).toBeCloseTo(9.2, 9);
+    expect(p.stats.foraging).toBeCloseTo(14, 9);
     expect(p.energy).toBeCloseTo(fatCap(fullData.formulas, p.stats.stamina ?? 0), 9);
     expect(p.feather).toBe(80);
   });
@@ -145,7 +145,7 @@ describe('칸 하나의 판정 (00-core-loop 3.1, 01-formulas 9.4)', () => {
         'action.explore',
         onlyCard(data, 'explore'),
       ).statGains?.vigilance ?? 0;
-    const plain = gainAt({});
+    const plain = gainAt({ age: 2 }); // growthUntilAge 넘음 → 배율 1
     // 은수저 지수 1 → 0.8 + 0.4 × 1 = 1.2
     expect(gainAt({ silverSpoon: 1, age: 1 })).toBeCloseTo(plain * 1.2, 9);
     expect(gainAt({ silverSpoon: 1, age: 2 })).toBeCloseTo(plain, 9);
