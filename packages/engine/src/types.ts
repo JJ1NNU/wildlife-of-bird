@@ -92,6 +92,8 @@ export interface LogEntry {
   slot?: number;
   /** 이벤트 로그면 이벤트 id */
   event?: string;
+  /** 이벤트 선택지 줄이면 판정 성공 여부 — 판정형 선택지일 때만 (#682) */
+  success?: boolean;
   /** 조작이 끝난 개체의 생애 기록 — 계승(`inheritance`)·사망(`death`) 로그에만 (05-inheritance 8장) */
   life?: LifeRecord;
 }

@@ -189,6 +189,8 @@ interface ViewModel {
 interface LogEntry {
   // ...기존 필드
   slot?: number                  // 칸 판정 로그면 그 단계의 몇째 칸(1부터)
+  event?: string                 // 이벤트 로그면 이벤트 id
+  success?: boolean              // 이벤트 선택지 줄 — 판정형 선택지일 때만 판정 성공 여부(#682)
 }
 ```
 
